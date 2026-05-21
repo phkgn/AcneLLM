@@ -64,6 +64,7 @@ class NormalizedAcneCase(BaseModel):
     hormonal_factors: list[str] = Field(default_factory=list)
     skincare_products: list[str] = Field(default_factory=list)
     treatment_goals: list[str] = Field(default_factory=list)
+    allergies: list[str] = Field(default_factory=list)
     red_flags: list[str] = Field(default_factory=list)
     missing_info: list[str] = Field(default_factory=list)
 
@@ -72,6 +73,7 @@ class ClinicalRagQueries(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query_vi: str = ""
+    # M9: English query for bilingual RAG when language_switch detected
     query_en: str = ""
 
 

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from loguru import logger
-from ...schemas.kb import DocumentRaw, SourceMeta
+from ...schemas.kb import DocumentRaw, SourceMeta, infer_source_type
 
 clog = logger.opt(colors=True)
 from ...utils.hashing import doc_id_for
@@ -328,6 +328,13 @@ class GenericHtmlSource:
             html_len=len(html), text_len=len(text),
             source=SourceMeta(
                 domain=domain, source_name=self.name,
+                source_type=self.cfg.get("source_type") or infer_source_type(
+                    source_name=self.name,
+                    domain=domain,
+                    url=url,
+                    tags=self.cfg.get("tags", []),
+                    categories=self.cfg.get("categories", []),
+                ),
                 trust_level=self.cfg.get("trust_level", "medium"),
                 language=self.lang,
                 crawled_at=datetime.now(timezone.utc),

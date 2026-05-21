@@ -38,7 +38,6 @@ class UserContext(BaseModel):
     medications: list[str] = Field(default_factory=list)
     duration_weeks: Optional[int] = None
 
-
 class AcneClinicalInput(BaseModel):
     """Optional structured acne intake data.
 

@@ -1,0 +1,272 @@
+# ============================================================
+# drugs_acne.yaml -- Database thuoc lien quan dieu tri mun
+# Primary source cho DrugChecker (fallback: OpenFDA API)
+#
+# pregnancy_category: A/B/C/D/X/N (N = chua phan loai)
+# contraindications: list dieu kien tuyet doi khong dung
+# interactions: list thuoc tuong tac dang chu y
+# warnings_vi: canh bao bang tieng Viet hien cho user
+# ============================================================
+
+drugs:
+  # ── Retinoids (Vitamin A derivatives) ─────────────────────
+  - names: [isotretinoin, accutane, roaccutane, oratane]
+    category: retinoid_oral
+    pregnancy_category: X
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - age_under_12
+    interactions:
+      - tetracycline
+      - doxycycline
+      - minocycline
+      - vitamin_a_supplements
+      - st_john_wort
+    warnings_vi: >
+      CANH BAO: Isotretinoin TUYET DOI KHONG DUNG khi mang thai (gay di tat
+      thai nhi nghiem trong). Can thu thai hieu qua trong va sau 1 thang ngung
+      thuoc. Khong dung cung voi khang sinh nhom tetracycline (nguy co tang ap
+      luc noi so). Kiem tra chuc nang gan va mo mau dinh ky.
+
+  - names: [tretinoin, retin-a, retin a, atralin]
+    category: retinoid_topical
+    pregnancy_category: C
+    contraindications:
+      - pregnant
+      - breastfeeding
+    interactions: []
+    warnings_vi: >
+      Tretinoin boi ngoai da: tranh dung khi mang thai (du lieu con han che,
+      nhung nen than trong). Co the gay kich ung da, do da, bong trang da trong
+      thoi gian dau. Bat dau voi tan suat thap (2-3 lan/tuan) roi tang dan.
+
+  - names: [adapalene, differin]
+    category: retinoid_topical
+    pregnancy_category: C
+    contraindications:
+      - pregnant
+    interactions: []
+    warnings_vi: >
+      Adapalene: sach han voi da nhay cam hon tretinoin. Tranh dung khi mang
+      thai. Co the gay kho da va bong da. Dung buoi toi va ket hop kem chong nang.
+
+  - names: [tazarotene, tazorac, zorac]
+    category: retinoid_topical
+    pregnancy_category: X
+    contraindications:
+      - pregnant
+      - breastfeeding
+    interactions: []
+    warnings_vi: >
+      Tazarotene: retinoid boi ngoai manh nhat, TUYET DOI tranh dung khi mang
+      thai hoac co ke hoach mang thai. Kich ung da cao hon adapalene/tretinoin.
+
+  - names: [retinol, retinal, retinaldehyde]
+    category: retinoid_otc
+    pregnancy_category: N
+    contraindications:
+      - pregnant
+    interactions: []
+    warnings_vi: >
+      Retinol OTC: nen tranh khi mang thai de an toan (du day la dang yeu hon
+      thuoc ke don). Dung buoi toi, bo qua trong thoi gian mang thai.
+
+  # ── Oral antibiotics ───────────────────────────────────────
+  - names: [doxycycline, vibramycin, oracea]
+    category: antibiotic_oral
+    pregnancy_category: D
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - age_under_8
+    interactions:
+      - isotretinoin
+      - antacids_calcium
+      - iron_supplements
+      - warfarin
+      - oral_contraceptives
+    warnings_vi: >
+      Doxycycline: KHONG DUNG khi mang thai (anh huong xuong rang thai nhi)
+      va tre duoi 8 tuoi. Uong nhieu nuoc, khong nam ngay sau uong. Tranh anh
+      nang manh (tang nhay cam voi anh nang). Khong dung cung isotretinoin
+      (nguy co tang ap luc noi so).
+
+  - names: [minocycline, minocin, dynacin, solodyn]
+    category: antibiotic_oral
+    pregnancy_category: D
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - age_under_8
+    interactions:
+      - isotretinoin
+      - antacids
+      - iron_supplements
+      - warfarin
+    warnings_vi: >
+      Minocycline: KHONG DUNG khi mang thai va tre duoi 8 tuoi. Co the gay
+      chong mat va buon non. Su dung lau dai co nguy co lam sam da. Khong dung
+      cung isotretinoin.
+
+  - names: [tetracycline]
+    category: antibiotic_oral
+    pregnancy_category: D
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - age_under_8
+    interactions:
+      - isotretinoin
+      - antacids
+      - dairy_products
+      - iron_supplements
+    warnings_vi: >
+      Tetracycline: KHONG DUNG khi mang thai va tre duoi 8 tuoi. Uong luc bung
+      doi, tranh sua va che pham tu sua 2 gio truoc/sau uong thuoc.
+
+  - names: [lymecycline, tetralysal]
+    category: antibiotic_oral
+    pregnancy_category: D
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - age_under_12
+    interactions:
+      - isotretinoin
+      - antacids
+    warnings_vi: >
+      Lymecycline: tuong tu doxycycline. KHONG DUNG khi mang thai.
+
+  - names: [trimethoprim, bactrim, septrin]
+    category: antibiotic_oral
+    pregnancy_category: C
+    contraindications:
+      - pregnant_first_trimester
+      - pregnant_third_trimester
+      - breastfeeding
+    interactions:
+      - warfarin
+      - methotrexate
+    warnings_vi: >
+      Trimethoprim: than trong khi mang thai (dac biet 3 thang dau va cuoi).
+      Thong bao bac si neu mang thai hoac co ke hoach mang thai.
+
+  # ── Topical antibiotics ────────────────────────────────────
+  - names: [clindamycin, cleocin-t, dalacin-t]
+    category: antibiotic_topical
+    pregnancy_category: B
+    contraindications: []
+    interactions:
+      - erythromycin_topical
+    warnings_vi: >
+      Clindamycin boi ngoai: tuong doi an toan. Khong ket hop voi erythromycin
+      boi ngoai (doi khang tac dung). Dung deu dan 2 lan/ngay.
+
+  - names: [erythromycin topical, eryacne, erygel]
+    category: antibiotic_topical
+    pregnancy_category: B
+    contraindications: []
+    interactions:
+      - clindamycin_topical
+    warnings_vi: >
+      Erythromycin boi ngoai: an toan khi mang thai. Khong ket hop voi
+      clindamycin boi ngoai.
+
+  # ── Benzoyl peroxide ───────────────────────────────────────
+  - names: [benzoyl peroxide, benzac, panoxyl, brevoxyl, bpo]
+    category: benzoyl_peroxide
+    pregnancy_category: C
+    contraindications: []
+    interactions:
+      - tretinoin_topical
+    warnings_vi: >
+      Benzoyl peroxide: thuong dung sang, retinoid dung toi (khong dung cung
+      luc vi BPO oxy hoa retinoid giam hieu qua). Co the gay kho da va tay mau
+      vai, khan. Bat dau voi nong do thap (2.5%).
+
+  # ── Hormonal treatments ────────────────────────────────────
+  - names: [spironolactone, aldactone]
+    category: hormonal_antiandrogen
+    pregnancy_category: D
+    contraindications:
+      - pregnant
+      - male_patient_acne_use
+    interactions:
+      - potassium_supplements
+      - ace_inhibitors
+      - arbs
+      - nsaids
+    warnings_vi: >
+      Spironolactone: KHONG DUNG khi mang thai (co the anh huong phat trien
+      gioi tinh thai nhi nam). Thu thai trong khi dung thuoc. Theo doi kali
+      mau dinh ky. Thuong chi dung cho nu gioi dieu tri mun noi tiet.
+
+  - names: [cyproterone acetate, diane-35, dianette]
+    category: hormonal_combined_pill
+    pregnancy_category: X
+    contraindications:
+      - pregnant
+      - breastfeeding
+      - smoker_over_35
+      - history_thrombosis
+    interactions:
+      - rifampicin
+      - anticonvulsants
+    warnings_vi: >
+      Cyproterone / Diane-35: TUYET DOI khong dung khi mang thai. Nguy co
+      huyet khoi cao hon vien tranh thai thuong. Khong danh cho nu hut thuoc
+      tren 35 tuoi. Can kham phu khoa truoc khi su dung.
+
+  # ── Other topicals ─────────────────────────────────────────
+  - names: [azelaic acid, finacea, skinoren, aziderm]
+    category: azelaic_acid
+    pregnancy_category: B
+    contraindications: []
+    interactions: []
+    warnings_vi: >
+      Azelaic acid: an toan khi mang thai (category B). Co the dung thay the
+      retinoid trong thoi gian mang thai. Hieu qua voi mun viem va PIH.
+
+  - names: [salicylic acid, bha]
+    category: salicylic_acid
+    pregnancy_category: C
+    contraindications:
+      - pregnant_high_concentration
+    interactions: []
+    warnings_vi: >
+      Salicylic acid nong do thap (<=2%) trong my pham: thuong duoc coi la an
+      toan khi mang thai. Nong do cao hon (thuoc ke don) nen tranh. Khong dung
+      tren dien tich rong khi mang thai.
+
+  - names: [dapsone, aczone]
+    category: dapsone_topical
+    pregnancy_category: C
+    contraindications: []
+    interactions:
+      - benzoyl_peroxide
+    warnings_vi: >
+      Dapsone gel: khong dung cung BPO (tao mau cam-nau tren da, vo hai nhung
+      mat tham my). Dung buoi sang (BPO dung toi neu can phoi hop).
+
+  - names: [niacinamide, nicotinamide]
+    category: niacinamide
+    pregnancy_category: A
+    contraindications: []
+    interactions: []
+    warnings_vi: >
+      Niacinamide: an toan cho moi doi tuong ke ca phu nu mang thai. Co the
+      dung ket hop voi hau het cac hoat chat khac. Hieu qua giam mun dau trang,
+      PIH va dieu tiet dau nhon.
+
+  - names: [zinc, kem kem, ke m kem, zinc gluconate, zinc acetate]
+    category: zinc
+    pregnancy_category: A
+    contraindications: []
+    interactions:
+      - tetracycline
+      - doxycycline
+      - iron_supplements
+    warnings_vi: >
+      Ke m (zinc): an toan, nhung uong cung luc voi tetracycline/doxycycline se
+      lam giam hap thu khang sinh. Nen uong cach nhau it nhat 2 gio.

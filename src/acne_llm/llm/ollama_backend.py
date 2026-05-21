@@ -13,12 +13,16 @@ class OllamaBackend:
                  fallback_model: str | None = None,
                  num_ctx: int = 8192, timeout: float = 180.0,
                  health_timeout: float = 5.0,
-                 num_predict: int = 2048):
+                 num_predict: int = 1024,
+                 use_modelfile_system: bool = False):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.fallback_model = fallback_model
         self.num_ctx = num_ctx
         self.num_predict = num_predict
+        # Khi True: không gửi system message qua API — để Modelfile SYSTEM tự xử lý.
+        # Dùng khi model đã được fine-tune với system prompt nhúng sẵn trong Modelfile.
+        self.use_modelfile_system = use_modelfile_system
         self._client = httpx.Client(base_url=self.base_url, timeout=timeout)
         self._health_client = httpx.Client(base_url=self.base_url, timeout=health_timeout)
 
@@ -107,14 +111,26 @@ class OllamaBackend:
         except Exception:
             return []
 
+    def _build_messages(self, system: str, user: str) -> list[dict]:
+        """Build messages list.
+
+        Khi use_modelfile_system=True, bỏ qua system message được truyền vào —
+        Modelfile SYSTEM sẽ tự inject. Điều này tránh việc 2 system prompt
+        chồng lên nhau gây confuse model fine-tune.
+        """
+        if self.use_modelfile_system:
+            return [{"role": "user", "content": user}]
+        msgs: list[dict] = []
+        if system:
+            msgs.append({"role": "system", "content": system})
+        msgs.append({"role": "user", "content": user})
+        return msgs
+
     def generate_json(self, system: str, user: str, schema: dict,
                       temperature: float = 0.3) -> str:
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            "messages": self._build_messages(system, user),
             "format": schema,
             "options": {
                 "temperature": temperature,
@@ -130,10 +146,7 @@ class OllamaBackend:
                       temperature: float = 0.3) -> str:
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            "messages": self._build_messages(system, user),
             "options": {
                 "temperature": temperature,
                 "num_ctx": self.num_ctx,
@@ -145,18 +158,17 @@ class OllamaBackend:
         return self._chat(payload)["message"]["content"]
 
     def stream_text(self, system: str, user: str,
-                    temperature: float = 0.3) -> Iterator[str]:
+                    temperature: float = 0.3,
+                    num_predict: int | None = None) -> Iterator[str]:
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            "messages": self._build_messages(system, user),
             "options": {
                 "temperature": temperature,
                 "num_ctx": self.num_ctx,
                 "top_p": 0.9,
-                "num_predict": self.num_predict,
+                # -1 = no hard cap, model stops when done naturally
+                "num_predict": num_predict if num_predict is not None else self.num_predict,
             },
             "stream": True,
         }

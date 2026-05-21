@@ -29,8 +29,8 @@ Quy tắc:
 - Chuẩn hóa loại tổn thương về enum: comedone, whitehead, blackhead, closed_comedone, papule, pustule, nodule, cyst, scar, post_inflammatory_hyperpigmentation, other.
 - Chuẩn hóa phân bố về enum: forehead, cheeks, chin, jawline, nose, around_mouth, back, chest, shoulders, neck, t_zone, other.
 - `inflammation_level`: none/mild/moderate/severe/unknown theo mô tả, nhưng nếu không đủ thông tin thì dùng unknown.
-- Sinh `rag_queries.query_vi` và `rag_queries.query_en` là truy vấn y khoa ngắn, tập trung vào guideline acne.
+- Sinh `rag_queries.query_vi` là truy vấn y khoa ngắn, có thể code-switch VI/EN inline để khớp guideline acne.
 - Nếu thiếu loại tổn thương/vị trí/thời gian, query phải ưu tiên đánh giá ban đầu, hỏi thêm, red flags, khi nào khám bác sĩ; không truy hồi phác đồ điều trị cụ thể.
-- Giữ nguyên các yếu tố an toàn: mang thai, cho con bú, trẻ nhỏ, dị ứng, thuốc đang dùng, isotretinoin, retinoid, tetracycline, kháng sinh.
-- `planner_confidence` phải bảo thủ.
+- Giữ nguyên các yếu tố an toàn: mang thai, cho con bú, trẻ nhỏ, dị ứng, thuốc đang dùng, isotretinoin, retinoid, retinol, tazarotene, tetracycline, kháng sinh.
+- `planner_confidence` phải là số thập phân từ 0.0 đến 1.0, bảo thủ; không dùng thang điểm 1-5, 1-10 hoặc phần trăm.
 </task>

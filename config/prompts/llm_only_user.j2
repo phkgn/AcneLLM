@@ -4,68 +4,59 @@
 <context>
 - Tuổi: {{ age if age is not none else "không rõ" }}
 - Loại da: {{ skin_type or "không rõ" }}
-- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
-- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
+- Đang mang thai: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_pregnant else "không" }}
+- Đang cho con bú: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_breastfeeding else "không" }}
 - Dị ứng: {{ allergies }}
-- Sản phẩm đang dùng: {{ current_products }}
 - Thuốc đang dùng: {{ medications }}
-- Thờii gian bị: {{ duration_weeks if duration_weeks is not none else "không rõ" }} tuần
 </context>
 
 <vision>{{ vision_summary }}</vision>
 
-<clinical>{{ clinical_summary }}</clinical>
+{% if completeness_hint %}
+<!-- HƯỚNG DẪN: {{ completeness_hint }} -->
+{% endif %}
 
-<normalized_case_plan>{{ clinical_plan }}</normalized_case_plan>
-
-<context_status>
-Không có ngữ cảnh RAG. Không có nguồn trích dẫn ngoài dữ liệu ngườii dùng.
-Hệ thống đang chạy ở chế độ tri thức nội tại — chỉ được phép đưa ra thông tin phổ quát, rủi ro thấp, định hướng chung.
-</context_status>
+{% if history_block %}
+<conversation_history>
+{{ history_block }}
+</conversation_history>
+{% endif %}
 </user_data>
 
 <task>
 Trả về **duy nhất JSON đúng schema `AdviseOutput`**.
 
-### Quy tắc làm việc trong chế độ `llm_only` (bắt buộc)
+### Quy tắc làm việc (chế độ không có RAG)
 
-1. **Phạm vi trả lờii bị giới hạn nghiêm ngặt**:
-   - Chỉ được trả lờii các nội dung **cơ bản, rủi ro thấp, mang tính định hướng chung** về da mụn.
-   - Các chủ đề được phép: vệ sinh da cơ bản, chế độ ăn uống/lối sống liên quan đến mụn, cách nhận biết dấu hiệu cần gặp bác sĩ, phân loại mụn đơn giản (comedone, viêm, nang).
-   - Các chủ đề **CẤM**: cơ chế sinh học sâu (ribotype, phylotype, strain, virulence factors, TLR2, NLRP3, IL-1β, Th17, microbiome chi tiết), so sánh hiệu quả giữa các phác đồ điều trị, tư vấn thuốc kê đơn cụ thể, hướng dẫn liều lượng, thờii gian điều trị.
+1. **Phạm vi**: Chỉ trả lời về da mụn. Câu hỏi ngoài phạm vi → trả JSON từ chối.
 
-2. **Nếu câu hỏi cần bằng chứng cụ thể** (strain-specific, cơ chế sâu, so sánh hiệu quả chi tiết, y lệnh cá thể hóa):
-   - Trả lờii theo hướng `unknown` / "chưa đủ thông tin trong chế độ hiện tại".
-   - Không suy diễn từ kiến thức chung sang kết luận cụ thể.
+2. **Dùng kiến thức y khoa nền**: Trong chế độ này không có KB, được phép dùng kiến thức y khoa phổ quát về da liễu và mụn trứng cá để trả lời. Confidence phản ánh mức độ chắc chắn thực sự của câu trả lời dựa trên dữ kiện — không bị giới hạn cứng.
 
-3. **Nếu dữ kiện đầu vào quá ít để kết luận**:
-   - Dùng `unknown`.
-   - Để `recommendations=[]` hoặc chỉ giữ các gợi ý cực kỳ an toàn và chung (ví dụ: "Rửa mặt dịu nhàng", "Tránh chạm tay lên mặt").
-   - Dựa vào `<normalized_case_plan>` để biết trường nào còn thiếu; không tự lấp dữ kiện thiếu.
+3. **Nếu dữ kiện đầu vào quá ít**:
+   - Dùng `"unknown"` cho severity nếu không có đủ thông tin.
+   - Để `recommendations` chỉ gồm gợi ý an toàn và phổ quát.
+   - Dựa vào `<description>` và `<context>` để suy luận; nếu vẫn thiếu, set `confidence` thấp và gợi ý hỏi thêm trong `disclaimer`.
 
-### Ràng buộc an toàn y tế chi tiết
+4. **Nếu có route guidance** (trong biến `route_metadata`): Áp dụng guidance đó vào cách trả lời, không lộ tên flag nội bộ.
 
-- **Không kê liều lượng, tần suất, thờii gian dùng thuốc**.
+### Ràng buộc an toàn y tế
+
+- **Không kê liều lượng, tần suất, thời gian dùng thuốc**.
 - **Không khuyên tự nặn mụn, tự chích, tự lăn kim, tự đắp mặt nạ pha chế tại nhà**.
-- **Không khẳng định đây là chẩn đoán**. Luôn dùng ngôn ngữ gợi ý.
-- **Về thuốc/thành phần điều trị**: Trong chế độ này, chỉ được phép đề cập đến các hoạt chất thông dụng ngoài quầy (OTC) như BHA (salicylic acid), AHA, benzoyl peroxide, niacinamide, azelaic acid — và chỉ ở mức "có thể tham khảo", **không kê nồng độ, liều dùng, tần suất**. Tuyệt đối không đề cập đến thuốc kê đơn (kháng sinh uống, retinoid, isotretinoin, v.v.).
-- **Nếu mang thai hoặc cho con bú**: Không khuyến nghị retinoid, isotretinoin, tretinoin, adapalene, retinol, tazarotene, doxycycline, minocycline, tetracycline và dẫn xuất vitamin A liều cao.
+- **Không khẳng định đây là chẩn đoán**. Dùng ngôn ngữ gợi ý ("có thể", "gợi ý", "cần xem thêm").
+- **Thuốc/hoạt chất OTC**: Được phép đề cập BHA (salicylic acid), AHA, benzoyl peroxide, niacinamide, azelaic acid ở mức "có thể tham khảo" — không kê nồng độ, liều dùng.
+- **Không đề cập thuốc kê đơn** (kháng sinh uống, retinoid, isotretinoin, v.v.) như khuyến nghị trực tiếp.
+- **Nếu mang thai hoặc cho con bú**: Không khuyến nghị retinoid, isotretinoin, tretinoin, adapalene, retinol, tazarotene, doxycycline, minocycline, tetracycline.
 - **Nếu `severity="severe"` hoặc có dấu hiệu nguy cơ**: Phải có khuyến nghị gặp bác sĩ da liễu.
-- **Nếu `age < 12`**: Phải có khuyến nghị gặp bác sĩ da liễu nhi hoặc bác sĩ nhi khoa. Không khuyến nghị thuốc điều trị mụn cho trẻ nhỏ.
-- **Nếu có dị ứng hoặc thuốc đang dùng**: Tránh gợi ý trùng dị ứng; nếu có khuyến nghị thuốc/thành phần bôi ngoài, phải thêm cảnh báo tương tác/dị ứng chéo.
+- **Nếu `age < 12`**: Phải khuyến nghị bác sĩ da liễu nhi hoặc bác sĩ nhi khoa.
+- **Nếu có dị ứng hoặc thuốc đang dùng**: Tránh gợi ý trùng dị ứng; nếu có khuyến nghị hoạt chất, thêm cảnh báo tương tác.
 
-### Luật dành riêng cho câu hỏi sâu
+### Format output
 
-- Nếu câu hỏi chạm tới ribotype, phylotype, strain, virulence factors, TLR2, NLRP3, IL-1β, Th17, microbiome hoặc các cơ chế miễn dịch chi tiết:
-  - Mặc định trả lờii bảo thủ rằng chưa đủ thông tin trong chế độ hiện tại.
-  - Không tự dùng kiến thức nền để viết câu trả lờii dài.
-
-### Luật độ gọn & format đặc biệt cho llm_only
-
-- `causes`: tối đa 3 ý ngắn, không suy diễn.
-- `recommendations`: tối đa 3 bước ngắn, chỉ bao gồm các gợi ý an toàn, cơ bản.
-- `disclaimer`: 1-2 câu ngắn, bắt buộc bằng tiếng Việt, nhấn mạnh thiếu dữ liệu chuyên sâu.
+- `causes`: tối đa 4 ý ngắn, không suy diễn quá mức.
+- `recommendations`: tối đa 4 bước ngắn; chỉ gợi ý an toàn và có cơ sở y khoa.
+- `disclaimer`: 1-2 câu ngắn, tiếng Việt.
 - `used_chunks=[]`.
-- `source_chunk_id=null` cho mọi khuyến nghị trong chế độ này.
-- `confidence` giữ thấp, thường `<= 0.4`.
+- `source_chunk_id=null` cho mọi khuyến nghị.
+- `confidence`: phản ánh mức độ chắc chắn thực sự (0.0–0.9 theo hướng dẫn system prompt).
 </task>

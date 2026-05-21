@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcneLLM — Pipeline Workflow</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #6c8ef5;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --pink: #f472b6;
+    --cyan: #22d3ee;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --tag-bg: #1e2440;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1d27 0%, #16192a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  header .logo {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #6c8ef5, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  header .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  header .badge {
+    margin-left: auto;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Main pipeline ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+  .pipeline-line {
+    position: absolute;
+    left: 23px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent) 0%, var(--accent2) 100%);
+    opacity: 0.3;
+    z-index: 0;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .step-num {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+    border: 2px solid;
+    background: var(--bg);
+  }
+  .step-body {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 0;
+    transition: border-color 0.2s;
+  }
+  .step-body:hover {
+    border-color: var(--accent);
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .step-name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .step-file {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+  }
+  .step-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .step-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .tag {
+    font-size: 11px;
+    border-radius: 5px;
+    padding: 2px 9px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tag-new { background: #1a3a2a; color: #4ade80; border: 1px solid #22543d; }
+  .tag-changed { background: #2a2210; color: #fbbf24; border: 1px solid #78350f; }
+  .tag-flag { background: #1e1a35; color: #a78bfa; border: 1px solid #4c1d95; }
+  .tag-info { background: #0f2233; color: #7dd3fc; border: 1px solid #075985; }
+
+  /* connector arrow */
+  .connector {
+    display: flex;
+    align-items: center;
+    padding-left: 23px;
+    height: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .connector-arrow {
+    width: 2px;
+    height: 20px;
+    background: var(--border);
+    margin-left: 0;
+  }
+
+  /* ── Branch boxes ── */
+  .branch-container {
+    margin-left: 62px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .branch-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  .branch-box .branch-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .branch-box .branch-body {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* ── Flags grid ── */
+  .flags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .flag-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .flag-card .flag-name {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .flag-card .flag-effect {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .flag-card .flag-trigger {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ── Changes summary ── */
+  .changes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .change-card {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+  }
+  .change-card.new { border-left-color: var(--green); }
+  .change-card.changed { border-left-color: var(--yellow); }
+  .change-card.fixed { border-left-color: var(--cyan); }
+  .change-card .change-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .change-card .change-file {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .change-card .change-desc {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── SSE events ── */
+  .sse-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .sse-event {
+    font-family: monospace;
+    font-size: 12px;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 10px;
+    white-space: nowrap;
+    min-width: 110px;
+    text-align: center;
+  }
+  .sse-desc {
+    font-size: 12px;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">AcneLLM</div>
+    <div class="subtitle">Vietnamese Acne Advisory Chatbot — Pipeline Architecture</div>
+  </div>
+  <div class="badge">Session 2026-05-14 · M1–M9 + Bugfix</div>
+</header>
+
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 1: LEGEND
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">Chú giải</div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div> Mới thêm (session này)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Thay đổi / cải tiến</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22d3ee"></div> Bugfix</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6c8ef5"></div> Giữ nguyên / core</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Route flag</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 2: MAIN PIPELINE
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">Chat Stream Pipeline — /api/v1/chat/stream</div>
+
+  <div class="pipeline">
+    <div class="pipeline-line"></div>
+
+    <!-- STEP 0: Client -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">→</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Client Request</div>
+          <span class="step-file">GET /api/v1/chat/stream</span>
+        </div>
+        <div class="step-desc">Query params: <code>message</code>, <code>session_id</code>, <code>mode=auto</code>, <code>temperature</code></div>
+        <div class="step-details">
+          <span class="tag tag-info">SSE EventSource</span>
+          <span class="tag tag-info">RateLimitMiddleware</span>
+          <span class="tag tag-info">APIKeyMiddleware</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 1: Preprocess -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">1</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Preprocess</div>
+          <span class="step-file">chat/preprocess.py</span>
+        </div>
+        <div class="step-desc">NFC normalize, bỏ zero-width chars, collapse whitespace.</div>
+        <div class="step-details">
+          <span class="tag tag-info">preprocess_user_text()</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 2: Normalize -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">2</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Normalize Chat Message</div>
+          <span class="step-file">chat/normalizer.py</span>
+        </div>
+        <div class="step-desc">Rule-based regex extract: age, sex, skin_type, lesion_types (11 loại), distribution (12 vùng), inflammation_level, medications, products, hormonal_factors, allergies, red_flags.</div>
+        <div class="step-details">
+          <span class="tag tag-changed">Dead code removed (76 dòng)</span>
+          <span class="tag tag-info">→ UserInput</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 3: Session History -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">3</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Load Session History</div>
+          <span class="step-file">chat/session.py · db/jsonl_session_store.py</span>
+        </div>
+        <div class="step-desc">Load JSONL history, fold_history_facts() merge prior snapshots vào UserInput (first-write-wins cho age/sex; union cho products/medications với stop-word removal).</div>
+        <div class="step-details">
+          <span class="tag tag-new">ConversationTurn.intent_label</span>
+          <span class="tag tag-new">ConversationTurn.intent_confidence</span>
+          <span class="tag tag-new">ConversationTurn.turn_type</span>
+          <span class="tag tag-new">Session.accumulated_clinical_score</span>
+          <span class="tag tag-new">Session.total_clarify_count</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 4: Guardrails Pre-check -->
+    <div class="step">
+      <div class="step-num" style="color:#f87171;border-color:#f87171">4</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Guardrails Pre-check</div>
+          <span class="step-file">guardrails/runner.py</span>
+        </div>
+        <div class="step-desc">Injection detection (80+ phrases VI+EN+teencode), PII log/mask, genital scope check (hard refuse), OOD scope check (soft/hard/off mode).</div>
+        <div class="step-details">
+          <span class="tag tag-changed">trigger_count increment (bugfix #5)</span>
+          <span class="tag tag-info">→ scope_refusal nếu vi phạm</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 5: Intent Router -->
+    <div class="step">
+      <div class="step-num" style="color:#a78bfa;border-color:#a78bfa">5</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Intent Router + Route Flags</div>
+          <span class="step-file">chat/intent_router.py</span>
+        </div>
+        <div class="step-desc">Rule-based routing → primary_intent (advise / knowledge / clarify / reject) + route_flags. Optional micro-classifier khi ambiguous. Tất cả flags được detect song song trước khi quyết định intent.</div>
+        <div class="step-details">
+          <span class="tag tag-new">repeated_question detection (M7)</span>
+          <span class="tag tag-new">language_switch detection (M9)</span>
+          <span class="tag tag-new">emotional_distress (M2)</span>
+          <span class="tag tag-new">crisis_signal (M2)</span>
+          <span class="tag tag-new">product_safety_check (M3)</span>
+          <span class="tag tag-new">urgency_red_flag (M4)</span>
+          <span class="tag tag-new">progress_followup (M5)</span>
+          <span class="tag tag-new">multi_condition (M6)</span>
+          <span class="tag tag-changed">ambiguous_intent tiebreak (M1)</span>
+          <span class="tag tag-info">→ RouteDecision</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 6: Completeness Check -->
+    <div class="step">
+      <div class="step-num" style="color:#fbbf24;border-color:#fbbf24">6</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Completeness Check</div>
+          <span class="step-file">chat/completeness.py</span>
+        </div>
+        <div class="step-desc">Kiểm tra thông tin đủ để tư vấn chưa. 3 outcome: <b>too_short</b> (block, hỏi lại), <b>missing_core</b> (block, hỏi field thiếu), <b>partial</b> (LLM trả lời + append câu hỏi bổ sung cuối), <b>sufficient</b> (cho qua).</div>
+        <div class="step-details">
+          <span class="tag tag-new">kind="partial" + partial_advise=True (M8)</span>
+          <span class="tag tag-changed">Knowledge questions skip completeness (bugfix #1)</span>
+          <span class="tag tag-info">Chỉ hỏi field chưa hỏi (asked_fields tracking)</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 7: Clinical Query Planner -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">7</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Clinical Query Planner</div>
+          <span class="step-file">llm/clinical_planner.py</span>
+        </div>
+        <div class="step-desc">Rule-based (không gọi LLM). Build ClinicalQueryPlan: lesion bilingual tokens, safety_terms cho thai kỳ/thuốc, confidence=0.45.</div>
+        <div class="step-details">
+          <span class="tag tag-new">build_query_en() khi detected_language = "en"/"mixed" (M9)</span>
+          <span class="tag tag-new">ClinicalRagQueries.query_en persisted</span>
+          <span class="tag tag-info">→ ClinicalQueryPlan</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 8: Runtime decisions -->
+    <div class="step">
+      <div class="step-num" style="color:#fbbf24;border-color:#fbbf24">8</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Runtime Pre-stream Actions</div>
+          <span class="step-file">chat/runtime.py</span>
+        </div>
+        <div class="step-desc">Xử lý các flags trước khi gọi RAG và LLM.</div>
+        <div class="step-details">
+          <span class="tag tag-new">progress_followup → is_progress_followup + accumulated_clinical_score++ (M5)</span>
+          <span class="tag tag-new">crisis_signal → yield empathy prefix ngay (M2)</span>
+          <span class="tag tag-new">emotional_distress → yield empathy prefix (M2)</span>
+          <span class="tag tag-new">repeated_question → yield "Như mình đã chia sẻ, " (M7)</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 9: RAG Retrieval -->
+    <div class="step">
+      <div class="step-num" style="color:#34d399;border-color:#34d399">9</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">RAG Retrieval</div>
+          <span class="step-file">chat/_retrieval.py · rag/retriever.py</span>
+        </div>
+        <div class="step-desc">Chỉ chạy khi mode=hybrid AND is_acne_signal=True. Hybrid: dense (ChromaDB cosine) + sparse (BM25 VI) → RRF fusion → trust boost → score prune → safety pass → rerank → drop_noisy_chunks.</div>
+        <div class="step-details">
+          <span class="tag tag-new">language_switch → append query_en, RRF fuse VI+EN (M9)</span>
+          <span class="tag tag-new">product_safety_check → inject 8 ingredient safety terms (M3)</span>
+          <span class="tag tag-changed">_DENSE_MAX_DISTANCE: 0.60 → 0.48 (bugfix #2)</span>
+          <span class="tag tag-changed">_MIN_FUSION_SCORE: 0.005 → 0.015 (bugfix #2)</span>
+          <span class="tag tag-info">DiskCache TTL 1h</span>
+          <span class="tag tag-info">→ RetrievalOutput (chunks + avg_score)</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 10: Prompt Build -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">10</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Prompt Builder</div>
+          <span class="step-file">llm/prompt_builder.py · config/prompts/stream_user.j2</span>
+        </div>
+        <div class="step-desc">Jinja2 render: anti-injection escape, context block (badges [NICE][AAD][JID], max 4500 chars), history block (filter genital turns), system_stream.j2.</div>
+        <div class="step-details">
+          <span class="tag tag-info">→ (system_prompt, user_message)</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 11: LLM Stream -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">11</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">LLM Stream</div>
+          <span class="step-file">llm/ollama_backend.py</span>
+        </div>
+        <div class="step-desc">Ollama (qwen2.5:7b), stream=True, yield token events. Fallback model (qwen2.5:3b) khi runner terminated. full_text = pre_prefix + tokens.</div>
+        <div class="step-details">
+          <span class="tag tag-info">yield SSE: event=token</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 12: Safety Suffix -->
+    <div class="step">
+      <div class="step-num" style="color:#f87171;border-color:#f87171">12</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Safety Suffix</div>
+          <span class="step-file">chat/_safety.py</span>
+        </div>
+        <div class="step-desc">Phân tích full_text + route_flags, append warning nếu cần. Không duplicate nếu LLM đã đề cập.</div>
+        <div class="step-details">
+          <span class="tag tag-new">urgency_red_flag → 🚨 đến cơ sở y tế ngay (M4)</span>
+          <span class="tag tag-new">multi_condition → ⚠️ gặp bác sĩ da liễu (M6)</span>
+          <span class="tag tag-changed">skip_generic_disclaimer khi knowledge intent (bugfix #4)</span>
+          <span class="tag tag-info">Retinoid/Rx/Age-12 warnings (existing)</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 13: Partial follow-up -->
+    <div class="step">
+      <div class="step-num" style="color:#a78bfa;border-color:#a78bfa">13</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Partial Follow-up Question</div>
+          <span class="step-file">chat/runtime.py</span>
+        </div>
+        <div class="step-desc">Nếu completeness.kind="partial" + partial_advise=True: append câu hỏi bổ sung sau safety suffix. LLM không bị block — tư vấn sơ bộ trước, hỏi thêm sau.</div>
+        <div class="step-details">
+          <span class="tag tag-new">kind=partial → append followup_question (M8)</span>
+          <span class="tag tag-info">yield SSE: event=token</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 14: Citations -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">14</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Citation Events</div>
+          <span class="step-file">chat/_retrieval.py · citation_data()</span>
+        </div>
+        <div class="step-desc">Yield SSE citation event cho mỗi chunk: chunk_id, source, title, url, score, text preview (220 chars).</div>
+        <div class="step-details">
+          <span class="tag tag-info">yield SSE: event=citation</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 15: Persist -->
+    <div class="step">
+      <div class="step-num" style="color:#6c8ef5;border-color:#6c8ef5">15</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Persist Session + Audit</div>
+          <span class="step-file">chat/session.py · db/audit.py</span>
+        </div>
+        <div class="step-desc">Append user turn + assistant turn vào JSONL. full_assistant_text = full_text + warning_suffix + partial_question_suffix. Ghi SQLite audit log.</div>
+        <div class="step-details">
+          <span class="tag tag-new">route_metadata.is_progress_followup (M5)</span>
+          <span class="tag tag-new">accumulated_clinical_score++ per follow-up (M5)</span>
+          <span class="tag tag-info">JSONL append-only</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- STEP 16: Done event -->
+    <div class="step">
+      <div class="step-num" style="color:#34d399;border-color:#34d399">✓</div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-name">Done Event</div>
+        </div>
+        <div class="step-desc">yield SSE done event với đầy đủ metadata.</div>
+        <div class="step-details">
+          <span class="tag tag-new">evidence_quality: strong/moderate/weak/unverified</span>
+          <span class="tag tag-new">primary_intent + route_flags trong done payload</span>
+          <span class="tag tag-info">mode, latency_ms, used_chunks, session_id</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline -->
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 3: ROUTE FLAGS
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">Route Flags — Tác động lên Pipeline</div>
+  <div class="flags-grid">
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#a78bfa">repeated_question</div>
+      <div class="flag-effect">→ Yield prefix "Như mình đã chia sẻ, " trước LLM tokens</div>
+      <div class="flag-trigger">Trigger: normalize text khớp với user turn trong 6 turns gần nhất</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#a78bfa">language_switch</div>
+      <div class="flag-effect">→ Build query_en (pure EN) + RRF fuse cả VI + EN queries trong RAG</div>
+      <div class="flag-trigger">Trigger: detected_language ≠ previous_language (cả hai đều known)</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#f472b6">emotional_distress</div>
+      <div class="flag-effect">→ Yield prefix "Mình hiểu mụn có thể ảnh hưởng đến tâm lý nhiều lắm — " trước LLM</div>
+      <div class="flag-trigger">Trigger: từ khoá tự ti, xấu hổ, stress, buồn, chán, mất tự tin...</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#3a0a0a;color:#f87171">crisis_signal</div>
+      <div class="flag-effect">→ Yield crisis empathy prefix + override intent → clarify (safety_clarify)</div>
+      <div class="flag-trigger">Trigger: từ khoá tự tử, tự sát, không muốn sống</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#a78bfa">product_safety_check</div>
+      <div class="flag-effect">→ Inject 8 ingredient safety terms vào safety_terms → trigger safety pass retrieve guideline chunks về contraindication</div>
+      <div class="flag-trigger">Trigger: retinol, AHA, BHA, BPO, kết hợp, dùng chung...</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#3a1a0a;color:#fb923c">urgency_red_flag</div>
+      <div class="flag-effect">→ Append 🚨 suffix "đến cơ sở y tế ngay" sau LLM response</div>
+      <div class="flag-trigger">Trigger: đau nhiều, sưng lớn, rỉ dịch, lan rộng, sốt, nang lớn, red_flags từ normalizer</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#22d3ee">progress_followup</div>
+      <div class="flag-effect">→ route_metadata.is_progress_followup=True, accumulated_clinical_score++</div>
+      <div class="flag-trigger">Trigger: tuần rồi, không đỡ, đỡ hơn, không hiệu quả, routine trước...</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#fbbf24">multi_condition</div>
+      <div class="flag-effect">→ Append ⚠️ suffix gợi ý bác sĩ da liễu (điều trị chồng chéo)</div>
+      <div class="flag-trigger">Trigger: rosacea, eczema, viêm da, kích ứng, dị ứng</div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-name" style="background:#1e1a35;color:#a78bfa">ambiguous_intent</div>
+      <div class="flag-effect">→ Micro-classifier được gọi để tiebreak; nếu vẫn tie → prefer knowledge</div>
+      <div class="flag-trigger">Trigger: rule scores quá gần nhau (confidence &lt; 0.65 và các intent cạnh tranh)</div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 4: SSE EVENTS
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">SSE Events — Format &amp; Thứ tự</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:32px;">
+
+    <div class="sse-row">
+      <div class="sse-event" style="color:#a78bfa">token</div>
+      <div class="sse-desc"><b>[Optional]</b> Pre-stream prefix (crisis/emotional/repeated) — yield trước LLM</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#6c8ef5">token</div>
+      <div class="sse-desc">LLM stream tokens (nhiều events, mỗi token = 1 event)</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#f87171">token</div>
+      <div class="sse-desc"><b>[Optional]</b> Safety suffix (retinoid/Rx/urgency/multi_condition warnings)</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#a78bfa">token</div>
+      <div class="sse-desc"><b>[Optional]</b> Partial follow-up question (kind=partial only)</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#34d399">citation</div>
+      <div class="sse-desc">Per-chunk citation: chunk_id, source, title, url, score, text[0:220] (0–N events)</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#fbbf24">done</div>
+      <div class="sse-desc">mode, latency_ms, used_chunks[], session_id, evidence_quality, primary_intent, route_flags[]</div>
+    </div>
+    <div class="sse-row">
+      <div class="sse-event" style="color:#f87171">error</div>
+      <div class="sse-desc"><b>[Exception path]</b> error message + done event với mode=error</div>
+    </div>
+
+    <div style="margin-top:14px;font-size:12px;color:var(--muted);">
+      Format: <code style="background:var(--tag-bg);padding:2px 8px;border-radius:4px;">data: {"event": "&lt;type&gt;", "data": &lt;payload&gt;}\n\n</code>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 5: WHAT CHANGED
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">Thay đổi so với phiên bản trước</div>
+  <div class="changes-grid">
+
+    <div class="change-card new">
+      <div class="change-title">Intent Router toàn diện</div>
+      <div class="change-file">chat/intent_router.py</div>
+      <div class="change-desc">Phát hiện 9 route flags song song trong mỗi request. Trước đây chỉ có primary_intent (advise/knowledge/clarify/reject), không có flags.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Bilingual RAG (M9)</div>
+      <div class="change-file">chat/_retrieval.py · llm/clinical_planner.py · schemas/clinical.py</div>
+      <div class="change-desc">Khi user chuyển ngôn ngữ sang EN: tự động build query_en và retrieve cả VI lẫn EN, RRF fuse 2 result sets.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Empathy Prefix (M2)</div>
+      <div class="change-file">chat/runtime.py</div>
+      <div class="change-desc">Crisis/emotional flags → yield prefix cảm xúc TRƯỚC LLM stream, không phải sau. Prefix được concat vào full_text để persist đúng.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Partial Advise (M8)</div>
+      <div class="change-file">chat/completeness.py · chat/runtime.py</div>
+      <div class="change-desc">kind="partial": LLM tư vấn sơ bộ ngay, câu hỏi bổ sung được append sau response thay vì block trước.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Safety Suffix mở rộng (M4+M6)</div>
+      <div class="change-file">chat/_safety.py</div>
+      <div class="change-desc">Thêm urgency_red_flag (đến y tế ngay) và multi_condition (gặp bác sĩ da liễu). Thêm skip_generic_disclaimer cho knowledge queries.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Progress Tracking (M5)</div>
+      <div class="change-file">chat/session.py · chat/runtime.py</div>
+      <div class="change-desc">accumulated_clinical_score tăng mỗi follow-up turn. Session biết user đang trong quá trình điều trị.</div>
+    </div>
+
+    <div class="change-card new">
+      <div class="change-title">Ingredient Safety Pass (M3)</div>
+      <div class="change-file">chat/_retrieval.py</div>
+      <div class="change-desc">product_safety_check flag inject 8 ingredient interaction terms vào safety_terms → retrieve guideline chunks về contraindication kết hợp hoạt chất.</div>
+    </div>
+
+    <div class="change-card changed">
+      <div class="change-title">RAG Thresholds chặt hơn</div>
+      <div class="change-file">rag/retriever.py</div>
+      <div class="change-desc">_DENSE_MAX_DISTANCE: 0.60→0.48, _MIN_FUSION_SCORE: 0.005→0.015. Giảm noise chunks, tăng precision.</div>
+    </div>
+
+    <div class="change-card changed">
+      <div class="change-title">Session Schema mở rộng</div>
+      <div class="change-file">chat/session.py</div>
+      <div class="change-desc">ConversationTurn có intent_label, intent_confidence, turn_type, classifier_used. Session có last_intent, total_clarify_count, accumulated_clinical_score.</div>
+    </div>
+
+    <div class="change-card fixed">
+      <div class="change-title">Knowledge questions skip completeness</div>
+      <div class="change-file">chat/intake.py</div>
+      <div class="change-desc">Câu hỏi dạng "là gì / tại sao / so sánh" không bị hỏi thêm thông tin lâm sàng. Trước đây bị block sai.</div>
+    </div>
+
+    <div class="change-card fixed">
+      <div class="change-title">Disclaimer logic fix</div>
+      <div class="change-file">chat/_safety.py</div>
+      <div class="change-desc">skip_generic_disclaimer=True khi primary_intent="knowledge". Generic disclaimer không còn append dư vào knowledge answers.</div>
+    </div>
+
+    <div class="change-card fixed">
+      <div class="change-title">invalidate_retrieve_cache() fix</div>
+      <div class="change-file">cache.py</div>
+      <div class="change-desc">Dùng shadow index pattern thay vì SHA-256 prefix matching (luôn sai). Cache giờ invalidate đúng sau rebuild KB.</div>
+    </div>
+
+    <div class="change-card fixed">
+      <div class="change-title">guardrail_trigger_count metric</div>
+      <div class="change-file">api/routes/chat.py · chat/runtime.py</div>
+      <div class="change-desc">Counter giờ được increment khi scope refusal. Prometheus metric không còn luôn là 0.</div>
+    </div>
+
+    <div class="change-card fixed">
+      <div class="change-title">MMR prefilter kích hoạt</div>
+      <div class="change-file">pipeline/hybrid.py</div>
+      <div class="change-desc">use_mmr_prefilter=True giờ thực sự gọi retrieve_with_mmr(). Trước đây field được set nhưng không có effect.</div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 6: COMPLETENESS DECISION TREE
+  ════════════════════════════════════════════════ -->
+  <div class="section-title">Completeness Check — Decision Tree</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:32px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:var(--surface2);border-radius:8px;padding:14px;border-left:3px solid #f87171;">
+        <div style="font-weight:700;color:#f87171;margin-bottom:6px;">too_short → BLOCK</div>
+        <div style="font-size:12px;color:var(--muted);">word_count &lt; 4 AND no signal AND no history AND not in intake flow → hỏi mô tả thêm</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:14px;border-left:3px solid #fb923c;">
+        <div style="font-weight:700;color:#fb923c;margin-bottom:6px;">missing_core → BLOCK</div>
+        <div style="font-size:12px;color:var(--muted);">Có signal nhưng thiếu lesion_types hoặc distribution, và field đó chưa từng hỏi → hỏi 1 field</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:14px;border-left:3px solid #a78bfa;">
+        <div style="font-weight:700;color:#a78bfa;margin-bottom:6px;">partial → LLM + append câu hỏi <span style="font-size:10px;font-weight:400">(M8 MỚI)</span></div>
+        <div style="font-size:12px;color:var(--muted);">Đủ để tư vấn sơ bộ (_has_enough_to_answer=True) nhưng vẫn thiếu field phụ → tư vấn luôn, hỏi thêm ở cuối</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:14px;border-left:3px solid #34d399;">
+        <div style="font-weight:700;color:#34d399;margin-bottom:6px;">sufficient → LLM tư vấn bình thường</div>
+        <div style="font-size:12px;color:var(--muted);">Đủ thông tin: lesion_types rõ OR inflammation_level rõ OR distribution rõ (bất kỳ 1 trong 3)</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>
+  AcneLLM · Đề tài 29 · Generated 2026-05-14 · M1–M9 + Bugfixes session
+</footer>
+
+</body>
+</html>

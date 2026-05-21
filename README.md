@@ -1,233 +1,183 @@
-# AcneLLM — Tư vấn da mụn tiếng Việt (Đề tài 29)
+# AcneLLM
 
-Hệ thống RAG + LLM chạy **100% local**, dùng Next.js làm web UI và FastAPI làm backend API cho mobile app.
-
----
-
-## Yêu cầu
-
-| Phần mềm | Phiên bản | Ghi chú |
-|---|---|---|
-| Python | 3.10+ | đã test 3.10 |
-| [Ollama](https://ollama.com) | mới nhất | phải đang chạy khi serve |
-| RAM | ≥ 8 GB | 6 GB đủ nếu dùng model 3B |
-| Ổ cứng | ≥ 10 GB | models + ChromaDB + raw crawl |
+Chatbot tư vấn mụn trứng cá bằng tiếng Việt, kết hợp RAG (hybrid BM25 + vector search) với LLM chạy local qua Ollama.
 
 ---
 
-## Cài đặt & chạy nhanh
+## Yêu cầu hệ thống
 
-### Windows (PowerShell)
+- Python **3.10+**
+- [Ollama](https://ollama.com) đã cài và đang chạy
+- RAM tối thiểu **8 GB** (khuyến nghị 16 GB nếu dùng GPU)
+- CUDA 11.8+ (tùy chọn, nếu muốn chạy embedding/reranker trên GPU)
 
-```powershell
-# 1. Clone & tạo venv
-git clone <repo-url>
-cd AcneLLM
-.\tasks.ps1 install
+---
 
-# 2. Copy config
-cp .env.example .env        # chỉnh OLLAMA_URL nếu cần
+## Cài đặt
 
-# 3. Pull LLM (Ollama phải đang chạy)
-.\tasks.ps1 pull-models
-
-# 4. Crawl dữ liệu  (~1-3h, tuỳ tốc độ mạng)
-.\tasks.ps1 crawl
-
-# 5. Build knowledge base  (~30-90 phút CPU)
-.\tasks.ps1 build-kb
-
-# 6. Chạy server
-.\tasks.ps1 serve
-```
-
-### Linux / Mac
+### 1. Clone repo
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && pip install -e .
-cp .env.example .env
+git clone <repo-url>
+cd AcneLLM
+```
 
+### 2. Tạo virtual environment
+
+```bash
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux / macOS
+source .venv/bin/activate
+```
+
+### 3. Cài PyTorch
+
+Chọn đúng build theo phần cứng:
+
+```bash
+# CPU only
+pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cpu
+
+# CUDA 11.8
+pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cu118
+
+# CUDA 12.1+
+pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cu121
+```
+
+### 4. Cài dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Cài Playwright (crawler JS fallback)
+
+```bash
+playwright install chromium
+```
+
+### 6. Cấu hình môi trường
+
+```bash
+cp .env.example .env
+```
+
+Mở `.env` và chỉnh các giá trị cần thiết:
+
+| Biến | Mô tả | Mặc định |
+|------|-------|----------|
+| `OLLAMA_URL` | Địa chỉ Ollama server | `http://localhost:11434` |
+| `LLM_MODEL` | Model LLM chính | `qwen2.5:7b` |
+| `LLM_FALLBACK_MODEL` | Model dự phòng | `qwen2.5:3b` |
+| `DEVICE` | `cpu` hoặc `gpu` | `cpu` |
+| `API_KEY` | API key bảo vệ endpoint (để trống = không xác thực) | _(trống)_ |
+
+### 7. Pull model Ollama
+
+```bash
 ollama pull qwen2.5:7b
-python -m scripts.crawl_all
-python -m scripts.build_kb
+ollama pull qwen2.5:3b
+```
+
+---
+
+## Chạy ứng dụng
+
+Knowledge base đã được build sẵn trong thư mục `data/`. Chạy thẳng server:
+
+```bash
+python -m acne_llm.cli serve
+```
+
+hoặc dùng uvicorn trực tiếp:
+
+```bash
 uvicorn acne_llm.api.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Sau khi serve:
-
-| URL | Mô tả |
-|---|---|
-| `http://localhost:3000` | Web UI mới (Next.js) |
-| `http://localhost:8000` | Backend API |
-| `http://localhost:8000/docs` | OpenAPI (Swagger) |
-| `http://localhost:8000/api/v1/chat` | JSON endpoint cho mobile |
+API sẽ chạy tại `http://localhost:8000`.
 
 ---
 
-## tasks.ps1 — tất cả lệnh
+## Build lại Knowledge Base (tùy chọn)
 
-```
-.\tasks.ps1 install        # cài deps + tạo venv
-.\tasks.ps1 pull-models    # pull Ollama models
-.\tasks.ps1 crawl          # crawl tất cả nguồn
-.\tasks.ps1 crawl-pubmed   # chỉ crawl PubMed
-.\tasks.ps1 build-kb       # chunk + embed + index
-.\tasks.ps1 serve          # chạy web mới (frontend + backend)
-.\tasks.ps1 serve-lan      # chạy backend + in IP LAN cho mobile app
-.\tasks.ps1 test           # pytest
-.\tasks.ps1 eval           # eval 20 queries (mặc định)
-.\tasks.ps1 eval 50        # eval 50 queries
-.\tasks.ps1 stats          # thống kê KB + Ollama
-.\tasks.ps1 chat           # chat thử qua terminal
-.\tasks.ps1 clean-kb       # xoá processed/chroma/bm25
+Chỉ cần thực hiện nếu muốn cập nhật dữ liệu mới:
+
+```bash
+# Crawl dữ liệu mới
+python -m acne_llm.crawler.cli crawl
+
+# Build lại vector index + BM25
+python scripts/build_kb.py
 ```
 
 ---
 
-## API
+## API Endpoints
 
-### `POST /api/v1/chat`
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `POST` | `/api/v1/chat` | Chat một lượt |
+| `POST` | `/api/v1/chat/stream` | Chat streaming (SSE) |
+| `WS` | `/ws/chat` | Chat streaming (WebSocket) |
+| `GET` | `/api/v1/health` | Health check |
+| `GET` | `/api/v1/kb/stats` | Thống kê knowledge base |
+| `GET` | `/metrics` | Prometheus metrics |
 
-**Request:**
-```json
-{
-  "description": "Em 22 tuổi, da dầu, nổi nhiều mụn viêm ở cằm 4 tuần nay",
-  "context": {
-    "age": 22,
-    "skin_type": "oily",
-    "is_pregnant": false,
-    "current_products": ["cerave foaming cleanser"]
-  },
-  "mode": "hybrid"
-}
-```
+### Ví dụ gọi API
 
-`mode`: `hybrid` (mặc định) | `llm_only`
-
-**Response** (`AdviseOutput`):
-```json
-{
-  "severity": "moderate",
-  "acne_type_primary": "mụn viêm (papule/pustule)",
-  "causes": ["bít tắc nang lông", "vi khuẩn C. acnes"],
-  "recommendations": [
-    {
-      "step": 1,
-      "action": "Rửa mặt 2 lần/ngày bằng sữa rửa mặt dịu nhẹ không xà phòng",
-      "rationale": "Giữ pH da cân bằng, không kích ứng",
-      "source_chunk_id": "vinmec_a1b2::0003",
-      "category": "skincare"
-    }
-  ],
-  "red_flags": [],
-  "confidence": 0.78,
-  "disclaimer": "Thông tin mang tính tham khảo...",
-  "mode": "hybrid",
-  "latency_ms": 4200
-}
-```
-
-### Mobile app (đề tài 29)
-
-Dùng `.\tasks.ps1 serve-lan` để lấy IP LAN, rồi gọi:
-
-```
-POST http://192.168.x.x:8000/api/v1/chat
+```bash
+curl -X POST http://localhost:8000/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Mụn đầu đen nên dùng gì?"}'
 ```
 
 ---
 
-## Kiến trúc
+## Cấu trúc thư mục
 
 ```
-User
- │
- ▼
-FastAPI ──────────────────────────────────────────────┐
- │                                                    │
- ├─ Guardrails.pre (validate input)                   │
- │                                                    │
- ├─ HybridRetriever                                   │
- │    ├─ Dense: BGE-M3-VI → ChromaDB                  │
- │    ├─ Sparse: BM25 (underthesea tokenizer)          │
- │    └─ RRF fusion → top-20                          │
- │                                                    │
- ├─ Reranker (bge-reranker-v2-m3) → top-5             │
- │                                                    │
- ├─ PromptBuilder (Jinja2)                            │
- │                                                    │
-├─ Ollama (Qwen2.5-7B, JSON schema constrained)       │
- │                                                    │
- ├─ Pydantic parse → AdviseOutput                     │
- │                                                    │
- └─ Guardrails.post ──────────────────────────────────┘
-      ├─ block retinoid nếu mang thai/cho con bú
-      ├─ inject "gặp bác sĩ" nếu severity=severe
-      ├─ strip tư vấn tự nặn mụn
-      └─ đảm bảo có disclaimer
+AcneLLM/
+├── src/acne_llm/
+│   ├── api/          # FastAPI app, routes, middleware
+│   ├── chat/         # Chat runtime, session, intake
+│   ├── rag/          # Chunker, embedder, retriever, vectorstore, reranker
+│   ├── llm/          # Ollama backend, prompt builder, clinical planner
+│   ├── crawler/      # Web crawler, content extractor
+│   ├── guardrails/   # OOD detector, drug checker
+│   ├── pipeline/     # HybridPipeline, LLMOnlyPipeline
+│   └── config.py     # Cấu hình toàn bộ app
+├── scripts/
+│   └── build_kb.py   # Build vector index + BM25
+├── config/
+│   ├── prompts/      # Jinja2 prompt templates
+│   └── guardrails.yaml
+├── data/
+│   ├── chroma_db/    # Vector database (346 MB)
+│   ├── bm25_index.pkl # BM25 index (50 MB)
+│   └── raw/          # Raw documents + chunks
+├── tests/
+├── .env.example
+└── requirements.txt
 ```
 
 ---
 
-## Tech stack
+## Chạy Tests
 
-| Thành phần | Lựa chọn |
-|---|---|
-| LLM | Ollama · Qwen2.5-7B |
-| Embedding | AITeamVN/Vietnamese_Embedding (BGE-M3 VN, dim=1024) |
-| Reranker | BAAI/bge-reranker-v2-m3 |
-| Vector DB | ChromaDB (persist local) |
-| Sparse | rank_bm25 + underthesea |
-| API | FastAPI + Jinja2 + HTMX + Tailwind CDN |
-| Crawler | httpx async + trafilatura + PubMed E-utilities |
-| Dedup | MinHash LSH (datasketch) |
-
----
-
-## Nguồn dữ liệu (15 domains)
-
-**Tiếng Việt (high trust):** Vinmec, BV Da Liễu TP.HCM, BV Da Liễu TW, Tam Anh Hospital, HelloBacsi, Medlatec, Youmed, Pharmacity
-
-**Tiếng Anh (high trust):** PubMed (~2500 abstracts), AAD, DermNet, Mayo Clinic, Cleveland Clinic, MedlinePlus, NICE
-
-Mục tiêu: ≥ 2.500 documents → ≥ **20.000 chunks** sau chunking.
-
----
-
-## Guardrails (kiểm thử tự động)
-
-| Rule | Hành động |
-|---|---|
-| Mang thai + retinoid | Rewrite recommendation, inject red flag urgent |
-| Cho con bú + retinoid hệ thống | Rewrite, inject red flag |
-| Severity = severe | Inject "gặp bác sĩ da liễu" + red flag urgent |
-| Tự nặn/cạy mụn | Strip recommendation |
-| Không có disclaimer | Inject disclaimer mặc định |
-
----
-
-## Swap points (LEGO architecture)
-
-| Ghép với đề tài | Việc cần làm |
-|---|---|
-| 27 — Vision | Implement `VisionProtocol`, swap `vision/mock.py` |
-| 28 — RAG nâng cao | Implement `RAGProtocol`, swap `rag/retriever.py` + `reranker.py` |
-
----
-
-## Máy yếu (< 8 GB RAM)
-
-Đổi model trong `.env`:
-
-```
-LLM_MODEL=qwen2.5:7b
+```bash
+pytest tests/ -v
 ```
 
-Rồi `.\tasks.ps1 pull-models`. `qwen2.5:7b` là model mặc định của project hiện tại.
-
 ---
 
-## License
+## Lưu ý
 
-Nghiên cứu học thuật. Thông tin y khoa mang tính tham khảo, không thay thế chẩn đoán chuyên khoa.
+- Model embedding (`AITeamVN/Vietnamese_Embedding`) và reranker (`BAAI/bge-reranker-v2-m3`) sẽ được tải tự động từ HuggingFace lần đầu chạy (~1-2 GB).
+- Nếu dùng GPU, đảm bảo đã cài CUDA đúng phiên bản trước khi cài PyTorch.
+- `DEEPSEEK_API_KEY` và `OPENAI_API_KEY` chỉ cần thiết nếu muốn sinh dữ liệu fine-tuning, không cần để chạy chatbot.

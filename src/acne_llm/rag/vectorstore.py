@@ -1,7 +1,7 @@
 """Chroma vector store wrapper."""
 from __future__ import annotations
 from pathlib import Path
-from ..schemas.kb import KBChunk
+from ..schemas.kb import KBChunk, infer_source_type
 
 
 class ChromaStore:
@@ -9,8 +9,6 @@ class ChromaStore:
                  collection: str = "acne_kb_vi"):
         import chromadb
         from chromadb.config import Settings as ChromaSettings
-        # embedding_function=None: project tu embed bang sentence-transformers,
-        # khong de chromadb load onnxruntime default (tranh DLL error tren Windows)
         Path(persist_dir).mkdir(parents=True, exist_ok=True)
         self.client = chromadb.PersistentClient(
             path=persist_dir,
@@ -18,7 +16,7 @@ class ChromaStore:
         )
         self.col = self.client.get_or_create_collection(
             name=collection,
-            embedding_function=None,  # embeddings duoc inject truc tiep khi upsert/query
+            embedding_function=None,
             metadata={"hnsw:space": "cosine"},
         )
 
@@ -31,16 +29,21 @@ class ChromaStore:
             documents=[c.text for c in chunks],
             metadatas=[
                 {
-                    "doc_id": c.doc_id,
-                    "title": c.title,
-                    "url": str(c.url),
-                    "source": c.source_name,
-                    "trust": c.trust_level,
-                    "lang": c.language,
-                    "categories": ",".join(c.categories),
-                    "tags": ",".join(c.tags),
-                    "position": c.position,
-                    # Luu linked-list de context expansion dung sau rerank
+                    "doc_id":       c.doc_id,
+                    "title":        c.title,
+                    "url":          str(c.url),
+                    "source":       c.source_name,
+                    "source_type":  c.source_type if c.source_type != "unknown" else infer_source_type(
+                        source_name=c.source_name,
+                        url=str(c.url),
+                        tags=c.tags,
+                        categories=c.categories,
+                    ),
+                    "trust":        c.trust_level,   # fallback cho chunks cũ
+                    "lang":         c.language,
+                    "categories":   ",".join(c.categories),
+                    "tags":         ",".join(c.tags),
+                    "position":     c.position,
                     "prev_chunk_id": c.prev_chunk_id or "",
                     "next_chunk_id": c.next_chunk_id or "",
                 }
@@ -51,17 +54,86 @@ class ChromaStore:
     def count(self) -> int:
         return self.col.count()
 
-    def query(self, query_embedding, top_k: int = 20, filters: dict | None = None):
+    def query(self, query_embedding, top_k: int = 20, filters: dict | None = None,
+              include_distances: bool = True):
         try:
             import numpy as np
             embedding = np.asarray(query_embedding, dtype=float).reshape(-1).tolist()
         except Exception:
             embedding = [float(x) for x in query_embedding]
+        # Chroma throws nếu n_results > collection count
+        n = min(top_k, max(self.col.count(), 1))
+        include = (
+            ["documents", "metadatas", "distances"]
+            if include_distances
+            else ["documents", "metadatas"]
+        )
         return self.col.query(
             query_embeddings=[embedding],
-            n_results=top_k,
+            n_results=n,
             where=filters or None,
+            include=include,
         )
+
+    def query_with_score_filter(
+        self,
+        query_embedding,
+        top_k: int = 20,
+        max_distance: float = 0.65,
+        filters: dict | None = None,
+        fallback_to_raw: bool = True,
+    ):
+        """Retrieve rồi lọc ngay các chunk có cosine distance > max_distance.
+
+        Chroma trả distance (lower = more similar) với hnsw:space=cosine.
+        distance = 1 - cosine_similarity → distance < 0.65 ≈ similarity > 0.35.
+        """
+        raw = self.query(query_embedding, top_k=top_k, filters=filters)
+        ids_l = raw.get("ids") or [[]]
+        docs_l = raw.get("documents") or [[]]
+        metas_l = raw.get("metadatas") or [[]]
+        dists_l = raw.get("distances") or [[]]
+
+        ids = ids_l[0] if ids_l else []
+        docs = docs_l[0] if docs_l else []
+        metas = metas_l[0] if metas_l else []
+        dists = dists_l[0] if dists_l else []
+
+        filtered = [
+            (cid, doc, meta, dist)
+            for cid, doc, meta, dist in zip(ids, docs, metas, dists)
+            if float(dist) <= max_distance
+        ]
+        # Optional fallback for callers that prefer recall over precision.
+        # Chat retrieval disables this so a bad dense match cannot bypass the
+        # distance gate and later appear as an irrelevant citation.
+        if not filtered and fallback_to_raw:
+            return raw
+        if not filtered:
+            return {
+                "ids": [[]],
+                "documents": [[]],
+                "metadatas": [[]],
+                "distances": [[]],
+            }
+
+        f_ids, f_docs, f_metas, f_dists = zip(*filtered)
+        return {
+            "ids": [list(f_ids)],
+            "documents": [list(f_docs)],
+            "metadatas": [list(f_metas)],
+            "distances": [list(f_dists)],
+        }
 
     def get_by_id(self, chunk_id: str):
         return self.col.get(ids=[chunk_id])
+
+
+    def get_by_ids(self, chunk_ids: list[str]) -> dict:
+        """Fetch nhiều chunks theo list IDs."""
+        if not chunk_ids:
+            return {"ids": [], "documents": [], "metadatas": []}
+        return self.col.get(
+            ids=chunk_ids,
+            include=["documents", "metadatas"],
+        )

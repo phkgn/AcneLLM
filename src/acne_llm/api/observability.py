@@ -113,16 +113,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.per_minute = per_minute
         self._hits: dict[str, deque[float]] = defaultdict(deque)
+        # Bug #7 fix: asyncio.Lock để tránh race condition khi concurrent requests
+        # cùng đọc/ghi _hits dict
+        import asyncio
+        self._lock = asyncio.Lock()
 
     async def dispatch(self, request: Request, call_next: Callable):
         if self.per_minute <= 0 or request.url.path in {"/metrics", "/api/v1/health"}:
             return await call_next(request)
         now = time.monotonic()
         client = request.client.host if request.client else "unknown"
-        hits = self._hits[client]
-        while hits and now - hits[0] > 60:
-            hits.popleft()
-        if len(hits) >= self.per_minute:
-            return Response("Rate limit exceeded", status_code=429)
-        hits.append(now)
+        async with self._lock:
+            hits = self._hits[client]
+            while hits and now - hits[0] > 60:
+                hits.popleft()
+            if len(hits) >= self.per_minute:
+                return Response("Rate limit exceeded", status_code=429)
+            hits.append(now)
         return await call_next(request)

@@ -1,4 +1,5 @@
 from pathlib import Path
+from acne_llm.chat.session import ConversationTurn
 from acne_llm.llm.prompt_builder import PromptBuilder, _escape_jinja
 from acne_llm.schemas import (
     UserInput, UserContext, AcneClinicalInput, RetrievalOutput, RetrievedChunk,
@@ -64,6 +65,30 @@ def test_context_block_truncation():
     assert block.count("chunk_ref=") < 5 or "..." in block
 
 
+def test_context_block_infers_authority_badge_from_legacy_metadata():
+    pb = PromptBuilder(PROMPTS)
+    retrieval = RetrievalOutput(
+        query="q",
+        chunks=[
+            RetrievedChunk(
+                chunk_id="c1",
+                source="American Academy of Dermatology",
+                text="guideline text",
+                score=0.9,
+                metadata={
+                    "title": "AAD acne guideline",
+                    "source": "American Academy of Dermatology",
+                    "tags": "guidelines,high-trust",
+                },
+            ),
+        ],
+    )
+
+    block = pb._context_block(retrieval)
+
+    assert "[AAD Guideline]" in block
+
+
 def test_prompt_builder_hybrid():
     pb = PromptBuilder(PROMPTS)
     user = UserInput(description="Em bị mụn ở cằm",
@@ -86,15 +111,14 @@ def test_prompt_builder_hybrid():
         "hybrid_user.j2",
         detected_language="vi",
         query_vi="mụn viêm ở cằm",
-        query_en="inflammatory acne on chin",
     )
     assert "AcneLLM" in sys_p
     assert "mang thai" in sys_p.lower() or "mang thai" in usr_p.lower() or "CÓ" in usr_p
     assert "c1" in usr_p
     assert "mụn ở cằm" in usr_p.lower() or "mụn" in usr_p.lower()
     assert "clinical" in usr_p.lower()
-    assert "papule" in usr_p
-    assert "inflammatory acne on chin" in usr_p
+    assert "mụn viêm đỏ" in usr_p
+    assert "query_vi" in usr_p
 
 
 def test_prompt_builder_llm_only():
@@ -106,7 +130,7 @@ def test_prompt_builder_llm_only():
     )
     sys_p, usr_p = pb.build(user, None, "llm_only_user.j2")
     assert "RAG" in usr_p or "ngữ cảnh" in usr_p.lower()
-    assert "blackhead" in usr_p
+    assert "mụn đầu đen" in usr_p
 
 
 def test_prompt_builder_includes_clinical_plan():
@@ -118,14 +142,28 @@ def test_prompt_builder_includes_clinical_plan():
             distribution=["chin"],
             inflammation_level="moderate",
         ),
-        rag_queries=ClinicalRagQueries(
-            query_vi="mụn viêm ở cằm guideline",
-            query_en="inflammatory acne chin guideline",
-        ),
+        rag_queries=ClinicalRagQueries(query_vi="mụn viêm ở cằm guideline"),
     )
 
     _, usr_p = pb.build(user, None, "llm_only_user.j2", clinical_plan=plan)
 
     assert "<normalized_case_plan>" in usr_p
-    assert "papule" in usr_p
-    assert "mụn viêm ở cằm guideline" in usr_p
+    assert "mụn viêm đỏ" in usr_p
+    assert "vị trí: cằm" in usr_p
+
+
+def test_prompt_builder_includes_full_untruncated_history():
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(description="vậy tôi nên làm gì tiếp")
+    long_assistant = "khuyến nghị chi tiết " + ("benzoyl peroxide không kê liều; " * 40)
+    history = [
+        ConversationTurn(role="user", content="tôi 22 tuổi da dầu bị mụn ở cằm"),
+        ConversationTurn(role="assistant", content=long_assistant),
+    ]
+
+    _, usr_p = pb.build(user, None, "llm_only_user.j2", history=history)
+
+    assert "<conversation_history>" in usr_p
+    assert "tôi 22 tuổi da dầu bị mụn ở cằm" in usr_p
+    assert long_assistant.strip() in usr_p
+    assert "..." not in usr_p

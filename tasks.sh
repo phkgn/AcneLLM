@@ -16,15 +16,18 @@ ARG="${2:-}"
 
 cd "$ROOT"
 
+# Dùng .venv-linux để tránh ghi đè .venv của Windows
+VENV_DIR="$ROOT/.venv-linux"
+
 info() { printf '\033[36m>> %s\033[0m\n' "$*"; }
 warn() { printf '\033[33m   %s\033[0m\n' "$*"; }
 ok() { printf '\033[32m>> %s\033[0m\n' "$*"; }
 err() { printf '\033[31m%s\033[0m\n' "$*" >&2; }
 
 activate_venv() {
-    if [[ -f "$ROOT/.venv/bin/activate" ]]; then
+    if [[ -f "$VENV_DIR/bin/activate" ]]; then
         # shellcheck disable=SC1091
-        source "$ROOT/.venv/bin/activate"
+        source "$VENV_DIR/bin/activate"
     fi
 }
 
@@ -117,7 +120,7 @@ confirm() {
 case "$TASK" in
     install)
         info "Installing dependencies..."
-        python3 -m venv .venv
+        python3 -m venv "$VENV_DIR"
         activate_venv
         python -m pip install --upgrade pip
         python -m pip install typer loguru pydantic pydantic-settings python-dotenv jinja2 pyyaml
@@ -438,7 +441,7 @@ EOF
         ;;
 
     *)
-        err "Task '$TASK' khong ton tai. Chay './tasks.sh help' de xem danh sach."
+        err "Task '${TASK}' không tồn tại. Chạy './tasks.sh help' để xem danh sách."
         exit 1
         ;;
 esac

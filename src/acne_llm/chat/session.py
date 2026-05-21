@@ -1,0 +1,559 @@
+"""Conversation session store for multi-turn chat memory.
+
+Design goals:
+- Zero external dependency: in-memory only (dict + threading.Lock).
+- Backward-compatible: session_id=None → all calls are no-ops, behavior
+  identical to before this module existed.
+- Lightweight: only plain dataclasses, no Pydantic, no DB.
+- TTL-based expiry: sessions idle > SESSION_TTL seconds are dropped lazily
+  on the next read/write to that session.
+- Thread-safe: a single RLock guards all mutations.
+
+Usage in runtime.py:
+    store = get_session_store()          # module-level singleton
+    history = store.get_history(sid)     # list[ConversationTurn], may be []
+    store.append_turn(sid, turn)
+"""
+from __future__ import annotations
+
+import threading
+import time
+from dataclasses import dataclass, field
+from typing import Literal
+
+from ..schemas import AcneClinicalInput, UserContext, UserInput
+
+# NOTE: defined here (not in guardrails.runner) to avoid circular import
+_GENITAL_FILTER_TERMS = (
+    "bìu", "biu", "dương vật", "duong vat", "sinh dục", "sinh duc",
+    "âm đạo", "am dao", "âm hộ", "am ho", "hậu môn", "hau mon",
+    "vùng kín", "vung kin", "bộ phận sinh dục",
+)
+
+
+# ── Constants ────────────────────────────────────────────────────────────────
+
+SESSION_TTL: float = 1800.0        # seconds idle before session expires
+MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
+HISTORY_CHAR_BUDGET: int = 2000    # max chars injected into prompt (0 = unlimited)
+FIRST_TURN_BUDGET: int = 400       # chars reserved for the first user turn (anchor)
+ASSISTANT_TURN_MAX: int = 120      # assistant turns bị cắt còn tối đa N chars trong history
+
+
+# ── Data classes ─────────────────────────────────────────────────────────────
+
+@dataclass
+class NormalizedSnapshot:
+    """Structured facts extracted from one user turn.
+
+    Stored beside the raw/clean turn text so later turns can fold memory
+    without re-running regex normalization over the whole history.
+    """
+    context: dict = field(default_factory=dict)
+    clinical: dict = field(default_factory=dict)
+    clean_text: str = ""
+
+
+@dataclass
+class ConversationTurn:
+    role: Literal["user", "assistant"]
+    content: str                            # raw text of the turn
+    timestamp: float = field(default_factory=time.time)
+    mode: str = "hybrid"                    # pipeline mode that produced this turn
+    used_chunks: list[str] = field(default_factory=list)
+    normalized_snapshot: NormalizedSnapshot | None = None
+    metadata: dict = field(default_factory=dict)
+    # ── Intent routing fields (task #6) ─────────────────────────────────────
+    # Typed fields cho intent data — dễ query hơn metadata dict chung chung.
+    intent_label: str = ""          # "advise" | "knowledge" | "clarify" | "reject" | ""
+    intent_confidence: float = 0.0  # 0.0 nếu classifier không chạy
+    turn_type: str = ""             # "answer" | "clarify" | "reject" | "safety_clarify" | ...
+    classifier_used: bool = False   # True nếu micro-model được gọi
+
+
+@dataclass
+class Session:
+    session_id: str
+    turns: list[ConversationTurn] = field(default_factory=list)
+    created_at: float = field(default_factory=time.time)
+    last_active: float = field(default_factory=time.time)
+    # Accumulated user context across turns (age, skin_type, etc.)
+    # Populated by callers; never overwritten, only merged.
+    user_context: dict = field(default_factory=dict)
+    # Tracks which follow-up fields have already been asked to avoid repeating.
+    # e.g. {"lesion_types", "distribution", "duration_weeks"}
+    asked_fields: set = field(default_factory=set)
+    # ── Session-level intent tracking (task #6) ──────────────────────────────
+    last_intent: str = ""           # intent label của turn user gần nhất
+    total_clarify_count: int = 0    # số lần bot hỏi clarify trong session này
+    accumulated_clinical_score: float = 0.0  # tổng score completeness tích lũy
+
+    def is_expired(self, ttl: float = SESSION_TTL) -> bool:
+        return (time.time() - self.last_active) > ttl
+
+    def touch(self) -> None:
+        self.last_active = time.time()
+
+
+# ── Store ────────────────────────────────────────────────────────────────────
+
+class SessionStore:
+    """Thread-safe in-memory session store.
+
+    All public methods are no-ops when session_id is None or empty, which
+    preserves the pre-history behavior of the chat pipeline exactly.
+    """
+
+    def __init__(
+        self,
+        ttl: float = SESSION_TTL,
+        max_turns: int = MAX_HISTORY_TURNS,
+    ) -> None:
+        self._sessions: dict[str, Session] = {}
+        self._lock = threading.RLock()
+        self.ttl = ttl
+        self.max_turns = max_turns
+
+    # ── Internal helpers ─────────────────────────────────────────────────────
+
+    def _is_valid_sid(self, session_id: str | None) -> bool:
+        return bool(session_id and session_id.strip())
+
+    def _expire_if_stale(self, session_id: str) -> bool:
+        """Remove session if TTL exceeded. Returns True if removed."""
+        sess = self._sessions.get(session_id)
+        if sess is not None and sess.is_expired(self.ttl):
+            del self._sessions[session_id]
+            return True
+        return False
+
+    # ── Public API ────────────────────────────────────────────────────────────
+
+    def get_or_create(self, session_id: str | None) -> Session | None:
+        """Return existing session (if live) or create a new one.
+
+        Returns None when session_id is falsy.
+        """
+        if not self._is_valid_sid(session_id):
+            return None
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            self._expire_if_stale(sid)
+            if sid not in self._sessions:
+                self._sessions[sid] = Session(session_id=sid)
+            sess = self._sessions[sid]
+            sess.touch()
+            return sess
+
+    def get_history(self, session_id: str | None) -> list[ConversationTurn]:
+        """Return the last max_turns turns for this session, oldest first.
+
+        Returns [] when session_id is falsy or session does not exist / expired.
+        """
+        if not self._is_valid_sid(session_id):
+            return []
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            self._expire_if_stale(sid)
+            sess = self._sessions.get(sid)
+            if sess is None:
+                return []
+            sess.touch()
+            if self.max_turns and self.max_turns > 0:
+                return list(sess.turns[-self.max_turns :])
+            return list(sess.turns)
+
+    def append_turn(
+        self,
+        session_id: str | None,
+        turn: ConversationTurn,
+    ) -> None:
+        """Append a turn to the session's history.
+
+        No-op when session_id is falsy.
+        Cũng tự động populate typed intent fields từ metadata nếu chưa set.
+        """
+        if not self._is_valid_sid(session_id):
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            self._expire_if_stale(sid)
+            if sid not in self._sessions:
+                self._sessions[sid] = Session(session_id=sid)
+            sess = self._sessions[sid]
+
+            # Populate typed intent fields từ metadata (backward-compat với code cũ)
+            if turn.role == "user" and turn.metadata:
+                if not turn.intent_label:
+                    turn.intent_label = str(turn.metadata.get("primary_intent", ""))
+                if not turn.intent_confidence:
+                    turn.intent_confidence = float(turn.metadata.get("intent_confidence", 0.0))
+                if not turn.turn_type:
+                    turn.turn_type = str(turn.metadata.get("turn_type", ""))
+                if not turn.classifier_used:
+                    turn.classifier_used = bool(turn.metadata.get("classifier_used", False))
+
+            # Cập nhật session-level counters
+            if turn.role == "user" and turn.intent_label:
+                sess.last_intent = turn.intent_label
+            if turn.role == "assistant" and turn.mode == "clarify":
+                sess.total_clarify_count += 1
+
+            sess.turns.append(turn)
+            # Keep only the last max_turns when an explicit bound is configured.
+            if self.max_turns and self.max_turns > 0 and len(sess.turns) > self.max_turns:
+                sess.turns = sess.turns[-self.max_turns :]
+            sess.touch()
+
+    def merge_user_context(
+        self,
+        session_id: str | None,
+        context: dict,
+    ) -> None:
+        """Merge key-value pairs into the session's accumulated user context.
+
+        Existing keys are NOT overwritten (first write wins), so early
+        user-provided data (e.g. age) is not lost on later turns.
+        No-op when session_id is falsy.
+        """
+        if not self._is_valid_sid(session_id) or not context:
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            sess = self._sessions.get(sid)
+            if sess is None:
+                return
+            for k, v in context.items():
+                if v is not None and k not in sess.user_context:
+                    sess.user_context[k] = v
+
+    def get_user_context(self, session_id: str | None) -> dict:
+        """Return accumulated user context for session. Returns {} if not found."""
+        if not self._is_valid_sid(session_id):
+            return {}
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            sess = self._sessions.get(sid)
+            return dict(sess.user_context) if sess else {}
+
+    def get_asked_fields(self, session_id: str | None) -> set:
+        """Return the set of follow-up fields already asked for this session."""
+        if not self._is_valid_sid(session_id):
+            return set()
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            sess = self._sessions.get(sid)
+            return set(sess.asked_fields) if sess else set()
+
+    def mark_fields_asked(self, session_id: str | None, fields: list[str]) -> None:
+        """Record that these follow-up fields have been asked, to avoid repetition."""
+        if not self._is_valid_sid(session_id) or not fields:
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            sess = self._sessions.get(sid)
+            if sess is not None:
+                sess.asked_fields.update(fields)
+
+    def delete(self, session_id: str | None) -> None:
+        """Explicitly remove a session (e.g. on user logout)."""
+        if not self._is_valid_sid(session_id):
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            self._sessions.pop(sid, None)
+
+    def active_count(self) -> int:
+        """Return number of non-expired sessions (for metrics/debug)."""
+        with self._lock:
+            now = time.time()
+            return sum(
+                1 for s in self._sessions.values()
+                if (now - s.last_active) <= self.ttl
+            )
+
+
+# ── Module-level singleton ────────────────────────────────────────────────────
+
+_store: SessionStore | None = None
+_store_lock = threading.Lock()
+
+
+def get_session_store() -> SessionStore:
+    """Return the process-wide SessionStore singleton (lazy init)."""
+    global _store
+    if _store is None:
+        with _store_lock:
+            if _store is None:
+                _store = SessionStore()
+    return _store
+
+
+# ── Normalized memory helpers ────────────────────────────────────────────────
+
+def _dedupe_values(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        value = str(item).strip()
+        if value and value not in seen:
+            seen.add(value)
+            out.append(value)
+    return out
+
+
+def snapshot_from_user(user: UserInput, clean_text: str = "") -> NormalizedSnapshot:
+    """Create a compact, serializable-ish snapshot from a normalized UserInput."""
+    context = user.context.model_dump(exclude_none=True)
+    clinical = user.clinical.model_dump() if user.clinical is not None else {}
+    return NormalizedSnapshot(context=context, clinical=clinical, clean_text=clean_text)
+
+
+_NEGATE_PREGNANCY_TERMS = (
+    "không mang thai", "khong mang thai", "không có thai", "khong co thai",
+    "không bầu", "khong bau", "đã sinh", "da sinh", "sau sinh",
+)
+_NEGATE_BREASTFEEDING_TERMS = (
+    "không cho con bú", "khong cho con bu", "cai sữa", "cai sua",
+    "ngưng cho bú", "ngung cho bu", "ngừng cho bú", "ngung cho bu",
+)
+_STOP_PRODUCT_TERMS = ("ngưng", "ngừng", "dừng", "không dùng", "khong dung", "bỏ")
+
+
+def _mentions_stop(clean_text: str, value: str) -> bool:
+    lowered = clean_text.lower()
+    value_lower = value.lower()
+    if value_lower not in lowered:
+        return False
+    pos = lowered.find(value_lower)
+    before = lowered[max(0, pos - 40):pos]
+    return any(term in before for term in _STOP_PRODUCT_TERMS)
+
+
+def fold_history_facts(
+    current: UserInput,
+    history: list[ConversationTurn],
+) -> UserInput:
+    """Fold prior normalized snapshots into the current user.
+
+    Strategy:
+    - stable identity facts: first write wins (age, sex, skin_type);
+    - stateful booleans: latest explicit value wins;
+    - products/medications: union, with simple stop-word removal on later turns;
+    - allergies and clinical descriptors: union.
+    """
+    # Chỉ lấy snapshot từ user turns (assistant turns không có normalized_snapshot).
+    # _is_genital_turn lọc cả assistant turns trong format_history_block() để tránh
+    # history poisoning trong prompt — nhưng ở đây chỉ cần lọc user turns vì
+    # snapshot chỉ được tạo từ user input (xem snapshot_from_user).
+    snapshots = [
+        turn.normalized_snapshot for turn in history
+        if turn.role == "user"
+        and turn.normalized_snapshot is not None
+        and not _is_genital_turn(turn)
+    ]
+    if not snapshots:
+        return current
+
+    age = current.context.age
+    sex = current.context.sex
+    skin_type = current.context.skin_type
+    duration_weeks = current.context.duration_weeks
+    is_pregnant = current.context.is_pregnant
+    is_breastfeeding = current.context.is_breastfeeding
+    allergies = list(current.context.allergies)
+    products = list(current.context.current_products)
+    medications = list(current.context.medications)
+
+    lesion_types = list(current.clinical.lesion_types) if current.clinical else []
+    distribution = list(current.clinical.lesion_distribution) if current.clinical else []
+    inflammation = current.clinical.inflammation_level if current.clinical else None
+    scarring = list(current.clinical.scarring_signs) if current.clinical else []
+    med_history = list(current.clinical.medication_history) if current.clinical else []
+    hormonal = list(current.clinical.hormonal_factors) if current.clinical else []
+    skincare = list(current.clinical.skincare_products) if current.clinical else []
+    goals = list(current.clinical.treatment_goals) if current.clinical else []
+    red_flags = list(current.clinical.red_flags_input) if current.clinical else []
+
+    for snap in snapshots:
+        ctx = snap.context or {}
+        clean = (snap.clean_text or "").lower()
+
+        if age is None and ctx.get("age") is not None:
+            age = ctx.get("age")
+        if not sex and ctx.get("sex"):
+            sex = ctx.get("sex")
+        if not skin_type and ctx.get("skin_type"):
+            skin_type = ctx.get("skin_type")
+        if duration_weeks is None and ctx.get("duration_weeks") is not None:
+            duration_weeks = ctx.get("duration_weeks")
+
+        if any(term in clean for term in _NEGATE_PREGNANCY_TERMS):
+            is_pregnant = False
+        elif ctx.get("is_pregnant"):
+            is_pregnant = True
+
+        if any(term in clean for term in _NEGATE_BREASTFEEDING_TERMS):
+            is_breastfeeding = False
+        elif ctx.get("is_breastfeeding"):
+            is_breastfeeding = True
+
+        allergies.extend(ctx.get("allergies") or [])
+        for value in ctx.get("current_products") or []:
+            if _mentions_stop(clean, value):
+                products = [p for p in products if p.lower() != value.lower()]
+            else:
+                products.append(value)
+        for value in ctx.get("medications") or []:
+            if _mentions_stop(clean, value):
+                medications = [m for m in medications if m.lower() != value.lower()]
+            else:
+                medications.append(value)
+
+        clinical = snap.clinical or {}
+        lesion_types.extend(clinical.get("lesion_types") or [])
+        distribution.extend(clinical.get("lesion_distribution") or [])
+        if inflammation is None and clinical.get("inflammation_level"):
+            inflammation = clinical.get("inflammation_level")
+        scarring.extend(clinical.get("scarring_signs") or [])
+        med_history.extend(clinical.get("medication_history") or [])
+        hormonal.extend(clinical.get("hormonal_factors") or [])
+        skincare.extend(clinical.get("skincare_products") or [])
+        goals.extend(clinical.get("treatment_goals") or [])
+        red_flags.extend(clinical.get("red_flags_input") or [])
+
+    merged_context = UserContext(
+        age=age,
+        sex=sex,
+        skin_type=skin_type,
+        is_pregnant=bool(is_pregnant),
+        is_breastfeeding=bool(is_breastfeeding),
+        allergies=_dedupe_values(allergies),
+        current_products=_dedupe_values(products),
+        medications=_dedupe_values(medications),
+        duration_weeks=duration_weeks,
+    )
+    merged_clinical = AcneClinicalInput(
+        lesion_types=_dedupe_values(lesion_types),  # type: ignore[arg-type]
+        lesion_distribution=_dedupe_values(distribution),  # type: ignore[arg-type]
+        inflammation_level=inflammation,
+        scarring_signs=_dedupe_values(scarring),
+        medication_history=_dedupe_values(med_history),
+        hormonal_factors=_dedupe_values(hormonal),
+        skincare_products=_dedupe_values(skincare),
+        treatment_goals=_dedupe_values(goals),
+        red_flags_input=_dedupe_values(red_flags),
+    )
+    has_clinical = any(
+        (
+            merged_clinical.lesion_types,
+            merged_clinical.lesion_distribution,
+            merged_clinical.inflammation_level,
+            merged_clinical.scarring_signs,
+            merged_clinical.medication_history,
+            merged_clinical.hormonal_factors,
+            merged_clinical.skincare_products,
+            merged_clinical.treatment_goals,
+            merged_clinical.red_flags_input,
+        )
+    )
+    return current.model_copy(update={
+        "context": merged_context,
+        "clinical": merged_clinical if has_clinical else None,
+    })
+
+
+# ── Prompt helpers ────────────────────────────────────────────────────────────
+
+def _is_genital_turn(turn: ConversationTurn) -> bool:
+    """True khi turn chứa nội dung vùng sinh dục/hậu môn — cần lọc khỏi history.
+
+    Lọc cả user turn lẫn assistant turn liền kề để tránh history poisoning:
+    bot mention "bìu" trong câu trả lời cũng bị loại.
+    """
+    lowered = turn.content.lower()
+    return any(term in lowered for term in _GENITAL_FILTER_TERMS)
+
+
+def format_history_block(
+    turns: list[ConversationTurn],
+    char_budget: int = HISTORY_CHAR_BUDGET,
+    first_turn_budget: int = FIRST_TURN_BUDGET,
+) -> str:
+    """Render conversation history as a compact prompt block.
+
+    Lọc các turn genital/out-of-scope trước khi inject vào prompt để tránh
+    session history poisoning (LLM mention "bìu" trong câu hỏi acne tiếp theo).
+
+    Ưu tiên anchor turn đầu tiên của user (tin nhắn gốc mô tả tình trạng):
+    - Luôn giữ turn đầu (cắt tối đa first_turn_budget chars nếu quá dài).
+    - Phần budget còn lại dùng cho các turns gần nhất (newest-first).
+
+    Returns empty string when turns is empty (caller should skip the section).
+    """
+    if not turns:
+        return ""
+
+    # Lọc bỏ các turn (và turn assistant ngay sau) có nội dung genital
+    filtered: list[ConversationTurn] = []
+    skip_next = False
+    for turn in turns:
+        if skip_next:
+            skip_next = False
+            continue
+        if turn.role == "user" and _is_genital_turn(turn):
+            skip_next = True
+            continue
+        if turn.role == "assistant" and _is_genital_turn(turn):
+            continue
+        filtered.append(turn)
+
+    if not filtered:
+        return ""
+
+    def _fmt(turn: ConversationTurn, assistant_max: int = ASSISTANT_TURN_MAX) -> str:
+        role_label = "User" if turn.role == "user" else "AcneLLM"
+        content = turn.content.strip()
+        # Cắt ngắn assistant turns để model không bám vào câu trả lời cũ
+        if turn.role == "assistant" and assistant_max > 0 and len(content) > assistant_max:
+            content = content[:assistant_max].rsplit(" ", 1)[0] + "…"
+        return f"[{role_label}]: {content}"
+
+    if not char_budget or char_budget <= 0:
+        return "\n".join(_fmt(t) for t in filtered)
+
+    # -- Anchor: luôn giữ turn đầu tiên (user turn 0 = tin nhắn gốc) ----------
+    # Tìm user turn đầu tiên trong filtered list
+    first_user_idx = next(
+        (i for i, t in enumerate(filtered) if t.role == "user"), None
+    )
+    anchor_line: str | None = None
+    anchor_chars = 0
+    if first_user_idx is not None and len(filtered) > 2:
+        # Chỉ anchor khi có đủ history (>2 turns); nếu history ngắn thì không cần
+        raw_anchor = _fmt(filtered[first_user_idx])
+        anchor_line = raw_anchor[:first_turn_budget]
+        anchor_chars = len(anchor_line)
+
+    # -- Phần còn lại: newest-first trong budget còn lại ----------------------
+    remaining_budget = char_budget - anchor_chars
+    rest_turns = filtered[first_user_idx + 1:] if anchor_line is not None else filtered
+
+    selected: list[str] = []
+    total = 0
+    for turn in reversed(rest_turns):
+        line = _fmt(turn)
+        if total + len(line) > remaining_budget and selected:
+            break
+        selected.append(line)
+        total += len(line)
+    selected.reverse()
+
+    if anchor_line is not None:
+        parts = [anchor_line]
+        if selected:
+            parts.append("...")
+            parts.extend(selected)
+        return "\n".join(parts)
+
+    return "\n".join(selected)

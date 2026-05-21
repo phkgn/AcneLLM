@@ -1,4 +1,4 @@
-from acne_llm.chat.runtime import _merge_retrieval_outputs as merge_chat_outputs
+from acne_llm.chat._retrieval import merge_retrieval_outputs as merge_chat_outputs
 from acne_llm.pipeline.hybrid import HybridPipeline
 from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 

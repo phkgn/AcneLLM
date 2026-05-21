@@ -42,46 +42,136 @@ from acne_llm.rag.cleaning import clean_vi_text
 from acne_llm.rag.embedder import Embedder
 from acne_llm.rag.sparse import BM25Index
 from acne_llm.rag.vectorstore import ChromaStore
-from acne_llm.schemas.kb import DocumentRaw, KBChunk
+from acne_llm.schemas.kb import DocumentRaw, KBChunk, infer_source_type
 
 # -- Chunk quality filters ---------------------------------------------------
 
+# Acne signals — VI: mở rộng thêm thuật ngữ điều trị và da liên quan mụn
 _ACNE_SIGNALS_VI = re.compile(
-    r"mụn|trứng cá|trung ca|bọc|đầu đen|đầu trắng|mủ|sẹo mụn|"
-    r"da liễu|da dầu|nhờn|sebum|nang lông|viêm nang|"
+    r"mụn|trứng cá|trung ca|bọc|đầu đen|đầu trắng|mủ|sẹo mụn|sẹo thâm|"
+    r"da liễu|da dầu|nhờn|sebum|nang lông|viêm nang|lỗ chân lông|"
     r"benzoyl|salicylic|retinoid|retinol|tretinoin|isotretinoin|adapalene|"
-    r"niacinamide|azelaic|comedone|bã nhờn|kháng sinh"
+    r"niacinamide|azelaic|comedone|bã nhờn|kháng sinh da|"
+    r"doxycyclin|minocyclin|clindamycin|spironolacton|tetracyclin|"
+    r"tẩy da chết|bha|aha|pha|exfoliat|peeling|"
+    r"viêm da|nhiễm khuẩn da|vi khuẩn da|cutibacterium|propionibacterium"
 )
+# Acne signals — EN: thêm kháng sinh, kỹ thuật điều trị, vi khuẩn
 _ACNE_SIGNALS_EN = re.compile(
     r"acne|pimple|blackhead|whitehead|comedone|papule|pustule|nodule|cyst(?:ic)?\s*acne|"
     r"sebaceous|sebum|folliculitis|dermatolog|skin barrier|"
     r"benzoyl|salicylic|retinoid|retinol|tretinoin|isotretinoin|adapalene|doxycycline|"
-    r"minocycline|clindamycin|spironolactone|azelaic|niacinamide"
+    r"minocycline|clindamycin|spironolactone|azelaic|niacinamide|tetracycline|"
+    r"cutibacterium|propionibacterium|c\.\s*acnes|p\.\s*acnes|"
+    r"comedogenic|non-comedogenic|keratolytic|seborrh|"
+    r"aha|bha|chemical\s*exfoliat|peeling|photodynamic|laser.*acne|acne.*laser"
 )
 
+# Off-topic — chủ đề hoàn toàn không liên quan mụn
 _OFF_TOPIC_VI = re.compile(
-    r"tắm trắng|trắng da toàn thân|làm trắng|trị thâm (?:đầu gối|khuỷu tay|nách|mông|bẹn)|"
-    r"rụng tóc|mọc tóc|trị hói|son môi|mascara|nước hoa|trang điểm|makeup|"
-    r"giảm cân|tăng cân|ăn kiêng|dinh dưỡng thể hình|"
-    r"mang thai.*dinh dưỡng|bà bầu.*ăn|sữa.*trẻ em|tiểu đường|huyết áp|"
-    r"trị nám (?:toàn thân|tay|chân)|tàn nhang|lão hóa|nếp nhăn|chống nắng toàn thân"
+    r"tắm trắng|trắng da toàn thân|làm trắng da|trị thâm (?:đầu gối|khuỷu tay|nách|mông|bẹn)|"
+    r"rụng tóc|mọc tóc|trị hói|son môi|mascara|nước hoa|trang điểm nền|makeup tutorial|"
+    r"giảm cân|tăng cân|ăn kiêng thể hình|dinh dưỡng thể hình|"
+    r"mang thai.*dinh dưỡng|bà bầu.*ăn uống|sữa.*trẻ em|tiểu đường|huyết áp cao|"
+    r"trị nám (?:toàn thân|tay|chân)|tàn nhang|lão hóa da|nếp nhăn|chống lão hóa|"
+    r"chống nắng toàn thân|ung thư da|vảy nến|chàm|tổ đỉa"
 )
 _OFF_TOPIC_EN = re.compile(
-    r"skin[-\s]?whitening|skin[-\s]?bleaching|brightening|anti[-\s]?aging|anti[-\s]?wrinkle|"
-    r"hair[-\s]?loss|hair[-\s]?growth|weight[-\s]?loss|"
-    r"lipstick|mascara|perfume|make[-\s]?up tutorial|"
-    r"wart|psoriasis|eczema|melanoma|skin[-\s]?cancer"
+    r"skin[-\s]?whitening|skin[-\s]?bleaching|skin\s*lightening|anti[-\s]?aging|anti[-\s]?wrinkle|"
+    r"hair[-\s]?loss|hair[-\s]?growth|alopecia|weight[-\s]?loss|obesity|"
+    r"lipstick|mascara|perfume|make[-\s]?up tutorial|foundation makeup|"
+    r"wart|psoriasis|eczema|atopic dermatitis|melanoma|skin[-\s]?cancer|rosacea"
 )
+
+# Boilerplate patterns — chunk toàn header/footer/navigation, không có nội dung thực
+_BOILERPLATE_RE = re.compile(
+    r"^(bài viết được (tham vấn|tư vấn|kiểm duyệt) chuyên môn|"
+    r"medically reviewed by|written by [a-z\s]+\s*\||fact.?checked by|"
+    r"last (updated|reviewed|medically reviewed)[\s:])",
+    re.IGNORECASE,
+)
+# Advertising/navigation noise thường xuất hiện trong chunk ngắn
+_AD_NOISE_RE = re.compile(
+    r"advertisem[e]?nt|xem thêm:|đọc thêm:|subscribe|newsletter|"
+    r"follow us|share this article|click here to|cookie policy|"
+    r"all rights reserved|©\s*\d{4}",
+    re.IGNORECASE,
+)
+
+# Listicle / spa / clinic directory filter — drop toàn bộ doc nếu title là listicle
+# địa chỉ, spa, phòng khám, ưu đãi, combo, đặt lịch, review clinic...
+# CHÚ Ý: chỉ drop khi title rõ ràng là directory/spa/clinic/promo, KHÔNG drop medical listicle
+# (vd: "Top 4 thuốc trị mụn theo bác sĩ" là nội dung y tế hợp lệ)
+_LISTICLE_TITLE_RE = re.compile(
+    # Top N spa/phòng khám/clinic/địa chỉ/cơ sở/thẩm mỹ — directory listing
+    r"top\s+\d+\s+.*(spa|phòng khám|clinic|địa chỉ|cơ sở|thẩm mỹ\s*viện)|"
+    # spa/phòng khám/clinic/thẩm mỹ viện + uy tín/tốt nhất/giá rẻ — clinic directory
+    r"(spa|phòng khám|clinic|thẩm mỹ viện).*(uy tín|tốt nhất|giá rẻ|chất lượng)|"
+    # địa chỉ trị mụn / địa chỉ da liễu — address listing
+    r"địa chỉ\s+(trị mụn|da liễu|skin\s*care?)|"
+    # bảng giá / giá dịch vụ — price listing
+    r"(bảng giá|giá dịch vụ|chi phí điều trị).*(trị mụn|laser|peeling|peel da)|"
+    # ưu đãi / combo / voucher — promotional
+    r"(ưu đãi|khuyến mãi|combo|voucher|deal).*(mụn|da|skin|laser|peel)|"
+    # đặt lịch / đặt hẹn — booking guide
+    r"(đặt lịch|book lịch|đặt hẹn)\s+(trị mụn|khám da|điều trị|bệnh viện|phòng khám)|"
+    # review phòng khám/spa/clinic
+    r"review\s+(phòng khám|spa|clinic|thẩm mỹ)|"
+    # hướng dẫn đặt lịch
+    r"hướng dẫn\s+đặt lịch\s+",
+    re.IGNORECASE,
+)
+
+
+def _is_listicle_doc(title: str) -> bool:
+    """Trả True nếu doc là listicle spa/clinic/ưu đãi — không có giá trị y tế."""
+    return bool(_LISTICLE_TITLE_RE.search(title))
+
+
+# CJK detector — phòng crawl nhầm trang zh/ja/ko
+_CJK_RE = re.compile(r"[一-鿿㐀-䶿　-〿]")
+_CJK_THRESHOLD = 0.20
+
+
+def _repetition_ratio(text: str) -> float:
+    """Tỉ lệ từ lặp lại — cao → chunk là boilerplate lặp lại."""
+    words = text.lower().split()
+    if len(words) < 15:
+        return 0.0
+    return 1.0 - len(set(words)) / len(words)
 
 
 def _is_acne_chunk(text: str, language: str = "vi") -> bool:
-    """HIGH-2: Filter chunks by acne relevance.
+    """Trả True nếu chunk có tín hiệu acne và không phải off-topic/boilerplate.
 
-    Returns True only if the chunk contains acne-specific signals and
-    does NOT contain off-topic content (skincare/beauty not related to acne).
+    Các bộ lọc theo thứ tự từ nhanh đến chậm:
+    1. CJK dominant → drop
+    2. Boilerplate header → drop
+    3. Ad/navigation noise trong chunk ngắn → drop
+    4. Quá nhiều từ lặp (repetition > 0.72) → drop
+    5. Không có acne signal → drop
+    6. Off-topic dominant → drop
     """
-    text_lower = text.lower()
+    # 1. CJK
+    if len(_CJK_RE.findall(text)) / max(len(text), 1) > _CJK_THRESHOLD:
+        return False
 
+    text_stripped = text.strip()
+    text_lower = text_stripped.lower()
+
+    # 2. Boilerplate header (chunk bắt đầu bằng "bài viết được tham vấn...")
+    if _BOILERPLATE_RE.match(text_stripped[:120]):
+        return False
+
+    # 3. Ad/navigation noise trong chunk ngắn (<600 chars)
+    if len(text_stripped) < 600 and _AD_NOISE_RE.search(text_lower):
+        return False
+
+    # 4. Repetition (lặp câu/cụm từ — thường là boilerplate)
+    if _repetition_ratio(text) > 0.72:
+        return False
+
+    # 5. Acne signal check
     if language == "vi":
         if not _ACNE_SIGNALS_VI.search(text_lower):
             return False
@@ -144,60 +234,156 @@ def step_chunk(min_quality: float = 0.3, min_chunk_chars: int = 50,
             f"[chunk] 0 valid documents after filtering. Keeping existing chunks untouched."
         )
 
-    chunker = VietnameseChunker(chunk_size=200, overlap=40, min_size=50)
+    # dedup=False: intra-doc near-dup disabled; cross-doc dedup handled in Phase 2
+    chunker = VietnameseChunker(chunk_size=200, overlap=40, min_size=50, dedup=False)
     CHUNKS_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = CHUNKS_PATH.with_name(f"{CHUNKS_PATH.name}.tmp")
 
-    total = 0
-    filtered_short = 0
+    # Near-dup shingling: top-K word fingerprint, O(n)
+    _SHINGLE_TOP_K   = 20   # số từ phổ biến nhất làm fingerprint
+    _SHINGLE_MIN_WORDS = 60  # chỉ áp dụng với chunk đủ dài
+
+    def _shingle_key(text: str) -> frozenset:
+        words = re.sub(r"\s+", " ", text.lower()).split()
+        cnt: dict[str, int] = {}
+        for w in words:
+            cnt[w] = cnt.get(w, 0) + 1
+        top = sorted(cnt, key=lambda w: -cnt[w])[:_SHINGLE_TOP_K]
+        return frozenset(top)
+
+    filtered_short    = 0
     filtered_offtopic = 0
+    filtered_lang     = 0
+    filtered_dup      = 0
+    filtered_listicle = 0
     t0 = time.time()
 
+    # ── Bước 1: Thu thập chunk thô theo từng doc, filter content, CHƯA gán link ──
+    # Mỗi phần tử: (doc, list[chunk_text_đã_pass_filter])
+    # Giữ nguyên thứ tự trong doc để rebuild position/prev/next sau.
+
+    # Dùng dict doc_id -> list[chunk_text] để dedup cross-doc sau
+    doc_chunks: list[tuple[object, list[str]]] = []  # (doc, [chunk_text, ...])
+
     try:
-        with open(tmp_path, "w", encoding="utf-8") as out:
-            for idx, doc in enumerate(docs):
-                text = clean_vi_text(doc.text)
-                if not text:
+        for idx, doc in enumerate(docs):
+            # Doc-level listicle / spa / clinic filter (title-based)
+            if _is_listicle_doc(doc.title):
+                filtered_listicle += 1
+                continue
+
+            text = clean_vi_text(doc.text)
+            if not text:
+                continue
+
+            raw_chunks = chunker.chunk(text)
+            lang = doc.source.language
+
+            # Drop ngôn ngữ không hợp lệ theo field
+            if lang not in ("vi", "en"):
+                filtered_lang += len(raw_chunks)
+                continue
+
+            kept_texts: list[str] = []
+            for chunk_text in raw_chunks:
+                if len(chunk_text) < min_chunk_chars:
+                    filtered_short += 1
                     continue
+                if not _is_acne_chunk(chunk_text, lang):
+                    filtered_offtopic += 1
+                    continue
+                kept_texts.append(chunk_text)
 
-                raw_chunks = chunker.chunk(text)
-                n = len(raw_chunks)
-                lang = doc.source.language
+            if kept_texts:
+                doc_chunks.append((doc, kept_texts))
 
-                for i, chunk_text in enumerate(raw_chunks):
-                    # HIGH-2: Filter short chunks
-                    if len(chunk_text) < min_chunk_chars:
-                        filtered_short += 1
-                        continue
-                    # HIGH-2: Filter non-acne chunks
-                    if not _is_acne_chunk(chunk_text, lang):
-                        filtered_offtopic += 1
-                        continue
+            if idx > 0 and idx % 500 == 0:
+                n_so_far = sum(len(ct) for _, ct in doc_chunks)
+                logger.info(f"[chunk] {idx}/{len(docs)} docs, {n_so_far} chunks qua filter...")
 
-                    chunk = KBChunk(
-                        chunk_id=f"{doc.doc_id}::{i:04d}",
-                        doc_id=doc.doc_id,
-                        text=chunk_text,
-                        text_len=len(chunk_text),
-                        position=i,
-                        prev_chunk_id=f"{doc.doc_id}::{i-1:04d}" if i > 0 else None,
-                        next_chunk_id=f"{doc.doc_id}::{i+1:04d}" if i < n - 1 else None,
-                        url=doc.url,
-                        title=doc.title,
-                        source_name=doc.source.source_name,
-                        trust_level=doc.source.trust_level,
-                        language=doc.source.language,
-                        categories=doc.categories,
-                        tags=doc.tags,
-                    )
-                    out.write(chunk.model_dump_json() + "\n")
-                    total += 1
-
-                if idx > 0 and idx % 500 == 0:
-                    logger.info(f"[chunk] {idx}/{len(docs)} docs processed, {total} chunks...")
     except Exception:
         tmp_path.unlink(missing_ok=True)
         raise
+
+    logger.info(f"[chunk] Filtered: {filtered_listicle} docs listicle/spa/clinic (title filter)")
+
+    # ── Bước 2: Cross-doc dedup (exact + near-dup shingling) ─────────────────────
+    # Ưu tiên trust_level cao hơn: sắp xếp doc theo trust trước
+    _TRUST_ORDER = {"high": 0, "medium": 1, "low": 2}
+    doc_chunks.sort(key=lambda x: _TRUST_ORDER.get(x[0].source.trust_level or "low", 2))
+
+    seen_texts:    dict[str, str]      = {}   # norm_text -> chunk_id đã giữ
+    seen_shingles: dict[frozenset, str] = {}  # shingle_key -> chunk_id đã giữ
+
+    # doc_id -> list[chunk_text đã qua dedup], giữ thứ tự trong doc
+    deduped_by_doc: dict[str, tuple[object, list[str]]] = {}
+
+    for doc, texts in doc_chunks:
+        kept: list[str] = []
+        for chunk_text in texts:
+            norm = re.sub(r"\s+", " ", chunk_text.strip())
+
+            if norm in seen_texts:
+                filtered_dup += 1
+                logger.debug(f"[chunk] EXACT-DUP dropped from {doc.doc_id}")
+                continue
+
+            words = norm.split()
+            if len(words) >= _SHINGLE_MIN_WORDS:
+                key = _shingle_key(norm)
+                if key in seen_shingles:
+                    filtered_dup += 1
+                    logger.debug(f"[chunk] NEAR-DUP dropped from {doc.doc_id} (~{seen_shingles[key]})")
+                    continue
+                seen_shingles[key] = f"{doc.doc_id}::?"
+
+            seen_texts[norm] = doc.doc_id
+            kept.append(chunk_text)
+
+        if kept:
+            deduped_by_doc[doc.doc_id] = (doc, kept)
+
+    # ── Bước 3: Rebuild position + prev_chunk_id + next_chunk_id ─────────────────
+    # Đây là bước fix lỗi gốc: gán link SAU khi đã biết đủ chunk nào còn lại
+    all_chunks: list[KBChunk] = []
+
+    for doc_id, (doc, texts) in deduped_by_doc.items():
+        n = len(texts)
+        source_type = (
+            doc.source.source_type
+            if doc.source.source_type != "unknown"
+            else infer_source_type(
+                source_name=doc.source.source_name,
+                domain=doc.source.domain,
+                url=doc.url,
+                tags=doc.tags,
+                categories=doc.categories,
+            )
+        )
+        for pos, chunk_text in enumerate(texts):
+            chunk_id      = f"{doc_id}::{pos:04d}"
+            prev_chunk_id = f"{doc_id}::{pos-1:04d}" if pos > 0 else None
+            next_chunk_id = f"{doc_id}::{pos+1:04d}" if pos < n - 1 else None
+
+            all_chunks.append(KBChunk(
+                chunk_id=chunk_id,
+                doc_id=doc_id,
+                text=chunk_text,
+                text_len=len(chunk_text),
+                position=pos,
+                prev_chunk_id=prev_chunk_id,
+                next_chunk_id=next_chunk_id,
+                url=doc.url,
+                title=doc.title,
+                source_name=doc.source.source_name,
+                source_type=source_type,
+                trust_level=doc.source.trust_level,
+                language=doc.source.language,
+                categories=doc.categories,
+                tags=doc.tags,
+            ))
+
+    total = len(all_chunks)
 
     if total == 0:
         tmp_path.unlink(missing_ok=True)
@@ -205,14 +391,27 @@ def step_chunk(min_quality: float = 0.3, min_chunk_chars: int = 50,
             "[chunk] 0 chunks after filtering. Keeping existing chunks untouched."
         )
 
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as out:
+            for chunk in all_chunks:
+                out.write(chunk.model_dump_json() + "\n")
+    except Exception:
+        tmp_path.unlink(missing_ok=True)
+        raise
+
     tmp_path.replace(CHUNKS_PATH)
 
     elapsed = time.time() - t0
     logger.success(f"[chunk] Xong! {total} chunks tu {len(docs)} docs trong {elapsed:.1f}s")
+    logger.info(f"[chunk] position/prev/next da duoc rebuild sau filter — khong con broken links")
     if filtered_short:
         logger.info(f"[chunk] Filtered: {filtered_short} chunks too short (< {min_chunk_chars} chars)")
     if filtered_offtopic:
-        logger.info(f"[chunk] Filtered: {filtered_offtopic} chunks off-topic (non-acne)")
+        logger.info(f"[chunk] Filtered: {filtered_offtopic} chunks off-topic / boilerplate / noise")
+    if filtered_lang:
+        logger.info(f"[chunk] Filtered: {filtered_lang} chunks non-vi/en language")
+    if filtered_dup:
+        logger.info(f"[chunk] Filtered: {filtered_dup} chunks duplicate (exact + near-dup)")
     logger.success(f"[chunk] -> {CHUNKS_PATH}")
     return total
 
@@ -264,6 +463,7 @@ def step_embed(batch_size: int = 32, force: bool = False) -> int:
                 f"{total_expected}. Index co the bi stale; chay lai voi --force."
             )
 
+
     logger.info(f"[embed] Doc chunks tu {CHUNKS_PATH}")
     chunks: list[KBChunk] = []
     with open(CHUNKS_PATH, encoding="utf-8") as f:
@@ -284,7 +484,7 @@ def step_embed(batch_size: int = 32, force: bool = False) -> int:
         )
 
     try:
-        from config.settings import settings
+        from acne_llm.config import settings
         emb_model = getattr(settings, "embedding_model_multilingual", "") or settings.embedding_model
         device = settings.device
     except Exception:
@@ -302,16 +502,13 @@ def step_embed(batch_size: int = 32, force: bool = False) -> int:
         texts = [c.text for c in batch]
         batch_num = i // UPSERT_BATCH + 1
         total_batches = (len(chunks) - 1) // UPSERT_BATCH + 1
-
         logger.info(f"[embed] Batch {batch_num}/{total_batches} ({i} -> {i + len(batch)})...")
-
         try:
             embs = embedder.embed_passages(texts)
             store.upsert(batch, embs.tolist())
             total_done += len(batch)
         except Exception as e:
             raise RuntimeError(f"[embed] Loi tai batch {batch_num}: {e}") from e
-
         elapsed = time.time() - t0
         rate = total_done / elapsed if elapsed > 0 else 1
         eta = (len(chunks) - total_done) / rate
@@ -379,38 +576,15 @@ def step_bm25(force: bool = False) -> int:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Build AcneLLM Knowledge Base")
-    p.add_argument(
-        "--step",
-        choices=["chunk", "embed", "bm25", "all"],
-        default="all",
-        help="Buoc can chay (default: all)",
-    )
-    p.add_argument(
-        "--min-quality",
-        type=float,
-        default=0.5,
-        dest="min_quality",
-        help="Loc docs co quality_score < gia tri nay (default: 0.5)",
-    )
-    p.add_argument(
-        "--min-chunk-chars",
-        type=int,
-        default=50,
-        dest="min_chunk_chars",
-        help="Loc chunk co do dai < gia tri nay (default: 50)",
-    )
-    p.add_argument(
-        "--batch-size",
-        type=int,
-        default=32,
-        dest="batch_size",
-        help="Batch size cho embedding (default: 32)",
-    )
-    p.add_argument(
-        "--force",
-        action="store_true",
-        help="Rebuild du output da ton tai",
-    )
+    p.add_argument("--step", choices=["chunk", "embed", "bm25", "all"], default="all",
+                   help="Buoc can chay (default: all)")
+    p.add_argument("--min-quality", type=float, default=0.5, dest="min_quality",
+                   help="Loc docs co quality_score < gia tri nay (default: 0.5)")
+    p.add_argument("--min-chunk-chars", type=int, default=50, dest="min_chunk_chars",
+                   help="Loc chunk co do dai < gia tri nay (default: 50)")
+    p.add_argument("--batch-size", type=int, default=32, dest="batch_size",
+                   help="Batch size cho embedding (default: 32)")
+    p.add_argument("--force", action="store_true", help="Rebuild du output da ton tai")
     return p.parse_args()
 
 

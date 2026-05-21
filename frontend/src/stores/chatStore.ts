@@ -1,7 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import type { ChatMessage, ChatSettings, Citation, DoneData } from "@/lib/types";
+import { DEFAULT_CHAT_SETTINGS } from "@/config/chatConfig";
+import type { ChatMessage, ChatSettings, Citation, DoneData, FeedbackRating } from "@/lib/types";
 
 function makeId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -29,6 +30,7 @@ interface ChatStore {
   addCitationToLastAssistant: (citation: Citation) => void;
   finishLastAssistant: (data: DoneData) => void;
   failLastAssistant: (message: string) => void;
+  setMessageFeedback: (messageId: string, rating: FeedbackRating) => void;
   setLoading: (value: boolean) => void;
   setSettings: (settings: Partial<ChatSettings>) => void;
   clearMessages: () => void;
@@ -38,7 +40,7 @@ export const useChatStore = create<ChatStore>((set) => ({
   messages: [],
   sessionId: makeId(),
   isLoading: false,
-  settings: { mode: "auto", topK: 5, temperature: 0.3 },
+  settings: DEFAULT_CHAT_SETTINGS,
 
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
 
@@ -89,6 +91,7 @@ export const useChatStore = create<ChatStore>((set) => ({
           isStreaming: false,
           mode: data.mode,
           latency_ms: data.latency_ms,
+          evidence_quality: data.evidence_quality,
         };
       }
       return { messages };
@@ -108,6 +111,13 @@ export const useChatStore = create<ChatStore>((set) => ({
       }
       return { messages };
     }),
+
+  setMessageFeedback: (messageId, rating) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === messageId ? { ...m, feedback: rating } : m,
+      ),
+    })),
 
   setLoading: (value) => set({ isLoading: value }),
 

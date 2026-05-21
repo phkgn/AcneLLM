@@ -1,0 +1,61 @@
+<user_data>
+<description>{{ description }}</description>
+
+<context>
+- Tuổi: {{ age if age is not none else "không rõ" }}
+- Giới tính: {{ sex or "không rõ" }}
+- Loại da: {{ skin_type or "không rõ" }}
+- Đang mang thai: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_pregnant else "không" }}
+- Đang cho con bú: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_breastfeeding else "không" }}
+- Dị ứng: {{ allergies }}
+- Thuốc đang dùng: {{ medications }}
+</context>
+
+<vision>{{ vision_summary }}</vision>
+
+{% if completeness_hint %}
+<!-- HƯỚNG DẪN: {{ completeness_hint }} -->
+{% endif %}
+
+{% if history_block %}
+<conversation_history>
+{{ history_block }}
+</conversation_history>
+{% endif %}
+</user_data>
+
+{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}
+<retrieved_context>
+{{ retrieved_context }}
+</retrieved_context>
+{% endif %}
+
+<task>
+Trả lời bằng tiếng Việt, thân thiện và ngắn gọn.
+
+### Quy tắc
+
+1. Chỉ trả lời trong phạm vi da mụn. Nếu ngoài phạm vi: từ chối lịch sự.
+2. Chỉ dùng thông tin từ `<user_data>`, `<vision>`{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}, `<retrieved_context>`{% endif %}. Nếu thiếu thông tin, hỏi tự nhiên thay vì đoán mò.
+3. Không kê liều lượng, tần suất, thời gian dùng thuốc cụ thể.
+4. Không khuyên tự nặn, tự chích, tự lăn kim tại nhà.
+5. Dấu hiệu nặng (mụn bọc, mụn nang, sẹo, nhiễm trùng): ưu tiên khuyến nghị gặp bác sĩ da liễu.
+6. Mang thai hoặc cho con bú: không đề cập retinoid, isotretinoin, tretinoin, adapalene, tazarotene, kháng sinh nhóm tetracycline.
+7. Tuổi dưới 12: khuyến nghị bác sĩ nhi hoặc da liễu nhi.
+{% if history_block %}
+8. **Sử dụng lịch sử hội thoại**: Đọc `<conversation_history>` để hiểu ngữ cảnh. Không lặp lại nguyên xi câu trả lời cũ; nếu người dùng hỏi tiếp theo chủ đề cũ thì bổ sung hoặc làm rõ thêm.
+{% endif %}
+{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}
+9. **Citation inline**: Đặt `[N]` ngay sau câu lấy trực tiếp từ nguồn đó. Không gộp số vào cuối bài.
+{% endif %}
+10. **Độ dài**: Câu hỏi đơn giản ≤150 từ. Câu hỏi phức tạp hoặc nhiều bước ≤300 từ.
+11. **Disclaimer**: Chỉ thêm lưu ý "thông tin tham khảo" một lần duy nhất trong toàn bộ câu trả lời. Nếu đã có trong `<conversation_history>`, bỏ qua.
+
+Trả lời trực tiếp bằng văn xuôi tiếng Việt. Có thể dùng bullet point khi cần liệt kê bước cụ thể.
+</task>
+
+{% if extended_rules %}
+<guideline_priority>
+{{ extended_rules }}
+</guideline_priority>
+{% endif %}

@@ -10,4 +10,10 @@ async def metrics(request: Request):
     if settings is not None and not getattr(settings, "metrics_enabled", True):
         return Response(status_code=404)
     registry = request.app.state.metrics
+    # Bug #5 fix: sync guardrail_trigger_count từ GuardrailRunner vào MetricsRegistry
+    container = getattr(request.app.state, "container", None)
+    if container is not None:
+        guardrails = getattr(container, "guardrails", None)
+        if guardrails is not None:
+            registry.guardrail_trigger_count = getattr(guardrails, "trigger_count", 0)
     return PlainTextResponse(registry.render_prometheus())

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "q001",
+    "scope": "hybrid",
+    "rouge_l": null,
+    "has_referral": true,
+    "has_citation": true,
+    "word_count": 7,
+    "char_count": 26
+  },
+  {
+    "id": "q002",
+    "scope": "hybrid",
+    "rouge_l": null,
+    "has_referral": false,
+    "has_citation": false,
+    "word_count": 4,
+    "char_count": 16
+  }
+]

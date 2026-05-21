@@ -6,6 +6,8 @@ from pathlib import Path
 from loguru import logger
 
 from ..schemas import UserInput, AdviseOutput, RedFlag, Recommendation
+from .ood_detector import OodDetector, mask_pii, contains_pii
+from .drug_checker import DrugChecker, DrugWarning
 
 
 # ─────────── Scope detection terms ───────────
@@ -105,10 +107,34 @@ _ACNE_SCOPE_TERMS = (
     "lưng", "lung", "ngực", "nguc", "vai", "bả vai",
     "mông", "mong", "đùi", "dui", "cổ", "co", "sau gáy",
     "hairline", "chân tóc", "chan toc",
+    # ── Diễn biến / di chuyển tổn thương ──
+    "lan xuống", "lan xuong", "lan ra", "lan sang",
+    "lan từ mặt", "lan tu mat", "lan lên", "lan len",
+    "chuyển xuống", "chuyen xuong", "chuyển sang", "chuyen sang",
+    "từ mặt xuống", "tu mat xuong", "từ lưng lên", "tu lung len",
+    "bớt ở mặt", "bot o mat", "giảm ở mặt", "giam o mat",
+    "hết ở mặt", "het o mat", "hết trên mặt", "het tren mat",
+    "lại nổi ở", "lai noi o", "nổi ở vùng khác", "noi o vung khac",
+    "mụn di chuyển", "mun di chuyen", "mụn lan", "mun lan",
+    "nổi thêm ở", "noi them o", "xuất hiện thêm ở", "xuat hien them o",
+    "mụn đã bớt", "mun da bot", "mụn đã giảm", "mun da giam",
+    "thay vào đó nổi", "thay vao do noi",
     # ── Da liễu / bác sĩ ──
     "da liễu", "da lieu", "bác sĩ da liễu", "bac si da lieu",
     "khám da liễu", "kham da lieu", "phòng khám da liễu",
     "dermatologist", "dermatology", "dermatitis",
+)
+
+_GENITAL_BODY_TERMS = (
+    # Vùng sinh dục / hậu môn — rõ ràng ngoài phạm vi tư vấn mụn da
+    "bìu", "biu", "dương vật", "duong vat", "sinh dục", "sinh duc",
+    "âm đạo", "am dao", "âm hộ", "am ho", "âm vật", "am vat",
+    "hậu môn", "hau mon", "trực tràng", "truc trang",
+    "mụn sinh dục", "mun sinh duc", "mụn ở bìu", "mun o biu",
+    "mụn ở dương vật", "mụn ở hậu môn", "mụn ở âm đạo",
+    "mụn vùng kín", "mun vung kin", "vùng kín", "vung kin",
+    "mụn dưới đáy chậu", "mụn ở bộ phận sinh dục",
+    "mụn ở vùng nhạy cảm", "mun o vung nhay cam",
 )
 
 _OUT_OF_SCOPE_INTENT_TERMS = (
@@ -248,8 +274,21 @@ def is_prompt_injection(text: str) -> bool:
     return any(p in q for p in _PROMPT_INJECTION_PHRASES)
 
 
+def is_genital_out_of_scope(text: str) -> bool:
+    """True khi text mention vùng sinh dục/hậu môn — ngoài phạm vi mụn da."""
+    return _contains_any(text, _GENITAL_BODY_TERMS)
+
+
 class GuardrailRunner:
-    def __init__(self, config_path: str):
+    def __init__(
+        self,
+        config_path: str,
+        embedder=None,
+        ood_threshold: float = 0.25,
+        centroid_path: str | None = None,
+        enable_ood: bool = True,
+        scope_mode: str = "soft",
+    ):
         p = Path(config_path)
         if p.exists():
             with open(p, "r", encoding="utf-8") as f:
@@ -258,23 +297,110 @@ class GuardrailRunner:
             logger.warning(f"guardrails.yaml not found at {p}, running with empty rules")
             self.cfg = {"rules": []}
         self.rules: list[dict] = self.cfg.get("rules", [])
+        self.scope_mode = self._normalize_scope_mode(scope_mode)
+
+        # OOD detector — lazy: chỉ init khi embedder được truyền vào
+        self.enable_ood = enable_ood
+        self._ood: OodDetector | None = None
+        if enable_ood and embedder is not None:
+            _centroid_path = centroid_path or str(
+                Path(config_path).parent / "ood_centroid.json"
+            )
+            self._ood = OodDetector(
+                embedder=embedder,
+                centroid_path=_centroid_path,
+                ood_threshold=ood_threshold,
+            )
+            logger.info(
+                f"[guardrails] OOD detector ready "
+                f"(threshold={ood_threshold}, centroid={_centroid_path})"
+            )
+
+        # Drug checker -- auto-discover drugs_acne.yaml cung cap voi guardrails.yaml
+        _drug_yaml = str(Path(config_path).parent / "drugs_acne.yaml")
+        self._drug_checker: DrugChecker | None = None
+        if Path(_drug_yaml).exists():
+            self._drug_checker = DrugChecker(_drug_yaml)
+        else:
+            logger.info(f"[guardrails] drugs_acne.yaml not found at {_drug_yaml}, drug checker disabled")
+
+    @staticmethod
+    def _normalize_scope_mode(scope_mode: str) -> str:
+        mode = (scope_mode or "soft").strip().lower()
+        if mode not in {"hard", "soft", "off"}:
+            logger.warning(
+                f"[guardrails] Invalid scope_mode={scope_mode!r}; falling back to soft"
+            )
+            return "soft"
+        return mode
 
     # ─────────── pre-check (before LLM) ───────────
     def pre_check(self, user: UserInput) -> None:
-        if len(user.description.strip()) < 3:
+        if len(user.description.strip()) < 1:
             raise ValueError("description quá ngắn")
         if is_prompt_injection(user.description):
             raise ValueError("Phát hiện prompt injection trong description")
+        # PII detection — chỉ log cảnh báo, không từ chối (user có thể nhập
+        # thông tin cá nhân hợp lệ như tuổi, giới tính)
+        if contains_pii(user.description):
+            masked = mask_pii(user.description)
+            logger.warning(
+                f"[guardrails] PII detected in user description. "
+                f"Masked for log: {masked[:200]}"
+            )
 
-    def scope_check(self, user: UserInput) -> AdviseOutput | None:
-        """Return a refusal response for clearly out-of-scope questions.
+    def _scope_refusal_if_out_of_scope(
+        self,
+        user: UserInput,
+        has_acne_history: bool = False,
+    ) -> AdviseOutput | None:
+        """Build the old deterministic refusal when text is out of acne scope.
 
-        Unsafe topics such as self-harm are handled earlier by the chat runtime
-        and should not be filtered here.
+        Kiểm tra 2 tầng:
+        1. Keyword-based (nhanh, không cần model): _ACNE_SCOPE_TERMS /
+           _OUT_OF_SCOPE_INTENT_TERMS — bắt nhanh câu hỏi rõ ràng in/out.
+        2. Embedding-based OOD (chính xác hơn): cosine similarity với
+           centroid acne domain — bắt câu hỏi ngắn / biến thể lạ / không
+           có keyword nhưng rõ ràng ngoài domain.
+
+        Args:
+            has_acne_history: Khi True (session đã có acne turns trước), bỏ
+                qua OOD check — follow-up ngắn như "còn gì nữa k" hợp lệ
+                trong ngữ cảnh session acne.
         """
-        if self.is_acne_scope_text(user.description):
+        # O2: Session-aware OOD — không check OOD nếu session đã xác nhận acne context.
+        # Follow-up ngắn trong session acne ("còn gì nữa k", "sao vậy") không cần OOD.
+        if has_acne_history:
+            logger.debug("[guardrails] has_acne_history=True — skip OOD check")
             return None
 
+        # Tầng 1: keyword check (instant, no model needed)
+        if self.is_acne_scope_text(user.description):
+            return None  # clearly in-scope → pass
+
+        # Tầng 2: embedding OOD check (chỉ khi keyword tầng 1 không xác định
+        # rõ là in-scope — tức là không có acne keyword rõ ràng)
+        if self._ood is not None:
+            ood = self._ood.is_out_of_domain(user.description)
+            sim = self._ood.similarity(user.description)
+            if sim is None:
+                logger.debug(
+                    "[guardrails] Keyword miss and OOD unavailable; "
+                    "using keyword-only scope decision"
+                )
+            elif not ood:
+                # OOD model cho là in-scope dù không có keyword → pass
+                logger.debug(
+                    f"[guardrails] Keyword miss but OOD sim={sim:.3f} "
+                    f"> threshold → pass"
+                )
+                return None
+            else:
+                logger.debug(
+                    f"[guardrails] OOD confirmed: sim={sim:.3f} "
+                    f"< {self._ood.ood_threshold}"
+                )
+        # Không có OOD model → tin vào keyword: không có acne keyword → refuse
         return AdviseOutput(
             severity="unknown",
             acne_type_primary="unknown",
@@ -293,6 +419,36 @@ class GuardrailRunner:
             latency_ms=0,
         )
 
+    def scope_check(
+        self,
+        user: UserInput,
+        has_acne_history: bool = False,
+    ) -> AdviseOutput | None:
+        """Return a refusal only when scope_mode is hard.
+
+        soft mode keeps the out-of-scope signal as telemetry and lets the
+        fine-tuned LLM decide how to answer/refuse naturally.
+
+        Args:
+            has_acne_history: Forward to _scope_refusal_if_out_of_scope to
+                skip OOD for short follow-ups in an established acne session.
+        """
+        if self.scope_mode == "off":
+            return None
+
+        refusal = self._scope_refusal_if_out_of_scope(user, has_acne_history=has_acne_history)
+        if refusal is None:
+            return None
+
+        if self.scope_mode == "soft":
+            logger.info(
+                "[guardrails] Soft out-of-scope signal; passing to LLM: "
+                f"{user.description[:160]}"
+            )
+            return None
+
+        return refusal
+
     @staticmethod
     def is_acne_scope_text(text: str) -> bool:
         lowered = text.lower().replace("acnellm", "")
@@ -300,15 +456,47 @@ class GuardrailRunner:
             return False
         return _contains_any(lowered, _ACNE_SCOPE_TERMS)
 
+    @staticmethod
+    def is_genital_scope(text: str) -> bool:
+        """True khi text mention vùng sinh dục/hậu môn."""
+        return is_genital_out_of_scope(text)
+
     # ─────────── post-check ───────────
     def post_check(self, out: AdviseOutput, user: UserInput) -> AdviseOutput:
-        out = self._apply_retinoid_blocks(out, user)
+        out = self._apply_drug_checker(out, user)   # DrugChecker (YAML + OpenFDA)
+        out = self._apply_retinoid_blocks(out, user) # fallback rule (kiem tra phan con lai)
         out = self._apply_severe_doctor(out)
         out = self._apply_age_restriction(out, user)
         out = self._apply_no_popping(out)
         out = self._apply_medication_safety(out)
         out = self._apply_medication_allergy_redflag(out, user)
         out = self._ensure_disclaimer(out)
+        return out
+
+    def _apply_drug_checker(self, out: AdviseOutput, user: UserInput) -> AdviseOutput:
+        if self._drug_checker is None:
+            return out
+        medications = list(user.context.medications or [])
+        medications += list(user.context.current_products or [])
+        if not medications:
+            return out
+        try:
+            warnings = self._drug_checker.check(medications, user.context)
+            for w in warnings:
+                if w.is_critical:
+                    out.red_flags.append(RedFlag(
+                        flag=f"Canh bao thuoc: {w.matched_drug} ({w.pregnancy_category})",
+                        severity="urgent",
+                        reason=w.warning_vi[:200] if w.warning_vi else "Chong chi dinh y khoa",
+                    ))
+                elif w.severity == "moderate" and w.warning_vi:
+                    out.red_flags.append(RedFlag(
+                        flag=f"Luu y thuoc: {w.matched_drug}",
+                        severity="warning",
+                        reason=w.warning_vi[:200],
+                    ))
+        except Exception as e:
+            logger.warning(f"[DrugChecker] post_check error: {e}")
         return out
 
     def _apply_retinoid_blocks(self, out: AdviseOutput, user: UserInput) -> AdviseOutput:
@@ -335,7 +523,7 @@ class GuardrailRunner:
                         "Tránh các thành phần retinoid/isotretinoin và vitamin A liều cao. "
                         "Tham khảo bác sĩ da liễu để chọn giải pháp an toàn."
                     ),
-                    "rationale": "Chống chỉ định retinoid trong thai kỳ và thờii gian cho con bú.",
+                    "rationale": "Chống chỉ định retinoid trong thai kỳ và thời gian cho con bú.",
                     "category": "medication",
                 })
             new_recs.append(r)
@@ -505,10 +693,9 @@ class GuardrailRunner:
         has_medication_rec = any(r.category == "medication" for r in out.recommendations)
         if not has_medication_rec:
             return out
-        # Tránh duplicate flag
         existing = [f.flag.lower() for f in out.red_flags]
         new_flag_text = (
-            "Đang dùng thuốc / có tiền sử dị ứng — "
+                        "Đang dùng thuốc / có tiền sử dị ứng — "
             "cần tham khảo ý kiến bác sĩ trước khi dùng thêm thuốc điều trị mụn"
         )
         if any(new_flag_text.lower() in e for e in existing):

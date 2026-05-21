@@ -1,47 +1,72 @@
 """Hybrid pipeline: RAG (dense+sparse+RRF) -> rerank -> LLM JSON."""
 from __future__ import annotations
 import json
+import re
 import time
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from ..schemas import UserInput, AdviseOutput, RetrievalOutput, RetrievedChunk
 from ..schemas.clinical import ClinicalQueryPlan
-from ..rag.retriever import HybridRetriever, rrf_fusion
 from ..rag.reranker import Reranker
 from ..llm.clinical_planner import ClinicalQueryPlanner
 from ..llm.ollama_backend import OllamaBackend
 from ..llm.prompt_builder import PromptBuilder
-from ..llm.query_expander import BilingualQueryPlan, QueryExpander, fallback_query_plan
 from ..guardrails.runner import GuardrailRunner
+from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks
+from ..chat.session import ConversationTurn
+
+if TYPE_CHECKING:
+    from ..rag.retriever import HybridRetriever
 
 
 def _safe_parse(raw: str) -> AdviseOutput:
     try:
         return AdviseOutput.model_validate_json(raw)
     except Exception:
+        pass
+    try:
+        data = json.loads(raw)
+        return AdviseOutput.model_validate(data)
+    except Exception:
+        pass
+    m = re.search(r'\{.*\}', raw, re.DOTALL)
+    if m:
         try:
-            data = json.loads(raw)
-            return AdviseOutput.model_validate(data)
-        except Exception as e:
-            logger.warning(f"parse fail, returning fallback: {e}\n---\n{raw[:500]}")
-            return AdviseOutput(
-                severity="unknown",
-                acne_type_primary="unknown",
-                causes=["Khong the phan tich phan hoi tu LLM"],
-                confidence=0.1,
-            )
+            return AdviseOutput.model_validate_json(m.group())
+        except Exception:
+            try:
+                return AdviseOutput.model_validate(json.loads(m.group()))
+            except Exception:
+                pass
+    logger.warning(f"[safe_parse] All parse attempts failed: {raw[:400]}")
+    return AdviseOutput(
+        severity="unknown",
+        acne_type_primary="unknown",
+        causes=["Khong the phan tich phan hoi tu LLM -- vui long thu lai."],
+        confidence=0.1,
+    )
+
+
+def _rrf_fusion(rank_lists: list[list[str]], k: int = 60) -> dict[str, float]:
+    scores: dict[str, float] = {}
+    for ranks in rank_lists:
+        for i, cid in enumerate(ranks):
+            scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + i + 1)
+    return scores
 
 
 class HybridPipeline:
-    def __init__(self, retriever: HybridRetriever, reranker: Reranker | None,
+    def __init__(self, retriever: "HybridRetriever", reranker: Reranker | None,
                  llm: OllamaBackend, prompt: PromptBuilder,
                  guardrails: GuardrailRunner,
-                 retrieve_top_k: int = 20, rerank_top_k: int = 5,
-                 query_expander: QueryExpander | None = None,
-                 enable_bilingual_query: bool = True,
+                 retrieve_top_k: int = 15, rerank_top_k: int = 5,
                  english_input_notice: bool = True,
-                 clinical_planner: ClinicalQueryPlanner | None = None):
+                 clinical_planner: ClinicalQueryPlanner | None = None,
+                 use_llm_planner: bool = False,
+                 use_mmr_prefilter: bool = True,
+                 mmr_lambda: float = 0.6):
         self.retriever = retriever
         self.reranker = reranker
         self.llm = llm
@@ -49,13 +74,13 @@ class HybridPipeline:
         self.guardrails = guardrails
         self.retrieve_top_k = retrieve_top_k
         self.rerank_top_k = rerank_top_k
-        self.query_expander = query_expander
-        self.enable_bilingual_query = enable_bilingual_query
         self.english_input_notice = english_input_notice
         self.clinical_planner = clinical_planner
+        self.use_llm_planner = use_llm_planner
+        self.use_mmr_prefilter = use_mmr_prefilter
+        self.mmr_lambda = mmr_lambda
 
     def _build_query(self, user: UserInput) -> str:
-        """Build a compact clinical query summary for RAG."""
         parts: list[str] = [f"description: {user.description}"]
         c = user.context
         ctx_bits: list[str] = []
@@ -123,59 +148,58 @@ class HybridPipeline:
     @staticmethod
     def _expand_lesion_terms(lesion_types) -> list[str]:
         mapping = {
-            "whitehead": "mụn đầu trắng whitehead",
-            "blackhead": "mụn đầu đen blackhead",
-            "closed_comedone": "mụn ẩn mụn đầu trắng kín closed comedone",
-            "hidden_acne": "mụn ẩn closed comedone hidden acne",
-            "papule": "mụn viêm papule inflammatory acne",
-            "pustule": "mụn mủ pustule",
-            "nodule": "mụn bọc mụn nang nodular acne",
-            "cyst": "mụn bọc mụn nang cystic acne",
-            "scar": "sẹo mụn acne scar",
-            "post_inflammatory_hyperpigmentation": "thâm sau mụn post inflammatory hyperpigmentation",
-            "comedone": "mụn đầu trắng mụn đầu đen comedone",
+            "whitehead": "mun dau trang whitehead",
+            "blackhead": "mun dau den blackhead",
+            "closed_comedone": "mun an mun dau trang kin closed comedone",
+            "hidden_acne": "mun an closed comedone hidden acne",
+            "papule": "mun viem papule inflammatory acne",
+            "pustule": "mun mu pustule",
+            "nodule": "mun boc mun nang nodular acne",
+            "cyst": "mun boc mun nang cystic acne",
+            "scar": "seo mun acne scar",
+            "post_inflammatory_hyperpigmentation": "tham sau mun post inflammatory hyperpigmentation",
+            "comedone": "mun dau trang mun dau den comedone",
         }
         out: list[str] = []
         for t in lesion_types:
             out.append(mapping.get(str(t), str(t)))
         return out
 
-    def _expand_query(self, canonical_query: str) -> BilingualQueryPlan:
-        if not self.enable_bilingual_query:
-            plan = fallback_query_plan(canonical_query)
-            plan.query_en = ""
-            return plan
-        if self.query_expander is not None:
-            return self.query_expander.expand(canonical_query)
-        return fallback_query_plan(canonical_query)
+    def _clinical_plan(self, user: UserInput) -> ClinicalQueryPlan | None:
+        if self.clinical_planner is None:
+            return None
+        return self.clinical_planner.plan(user)
 
-    def _retrieve_bilingual(self, plan: BilingualQueryPlan) -> RetrievalOutput:
-        queries = [q.strip() for q in [plan.query_vi, plan.query_en] if q and q.strip()]
-        if not queries:
-            queries = [plan.query_vi or plan.query_en]
-        if len(queries) == 1:
-            return self.retriever.retrieve(queries[0], top_k=self.retrieve_top_k, mode="hybrid")
-
-        outputs = [
-            self.retriever.retrieve(q, top_k=self.retrieve_top_k, mode="hybrid")
-            for q in queries
-        ]
-        return self._merge_retrieval_outputs(outputs, combined_query="\n".join(queries))
+    def _do_retrieve(self, query: str) -> RetrievalOutput:
+        # Bug #6 fix: goi retrieve_with_mmr khi use_mmr_prefilter=True
+        if self.use_mmr_prefilter and hasattr(self.retriever, "retrieve_with_mmr"):
+            return self.retriever.retrieve_with_mmr(
+                query,
+                top_k=self.retrieve_top_k,
+                rerank_top_k=self.retrieve_top_k,  # reranker se cat sau
+                mode="hybrid",
+                mmr_lambda=self.mmr_lambda,
+            )
+        return self.retriever.retrieve(query, top_k=self.retrieve_top_k, mode="hybrid")
 
     def _retrieve_clinical_plan(self, plan: ClinicalQueryPlan) -> RetrievalOutput:
-        query_vi = plan.rag_queries.query_vi
-        query_en = plan.rag_queries.query_en if self.enable_bilingual_query else ""
-        queries = [q.strip() for q in [query_vi, query_en] if q and q.strip()]
-        if not queries:
-            fallback = "mụn trứng cá đánh giá ban đầu dấu hiệu cần khám da liễu acne assessment red flags"
-            queries = [fallback]
-        if len(queries) == 1:
-            return self.retriever.retrieve(queries[0], top_k=self.retrieve_top_k, mode="hybrid")
-        outputs = [
-            self.retriever.retrieve(q, top_k=self.retrieve_top_k, mode="hybrid")
-            for q in queries
-        ]
-        return self._merge_retrieval_outputs(outputs, combined_query="\n".join(queries))
+        query = plan.rag_queries.query_vi.strip() or (
+            "mun trung ca danh gia ban dau dau hieu can kham da lieu acne assessment red flags"
+        )
+        retrieval = self._do_retrieve(query)
+
+        if plan.safety_terms and hasattr(self.retriever, "retrieve_safety_pass"):
+            safety = self.retriever.retrieve_safety_pass(
+                query,
+                plan.safety_terms,
+                top_k=min(self.rerank_top_k + 2, 5),
+            )
+            if safety.chunks:
+                retrieval = self._merge_retrieval_outputs(
+                    [retrieval, safety],
+                    combined_query=query,
+                )
+        return retrieval
 
     @staticmethod
     def _merge_retrieval_outputs(outputs: list[RetrievalOutput], combined_query: str) -> RetrievalOutput:
@@ -191,7 +215,7 @@ class HybridPipeline:
                         metadata=chunk.metadata,
                     )
 
-        fused = rrf_fusion([[chunk.chunk_id for chunk in output.chunks] for output in outputs])
+        fused = _rrf_fusion([[chunk.chunk_id for chunk in output.chunks] for output in outputs])
         chunks = []
         for chunk_id, score in fused.items():
             chunk = by_id[chunk_id]
@@ -212,46 +236,51 @@ class HybridPipeline:
         if not self.english_input_notice or detected_language != "en":
             return out
         notice = (
-            "Xin lỗi, hiện tôi chỉ hỗ trợ tư vấn bằng tiếng Việt. "
-            "Dưới đây là câu trả lời cho câu hỏi của bạn bằng tiếng Việt:"
+            "Xin loi, hien toi chi ho tro tu van bang tieng Viet. "
+            "Duoi day la cau tra loi cho cau hoi cua ban bang tieng Viet:"
         )
         if notice not in out.disclaimer:
             out.disclaimer = f"{notice} {out.disclaimer}".strip()
         return out
 
-    def run(self, user: UserInput) -> AdviseOutput:
+    def run(
+        self,
+        user: UserInput,
+        clinical_plan: ClinicalQueryPlan | None = None,
+        prechecked: bool = False,
+        history: list[ConversationTurn] | None = None,
+        route_metadata: dict | None = None,
+        completeness_hint: str | None = None,
+    ) -> AdviseOutput:
         t0 = time.perf_counter()
-        self.guardrails.pre_check(user)
-        scope_refusal = self.guardrails.scope_check(user)
-        if scope_refusal is not None:
-            scope_refusal.model_name = self.llm.model
-            scope_refusal.latency_ms = int((time.perf_counter() - t0) * 1000)
-            return scope_refusal
+        if not prechecked:
+            self.guardrails.pre_check(user)
+            scope_refusal = self.guardrails.scope_check(user)
+            if scope_refusal is not None:
+                scope_refusal.model_name = self.llm.model
+                scope_refusal.latency_ms = int((time.perf_counter() - t0) * 1000)
+                return scope_refusal
 
-        clinical_plan: ClinicalQueryPlan | None = None
-        if self.clinical_planner is not None:
-            clinical_plan = self.clinical_planner.plan(user)
+        if clinical_plan is None:
+            clinical_plan = self._clinical_plan(user)
+        if clinical_plan is not None:
             retrieval = self._retrieve_clinical_plan(clinical_plan)
-            rerank_query = "\n".join(
-                q for q in [
-                    clinical_plan.rag_queries.query_vi,
-                    clinical_plan.rag_queries.query_en if self.enable_bilingual_query else "",
-                ]
-                if q and q.strip()
-            ) or user.description
+            rerank_query = clinical_plan.rag_queries.query_vi or user.description
             detected_language = clinical_plan.detected_language
             query_vi = clinical_plan.rag_queries.query_vi
-            query_en = clinical_plan.rag_queries.query_en if self.enable_bilingual_query else ""
         else:
             canonical_query = self._build_query(user)
-            query_plan = self._expand_query(canonical_query)
-            retrieval = self._retrieve_bilingual(query_plan)
-            rerank_query = "\n".join(
-                q for q in [query_plan.query_vi, query_plan.query_en] if q and q.strip()
-            ) or canonical_query
-            detected_language = query_plan.detected_language
-            query_vi = query_plan.query_vi
-            query_en = query_plan.query_en
+            retrieval = self._do_retrieve(canonical_query)
+            rerank_query = canonical_query
+            detected_language = "unknown"
+            query_vi = canonical_query
+        logger.info(
+            "⑧ RETRIEVE: chunks={} mode={} query={!r:.80}",
+            len(retrieval.chunks),
+            retrieval.retrieval_mode,
+            rerank_query,
+        )
+
         if self.reranker is not None:
             try:
                 top = self.reranker.rerank(rerank_query, retrieval, top_k=self.rerank_top_k)
@@ -261,9 +290,11 @@ class HybridPipeline:
         else:
             top = retrieval
 
-        # Fix 3: mo rong ngu canh bang cach fetch prev/next chunk lien ke
-        # giup LLM co du context khi cau tra loi nam rai tren nhieu chunk
-        top = self.retriever.expand_context(top)
+        top = drop_query_mismatched_chunks(
+            drop_noisy_chunks(top, min_score=0.0),
+            rerank_query,
+        ) or top
+        logger.info("⑨ RERANK: top_k={} chunks after filter", len(top.chunks))
 
         sys_p, usr_p = self.prompt.build(
             user,
@@ -271,13 +302,16 @@ class HybridPipeline:
             template="hybrid_user.j2",
             detected_language=detected_language,
             query_vi=query_vi,
-            query_en=query_en,
             max_context_chars=6000,
             clinical_plan=clinical_plan,
+            history=history,
+            route_metadata=route_metadata,
+            completeness_hint=completeness_hint,
         )
         total_chars = len(sys_p) + len(usr_p)
-        logger.info(f"Hybrid prompt size: system={len(sys_p)} user={len(usr_p)} total={total_chars}")
+        logger.info("⑩ PROMPT: system={}c user={}c total={}c", len(sys_p), len(usr_p), total_chars)
         schema = AdviseOutput.model_json_schema()
+        logger.info("⑪ LLM: calling {} ...", self.llm.model)
         raw = self.llm.generate_json(sys_p, usr_p, schema=schema, temperature=0.3)
         parsed = _safe_parse(raw)
         parsed = self._inject_english_notice(parsed, detected_language)
@@ -287,4 +321,11 @@ class HybridPipeline:
         parsed.model_name = self.llm.model
         parsed.latency_ms = int((time.perf_counter() - t0) * 1000)
 
-        return self.guardrails.post_check(parsed, user)
+        result = self.guardrails.post_check(parsed, user)
+        logger.info(
+            "⑫ DONE: severity={} confidence={:.2f} latency={}ms",
+            result.severity,
+            result.confidence,
+            result.latency_ms,
+        )
+        return result

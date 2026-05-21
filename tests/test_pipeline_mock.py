@@ -10,6 +10,7 @@ from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, Nor
 from acne_llm.llm.prompt_builder import PromptBuilder
 from acne_llm.guardrails.runner import GuardrailRunner
 from acne_llm.pipeline.hybrid import HybridPipeline
+from acne_llm.pipeline.llm_only import LLMOnlyPipeline
 
 CFG = Path(__file__).resolve().parents[1] / "config" / "guardrails.yaml"
 PROMPTS = str(Path(__file__).resolve().parents[1] / "config" / "prompts")
@@ -24,7 +25,6 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
     )
     retriever = MagicMock()
     retriever.retrieve.return_value = retrieval
-    retriever.expand_context.return_value = retrieval  # Fix 3: mock expand_context
     reranker = MagicMock()
     reranker.rerank.return_value = retrieval
 
@@ -47,10 +47,7 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
             distribution=["chin"],
             inflammation_level="moderate",
         ),
-        rag_queries=ClinicalRagQueries(
-            query_vi="mụn viêm ở cằm guideline",
-            query_en="inflammatory acne on chin guideline",
-        ),
+        rag_queries=ClinicalRagQueries(query_vi="mụn viêm ở cằm inflammatory acne chin guideline"),
         safety_terms=[],
     )
 
@@ -58,9 +55,9 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
     g = GuardrailRunner(str(CFG))
     pipe = HybridPipeline(retriever, reranker, llm, prompt, g,
                           retrieve_top_k=5, rerank_top_k=3,
-                          query_expander=None,
-                          enable_bilingual_query=True,
-                          clinical_planner=clinical_planner)
+                          clinical_planner=clinical_planner,
+                          use_llm_planner=True,
+                          use_mmr_prefilter=False)
 
     user = UserInput(description="Em bi mun o cam",
                      context=UserContext(age=22, skin_type="oily"),
@@ -74,12 +71,11 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
     assert out.model_name == "mock"
     assert "c1" in out.used_chunks
     assert out.latency_ms >= 0
-    assert retriever.retrieve.call_count == 2
+    assert retriever.retrieve.call_count == 1
     retrieved_queries = [call.args[0] for call in retriever.retrieve.call_args_list]
-    assert "mụn viêm ở cằm guideline" in retrieved_queries
-    assert "inflammatory acne on chin guideline" in retrieved_queries
-    assert "inflammatory acne on chin guideline" in reranker.rerank.call_args.args[0]
-    assert out.disclaimer.startswith("Xin lỗi, hiện tôi chỉ hỗ trợ tư vấn bằng tiếng Việt")
+    assert "mụn viêm ở cằm inflammatory acne chin guideline" in retrieved_queries
+    assert "inflammatory acne chin guideline" in reranker.rerank.call_args.args[0]
+    assert out.disclaimer.startswith("Xin loi, hien toi chi ho tro tu van bang tieng Viet")
 
 
 def test_bilingual_retrieval_merge_deduplicates_and_boosts():
@@ -104,3 +100,26 @@ def test_bilingual_retrieval_merge_deduplicates_and_boosts():
     shared = next(c for c in merged.chunks if c.chunk_id == "shared")
     en_only = next(c for c in merged.chunks if c.chunk_id == "en_only")
     assert shared.score > en_only.score
+
+
+def test_llm_only_pipeline_soft_scope_calls_llm_for_out_of_scope():
+    llm = MagicMock()
+    llm.model = "mock"
+    mock_out = AdviseOutput(
+        severity="unknown",
+        acne_type_primary="unknown",
+        causes=["handled by llm"],
+        confidence=0.2,
+    )
+    llm.generate_json.return_value = mock_out.model_dump_json()
+    prompt = MagicMock()
+    prompt.build.return_value = ("system", "user")
+    guardrails = GuardrailRunner(str(CFG))
+    pipe = LLMOnlyPipeline(llm, prompt, guardrails)
+
+    user = UserInput(description="giải phương trình bậc hai", mode="llm_only")
+    out = pipe.run(user)
+
+    llm.generate_json.assert_called_once()
+    assert out.mode == "llm_only"
+    assert out.model_name == "mock"

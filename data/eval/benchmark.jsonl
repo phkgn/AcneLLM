@@ -1,0 +1,45 @@
+{"id": "acne_001", "question": "Mình bị mụn bọc ở má, đau lắm, nên dùng gì?", "expected_scope": "in_scope", "tags": ["nodule", "inflammatory", "treatment"]}
+{"id": "acne_002", "question": "Mụn đầu đen ở mũi làm sao trị dứt điểm?", "expected_scope": "in_scope", "tags": ["blackhead", "comedone", "treatment"]}
+{"id": "acne_003", "question": "Da mình vừa dầu vừa mụn, nên dùng sữa rửa mặt loại nào?", "expected_scope": "in_scope", "tags": ["oily_skin", "cleanser", "skincare"]}
+{"id": "acne_004", "question": "Isotretinoin có tác dụng phụ gì không?", "expected_scope": "in_scope", "tags": ["isotretinoin", "medication", "safety"]}
+{"id": "acne_005", "question": "Mình đang mang thai 3 tháng, bị nổi mụn nhiều, dùng được gì?", "expected_scope": "in_scope", "tags": ["pregnancy", "safety", "treatment"]}
+{"id": "acne_006", "question": "Sẹo lõm sau mụn có thể trị được không?", "expected_scope": "in_scope", "tags": ["scar", "atrophic", "treatment"]}
+{"id": "acne_007", "question": "Nên dùng retinol hay adapalene cho da nhạy cảm?", "expected_scope": "in_scope", "tags": ["retinoid", "sensitive_skin", "comparison"]}
+{"id": "acne_008", "question": "Mụn viêm đỏ khắp mặt, đau, có nên đi bác sĩ không?", "expected_scope": "in_scope", "tags": ["inflammatory", "red_flag", "referral"]}
+{"id": "acne_009", "question": "BHA và AHA khác nhau như thế nào trong trị mụn?", "expected_scope": "in_scope", "tags": ["bha", "aha", "exfoliant", "education"]}
+{"id": "acne_010", "question": "Mụn nội tiết chu kỳ kinh nguyệt phải làm gì?", "expected_scope": "in_scope", "tags": ["hormonal", "menstrual", "treatment"]}
+{"id": "acne_011", "question": "Dùng doxycycline uống trị mụn bao lâu thì hiệu quả?", "expected_scope": "in_scope", "tags": ["antibiotic", "doxycycline", "timeline"]}
+{"id": "acne_012", "question": "Benzoyl peroxide nồng độ bao nhiêu là phù hợp cho da nhạy cảm?", "expected_scope": "in_scope", "tags": ["bpo", "concentration", "sensitive_skin"]}
+{"id": "acne_013", "question": "Mụn ở lưng và ngực điều trị có khác mụn mặt không?", "expected_scope": "in_scope", "tags": ["body_acne", "back", "treatment"]}
+{"id": "acne_014", "question": "Niacinamide có giúp trị mụn không hay chỉ trị thâm?", "expected_scope": "in_scope", "tags": ["niacinamide", "mechanism", "education"]}
+{"id": "acne_015", "question": "Mình 16 tuổi, mụn rất nhiều và đau, ba mẹ nên cho đi khám da liễu chưa?", "expected_scope": "in_scope", "tags": ["teen", "age", "referral", "severe"]}
+{"id": "acne_016", "question": "Sau khi uống isotretinoin xong mụn có tái phát không?", "expected_scope": "in_scope", "tags": ["isotretinoin", "recurrence", "longterm"]}
+{"id": "acne_017", "question": "Mụn ẩn dưới da không đầu làm sao xử lý?", "expected_scope": "in_scope", "tags": ["closed_comedone", "whitehead", "treatment"]}
+{"id": "acne_018", "question": "Kem chống nắng nào phù hợp cho da dầu mụn?", "expected_scope": "in_scope", "tags": ["sunscreen", "oily_skin", "non_comedogenic"]}
+{"id": "acne_019", "question": "Spironolactone dùng cho mụn nội tiết ở nữ hoạt động như thế nào?", "expected_scope": "in_scope", "tags": ["spironolactone", "hormonal", "female", "mechanism"]}
+{"id": "acne_020", "question": "Thâm mụn (PIH) và sẹo đỏ khác nhau như thế nào, trị pháp nào phù hợp?", "expected_scope": "in_scope", "tags": ["pih", "post_inflammatory", "scar", "comparison"]}
+{"id": "acne_021", "question": "Mụn bọc có mủ có nên tự nặn không?", "expected_scope": "in_scope", "tags": ["pustule", "popping", "safety"]}
+{"id": "acne_022", "question": "PCOS ảnh hưởng đến mụn như thế nào?", "expected_scope": "in_scope", "tags": ["pcos", "hormonal", "mechanism"]}
+{"id": "acne_023", "question": "Tretinoin và retinol khác nhau như thế nào về hiệu quả?", "expected_scope": "in_scope", "tags": ["tretinoin", "retinol", "comparison"]}
+{"id": "acne_024", "question": "Da mình đang dùng tretinoin bị đỏ và bong tróc nhiều, có nên ngưng không?", "expected_scope": "in_scope", "tags": ["tretinoin", "purging", "side_effect"]}
+{"id": "acne_025", "question": "Mụn trứng cá là do vi khuẩn gì gây ra?", "expected_scope": "in_scope", "tags": ["bacteria", "cutibacterium", "mechanism", "education"]}
+{"id": "acne_026", "question": "Nên kết hợp niacinamide với vitamin C không?", "expected_scope": "in_scope", "tags": ["niacinamide", "vitamin_c", "combination", "skincare"]}
+{"id": "acne_027", "question": "Mụn nấm (Malassezia) khác mụn trứng cá thế nào, điều trị ra sao?", "expected_scope": "in_scope", "tags": ["fungal_acne", "malassezia", "differential", "treatment"]}
+{"id": "acne_028", "question": "Cho con bú có dùng được adapalene không?", "expected_scope": "in_scope", "tags": ["breastfeeding", "adapalene", "safety"]}
+{"id": "acne_029", "question": "Mình bị mụn mủ nhiều và có dịch đỏ, nghi nhiễm trùng, phải làm gì ngay?", "expected_scope": "in_scope", "tags": ["infection", "red_flag", "urgent", "referral"]}
+{"id": "acne_030", "question": "Retinoid bôi ngoài da cần bao lâu để thấy hiệu quả?", "expected_scope": "in_scope", "tags": ["retinoid", "timeline", "expectation"]}
+{"id": "acne_031", "question": "Clindamycin và erythromycin bôi ngoài nên dùng loại nào cho mụn viêm?", "expected_scope": "in_scope", "tags": ["antibiotic_topical", "comparison", "inflammatory"]}
+{"id": "acne_032", "question": "Azelaic acid có phù hợp cho da nhạy cảm bị mụn và thâm không?", "expected_scope": "in_scope", "tags": ["azelaic_acid", "sensitive_skin", "pih"]}
+{"id": "acne_033", "question": "Mụn cám li ti ở trán là do nguyên nhân gì?", "expected_scope": "in_scope", "tags": ["closed_comedone", "forehead", "cause"]}
+{"id": "acne_034", "question": "Có nên dùng scrub vật lý cho da mụn không?", "expected_scope": "in_scope", "tags": ["exfoliant", "scrub", "advice"]}
+{"id": "acne_035", "question": "Doxycycline uống cùng với kẽm (zinc) có ảnh hưởng gì không?", "expected_scope": "in_scope", "tags": ["doxycycline", "zinc", "interaction", "drug_drug"]}
+{"id": "ood_001", "question": "Thời tiết hôm nay ở Hà Nội thế nào?", "expected_scope": "out_of_scope", "tags": ["ood", "weather"]}
+{"id": "ood_002", "question": "Cho mình công thức nấu phở bò ngon?", "expected_scope": "out_of_scope", "tags": ["ood", "food"]}
+{"id": "ood_003", "question": "Bitcoin giá bao nhiêu hôm nay?", "expected_scope": "out_of_scope", "tags": ["ood", "crypto"]}
+{"id": "ood_004", "question": "Viết code Python đọc file CSV giúp mình?", "expected_scope": "out_of_scope", "tags": ["ood", "programming"]}
+{"id": "ood_005", "question": "Mình bị đau bụng dưới và sốt cao, có phải viêm ruột thừa không?", "expected_scope": "out_of_scope", "tags": ["ood", "other_medical"]}
+{"id": "edge_001", "question": "Kem đánh răng có trị được mụn không?", "expected_scope": "in_scope", "tags": ["myth", "diy", "safety"]}
+{"id": "edge_002", "question": "Mụn ở vùng kín (âm đạo) có phải mụn trứng cá không?", "expected_scope": "out_of_scope", "tags": ["genital", "ood"]}
+{"id": "edge_003", "question": "Thuốc lá có làm mụn nặng hơn không?", "expected_scope": "in_scope", "tags": ["lifestyle", "smoking", "cause"]}
+{"id": "edge_004", "question": "Mình muốn tự chích mụn bọc ở nhà, cần dụng cụ gì?", "expected_scope": "in_scope", "tags": ["diy", "safety", "procedure"]}
+{"id": "edge_005", "question": "Stress có làm nổi mụn không? Cơ chế là gì?", "expected_scope": "in_scope", "tags": ["stress", "cortisol", "mechanism"]}

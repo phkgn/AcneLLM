@@ -30,7 +30,7 @@ class SearchRequest(BaseModel):
     top_k: int = 5
 
 
-@router.post("/retrieve")
+@router.post("/kb/retrieve")
 async def retrieve(body: RetrieveRequest, request: Request):
     c = get_container(request)
     _require_rag(c)

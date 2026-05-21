@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcneLLM — Project Wiki</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222636;
+    --border: #2a2e3d;
+    --text: #d4d8e8;
+    --muted: #6b7190;
+    --accent: #5b7cf7;
+    --accent2: #3d5ae0;
+    --green: #4caf7d;
+    --yellow: #e6b84a;
+    --red: #e05a5a;
+    --purple: #9b7cf7;
+    --cyan: #4ab8c8;
+    --font: -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'Cascadia Code', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 240px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; }
+  .main { flex: 1; max-width: 960px; padding: 40px 48px; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .sidebar-logo .name { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .sidebar-logo .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nav-group { padding: 8px 0; }
+  .nav-group-label { padding: 4px 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .nav-item { display: block; padding: 5px 20px; font-size: 12.5px; color: var(--muted); text-decoration: none; cursor: pointer; transition: color 0.15s, background 0.15s; border-left: 2px solid transparent; }
+  .nav-item:hover, .nav-item.active { color: var(--text); background: var(--surface2); border-left-color: var(--accent); }
+
+  /* Sections */
+  .section { margin-bottom: 56px; }
+  h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  p { color: var(--text); margin-bottom: 10px; line-height: 1.7; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card-icon { font-size: 20px; margin-bottom: 8px; }
+  .card-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .card-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .card-stat { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+
+  /* Pipeline */
+  .pipeline { display: flex; flex-direction: column; gap: 0; }
+  .pipe-step { display: flex; align-items: stretch; gap: 16px; }
+  .pipe-line { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+  .pipe-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+  .pipe-connector { flex: 1; width: 2px; background: var(--border); }
+  .pipe-body { flex: 1; padding-bottom: 20px; }
+  .pipe-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+  .pipe-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .pipe-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .pipe-step:last-child .pipe-connector { display: none; }
+  .pipe-dot.green { background: var(--green); }
+  .pipe-dot.yellow { background: var(--yellow); }
+  .pipe-dot.purple { background: var(--purple); }
+  .pipe-dot.cyan { background: var(--cyan); }
+  .pipe-dot.red { background: var(--red); }
+
+  /* Table */
+  .tbl { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12.5px; }
+  .tbl th { background: var(--surface); color: var(--muted); font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tbl td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: var(--surface); }
+
+  /* Code */
+  code { font-family: var(--mono); font-size: 11.5px; background: var(--surface2); padding: 1px 5px; border-radius: 3px; color: var(--cyan); }
+  pre { font-family: var(--mono); font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; overflow-x: auto; color: #c8d0e8; line-height: 1.6; margin-bottom: 16px; }
+
+  /* Tags */
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin: 2px; }
+  .tag-blue { background: rgba(91,124,247,.15); color: var(--accent); }
+  .tag-green { background: rgba(76,175,125,.15); color: var(--green); }
+  .tag-yellow { background: rgba(230,184,74,.15); color: var(--yellow); }
+  .tag-red { background: rgba(224,90,90,.15); color: var(--red); }
+  .tag-purple { background: rgba(155,124,247,.15); color: var(--purple); }
+  .tag-cyan { background: rgba(74,184,200,.15); color: var(--cyan); }
+  .tag-muted { background: var(--surface2); color: var(--muted); }
+
+  /* Alert */
+  .alert { border-left: 3px solid; border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 12px; font-size: 12.5px; }
+  .alert-info { border-color: var(--accent); background: rgba(91,124,247,.07); }
+  .alert-success { border-color: var(--green); background: rgba(76,175,125,.07); }
+  .alert-warn { border-color: var(--yellow); background: rgba(230,184,74,.07); }
+  .alert-title { font-weight: 600; margin-bottom: 3px; }
+  .alert-info .alert-title { color: var(--accent); }
+  .alert-success .alert-title { color: var(--green); }
+  .alert-warn .alert-title { color: var(--yellow); }
+
+  /* File tree */
+  .tree { font-family: var(--mono); font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; line-height: 1.8; }
+  .tree-dir { color: var(--accent); }
+  .tree-file { color: var(--text); }
+  .tree-comment { color: var(--muted); }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* Stats row */
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; min-width: 110px; }
+  .stat-val { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Arch box */
+  .arch { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .arch-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .arch-box { border: 1px solid var(--border); border-radius: 5px; padding: 5px 10px; font-size: 11.5px; font-weight: 500; }
+  .arch-arrow { color: var(--muted); font-size: 12px; }
+  .arch-blue { background: rgba(91,124,247,.12); border-color: var(--accent2); color: var(--accent); }
+  .arch-green { background: rgba(76,175,125,.12); border-color: #3a8c62; color: var(--green); }
+  .arch-yellow { background: rgba(230,184,74,.12); border-color: #a8842e; color: var(--yellow); }
+  .arch-purple { background: rgba(155,124,247,.12); border-color: #7258c8; color: var(--purple); }
+  .arch-cyan { background: rgba(74,184,200,.12); border-color: #2f8a98; color: var(--cyan); }
+  .arch-red { background: rgba(224,90,90,.12); border-color: #a84040; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">AcneLLM</div>
+    <div class="sub">Project Wiki · 2026-05-21</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-item" href="#overview">Tổng quan</a>
+    <a class="nav-item" href="#stack">Tech Stack</a>
+    <a class="nav-item" href="#structure">Cấu trúc repo</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Pipeline</div>
+    <a class="nav-item" href="#chat-flow">Chat Flow (SSE)</a>
+    <a class="nav-item" href="#kb-pipeline">Build KB Pipeline</a>
+    <a class="nav-item" href="#rag">RAG System</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Modules</div>
+    <a class="nav-item" href="#api">API Layer</a>
+    <a class="nav-item" href="#chat">Chat Modules</a>
+    <a class="nav-item" href="#guardrails">Guardrails</a>
+    <a class="nav-item" href="#llm">LLM Backend</a>
+    <a class="nav-item" href="#crawler">Crawler</a>
+    <a class="nav-item" href="#storage">Storage</a>
+    <a class="nav-item" href="#frontend">Frontend</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Data</div>
+    <a class="nav-item" href="#kb-stats">KB Stats</a>
+    <a class="nav-item" href="#source-types">Source Types</a>
+    <a class="nav-item" href="#config">Config / Env</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Dev</div>
+    <a class="nav-item" href="#run">Cách chạy</a>
+    <a class="nav-item" href="#tests">Tests</a>
+    <a class="nav-item" href="#todo">TODO / Pending</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+  <h1>AcneLLM</h1>
+  <p class="subtitle">Hệ thống tư vấn da mụn tiếng Việt · Local-first · RAG + LLM · Đề tài 29</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val">26,864</div><div class="stat-label">KB chunks</div></div>
+    <div class="stat"><div class="stat-val">7,391</div><div class="stat-label">Documents</div></div>
+    <div class="stat"><div class="stat-val">Qwen2.5-7B</div><div class="stat-label">LLM model</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-label">Broken links</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-label">Unknown sources</div></div>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-title">Mục tiêu</div>
+    Chatbot tư vấn mụn trứng cá, chạy hoàn toàn local (không cần cloud API), hỗ trợ tiếng Việt, tích hợp Vision (Đề tài 27) và Advanced RAG (Đề tài 28).
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <div class="card-title">LLM</div>
+      <div class="card-desc">Qwen2.5:7B-Q4 finetuned via Ollama. Fallback → 3B khi lỗi.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">RAG</div>
+      <div class="card-desc">Dense (Chroma) + Sparse (BM25) + RRF fusion + Cross-encoder reranker.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <div class="card-title">Guardrails</div>
+      <div class="card-desc">Injection detection, OOD check, drug safety, scope filter, safety suffix.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📡</div>
+      <div class="card-title">API</div>
+      <div class="card-desc">FastAPI + SSE streaming + WebSocket + REST endpoints.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💬</div>
+      <div class="card-title">Frontend</div>
+      <div class="card-desc">Next.js 15 + React 18 + Tailwind + Zustand + SSE hook.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <div class="card-title">Eval</div>
+      <div class="card-desc">Recall@k, MRR, NDCG + LLM judge + clinical accuracy metrics.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="section" id="stack">
+  <h2>Tech Stack</h2>
+  <table class="tbl">
+    <tr><th>Layer</th><th>Technology</th><th>Ghi chú</th></tr>
+    <tr><td>LLM Inference</td><td><code>Ollama</code> + Qwen2.5:7B</td><td>Local, không cần internet</td></tr>
+    <tr><td>Embedding</td><td><code>AITeamVN/Vietnamese_Embedding</code></td><td>dim=1024, GPU nếu có CUDA</td></tr>
+    <tr><td>Reranker</td><td><code>BAAI/bge-reranker-v2-m3</code></td><td>Cross-encoder, batch=16</td></tr>
+    <tr><td>Vector DB</td><td><code>ChromaDB</code></td><td>Cosine space, persistent</td></tr>
+    <tr><td>Sparse Index</td><td><code>BM25Okapi</code> + underthesea</td><td>Vietnamese tokenize + stopwords</td></tr>
+    <tr><td>Backend</td><td><code>FastAPI</code> + uvicorn</td><td>SSE / WebSocket / REST</td></tr>
+    <tr><td>Frontend</td><td><code>Next.js 15</code> + TypeScript</td><td>Zustand, Tailwind, Lucide</td></tr>
+    <tr><td>Session</td><td>JSONL per-session</td><td><code>data/sessions/*.jsonl</code></td></tr>
+    <tr><td>Audit</td><td>SQLite</td><td><code>data/audit.db</code></td></tr>
+    <tr><td>Cache</td><td><code>DiskCache</code></td><td>Embed permanent + Retrieve TTL 1h</td></tr>
+    <tr><td>Monitoring</td><td>Prometheus plain text</td><td><code>/metrics</code> endpoint</td></tr>
+  </table>
+</section>
+
+<!-- STRUCTURE -->
+<section class="section" id="structure">
+  <h2>Cấu trúc repo</h2>
+  <div class="tree">
+<span class="tree-dir">AcneLLM/</span>
+├── <span class="tree-dir">src/acne_llm/</span>
+│   ├── <span class="tree-dir">api/</span>          <span class="tree-comment"># FastAPI app, routes, middleware, observability</span>
+│   ├── <span class="tree-dir">chat/</span>         <span class="tree-comment"># intake, runtime (SSE), session, normalizer, prompt, retrieval, safety</span>
+│   ├── <span class="tree-dir">rag/</span>          <span class="tree-comment"># chunker, embedder, retriever, reranker, sparse (BM25), vectorstore</span>
+│   ├── <span class="tree-dir">llm/</span>          <span class="tree-comment"># ollama_backend, prompt_builder, clinical_planner, query_expander</span>
+│   ├── <span class="tree-dir">guardrails/</span>   <span class="tree-comment"># runner, ood_detector, drug_checker</span>
+│   ├── <span class="tree-dir">crawler/</span>      <span class="tree-comment"># fetcher, extractor, dedup, quality_filter, discovery, pubmed</span>
+│   ├── <span class="tree-dir">db/</span>           <span class="tree-comment"># jsonl_session_store, audit (SQLite)</span>
+│   ├── <span class="tree-dir">schemas/</span>      <span class="tree-comment"># kb.py (SourceType, KBChunk, DocumentRaw), clinical.py, core.py</span>
+│   ├── <span class="tree-dir">pipeline/</span>     <span class="tree-comment"># hybrid.py, llm_only.py</span>
+│   ├── <span class="tree-dir">vision/</span>       <span class="tree-comment"># MockVision (placeholder Đề tài 27)</span>
+│   ├── <span class="tree-file">config.py</span>     <span class="tree-comment"># pydantic-settings, đọc .env</span>
+│   ├── <span class="tree-file">cache.py</span>      <span class="tree-comment"># DiskCache 2 tầng</span>
+│   └── <span class="tree-file">di.py</span>         <span class="tree-comment"># Dependency Injection container</span>
+├── <span class="tree-dir">scripts/</span>
+│   ├── <span class="tree-file">build_kb.py</span>   <span class="tree-comment"># Build Knowledge Base: chunk → embed → bm25</span>
+│   ├── <span class="tree-file">eval_rag.py</span>   <span class="tree-comment"># RAG eval: Recall@k, MRR, NDCG + ground truth expansion</span>
+│   └── <span class="tree-file">crawl_all.py</span>  <span class="tree-comment"># Crawl tất cả sources</span>
+├── <span class="tree-dir">data/</span>
+│   ├── <span class="tree-file">raw/documents.jsonl</span>   <span class="tree-comment"># Raw crawled docs</span>
+│   ├── <span class="tree-file">raw/chunks.jsonl</span>      <span class="tree-comment"># Processed chunks (26,864)</span>
+│   ├── <span class="tree-dir">chroma_db/</span>            <span class="tree-comment"># Vector index</span>
+│   ├── <span class="tree-file">bm25_index.pkl</span>        <span class="tree-comment"># BM25 sparse index</span>
+│   └── <span class="tree-dir">sessions/</span>             <span class="tree-comment"># Per-session JSONL</span>
+├── <span class="tree-dir">frontend/</span>              <span class="tree-comment"># Next.js 15</span>
+├── <span class="tree-dir">tests/</span>                 <span class="tree-comment"># ~30 test files</span>
+└── <span class="tree-file">context.md</span>            <span class="tree-comment"># Living project context (luôn update)</span>
+  </div>
+</section>
+
+<!-- CHAT FLOW -->
+<section class="section" id="chat-flow">
+  <h2>Chat Flow — SSE Stream</h2>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Input</div>
+        <div class="pipe-title">GET /api/v1/chat/stream</div>
+        <div class="pipe-desc">Client gửi <code>?message=...&session_id=...&mode=auto</code>. Qua RateLimitMiddleware → APIKeyMiddleware → RequestLoggingMiddleware.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot cyan"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Intake</div>
+        <div class="pipe-title">run_intake() — chat/intake.py</div>
+        <div class="pipe-desc">NFC normalize → load session history → resolve mode → normalize (regex extract age/lesion/meds/...) → fold_history_facts → pre_check (injection + PII) → genital check → OOD scope check → complaint detect → completeness check → ClinicalQueryPlanner.plan()</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot purple"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Retrieval</div>
+        <div class="pipe-title">retrieve_for_chat() — chat/_retrieval.py</div>
+        <div class="pipe-desc">Build query VI (+ EN nếu bilingual) → DiskCache TTL 1h → HybridRetriever.retrieve() → safety pass (guideline filter) → Cross-encoder rerank (top_k=3) → drop_noisy_chunks()</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot yellow"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Prompt</div>
+        <div class="pipe-title">PromptBuilder.build() — llm/prompt_builder.py</div>
+        <div class="pipe-desc">Jinja2 template <code>stream_user.j2</code> — escape injection markers → sanitize chunk text → context block (max 4500 chars, source badges) → history block (filter genital turns)</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot green"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Generation</div>
+        <div class="pipe-title">OllamaBackend.stream_text() — llm/ollama_backend.py</div>
+        <div class="pipe-desc">POST /api/chat stream=True → yield <code>token</code> SSE events. Fallback 3B nếu runner terminated.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot red"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Safety</div>
+        <div class="pipe-title">get_safety_suffix() — chat/_safety.py</div>
+        <div class="pipe-desc">Append warning nếu: pregnant + retinoid mention → urgent warning. Rx drug mention → bác sĩ reminder. age &lt; 12 → nhi khoa. Urgency red flag → 🚨 suffix.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Output</div>
+        <div class="pipe-title">SSE events + persist</div>
+        <div class="pipe-desc">Yield <code>citation</code> events → persist session JSONL → AuditStore.log() SQLite → yield <code>done</code> event với <code>{mode, latency_ms, evidence_quality}</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KB PIPELINE -->
+<section class="section" id="kb-pipeline">
+  <h2>Build KB Pipeline</h2>
+  <div class="alert alert-success">
+    <div class="alert-title">Trạng thái: Chunk step hoàn tất (2026-05-21)</div>
+    26,864 chunks · 0 broken links · 0 unknown source_type · 33.7s
+  </div>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot cyan"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Step 1</div>
+        <div class="pipe-title">Crawl → documents.jsonl</div>
+        <div class="pipe-desc"><code>python scripts/crawl_all.py</code> — Async fetcher + Playwright + PubMed API. Rate limit per domain. Dedup URL + content hash. Quality filter. Output: <code>data/raw/documents.jsonl</code></div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot yellow"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Step 2 — <code>--step chunk</code></div>
+        <div class="pipe-title">Chunk → chunks.jsonl (3 phases)</div>
+        <div class="pipe-desc">
+          <strong>Phase 1:</strong> clean_vi_text → VietnameseChunker (dedup=False) → filter: min_chars, _is_acne_chunk (signals VI+EN, CJK check, boilerplate), language filter<br>
+          <strong>Phase 2:</strong> Cross-doc dedup — sort by trust_level (high first) → exact hash + top-20 word fingerprint shingling<br>
+          <strong>Phase 3:</strong> Rebuild chunk_id / position / prev_chunk_id / next_chunk_id SAU filter → 0 broken links
+        </div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot purple"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Step 3 — <code>--step embed</code></div>
+        <div class="pipe-title">Embed → ChromaDB</div>
+        <div class="pipe-desc">Load chunks.jsonl → Embedder (Vietnamese_Embedding dim=1024, GPU) → ChromaStore.upsert() batches. Idempotent — có thể resume nếu interrupt. <span class="tag tag-warn">Cần chạy trên máy (GPU)</span></div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-line"><div class="pipe-dot green"></div><div class="pipe-connector"></div></div>
+      <div class="pipe-body">
+        <div class="pipe-label">Step 4 — <code>--step bm25</code></div>
+        <div class="pipe-title">Build BM25 Index</div>
+        <div class="pipe-desc">underthesea tokenize + stopword removal → BM25Okapi → pickle với SHA-256 checksum. Output: <code>data/bm25_index.pkl</code></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:20px">VietnameseChunker — Noise Filters</h3>
+  <table class="tbl">
+    <tr><th>Filter</th><th>Logic</th><th>Ngưỡng</th></tr>
+    <tr><td>Micro-chunk drop</td><td>word count &lt; min_size</td><td>50 words</td></tr>
+    <tr><td>Footer drop</td><td>21 patterns: hotline, zalo, facebook, xem thêm...</td><td>&lt;120w: 1 hit; ≥120w: 3 hits</td></tr>
+    <tr><td>Food domain drop</td><td>"trứng cá hồi/tầm/sashimi/cháo trứng cá"</td><td>bất kỳ match</td></tr>
+    <tr><td>Exact dedup</td><td>SHA-1 content hash (normalized)</td><td>exact match</td></tr>
+    <tr><td>Near-dup dedup</td><td>char 4-gram Jaccard similarity</td><td>≥ 0.90</td></tr>
+  </table>
+</section>
+
+<!-- RAG -->
+<section class="section" id="rag">
+  <h2>RAG System</h2>
+
+  <div class="arch">
+    <div class="arch-row">
+      <span class="arch-box arch-blue">Query</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-cyan">Embed query</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-purple">Dense (Chroma, dist≤0.48)</span>
+    </div>
+    <div class="arch-row">
+      <span class="arch-box arch-blue">Query</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-cyan">VI tokenize</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-yellow">Sparse (BM25Okapi)</span>
+    </div>
+    <div class="arch-row">
+      <span class="arch-box arch-purple">Dense hits</span>
+      <span class="arch-box arch-yellow">Sparse hits</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-green">RRF Fusion k=60</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-green">Trust Boost</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-green">Score prune ≥0.015</span>
+    </div>
+    <div class="arch-row">
+      <span class="arch-box arch-green">top-10 pool</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-red">Cross-encoder rerank</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-red">top-3 final</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-red">drop_noisy_chunks</span>
+    </div>
+  </div>
+
+  <h3>Trust Boost theo Source Type</h3>
+  <table class="tbl">
+    <tr><th>Source Type</th><th>Boost</th><th>Ví dụ</th></tr>
+    <tr><td><span class="tag tag-green">nice_guideline</span> <span class="tag tag-green">aad_guideline</span></td><td>×1.50</td><td>NICE NG198, AAD Acne Guidelines</td></tr>
+    <tr><td><span class="tag tag-blue">jid_paper</span></td><td>×1.30</td><td>Journal of Investigative Dermatology</td></tr>
+    <tr><td><span class="tag tag-blue">pubmed_review</span> <span class="tag tag-blue">clinical_textbook</span></td><td>×1.20</td><td>PubMed systematic review, OpenStax</td></tr>
+    <tr><td><span class="tag tag-cyan">en_medical_site</span></td><td>×1.0 <span class="tag tag-yellow">TODO: ×1.10</span></td><td>Healthline, WebMD, Mayo Clinic</td></tr>
+    <tr><td><span class="tag tag-muted">vi_medical_site</span></td><td>×1.0</td><td>SucKhoeDoiSong, Youmed, VnExpress</td></tr>
+    <tr><td><span class="tag tag-red">forum_post</span></td><td>×0.80</td><td>Reddit, Webtretho</td></tr>
+    <tr><td><span class="tag tag-red">blog</span></td><td>×0.70</td><td>INCIDecoder, WordPress blogs</td></tr>
+  </table>
+
+  <h3>Thông số mặc định</h3>
+  <table class="tbl">
+    <tr><th>Parameter</th><th>Giá trị</th><th>Mô tả</th></tr>
+    <tr><td><code>dense_max_distance</code></td><td>0.48</td><td>Cosine distance filter Chroma</td></tr>
+    <tr><td><code>min_fusion_score</code></td><td>0.015</td><td>Score prune sau RRF</td></tr>
+    <tr><td><code>chat_retrieve_top_k</code></td><td>10</td><td>Pool size trước rerank</td></tr>
+    <tr><td><code>chat_rerank_top_k</code></td><td>3</td><td>Giữ lại sau rerank</td></tr>
+    <tr><td><code>reranker_min_sigmoid</code></td><td>0.30</td><td>Min sigmoid score</td></tr>
+    <tr><td><code>chat_max_context_chars</code></td><td>4500</td><td>Context budget inject vào prompt</td></tr>
+  </table>
+</section>
+
+<!-- API -->
+<section class="section" id="api">
+  <h2>API Layer</h2>
+  <table class="tbl">
+    <tr><th>Route</th><th>Method</th><th>Mô tả</th></tr>
+    <tr><td><code>/api/v1/health</code></td><td>GET</td><td>Ollama health + KB chunk count + BM25 status</td></tr>
+    <tr><td><code>/api/v1/chat</code></td><td>POST</td><td>Chat đồng bộ JSON (có post_check guardrails)</td></tr>
+    <tr><td><code>/api/v1/chat/stream</code></td><td>GET SSE</td><td>Chat streaming — query params message/session_id/mode</td></tr>
+    <tr><td><code>/ws/chat</code></td><td>WebSocket</td><td>Chat stream qua WS</td></tr>
+    <tr><td><code>/api/v1/chat/feedback</code></td><td>POST</td><td>Thumbs up/down → audit.db</td></tr>
+    <tr><td><code>/api/v1/kb/retrieve</code></td><td>POST</td><td>Debug retrieve + rerank</td></tr>
+    <tr><td><code>/api/v1/kb/stats</code></td><td>GET</td><td>RAG status, chunk count, embedder, reranker</td></tr>
+    <tr><td><code>/api/v1/admin/audit</code></td><td>GET</td><td>Audit log, filter, phân trang</td></tr>
+    <tr><td><code>/api/v1/admin/feedback/stats</code></td><td>GET</td><td>satisfaction_rate, up/down counts</td></tr>
+    <tr><td><code>/metrics</code></td><td>GET</td><td>Prometheus plain text</td></tr>
+  </table>
+
+  <h3>Middleware (LIFO order)</h3>
+  <div class="arch">
+    <div class="arch-row">
+      <span class="arch-box arch-red">RateLimitMiddleware</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-yellow">APIKeyMiddleware</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-cyan">RequestLoggingMiddleware</span>
+      <span class="arch-arrow">→</span>
+      <span class="arch-box arch-blue">CORSMiddleware</span>
+    </div>
+  </div>
+</section>
+
+<!-- CHAT MODULES -->
+<section class="section" id="chat">
+  <h2>Chat Modules</h2>
+  <table class="tbl">
+    <tr><th>Module</th><th>File</th><th>Chức năng</th></tr>
+    <tr><td>Intake</td><td><code>chat/intake.py</code></td><td>Orchestrate pre-LLM processing: normalize, scope check, completeness, planner</td></tr>
+    <tr><td>Runtime</td><td><code>chat/runtime.py</code></td><td>SSE streaming orchestrator, empathy prefix, safety suffix, persist</td></tr>
+    <tr><td>Normalizer</td><td><code>chat/normalizer.py</code></td><td>Rule-based regex extractor ~900 dòng: age, lesion, distribution, meds, hormonal, red_flags</td></tr>
+    <tr><td>Session</td><td><code>chat/session.py</code></td><td>In-memory store + fold_history_facts + format_history_block</td></tr>
+    <tr><td>Completeness</td><td><code>chat/completeness.py</code></td><td>Check missing core fields, hỏi từng field một, track asked_fields</td></tr>
+    <tr><td>Intent Router</td><td><code>chat/intent_router.py</code></td><td>Route flags: emotional, crisis, urgency, product_safety, language_switch, repeated</td></tr>
+    <tr><td>Retrieval</td><td><code>chat/_retrieval.py</code></td><td>retrieve_for_chat, RRF merge, evidence_quality, citation_data</td></tr>
+    <tr><td>Safety</td><td><code>chat/_safety.py</code></td><td>get_safety_suffix: retinoid warning, Rx reminder, age &lt;12, urgency 🚨</td></tr>
+    <tr><td>Prompt</td><td><code>chat/_prompt.py</code></td><td>build_chat_prompt (non-Jinja2, ít dùng)</td></tr>
+  </table>
+</section>
+
+<!-- GUARDRAILS -->
+<section class="section" id="guardrails">
+  <h2>Guardrails</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🚫</div>
+      <div class="card-title">Injection Detection</div>
+      <div class="card-desc">80+ phrases EN + VI có/không dấu + teencode + special tokens như <code>[system]</code>, <code>&lt;|user|&gt;</code></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧭</div>
+      <div class="card-title">OOD Scope Check</div>
+      <div class="card-desc">2 tầng: keyword (200+ acne terms vs out-of-scope) + embedding cosine vs acne centroid (threshold 0.25). Fail-open.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💊</div>
+      <div class="card-title">Drug Checker</div>
+      <div class="card-desc">drugs_acne.yaml + OpenFDA API fallback (cache 24h). Check cross-interactions, pregnancy category X, contraindications.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <div class="card-title">Genital Scope</div>
+      <div class="card-desc">Refuse cứng khi detect vùng sinh dục/hậu môn — chạy trước OOD check để tránh false negative.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <div class="card-title">Post-check Rules</div>
+      <div class="card-desc">Rewrite retinoid nếu pregnant, inject "đi khám" nếu severe, xóa recommendation nặn/lăn kim, drug allergy red_flag.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">PII Detection</div>
+      <div class="card-desc">CMND/CCCD, SĐT VN, email, địa chỉ, số tài khoản — chỉ log cảnh báo, không từ chối.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LLM -->
+<section class="section" id="llm">
+  <h2>LLM Backend</h2>
+  <table class="tbl">
+    <tr><th>Module</th><th>Chức năng</th></tr>
+    <tr><td><code>llm/ollama_backend.py</code></td><td>HTTP client httpx, stream_text, generate_json (constrained decoding), fallback 3B model</td></tr>
+    <tr><td><code>llm/clinical_planner.py</code></td><td>Rule-based (không gọi LLM) — build ClinicalQueryPlan với bilingual queries (VI + EN inline)</td></tr>
+    <tr><td><code>llm/prompt_builder.py</code></td><td>Jinja2 templates — anti-injection escape, source badges [NICE]/[AAD]/[PubMed], context budget</td></tr>
+    <tr><td><code>llm/query_expander.py</code></td><td>LLM-based query expansion (disabled mặc định, <code>chat_use_llm_planner=False</code>)</td></tr>
+    <tr><td><code>llm/qa_generator.py</code></td><td>Generate QA pairs từ crawled docs cho finetune dataset</td></tr>
+  </table>
+
+  <h3>Prompt Templates (<code>config/prompts/</code>)</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+    <span class="tag tag-blue">system_core.j2</span>
+    <span class="tag tag-blue">system_stream.j2</span>
+    <span class="tag tag-blue">system_extended.j2</span>
+    <span class="tag tag-green">stream_user.j2</span>
+    <span class="tag tag-green">hybrid_user.j2</span>
+    <span class="tag tag-green">llm_only_user.j2</span>
+    <span class="tag tag-muted">clinical_planner_user.j2</span>
+    <span class="tag tag-purple">judge.j2</span>
+  </div>
+</section>
+
+<!-- CRAWLER -->
+<section class="section" id="crawler">
+  <h2>Crawler & Data Sources</h2>
+  <table class="tbl">
+    <tr><th>Source</th><th>Source Type</th><th>Trust</th><th>Chunks</th></tr>
+    <tr><td>SucKhoeDoiSong, Youmed, VnExpress, TuoiTre, BVDL</td><td><span class="tag tag-cyan">vi_medical_site</span></td><td>medium/high</td><td>17,431</td></tr>
+    <tr><td>PubMed (E-utilities API)</td><td><span class="tag tag-blue">pubmed_review</span></td><td>high</td><td>4,922</td></tr>
+    <tr><td>INCIDecoder, blogs</td><td><span class="tag tag-muted">blog</span></td><td>medium</td><td>2,181</td></tr>
+    <tr><td>Healthline, WebMD, Mayo Clinic, MSDManuals, MedlinePlus</td><td><span class="tag tag-green">en_medical_site</span></td><td>high</td><td>1,981</td></tr>
+    <tr><td>AAD (American Academy of Dermatology)</td><td><span class="tag tag-green">aad_guideline</span></td><td>high</td><td>187</td></tr>
+    <tr><td>NICE NG198</td><td><span class="tag tag-green">nice_guideline</span></td><td>high</td><td>144</td></tr>
+    <tr><td>OpenStax</td><td><span class="tag tag-purple">clinical_textbook</span></td><td>high</td><td>1</td></tr>
+  </table>
+</section>
+
+<!-- STORAGE -->
+<section class="section" id="storage">
+  <h2>Storage</h2>
+  <table class="tbl">
+    <tr><th>Store</th><th>File</th><th>Mô tả</th></tr>
+    <tr><td>Session (Production)</td><td><code>db/jsonl_session_store.py</code></td><td>Per-session JSONL, append-only, atomic compact, TTL 30 phút, path sanitization</td></tr>
+    <tr><td>Session (In-memory)</td><td><code>chat/session.py</code></td><td>Fallback cho tests, thread-safe, RLock</td></tr>
+    <tr><td>Audit</td><td><code>db/audit.py</code></td><td>SQLite WAL — bảng audit_log + feedback</td></tr>
+    <tr><td>Embed cache</td><td><code>cache.py</code></td><td>DiskCache permanent, key = SHA-256(model, query)</td></tr>
+    <tr><td>Retrieve cache</td><td><code>cache.py</code></td><td>DiskCache TTL 1h, invalidate sau rebuild KB</td></tr>
+    <tr><td>Vector index</td><td><code>data/chroma_db/</code></td><td>ChromaDB persistent, cosine space</td></tr>
+    <tr><td>Sparse index</td><td><code>data/bm25_index.pkl</code></td><td>BM25Okapi pickle + SHA-256 checksum</td></tr>
+  </table>
+</section>
+
+<!-- FRONTEND -->
+<section class="section" id="frontend">
+  <h2>Frontend</h2>
+  <p><strong>Stack:</strong> Next.js 15.5 · React 18.3 · TypeScript · Tailwind CSS 3 · Zustand 4.5 · Lucide React</p>
+  <table class="tbl">
+    <tr><th>File</th><th>Chức năng</th></tr>
+    <tr><td><code>components/chat/ChatWindow.tsx</code></td><td>Chat UI chính</td></tr>
+    <tr><td><code>components/chat/CitationCard.tsx</code></td><td>Render citation từ SSE citation event</td></tr>
+    <tr><td><code>hooks/useSSE.ts</code></td><td>EventSource hook nhận token/citation/done events</td></tr>
+    <tr><td><code>stores/chatStore.ts</code></td><td>Zustand store: messages, session_id, loading</td></tr>
+    <tr><td><code>lib/api.ts</code></td><td>Fetch wrappers</td></tr>
+  </table>
+</section>
+
+<!-- KB STATS -->
+<section class="section" id="kb-stats">
+  <h2>KB Statistics (2026-05-21)</h2>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">26,864</div><div class="stat-label">Total chunks</div></div>
+    <div class="stat"><div class="stat-val">184w</div><div class="stat-label">Median length</div></div>
+    <div class="stat"><div class="stat-val">69.4%</div><div class="stat-label">Vietnamese</div></div>
+    <div class="stat"><div class="stat-val">30.6%</div><div class="stat-label">English</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-label">Broken links</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-label">Unknown type</div></div>
+  </div>
+
+  <h3>Phân phối độ dài chunk</h3>
+  <table class="tbl">
+    <tr><th>Percentile</th><th>p5</th><th>p25</th><th>Median</th><th>p75</th><th>p95</th><th>Max</th></tr>
+    <tr><td>Words</td><td>65</td><td>162</td><td>184</td><td>193</td><td>199</td><td>329</td></tr>
+  </table>
+</section>
+
+<!-- SOURCE TYPES -->
+<section class="section" id="source-types">
+  <h2>Source Types</h2>
+  <p>Định nghĩa trong <code>schemas/kb.py</code> — <code>SourceType</code> Literal. <code>infer_source_type()</code> tự động classify từ URL + source_name.</p>
+  <table class="tbl">
+    <tr><th>Type</th><th>Mô tả</th><th>Boost</th><th>Chunks</th></tr>
+    <tr><td><span class="tag tag-green">nice_guideline</span></td><td>NICE Clinical Guidelines UK</td><td>×1.50</td><td>144</td></tr>
+    <tr><td><span class="tag tag-green">aad_guideline</span></td><td>AAD Acne Guidelines US</td><td>×1.50</td><td>187</td></tr>
+    <tr><td><span class="tag tag-blue">jid_paper</span></td><td>Journal of Investigative Dermatology</td><td>×1.30</td><td>—</td></tr>
+    <tr><td><span class="tag tag-blue">pubmed_review</span></td><td>PubMed systematic review / meta-analysis</td><td>×1.20</td><td>4,922</td></tr>
+    <tr><td><span class="tag tag-purple">clinical_textbook</span></td><td>Textbook lâm sàng (OpenStax...)</td><td>×1.20</td><td>1</td></tr>
+    <tr><td><span class="tag tag-cyan">en_medical_site</span></td><td>Healthline, WebMD, Mayo, MSDManuals, MedlinePlus</td><td>×1.0 <span class="tag tag-yellow">TODO ×1.10</span></td><td>1,981</td></tr>
+    <tr><td><span class="tag tag-muted">vi_medical_site</span></td><td>SucKhoeDoiSong, Youmed, VnExpress, BVDL...</td><td>×1.0</td><td>17,431</td></tr>
+    <tr><td><span class="tag tag-muted">forum_post</span></td><td>Reddit, Webtretho, Quora</td><td>×0.80</td><td>—</td></tr>
+    <tr><td><span class="tag tag-red">blog</span></td><td>INCIDecoder, WordPress, blogspot</td><td>×0.70</td><td>2,181</td></tr>
+  </table>
+</section>
+
+<!-- CONFIG -->
+<section class="section" id="config">
+  <h2>Config chính (.env)</h2>
+  <pre>OLLAMA_URL=http://localhost:11434
+LLM_MODEL=qwen2.5:7b
+LLM_FALLBACK_MODEL=qwen2.5:3b
+LLM_NUM_CTX=8192
+DEVICE=gpu                        # auto-detect CUDA
+EMBEDDING_MODEL=AITeamVN/Vietnamese_Embedding
+RERANKER_MODEL=BAAI/bge-reranker-v2-m3
+CHROMA_DIR=./data/chroma_db
+BM25_PATH=./data/bm25_index.pkl
+CHAT_RETRIEVE_TOP_K=10
+CHAT_RERANK_TOP_K=3
+CHAT_MAX_CONTEXT_CHARS=4500
+RERANKER_MIN_SIGMOID=0.30
+DENSE_MAX_DISTANCE=0.48
+GUARDRAILS_SCOPE_MODE=soft        # soft / hard / off
+API_KEY=                          # rỗng = không cần auth
+RATE_LIMIT_PER_MINUTE=60</pre>
+</section>
+
+<!-- RUN -->
+<section class="section" id="run">
+  <h2>Cách chạy</h2>
+  <h3>Backend</h3>
+  <pre>cd E:\project\AcneLLM
+uvicorn acne_llm.api.app:app --reload --host 0.0.0.0 --port 8000</pre>
+
+  <h3>Build KB</h3>
+  <pre># Full rebuild
+python scripts/build_kb.py --force --step chunk
+python scripts/build_kb.py --step embed     # cần GPU, bỏ qua nếu đã đủ
+python scripts/build_kb.py --step bm25
+
+# Chỉ chunk (nhanh ~34s)
+python scripts/build_kb.py --force --step chunk</pre>
+
+  <h3>Frontend</h3>
+  <pre>cd frontend
+npm run dev     # port 3000</pre>
+
+  <h3>Eval RAG</h3>
+  <pre>python scripts/eval_rag.py --skip-gen      # dùng labels đã có
+python scripts/eval_rag.py --mode hybrid   # full eval</pre>
+
+  <h3>Tests</h3>
+  <pre>python -m pytest tests/ -v</pre>
+</section>
+
+<!-- TESTS -->
+<section class="section" id="tests">
+  <h2>Tests</h2>
+  <p>~30 test files trong <code>tests/</code>. Config: <code>asyncio_mode=auto</code>, <code>pythonpath=["src"]</code></p>
+  <div style="display:flex;flex-wrap:wrap;gap:6px">
+    <span class="tag tag-blue">test_api</span>
+    <span class="tag tag-blue">test_chat_stream</span>
+    <span class="tag tag-blue">test_guardrails</span>
+    <span class="tag tag-blue">test_intake</span>
+    <span class="tag tag-blue">test_session</span>
+    <span class="tag tag-blue">test_jsonl_session_store</span>
+    <span class="tag tag-green">test_pipeline_mock</span>
+    <span class="tag tag-green">test_clinical_planner</span>
+    <span class="tag tag-green">test_retriever</span>
+    <span class="tag tag-green">test_retrieval_merge</span>
+    <span class="tag tag-green">test_sparse_bm25</span>
+    <span class="tag tag-green">test_reranker</span>
+    <span class="tag tag-purple">test_chunker</span>
+    <span class="tag tag-purple">test_cleaning</span>
+    <span class="tag tag-purple">test_dedup</span>
+    <span class="tag tag-purple">test_quality_filter</span>
+    <span class="tag tag-cyan">test_prompt_builder</span>
+    <span class="tag tag-cyan">test_schemas</span>
+    <span class="tag tag-cyan">test_settings</span>
+    <span class="tag tag-muted">test_eval_retrieval</span>
+    <span class="tag tag-muted">test_completeness_new</span>
+    <span class="tag tag-muted">test_intent_router_new</span>
+    <span class="tag tag-muted">test_stream_safety</span>
+  </div>
+  <div class="alert alert-success" style="margin-top:16px">
+    <div class="alert-title">Last run: 183 passed, 2 failed (pre-existing), 1 skipped, 1 xfailed</div>
+    2 pre-existing failures: regex "nặn vài cục" và medication detection sensitivity
+  </div>
+</section>
+
+<!-- TODO -->
+<section class="section" id="todo">
+  <h2>TODO / Pending</h2>
+  <div class="alert alert-warn">
+    <div class="alert-title">Cần chạy trên máy (GPU)</div>
+    <code>python scripts/build_kb.py --step embed</code> và <code>--step bm25</code> — embed 26,864 chunks vào ChromaDB
+  </div>
+
+  <table class="tbl">
+    <tr><th>#</th><th>Task</th><th>Priority</th></tr>
+    <tr><td>1</td><td>Rebuild ChromaDB + BM25 với chunks mới (<code>--step embed</code> + <code>--step bm25</code>)</td><td><span class="tag tag-red">High</span></td></tr>
+    <tr><td>2</td><td>Run <code>eval_rag.py --skip-gen</code> — đánh giá RAG với KB mới sạch</td><td><span class="tag tag-red">High</span></td></tr>
+    <tr><td>3</td><td>Thêm <code>en_medical_site: ×1.10</code> vào trust boost trong <code>rag/retriever.py</code></td><td><span class="tag tag-yellow">Medium</span></td></tr>
+    <tr><td>4</td><td>Xem xét tăng <code>min_size=60</code> để drop 879 pubmed short fragments</td><td><span class="tag tag-yellow">Medium</span></td></tr>
+    <tr><td>5</td><td>Chuẩn hóa Zalo/hotline boilerplate lẫn vào content (giảm <code>_FOOTER_THRESHOLD_LONG</code> xuống 2)</td><td><span class="tag tag-muted">Low</span></td></tr>
+    <tr><td>6</td><td>Thêm real Vision model thay MockVision (Đề tài 27)</td><td><span class="tag tag-muted">External</span></td></tr>
+    <tr><td>7</td><td>DELETE /session/{id} endpoint — expose JsonlSessionStore.delete()</td><td><span class="tag tag-muted">Low</span></td></tr>
+    <tr><td>8</td><td>Streaming POST /chat (hiện chỉ có GET SSE)</td><td><span class="tag tag-muted">Low</span></td></tr>
+  </table>
+</section>
+
+</main>
+</div>
+
+<script>
+// Highlight active nav item on scroll
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-80px 0px -60% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

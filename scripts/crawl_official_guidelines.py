@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 from acne_llm.crawler.extractor import extract_main_text
 from acne_llm.crawler.quality_filter import score_quality
-from acne_llm.schemas.kb import DocumentRaw, SourceMeta
+from acne_llm.schemas.kb import DocumentRaw, SourceMeta, infer_source_type
 
 
 DEFAULT_DOCS_PATH = ROOT / "data" / "raw" / "documents.jsonl"
@@ -194,6 +194,13 @@ def _document_from_target(target: GuidelineTarget, timeout_seconds: float) -> Do
         source=SourceMeta(
             domain=domain,
             source_name=target.source_name,
+            source_type=infer_source_type(
+                source_name=target.source_name,
+                domain=domain,
+                url=target.url,
+                tags=list(target.tags),
+                categories=list(target.categories),
+            ),
             trust_level="high",
             language="en",
             crawled_at=datetime.now(),

@@ -8,6 +8,8 @@ import { useChatStore } from "@/stores/chatStore";
 export function useSSE() {
   const sessionId = useChatStore((state) => state.sessionId);
   const isLoading = useChatStore((state) => state.isLoading);
+  const selectedMode = useChatStore((state) => state.settings.mode);
+  const temperature = useChatStore((state) => state.settings.temperature);
   const addUserMessage = useChatStore((state) => state.addUserMessage);
   const addAssistantPlaceholder = useChatStore((state) => state.addAssistantPlaceholder);
   const appendToLastAssistant = useChatStore((state) => state.appendToLastAssistant);
@@ -17,7 +19,7 @@ export function useSSE() {
   const setLoading = useChatStore((state) => state.setLoading);
 
   const sendMessage = useCallback(
-    async (message: string, mode = "auto") => {
+    async (message: string, mode = selectedMode) => {
       const clean = message.trim();
       if (!clean || isLoading) return;
 
@@ -26,7 +28,7 @@ export function useSSE() {
       setLoading(true);
 
       try {
-        const response = await fetch(createStreamUrl(clean, sessionId, mode));
+        const response = await fetch(createStreamUrl(clean, sessionId, mode, temperature));
         if (!response.ok || !response.body) {
           throw new Error(`Backend returned ${response.status}`);
         }
@@ -60,8 +62,8 @@ export function useSSE() {
           }
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Không thể kết nối backend.";
-        failLastAssistant(message);
+        const errMsg = error instanceof Error ? error.message : "Không thể kết nối backend.";
+        failLastAssistant(errMsg);
       } finally {
         setLoading(false);
       }
@@ -75,7 +77,9 @@ export function useSSE() {
       finishLastAssistant,
       isLoading,
       sessionId,
+      selectedMode,
       setLoading,
+      temperature,
     ],
   );
 

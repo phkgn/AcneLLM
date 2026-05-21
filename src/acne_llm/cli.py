@@ -11,7 +11,7 @@ app = typer.Typer(help="AcneLLM CLI")
 def chat(description: str, mode: str = "hybrid", age: int = None,
          skin_type: str = None, pregnant: bool = False):
     """Send a single query to the pipeline and print AdviseOutput as JSON."""
-    from config.settings import settings
+    from acne_llm.config import settings
     from acne_llm.di import build_container
     from acne_llm.schemas import UserInput, UserContext
 
@@ -30,7 +30,7 @@ def chat(description: str, mode: str = "hybrid", age: int = None,
 
 @app.command()
 def stats():
-    from config.settings import settings
+    from acne_llm.config import settings
     from acne_llm.di import build_container
     c = build_container(settings)
     rprint({

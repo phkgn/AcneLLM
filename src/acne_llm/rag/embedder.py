@@ -38,11 +38,15 @@ class Embedder:
             from sentence_transformers import SentenceTransformer
             logger.info(f"Loading embedder: {self.model_name} on {self.device}")
             self._model = SentenceTransformer(self.model_name, device=self.device)
-            self.dim = self._model.get_sentence_embedding_dimension()
+            if hasattr(self._model, "get_embedding_dimension"):
+                self.dim = self._model.get_embedding_dimension()
+            else:
+                self.dim = self._model.get_sentence_embedding_dimension()
             logger.info(f"Embedder ready (dim={self.dim})")
         return self._model
 
     def embed_passages(self, texts: list[str]) -> np.ndarray:
+        """Embed list of passages -- no cache, dung khi build KB."""
         if not texts:
             return np.zeros((0, self.dim), dtype=np.float32)
         m = self._load()
@@ -53,6 +57,14 @@ class Embedder:
         )
 
     def embed_query(self, query: str) -> np.ndarray:
+        """Embed single query voi cache (cache miss -> compute -> store)."""
+        from ..cache import cached_embed_query
+        return cached_embed_query(self, query)
+
+    def _embed_query_raw(self, query: str) -> np.ndarray:
+        """Internal: compute embedding truc tiep, khong qua cache (tranh de quy)."""
         m = self._load()
-        return m.encode([query], normalize_embeddings=True,
-                        convert_to_numpy=True, show_progress_bar=False)[0]
+        return m.encode(
+            [query], normalize_embeddings=True,
+            convert_to_numpy=True, show_progress_bar=False,
+        )[0]

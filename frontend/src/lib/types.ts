@@ -7,11 +7,16 @@ export interface Citation {
   text: string;
 }
 
+export type EvidenceQuality = "strong" | "moderate" | "weak" | "unverified";
+
+export type FeedbackRating = "up" | "down";
+
 export interface DoneData {
   mode: string;
   latency_ms: number;
   used_chunks: string[];
   session_id?: string;
+  evidence_quality?: EvidenceQuality;
 }
 
 export interface ChatMessage {
@@ -21,13 +26,15 @@ export interface ChatMessage {
   citations?: Citation[];
   mode?: string;
   latency_ms?: number;
+  evidence_quality?: EvidenceQuality;
   isStreaming?: boolean;
   error?: string;
+  feedback?: FeedbackRating | null;
 }
 
 export interface StreamEvent {
-  event: "token" | "citation" | "warning" | "done" | "error";
-  data: string | Citation | DoneData | string[];
+  event: "token" | "citation" | "done" | "error";
+  data: string | Citation | DoneData;
 }
 
 export interface KBSearchResult {
@@ -39,6 +46,6 @@ export interface KBSearchResult {
 
 export interface ChatSettings {
   mode: "auto" | "hybrid" | "llm_only";
-  topK: number;
   temperature: number;
+  topK: number;
 }

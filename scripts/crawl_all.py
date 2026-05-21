@@ -40,7 +40,7 @@ from acne_llm.crawler.dedup import OnlineDedup
 from acne_llm.crawler.checkpoint import CrawlCheckpoint
 from acne_llm.crawler.stats import CrawlStats
 from acne_llm.utils.logging import configure_logging
-from config.settings import settings
+from acne_llm.config import settings
 
 _TOPIC_SIGNALS_VI = {
     "mun", "tri-mun", "da-lieu", "trung-ca", "seo-mun",

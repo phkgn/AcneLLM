@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcneLLM — Pipeline Trace</title>
+<style>
+:root {
+  --bg: #0d0f18;
+  --surface: #141720;
+  --surface2: #1c2030;
+  --surface3: #222840;
+  --border: #2a3050;
+  --accent: #5b7cf6;
+  --accent2: #9b6dfa;
+  --green: #2ecc71;
+  --yellow: #f0c040;
+  --red: #e05560;
+  --orange: #f08040;
+  --cyan: #30c8e0;
+  --pink: #e060b0;
+  --text: #dde3f0;
+  --muted: #7080a0;
+  --code-bg: #0a0c14;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; line-height: 1.6; }
+
+/* ── HEADER ── */
+header { background: linear-gradient(135deg, #141720, #0f1220); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
+.logo { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #5b7cf6, #9b6dfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+header p { color: var(--muted); font-size: 12px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface); padding: 0 24px; overflow-x: auto; }
+.tab { padding: 10px 20px; font-size: 12px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); white-space: nowrap; transition: all 0.15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── LAYOUT ── */
+.page { display: flex; height: calc(100vh - 105px); overflow: hidden; }
+.sidebar { width: 260px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 0; }
+.main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+/* ── SIDEBAR STEPS ── */
+.sidebar-step { display: flex; align-items: flex-start; gap: 10px; padding: 8px 14px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+.sidebar-step:hover { background: var(--surface2); }
+.sidebar-step.active { background: var(--surface2); border-left-color: var(--accent); }
+.sidebar-step.done .step-dot { background: var(--green) !important; }
+.sidebar-step.active .step-dot { box-shadow: 0 0 8px var(--accent); }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.sidebar-step-info { flex: 1; min-width: 0; }
+.sidebar-step-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-step-sub { font-size: 10px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── STEP PANEL ── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+.step-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+.step-subtitle { color: var(--muted); font-size: 12px; margin-bottom: 20px; font-family: monospace; }
+.section { margin-bottom: 20px; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+/* ── CARDS ── */
+.card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+.card.highlight { border-color: var(--accent); }
+.card.green { border-left: 3px solid var(--green); }
+.card.yellow { border-left: 3px solid var(--yellow); }
+.card.red { border-left: 3px solid var(--red); }
+.card.blue { border-left: 3px solid var(--accent); }
+.card.purple { border-left: 3px solid var(--accent2); }
+.card.cyan { border-left: 3px solid var(--cyan); }
+.card-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.card-body { font-size: 12px; color: var(--muted); }
+
+/* ── CODE ── */
+pre, code { font-family: 'Cascadia Code', 'Fira Code', monospace; }
+.code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 11px; overflow-x: auto; margin-bottom: 10px; line-height: 1.7; }
+.code-block .k { color: #9b6dfa; }
+.code-block .s { color: #2ecc71; }
+.code-block .c { color: #506080; font-style: italic; }
+.code-block .n { color: #5b7cf6; }
+.code-block .v { color: #f0c040; }
+.code-block .ok { color: #2ecc71; font-weight: 700; }
+.code-block .warn { color: #f08040; }
+.code-block .skip { color: #506080; }
+
+/* ── TAGS ── */
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+.tag-green { background: #0f2a1a; color: #2ecc71; border: 1px solid #1a4a2a; }
+.tag-blue { background: #0f1a35; color: #5b7cf6; border: 1px solid #1a2a50; }
+.tag-purple { background: #1a0f35; color: #9b6dfa; border: 1px solid #2a1a50; }
+.tag-yellow { background: #2a2010; color: #f0c040; border: 1px solid #4a3820; }
+.tag-red { background: #2a0f10; color: #e05560; border: 1px solid #4a1a20; }
+.tag-cyan { background: #0f2530; color: #30c8e0; border: 1px solid #1a3a50; }
+.tag-gray { background: #1a1f2a; color: #7080a0; border: 1px solid #2a3040; }
+
+/* ── INPUT BUBBLE ── */
+.chat-bubble { background: var(--surface3); border: 1px solid var(--border); border-radius: 12px 12px 4px 12px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; max-width: 80%; }
+.chat-bubble.user { background: #1a2050; border-color: #2a3580; margin-left: auto; border-radius: 12px 4px 12px 12px; }
+.chat-bubble.bot { background: var(--surface2); }
+.chat-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ── FLOW ARROWS ── */
+.flow-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.flow-box { background: var(--surface3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 11px; white-space: nowrap; }
+.flow-arrow { color: var(--muted); font-size: 14px; }
+.flow-box.active-box { border-color: var(--accent); color: var(--accent); }
+.flow-box.pass { border-color: var(--green); color: var(--green); }
+.flow-box.fail { border-color: var(--red); color: var(--red); }
+
+/* ── DECISION ── */
+.decision { background: var(--surface2); border: 2px solid var(--yellow); border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
+.decision-q { font-weight: 700; color: var(--yellow); margin-bottom: 6px; font-size: 12px; }
+.decision-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+.decision-opt { padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.decision-opt.chosen { background: #1a3a1a; color: var(--green); border: 1px solid var(--green); }
+.decision-opt.other { background: var(--surface3); color: var(--muted); border: 1px solid var(--border); }
+
+/* ── SSE ── */
+.sse-stream { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 11px; max-height: 220px; overflow-y: auto; }
+.sse-line { margin-bottom: 4px; }
+.sse-line .ev { color: #9b6dfa; }
+.sse-line .tok { color: #2ecc71; }
+.sse-line .cit { color: #30c8e0; }
+.sse-line .don { color: #f0c040; }
+.sse-line .dim { color: #506080; }
+
+/* ── NAV BUTTONS ── */
+.nav-btns { display: flex; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.btn { padding: 8px 20px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.btn:hover { background: var(--surface3); border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: #4a6ae5; }
+
+/* ── EXAMPLE PICKER ── */
+.example-picker { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.ex-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 11px; cursor: pointer; transition: all 0.15s; }
+.ex-btn:hover, .ex-btn.active { background: var(--surface3); color: var(--text); border-color: var(--accent); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 20px; }
+.progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
+
+/* ── KV TABLE ── */
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 12px; }
+.kv-key { color: var(--muted); font-family: monospace; white-space: nowrap; }
+.kv-val { color: var(--text); font-family: monospace; }
+.kv-val.green { color: var(--green); }
+.kv-val.yellow { color: var(--yellow); }
+.kv-val.red { color: var(--red); }
+.kv-val.blue { color: #7090ff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">AcneLLM · Pipeline Trace</div>
+    <p>Theo dõi từng bước xử lý từ input → output · Chọn ví dụ để thay đổi trace</p>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchExample(0)">💬 Case tư vấn mụn</div>
+  <div class="tab" onclick="switchExample(1)">🔥 Mụn viêm nặng + khẩn cấp</div>
+  <div class="tab" onclick="switchExample(2)">🧠 Câu hỏi kiến thức</div>
+  <div class="tab" onclick="switchExample(3)">🌐 OOD → LLM Only</div>
+  <div class="tab" onclick="switchExample(4)">😔 Emotional distress</div>
+</div>
+
+<div class="page">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar"></div>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+    <div id="step-panels"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const examples = [
+{
+  label: "Tư vấn mụn bọc",
+  input: "Em 20 tuổi, da dầu, bị mụn bọc ở má và cằm khoảng 3 tuần nay, có viêm đỏ, đang dùng nước hoa hồng Paula's Choice BHA. Nên làm gì?",
+  steps: [
+    {
+      id: "preprocess",
+      name: "① Preprocess",
+      file: "chat/preprocess.py",
+      color: "#5b7cf6",
+      sub: "NFC normalize",
+      content: `
+        <div class="section-label">Input nhận được</div>
+        <div class="chat-bubble user">
+          <div class="chat-label">User</div>
+          Em 20 tuổi, da dầu, bị mụn bọc ở má và cằm khoảng 3 tuần nay, có viêm đỏ, đang dùng nước hoa hồng Paula's Choice BHA. Nên làm gì?
+        </div>
+        <div class="section-label">Xử lý</div>
+        <div class="code-block">
+<span class="c"># preprocess_user_text()</span>
+<span class="c"># 1. NFC normalize (unicodedata.normalize)</span>
+<span class="c"># 2. Strip zero-width chars (\\u200b, \\u200c, \\ufeff...)</span>
+<span class="c"># 3. Collapse whitespace</span>
+clean_text = <span class="s">"Em 20 tuổi, da dầu, bị mụn bọc ở má và cằm khoảng 3 tuần nay..."</span>
+<span class="c"># → Không thay đổi (đã clean)</span>
+        </div>
+        <div class="card green">
+          <div class="card-title">✓ Output</div>
+          <div class="card-body">clean_text sẵn sàng cho bước tiếp theo. Không có zero-width chars, whitespace bình thường.</div>
+        </div>`
+    },
+    {
+      id: "resolve_mode",
+      name: "② Resolve Mode",
+      file: "chat/intake.py · _resolve_mode()",
+      color: "#5b7cf6",
+      sub: "auto → hybrid",
+      content: `
+        <div class="section-label">Logic quyết định mode</div>
+        <div class="decision">
+          <div class="decision-q">mode_request = "auto" → kiểm tra RAG + acne signal</div>
+          <div class="decision-opts">
+            <span class="decision-opt chosen">✓ RAG ready = True</span>
+            <span class="decision-opt chosen">✓ acne signal trong text</span>
+            <span class="decision-opt other">→ hybrid</span>
+          </div>
+        </div>
+        <div class="code-block">
+<span class="k">if</span> not c.rag_ready:
+    <span class="k">return</span> <span class="s">"llm_only"</span>
+<span class="k">if</span> clean_text <span class="k">and</span> not GuardrailRunner.is_acne_scope_text(clean_text):
+    <span class="c"># check acne history...</span>
+    <span class="k">return</span> <span class="s">"llm_only"</span>
+<span class="k">return</span> <span class="ok">"hybrid"</span>  <span class="c"># ← đây</span>
+        </div>
+        <div class="card green"><div class="card-title">✓ mode = "hybrid"</div><div class="card-body">RAG sẵn sàng + text có từ khóa mụn → dùng hybrid retrieval</div></div>`
+    },
+    {
+      id: "normalize",
+      name: "③ Normalize",
+      file: "chat/normalizer.py · 800 dòng regex",
+      color: "#5b7cf6",
+      sub: "Extract structured fields",
+      content: `
+        <div class="section-label">normalize_chat_message() — Rule-based regex extraction</div>
+        <div class="code-block">
+<span class="c"># Input: "Em 20 tuổi, da dầu, bị mụn bọc ở má và cằm..."</span>
+
+age          = <span class="ok">20</span>        <span class="c"># "20 tuổi"</span>
+skin_type    = <span class="ok">"oily"</span>    <span class="c"># "da dầu"</span>
+lesion_types = <span class="ok">["nodule"]</span> <span class="c"># "mụn bọc" → closed comedone/nodule</span>
+distribution = <span class="ok">["cheeks", "chin"]</span>  <span class="c"># "má", "cằm"</span>
+inflammation = <span class="ok">"mild"</span>    <span class="c"># "viêm đỏ"</span>
+duration_wks = <span class="ok">3</span>         <span class="c"># "3 tuần"</span>
+products     = <span class="ok">["paula's choice bha", "nước hoa hồng"]</span>
+medications  = <span class="ok">[]</span>
+red_flags    = <span class="ok">[]</span>
+        </div>
+        <div class="card blue">
+          <div class="card-title">→ UserInput (structured)</div>
+          <div class="kv">
+            <span class="kv-key">context.age</span><span class="kv-val green">20</span>
+            <span class="kv-key">context.skin_type</span><span class="kv-val green">"oily"</span>
+            <span class="kv-key">context.duration_weeks</span><span class="kv-val green">3</span>
+            <span class="kv-key">clinical.lesion_types</span><span class="kv-val green">["nodule"]</span>
+            <span class="kv-key">clinical.lesion_distribution</span><span class="kv-val green">["cheeks", "chin"]</span>
+            <span class="kv-key">clinical.inflammation_level</span><span class="kv-val green">"mild"</span>
+            <span class="kv-key">context.current_products</span><span class="kv-val green">["paula's choice bha"]</span>
+          </div>
+        </div>`
+    },
+    {
+      id: "session",
+      name: "④ Session History",
+      file: "chat/session.py · JsonlSessionStore",
+      color: "#5b7cf6",
+      sub: "Load + fold history",
+      content: `
+        <div class="section-label">Load JSONL history</div>
+        <div class="code-block">
+history = store.get_history(session_id)
+<span class="c"># → [] (lần đầu chat, không có history)</span>
+
+<span class="c"># fold_history_facts() — merge prior snapshots</span>
+user = fold_history_facts(base_user, history)
+<span class="c"># Không có history → user giữ nguyên từ normalize()</span>
+
+asked_fields = store.get_asked_fields(session_id)
+<span class="c"># → set() (chưa hỏi field nào)</span>
+        </div>
+        <div class="card blue">
+          <div class="card-title">Session schema mở rộng (M5/M6)</div>
+          <div class="kv">
+            <span class="kv-key">history turns</span><span class="kv-val">0 (turn đầu)</span>
+            <span class="kv-key">asked_fields</span><span class="kv-val">set() — chưa hỏi gì</span>
+            <span class="kv-key">accumulated_clinical_score</span><span class="kv-val">0.0</span>
+          </div>
+        </div>`
+    },
+    {
+      id: "guardrails",
+      name: "⑤ Guardrails",
+      file: "guardrails/runner.py",
+      color: "#e05560",
+      sub: "pre_check + scope_check",
+      content: `
+        <div class="section-label">Pre-check — Injection + PII</div>
+        <div class="code-block">
+c.guardrails.pre_check(user)
+<span class="c"># Kiểm tra 80+ injection patterns (EN + VI + teencode)</span>
+<span class="c"># "Em 20 tuổi..." → không có injection → PASS</span>
+<span class="ok">✓ pre_check PASS</span>
+
+<span class="c"># Genital scope check (trước OOD)</span>
+_is_genital_scope(clean_text) → <span class="ok">False</span>
+
+<span class="c"># OOD scope check</span>
+scope_refusal = c.guardrails.scope_check(user)
+<span class="c"># keyword "mụn bọc", "da dầu" → acne scope</span>
+<span class="c"># embedding similarity vs acne centroid > 0.25 → PASS</span>
+scope_refusal = <span class="ok">None</span>
+
+acne_signal = _is_acne_scope(clean_text) → <span class="ok">True</span>
+scope_decision = <span class="ok">"in_scope"</span>
+<span class="c"># mode giữ nguyên "hybrid" (không downgrade)</span>
+        </div>
+        <div class="card green"><div class="card-title">✓ Tất cả guardrail PASS</div><div class="card-body">Không injection, không OOD, acne signal detected → in_scope</div></div>`
+    },
+    {
+      id: "intent",
+      name: "⑥ Intent Router",
+      file: "chat/intent_router.py",
+      color: "#9b6dfa",
+      sub: "advise · confidence 0.88",
+      content: `
+        <div class="section-label">Route flags detection (song song)</div>
+        <div class="code-block">
+<span class="c"># Kiểm tra tất cả flags đồng thời</span>
+is_repeated_question()     → <span class="skip">False  # lần đầu</span>
+language_switch            → <span class="skip">False  # VI suốt</span>
+_contains_any(_EMOTIONAL)  → <span class="skip">False</span>
+_contains_any(_CRISIS)     → <span class="skip">False</span>
+_contains_any(_SAFETY_PRODUCT) → <span class="ok">True   # "BHA"!</span>
+_contains_any(_URGENCY)    → <span class="skip">False</span>
+_contains_any(_PROGRESS)   → <span class="skip">False</span>
+_contains_any(_MULTI_COND) → <span class="skip">False</span>
+
+flags = <span class="ok">["product_safety_check"]</span>
+
+<span class="c"># Primary intent routing</span>
+has_case_terms = True    <span class="c"># "em bị", "bị mụn"</span>
+has_case_signal = True   <span class="c"># lesion_types populated</span>
+is_advice_q = True       <span class="c"># "nên làm gì"</span>
+→ primary_intent = <span class="ok">"advise"</span>, confidence = <span class="ok">0.88</span>
+        </div>
+        <div class="card purple">
+          <div class="card-title">→ RouteDecision</div>
+          <div class="kv">
+            <span class="kv-key">primary_intent</span><span class="kv-val green">"advise"</span>
+            <span class="kv-key">confidence</span><span class="kv-val green">0.88</span>
+            <span class="kv-key">route_flags</span><span class="kv-val yellow">["product_safety_check"]</span>
+            <span class="kv-key">source</span><span class="kv-val">"rule"</span>
+            <span class="kv-key">classifier called?</span><span class="kv-val">No (conf ≥ 0.80)</span>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-yellow">product_safety_check → inject ingredient safety terms vào RAG</span>
+        </div>`
+    },
+    {
+      id: "completeness",
+      name: "⑦ Completeness",
+      file: "chat/completeness.py",
+      color: "#f0c040",
+      sub: "partial → advise + hỏi thêm",
+      content: `
+        <div class="section-label">_should_check_completeness() → True</div>
+        <div class="code-block">
+<span class="c"># Có case intake terms + acne signal → check</span>
+_has_enough_to_answer(user):
+  specific_lesions = ["nodule"]   → <span class="ok">True</span>
+  <span class="c"># → đủ để tư vấn sơ bộ!</span>
+
+missing = []
+<span class="c"># lesion_types: có rồi ✓</span>
+<span class="c"># distribution: có rồi (cheeks, chin) ✓</span>
+<span class="c"># → không thiếu field nào</span>
+
+→ CompletenessResult(kind=<span class="ok">"sufficient"</span>)
+        </div>
+        <div class="card green">
+          <div class="card-title">✓ sufficient — LLM tư vấn bình thường</div>
+          <div class="card-body">Có đủ: lesion_types (nodule), distribution (cheeks, chin), inflammation (mild), duration (3w), product đang dùng → không cần hỏi thêm.</div>
+        </div>`
+    },
+    {
+      id: "planner",
+      name: "⑧ Clinical Planner",
+      file: "llm/clinical_planner.py",
+      color: "#5b7cf6",
+      sub: "Build RAG queries",
+      content: `
+        <div class="section-label">ClinicalQueryPlanner.plan() — Rule-based, không gọi LLM</div>
+        <div class="code-block">
+<span class="c"># build_query_vi() — bilingual inline</span>
+query_vi = <span class="s">"mụn bọc nodule má cằm cheeks chin viêm mild "</span>
+         + <span class="s">"paula's choice BHA salicylic oily skin "</span>
+         + <span class="s">"3 tuần duration weeks"</span>
+
+<span class="c"># Detected language: VI → không build query_en</span>
+query_en = <span class="skip">""</span>
+
+<span class="c"># Safety terms</span>
+safety_terms = []  <span class="c"># không mang thai, không thuốc Rx</span>
+
+<span class="c"># product_safety_check flag → inject safety terms (M3)</span>
+safety_terms += <span class="ok">["ingredient interaction", "ket hop hoat chat",</span>
+                <span class="ok"> "retinol aha bha", "safe combination actives",</span>
+                <span class="ok"> "benzoyl peroxide retinoid", ...]</span>
+        </div>
+        <div class="card blue">
+          <div class="card-title">→ ClinicalQueryPlan</div>
+          <div class="kv">
+            <span class="kv-key">query_vi</span><span class="kv-val green">"mụn bọc nodule má cằm..."</span>
+            <span class="kv-key">query_en</span><span class="kv-val">""</span>
+            <span class="kv-key">safety_terms</span><span class="kv-val yellow">8 ingredient terms</span>
+            <span class="kv-key">planner_confidence</span><span class="kv-val">0.45 (rule-based)</span>
+          </div>
+        </div>`
+    },
+    {
+      id: "rag",
+      name: "⑨ RAG Retrieval",
+      file: "chat/_retrieval.py · rag/retriever.py",
+      color: "#2ecc71",
+      sub: "hybrid + safety pass",
+      content: `
+        <div class="section-label">retrieve_for_chat() — mode=hybrid + is_acne_signal=True</div>
+        <div class="code-block">
+<span class="c"># Cache check (DiskCache TTL 1h)</span>
+_cache_key = (("mụn bọc nodule má cằm...",), 6, 3, 0.25)
+cache_hit = <span class="skip">False</span>  <span class="c"># lần đầu</span>
+
+<span class="c"># 1. Dense retrieval (ChromaDB cosine)</span>
+embed(query_vi) → vector[1024]
+ChromaStore.query_with_score_filter(distance≤0.48)
+dense_results = <span class="ok">8 chunks</span>
+
+<span class="c"># 2. Sparse retrieval (BM25 Vietnamese)</span>
+BM25Index.query("mụn bọc nodule má cằm...")
+sparse_results = <span class="ok">7 chunks</span>
+
+<span class="c"># 3. RRF Fusion k=60</span>
+rrf_scores = {chunk_id: 1/(60+rank+1) for each list}
+trust_boost: nodule/papule chunks × 1.5 (guideline)
+
+<span class="c"># 4. Safety pass (product_safety_check injected terms)</span>
+retrieve_safety_pass(query, safety_terms, top_k=5)
+safety_chunks = <span class="ok">3 guideline chunks</span> <span class="c"># BHA+retinol interaction</span>
+
+<span class="c"># 5. Merge + Rerank (BAAI/bge-reranker-v2-m3)</span>
+merged = merge_retrieval_outputs([main, safety])
+reranked = reranker.rerank(query, merged, top_k=3)
+
+<span class="c"># 6. Drop noisy chunks</span>
+drop_noisy_chunks(min_score=0.25)
+        </div>
+        <div class="card green">
+          <div class="card-title">→ RetrievalOutput</div>
+          <div class="kv">
+            <span class="kv-key">chunks returned</span><span class="kv-val green">3 chunks</span>
+            <span class="kv-key">avg_score</span><span class="kv-val green">0.71</span>
+            <span class="kv-key">evidence_quality</span><span class="kv-val green">"strong" (≥0.65)</span>
+            <span class="kv-key">source types</span><span class="kv-val">[aad_guideline, jid_paper, pubmed_review]</span>
+          </div>
+        </div>`
+    },
+    {
+      id: "prompt",
+      name: "⑩ Prompt Builder",
+      file: "llm/prompt_builder.py · stream_user.j2",
+      color: "#5b7cf6",
+      sub: "Jinja2 render",
+      content: `
+        <div class="section-label">c.prompt.build() → (system, user_message)</div>
+        <div class="code-block">
+<span class="c"># system = system_stream.j2 (prose instructions)</span>
+<span class="c"># user_message = stream_user.j2 render:</span>
+
+<span class="c">## Context (3 chunks, max 6000 chars)</span>
+[AAD Guideline] Nodular acne treatment: combination BHA + benzoyl...
+[JID Paper] BHA salicylic acid 2% efficacy oily acne-prone skin...
+[PubMed Review] Safe combination: BHA + niacinamide...
+
+<span class="c">## History (none — lần đầu)</span>
+
+<span class="c">## User input (escaped Jinja2)</span>
+Age: 20 | Skin: oily | Lesions: nodule | Distribution: cheeks, chin
+Inflammation: mild | Duration: 3w | Products: paula's choice bha
+Question: Em 20 tuổi, da dầu, bị mụn bọc...
+        </div>
+        <div class="kv">
+          <span class="kv-key">prompt chars</span><span class="kv-val">~4200 chars (~1200 tokens)</span>
+          <span class="kv-key">anti-injection</span><span class="kv-val green">✓ _escape_jinja() applied</span>
+          <span class="kv-key">chunk sanitize</span><span class="kv-val green">✓ HTML tags stripped</span>
+        </div>`
+    },
+    {
+      id: "prefix",
+      name: "⑪ Pre-stream Prefix",
+      file: "chat/runtime.py",
+      color: "#9b6dfa",
+      sub: "Không có prefix (advise thường)",
+      content: `
+        <div class="section-label">Kiểm tra route_flags cho pre-stream prefix</div>
+        <div class="code-block">
+route_flags_pre = <span class="ok">["product_safety_check"]</span>
+
+<span class="k">if</span> "crisis_signal" in flags:    → <span class="skip">False</span>
+<span class="k">elif</span> "emotional_distress" in flags: → <span class="skip">False</span>
+<span class="k">elif</span> "repeated_question" in flags:  → <span class="skip">False</span>
+
+pre_prefix = <span class="ok">""</span>  <span class="c"># không có prefix</span>
+<span class="c"># → LLM stream bắt đầu ngay không có prefix</span>
+        </div>
+        <div class="card green"><div class="card-title">→ Không có pre-stream prefix</div><div class="card-body">Case tư vấn bình thường, không có emotional/crisis/repeated flag → LLM stream trực tiếp.</div></div>`
+    },
+    {
+      id: "llm",
+      name: "⑫ LLM Stream",
+      file: "llm/ollama_backend.py · acne-qwen25:7b",
+      color: "#30c8e0",
+      sub: "Stream tokens",
+      content: `
+        <div class="section-label">OllamaBackend.stream_text() → yield tokens</div>
+        <div class="code-block">
+POST http://localhost:11434/api/chat
+model = <span class="ok">"acne-qwen25:7b"</span>
+temperature = <span class="ok">0.2</span>
+stream = True
+
+<span class="c"># First token latency ~380ms</span>
+<span class="c"># Tokens stream:</span>
+yield <span class="s">"Dựa"</span>
+yield <span class="s">" vào"</span>
+yield <span class="s">" tình"</span>
+yield <span class="s">" trạng"</span>
+<span class="c">... ~280 tokens total ...</span>
+yield <span class="s">"BHA."</span>
+
+full_text = <span class="ok">"Dựa vào tình trạng mụn bọc ở má và cằm..."</span>
+        </div>
+        <div class="sse-stream">
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">"Dựa"</span>}</div>
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">" vào tình trạng"</span>}</div>
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">" mụn bọc"</span>}</div>
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">" ở má và cằm..."</span>}</div>
+          <div class="sse-line"><span class="dim">... (280 token events) ...</span></div>
+        </div>`
+    },
+    {
+      id: "safety",
+      name: "⑬ Safety Suffix",
+      file: "chat/_safety.py",
+      color: "#e05560",
+      sub: "BHA safety warning",
+      content: `
+        <div class="section-label">get_safety_suffix() — phân tích full_text + route_flags</div>
+        <div class="code-block">
+<span class="c"># Pregnancy check</span>
+is_pregnant = False, is_breastfeeding = False → <span class="skip">skip</span>
+
+<span class="c"># Retinoid check</span>
+_mentions_positively(full_text, "retinol") → <span class="skip">False</span>
+_mentions_positively(full_text, "tretinoin") → <span class="skip">False</span>
+→ <span class="skip">no retinoid warning</span>
+
+<span class="c"># Rx drug check</span>
+_mentions_rx_advice(full_text, "isotretinoin") → <span class="skip">False</span>
+→ <span class="skip">no rx warning</span>
+
+<span class="c"># Age check: 20 → không phải < 12</span>
+<span class="c"># urgency_red_flag: False</span>
+<span class="c"># multi_condition: False</span>
+
+<span class="c"># Generic disclaimer</span>
+skip_generic_disclaimer = False <span class="c"># (advise, không phải knowledge)</span>
+is_already_has_warning() → <span class="skip">False</span>
+→ append <span class="ok">_GENERIC_DISCLAIMER_VI</span>
+        </div>
+        <div class="card yellow">
+          <div class="card-title">→ warning_suffix appended</div>
+          <div class="card-body">💡 Lưu ý: Thông tin trên chỉ mang tính tham khảo và không thay thế ý kiến bác sĩ da liễu...</div>
+        </div>`
+    },
+    {
+      id: "citations",
+      name: "⑭ Citations",
+      file: "chat/_retrieval.py · citation_data()",
+      color: "#30c8e0",
+      sub: "3 citation events",
+      content: `
+        <div class="section-label">Yield SSE citation events cho mỗi chunk</div>
+        <div class="sse-stream">
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="cit">"citation"</span>, "data": {</div>
+          <div class="sse-line" style="padding-left:16px"><span class="dim">chunk_id: "aad_nodular_001",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="dim">source: "aad_guideline",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="dim">title: "AAD Acne Guidelines 2023",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="dim">score: 0.8241,</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="dim">text: "Nodular acne treatment: BHA combination..."</span></div>
+          <div class="sse-line">}}</div>
+          <div class="sse-line" style="margin-top:6px"><span class="dim">data:</span> {"event": <span class="cit">"citation"</span>, "data": { chunk_id: "jid_bha_002", score: 0.7890 }}</div>
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="cit">"citation"</span>, "data": { chunk_id: "pubmed_combo_003", score: 0.7123 }}</div>
+        </div>
+        <div class="card cyan">
+          <div class="card-title">3 citation events</div>
+          <div class="kv">
+            <span class="kv-key">aad_guideline</span><span class="kv-val green">score: 0.8241</span>
+            <span class="kv-key">jid_paper</span><span class="kv-val green">score: 0.7890</span>
+            <span class="kv-key">pubmed_review</span><span class="kv-val green">score: 0.7123</span>
+          </div>
+        </div>`
+    },
+    {
+      id: "persist",
+      name: "⑮ Persist + Audit",
+      file: "chat/session.py · db/audit.py",
+      color: "#5b7cf6",
+      sub: "JSONL + SQLite",
+      content: `
+        <div class="section-label">Lưu session + audit log</div>
+        <div class="code-block">
+full_assistant_text = full_text + warning_suffix
+
+<span class="c"># Append vào JSONL (data/sessions/&lt;session_id&gt;.jsonl)</span>
+sess.append_turn(ConversationTurn(
+    role=<span class="s">"user"</span>,
+    content=<span class="s">"Em 20 tuổi, da dầu..."</span>,
+    mode=<span class="s">"hybrid"</span>,
+    metadata={<span class="s">"primary_intent"</span>: <span class="s">"advise"</span>, <span class="s">"route_flags"</span>: [<span class="s">"product_safety_check"</span>]}
+))
+sess.append_turn(ConversationTurn(
+    role=<span class="s">"assistant"</span>,
+    content=full_assistant_text,
+    mode=<span class="s">"hybrid"</span>,
+    used_chunks=[<span class="s">"aad_001"</span>, <span class="s">"jid_002"</span>, <span class="s">"pubmed_003"</span>]
+))
+
+<span class="c"># Ghi SQLite audit</span>
+audit.log(AuditEntry(latency_ms=<span class="ok">1840</span>, model=<span class="s">"acne-qwen25:7b"</span>...))
+        </div>`
+    },
+    {
+      id: "done",
+      name: "⑯ Done Event",
+      file: "chat/runtime.py",
+      color: "#2ecc71",
+      sub: "Output hoàn chỉnh",
+      content: `
+        <div class="section-label">yield SSE done event</div>
+        <div class="sse-stream">
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="don">"done"</span>, "data": {</div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"mode": "hybrid",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"latency_ms": 1840,</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"used_chunks": ["aad_001", "jid_002", "pubmed_003"],</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"session_id": "a3f7b2c1",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"evidence_quality": "strong",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"primary_intent": "advise",</span></div>
+          <div class="sse-line" style="padding-left:16px"><span class="don">"route_flags": ["product_safety_check"]</span></div>
+          <div class="sse-line">}}</div>
+        </div>
+        <div class="section-label" style="margin-top:16px">Final output (chat UI)</div>
+        <div class="chat-bubble bot">
+          <div class="chat-label">AcneLLM · hybrid · 1840ms · ⭐ strong evidence</div>
+          Dựa vào tình trạng mụn bọc (nodule) ở má và cằm, viêm nhẹ, da dầu, bạn đang dùng BHA Paula's Choice — đây là lựa chọn tốt. Khuyến nghị:<br><br>
+          <b>1. Tiếp tục BHA 2%</b> (salicylic acid) — phù hợp mụn bọc da dầu<br>
+          <b>2. Thêm niacinamide 10%</b> buổi sáng — giảm viêm + sebum<br>
+          <b>3. Benzoyl peroxide 2.5%</b> spot treatment tối...<br><br>
+          💡 Lưu ý: Thông tin trên chỉ mang tính tham khảo và không thay thế ý kiến bác sĩ da liễu.
+        </div>
+        <div class="tags">
+          <span class="tag tag-green">mode: hybrid</span>
+          <span class="tag tag-cyan">evidence: strong</span>
+          <span class="tag tag-blue">3 citations</span>
+          <span class="tag tag-yellow">product_safety_check</span>
+        </div>`
+    },
+  ]
+},
+{
+  label: "Mụn viêm nặng + khẩn cấp",
+  input: "Mụn của tôi sưng lớn lắm, đau nhiều, có mủ, lan rộng ra cả má, hơi sốt nữa. Tôi phải làm gì?",
+  steps: [
+    { id:"pre", name:"① Preprocess", file:"chat/preprocess.py", color:"#5b7cf6", sub:"Clean text", content:`<div class="code-block">clean_text = <span class="ok">"Mụn của tôi sưng lớn lắm, đau nhiều, có mủ..."</span></div>` },
+    { id:"norm", name:"② Normalize", file:"chat/normalizer.py", color:"#5b7cf6", sub:"Extract red flags", content:`
+        <div class="code-block">
+lesion_types = <span class="ok">["pustule"]</span>     <span class="c"># "có mủ"</span>
+distribution = <span class="ok">["cheeks"]</span>         <span class="c"># "má"</span>
+red_flags    = <span class="ok">["painful_lesions", "widespread", "purulent_lesions"]</span>
+<span class="c"># "sưng lớn", "đau nhiều", "mủ", "lan rộng", "sốt"</span>
+        </div>` },
+    { id:"guard", name:"③ Guardrails", file:"guardrails/runner.py", color:"#e05560", sub:"PASS — acne scope", content:`<div class="code-block">scope_decision = <span class="ok">"in_scope"</span><br>acne_signal = <span class="ok">True</span></div>` },
+    { id:"intent", name:"④ Intent Router", file:"chat/intent_router.py", color:"#9b6dfa", sub:"urgency_red_flag!", content:`
+        <div class="code-block">
+_contains_any(_URGENCY_TERMS):
+  "sưng lớn" → <span class="ok">True</span>
+  "đau nhiều" → <span class="ok">True</span>
+  "mủ" → <span class="ok">True</span>
+  "lan rộng" → <span class="ok">True</span>
+  "sốt" → <span class="ok">True</span>
+
+user.clinical.red_flags_input → <span class="ok">["painful_lesions", "widespread"]</span>
+
+flags = <span class="ok">["urgency_red_flag"]</span>
+primary_intent = <span class="ok">"advise"</span>, confidence = <span class="ok">0.91</span>
+        </div>
+        <div class="card red"><div class="card-title">⚠️ urgency_red_flag detected</div><div class="card-body">→ Safety suffix sẽ append cảnh báo đến cơ sở y tế ngay</div></div>` },
+    { id:"rag", name:"⑤ RAG Retrieval", file:"chat/_retrieval.py", color:"#2ecc71", sub:"hybrid retrieval", content:`<div class="code-block">mode = <span class="ok">"hybrid"</span>, is_acne_signal = <span class="ok">True</span><br>→ retrieve + rerank → 3 chunks<br>evidence_quality = <span class="ok">"moderate"</span></div>` },
+    { id:"llm", name:"⑥ LLM Stream", file:"llm/ollama_backend.py", color:"#30c8e0", sub:"Stream response", content:`<div class="code-block">pre_prefix = <span class="ok">""</span> <span class="c"># không có emotional prefix</span><br>→ Stream tokens bình thường</div>` },
+    { id:"safety", name:"⑦ Safety Suffix 🚨", file:"chat/_safety.py", color:"#e05560", sub:"urgency warning injected", content:`
+        <div class="code-block">
+<span class="k">if</span> "urgency_red_flag" <span class="k">in</span> route_flags:
+    <span class="k">if not</span> _already_has_warning(full_text, ("đi khám ngay",...)):
+        warnings.append(
+            <span class="ok">"\n\n🚨 Nếu tình trạng có dấu hiệu nghiêm trọng "</span>
+            <span class="ok">"(sưng tấy lan rộng, đau nhiều, sốt...), "</span>
+            <span class="ok">"bạn nên đến cơ sở y tế ngay để được xử lý kịp thời."</span>
+        )
+        </div>
+        <div class="card red"><div class="card-title">🚨 Urgency warning appended</div><div class="card-body">Tình trạng có sốt + mủ + lan rộng → cần đến y tế ngay, không tự điều trị tại nhà.</div></div>` },
+    { id:"done", name:"⑧ Done Event", file:"chat/runtime.py", color:"#2ecc71", sub:"latency ~1600ms", content:`
+        <div class="sse-stream">
+          <div class="sse-line"><span class="don">"mode": "hybrid", "evidence_quality": "moderate"</span></div>
+          <div class="sse-line"><span class="don">"route_flags": ["urgency_red_flag"]</span></div>
+          <div class="sse-line"><span class="don">"latency_ms": 1620</span></div>
+        </div>
+        <div class="chat-bubble bot">
+          <div class="chat-label">AcneLLM · hybrid · 1620ms</div>
+          Tình trạng mụn mủ sưng to, đau nhiều, lan rộng và kèm sốt là dấu hiệu viêm nhiễm nặng...<br><br>
+          🚨 Nếu tình trạng có dấu hiệu nghiêm trọng (sưng tấy lan rộng, đau nhiều, sốt hoặc tổn thương không cải thiện sau 48h), bạn nên <b>đến cơ sở y tế ngay</b> để được xử lý kịp thời.
+        </div>` }
+  ]
+},
+{
+  label: "Câu hỏi kiến thức",
+  input: "Retinol là gì? Có tác dụng gì với mụn không?",
+  steps: [
+    { id:"norm", name:"① Normalize", file:"chat/normalizer.py", color:"#5b7cf6", sub:"Ít clinical fields", content:`<div class="code-block">lesion_types = <span class="skip">[]</span><br>distribution = <span class="skip">[]</span><br>description = <span class="ok">"Retinol là gì? Có tác dụng gì với mụn không?"</span></div>` },
+    { id:"intent", name:"② Intent Router", file:"chat/intent_router.py", color:"#9b6dfa", sub:"knowledge · 0.86", content:`
+        <div class="code-block">
+is_mechanism_query:
+  "là gì" → <span class="ok">True</span>
+  "tác dụng" → <span class="ok">True</span>
+has_case_terms = <span class="skip">False</span>
+has_case_signal = <span class="skip">False</span>
+
+<span class="c"># Product/mechanism query without case → knowledge</span>
+→ primary_intent = <span class="ok">"knowledge"</span>, confidence = <span class="ok">0.86</span>
+flags = <span class="ok">["product_safety_check"]</span> <span class="c"># "retinol"</span>
+        </div>` },
+    { id:"completeness", name:"③ Completeness", file:"chat/completeness.py", color:"#f0c040", sub:"SKIP — knowledge", content:`
+        <div class="code-block">
+_should_check_completeness():
+  <span class="c"># knowledge question → skip</span>
+  any(term in text for term in _KNOWLEDGE_QUESTION_TERMS)
+  "là gì" → <span class="ok">True</span> → <span class="ok">skip completeness</span>
+        </div>
+        <div class="card green"><div class="card-title">✓ Completeness skipped</div><div class="card-body">Knowledge question không cần hỏi thêm clinical info → tiến thẳng vào RAG</div></div>` },
+    { id:"rag", name:"④ RAG", file:"chat/_retrieval.py", color:"#2ecc71", sub:"retrieve knowledge chunks", content:`<div class="code-block">query = <span class="ok">"retinol la gi tac dung mun acne retinoid"</span><br>→ 3 chunks: retinoid mechanism, retinol efficacy, usage guide</div>` },
+    { id:"safety", name:"⑤ Safety Suffix", file:"chat/_safety.py", color:"#e05560", sub:"skip generic disclaimer!", content:`
+        <div class="code-block">
+is_knowledge_intent = <span class="ok">True</span>
+skip_generic_disclaimer = <span class="ok">True</span>  <span class="c"># ← bugfix #4</span>
+
+<span class="c"># Vẫn check retinoid warning nhưng</span>
+<span class="c"># generic disclaimer bị skip</span>
+warnings = []  <span class="c"># không append disclaimer thừa</span>
+        </div>
+        <div class="card green"><div class="card-title">✓ Không có generic disclaimer</div><div class="card-body">Câu hỏi kiến thức thuần túy → không cần "thông tin chỉ mang tính tham khảo" ở cuối.</div></div>` },
+    { id:"done", name:"⑥ Done Event", file:"chat/runtime.py", color:"#2ecc71", sub:"knowledge mode", content:`
+        <div class="chat-bubble bot">
+          <div class="chat-label">AcneLLM · hybrid · 1240ms · knowledge</div>
+          Retinol là dạng vitamin A tan trong dầu, thuộc nhóm retinoid. Cơ chế tác động với mụn:<br><br>
+          <b>1. Tăng chu kỳ tế bào</b> — đẩy nhanh shed dead skin cells, ngăn bít lỗ chân lông<br>
+          <b>2. Giảm sebum</b> — ức chế tuyến bã nhờn<br>
+          <b>3. Kháng viêm</b> — giảm IL-1α, TNF-α...
+        </div>` }
+  ]
+},
+{
+  label: "OOD → LLM Only",
+  input: "Cho tôi biết công thức nấu phở bò ngon.",
+  steps: [
+    { id:"norm", name:"① Normalize", file:"chat/normalizer.py", color:"#5b7cf6", sub:"Không có acne fields", content:`<div class="code-block">lesion_types = <span class="skip">[]</span><br>medications = <span class="skip">[]</span><br>→ UserInput rỗng phần clinical</div>` },
+    { id:"scope", name:"② Scope Check", file:"guardrails/runner.py", color:"#e05560", sub:"OOD detected", content:`
+        <div class="code-block">
+acne_signal = _is_acne_scope(clean_text)
+<span class="c"># "phở bò" không có trong _ACNE_SCOPE_TERMS</span>
+acne_signal = <span class="ok">False</span>
+
+scope_decision = <span class="ok">"pass_to_llm_soft"</span>
+
+<span class="c"># Auto-downgrade (NEW)</span>
+<span class="k">if</span> scope_decision == <span class="s">"pass_to_llm_soft"</span> <span class="k">and</span> mode == <span class="s">"hybrid"</span>:
+    mode = <span class="ok">"llm_only"</span>
+    <span class="c"># → RAG sẽ không chạy, tiết kiệm resources</span>
+        </div>
+        <div class="card yellow"><div class="card-title">⚡ Auto-downgrade: hybrid → llm_only</div><div class="card-body">OOD detected + mode=auto → tự động switch về LLM Only. RAG không được gọi.</div></div>` },
+    { id:"intent", name:"③ Intent Router", file:"chat/intent_router.py", color:"#9b6dfa", sub:"knowledge", content:`<div class="code-block">flags = <span class="skip">[]</span><br>primary_intent = <span class="ok">"knowledge"</span>, confidence = <span class="ok">0.82</span></div>` },
+    { id:"rag_skip", name:"④ RAG — SKIPPED", file:"chat/runtime.py", color:"#506080", sub:"mode=llm_only", content:`
+        <div class="code-block">
+<span class="c"># runtime.py</span>
+retrieval = (
+    retrieve_for_chat(...)
+    <span class="k">if</span> mode == <span class="ok">"hybrid"</span> <span class="k">and</span> is_acne_signal
+    <span class="k">else None</span>
+)
+<span class="c"># mode = "llm_only" → retrieval = None</span>
+<span class="c"># → Không gọi ChromaDB, không gọi BM25</span>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--muted)">RAG skipped</div><div class="card-body">Không tốn latency retrieval (~400ms saved). Prompt không có context block.</div></div>` },
+    { id:"llm", name:"⑤ LLM Stream", file:"llm/ollama_backend.py", color:"#30c8e0", sub:"LLM Only response", content:`<div class="code-block">mode = <span class="ok">"llm_only"</span><br>→ LLM tự trả lời không có RAG context<br>→ Stream tokens</div>` },
+    { id:"done", name:"⑥ Done Event", file:"chat/runtime.py", color:"#2ecc71", sub:"llm_only · no chunks", content:`
+        <div class="sse-stream">
+          <div class="sse-line"><span class="don">"mode": "llm_only"</span></div>
+          <div class="sse-line"><span class="don">"used_chunks": []</span></div>
+          <div class="sse-line"><span class="don">"evidence_quality": "unverified"</span></div>
+        </div>
+        <div class="chat-bubble bot">
+          <div class="chat-label">AcneLLM · llm_only · 980ms · unverified</div>
+          Phở bò ngon cần nước dùng hầm từ xương ống 6-8 tiếng, với gừng và hành tây nướng thơm...
+        </div>` }
+  ]
+},
+{
+  label: "Emotional distress",
+  input: "Mình bị mụn nhiều quá, xấu hổ không dám ra ngoài, stress lắm. Không biết phải làm sao nữa.",
+  steps: [
+    { id:"norm", name:"① Normalize", file:"chat/normalizer.py", color:"#5b7cf6", sub:"Detect mụn signal", content:`<div class="code-block">description = <span class="ok">"Mình bị mụn nhiều quá..."</span><br>lesion_types = <span class="skip">[]</span> <span class="c"># không rõ loại cụ thể</span><br>distribution = <span class="skip">[]</span></div>` },
+    { id:"intent", name:"② Intent Router", file:"chat/intent_router.py", color:"#9b6dfa", sub:"emotional_distress!", content:`
+        <div class="code-block">
+_contains_any(_EMOTIONAL_TERMS):
+  "xấu hổ" → <span class="ok">True</span>
+  "stress" → <span class="ok">True</span>
+
+flags = <span class="ok">["emotional_distress"]</span>
+primary_intent = <span class="ok">"advise"</span>, confidence = <span class="ok">0.79</span>
+        </div>
+        <div class="card" style="border-left:3px solid var(--pink)"><div class="card-title" style="color:var(--pink)">💗 emotional_distress detected</div><div class="card-body">→ Pre-stream empathy prefix sẽ được yield trước LLM tokens</div></div>` },
+    { id:"prefix", name:"③ Empathy Prefix", file:"chat/runtime.py", color:"#e060b0", sub:"Yield trước LLM", content:`
+        <div class="code-block">
+<span class="k">elif</span> "emotional_distress" <span class="k">in</span> route_flags_pre:
+    pre_prefix = <span class="ok">"Mình hiểu mụn có thể ảnh hưởng đến tâm lý nhiều lắm — "</span>
+    yield _event(<span class="s">"token"</span>, pre_prefix)
+        </div>
+        <div class="sse-stream">
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">"Mình hiểu mụn có thể ảnh hưởng đến tâm lý nhiều lắm — "</span>}</div>
+          <div class="sse-line"><span class="dim"># → LLM tokens tiếp theo</span></div>
+          <div class="sse-line"><span class="dim">data:</span> {"event": <span class="ev">"token"</span>, "data": <span class="tok">"bạn không cô đơn đâu."</span>}</div>
+        </div>` },
+    { id:"completeness", name:"④ Completeness", file:"chat/completeness.py", color:"#f0c040", sub:"missing_core", content:`
+        <div class="code-block">
+_has_enough_to_answer() → <span class="skip">False</span>
+<span class="c"># Không có lesion_types, distribution, inflammation cụ thể</span>
+missing = ["lesion_types"]
+"lesion_types" not in asked_fields → <span class="ok">True</span>
+
+→ CompletenessResult(
+    kind=<span class="ok">"partial"</span>,
+    question=<span class="s">"Để tư vấn chính xác hơn — mụn của bạn trông như thế nào?"</span>,
+    partial_advise=True
+)
+<span class="c"># LLM vẫn tư vấn sơ bộ, câu hỏi append cuối</span>
+        </div>` },
+    { id:"done", name:"⑤ Output", file:"chat/runtime.py", color:"#2ecc71", sub:"empathy + partial", content:`
+        <div class="chat-bubble bot">
+          <div class="chat-label">AcneLLM · hybrid · 1480ms</div>
+          Mình hiểu mụn có thể ảnh hưởng đến tâm lý nhiều lắm — bạn không cô đơn đâu nhé. Mụn là tình trạng rất phổ biến và hoàn toàn có thể cải thiện...<br><br>
+          [Tư vấn sơ bộ về skincare routine...]<br><br>
+          💡 Lưu ý: Thông tin trên chỉ mang tính tham khảo...<br><br>
+          <i>Để tư vấn chính xác hơn — mụn của bạn trông như thế nào? Ví dụ: mụn đầu đen, mụn đầu trắng, mụn viêm đỏ, hay mụn bọc/nang.</i>
+        </div>
+        <div class="tags">
+          <span class="tag tag-purple">emotional_distress prefix</span>
+          <span class="tag tag-yellow">partial advise</span>
+          <span class="tag tag-green">hybrid</span>
+        </div>` }
+  ]
+}
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentExample = 0;
+let currentStep = 0;
+
+function switchExample(idx) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  currentExample = idx;
+  currentStep = 0;
+  render();
+}
+
+function goStep(idx) {
+  const ex = examples[currentExample];
+  if (idx < 0 || idx >= ex.steps.length) return;
+  currentStep = idx;
+  renderMain();
+  renderSidebar();
+  document.getElementById('main').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  renderSidebar();
+  renderMain();
+}
+
+function renderSidebar() {
+  const ex = examples[currentExample];
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = `
+    <div style="padding:10px 14px 6px;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Pipeline Steps</div>
+    <div style="padding:6px 14px;margin-bottom:4px;">
+      <div class="chat-bubble user" style="font-size:11px;max-width:100%;padding:8px 12px;border-radius:8px;">
+        ${ex.input.substring(0,60)}${ex.input.length>60?'...':''}
+      </div>
+    </div>
+    ${ex.steps.map((s,i) => `
+      <div class="sidebar-step ${i===currentStep?'active':''} ${i<currentStep?'done':''}" onclick="goStep(${i})">
+        <div class="step-dot" style="background:${i<currentStep?'var(--green)':i===currentStep?s.color:'var(--surface3)'};color:${i<=currentStep?'white':'var(--muted)'}">
+          ${i<currentStep?'✓':i+1}
+        </div>
+        <div class="sidebar-step-info">
+          <div class="sidebar-step-name">${s.name}</div>
+          <div class="sidebar-step-sub">${s.sub}</div>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderMain() {
+  const ex = examples[currentExample];
+  const s = ex.steps[currentStep];
+  const pct = Math.round(((currentStep+1)/ex.steps.length)*100);
+
+  document.getElementById('step-panels').innerHTML = `
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+    <div class="step-title">
+      <span style="color:${s.color}">${s.name}</span>
+      <span style="font-size:12px;color:var(--muted);font-weight:400">${currentStep+1} / ${ex.steps.length}</span>
+    </div>
+    <div class="step-subtitle">${s.file}</div>
+
+    ${s.content}
+
+    <div class="nav-btns">
+      <button class="btn" onclick="goStep(${currentStep-1})" ${currentStep===0?'disabled':''}>← Trước</button>
+      <button class="btn primary" onclick="goStep(${currentStep+1})" ${currentStep===ex.steps.length-1?'disabled':''}>Tiếp →</button>
+      <button class="btn" onclick="goStep(0)" style="margin-left:auto">↺ Reset</button>
+    </div>
+  `;
+}
+
+// init
+render();
+</script>
+</body>
+</html>

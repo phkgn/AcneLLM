@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from config.settings import settings  # noqa: E402
+from acne_llm.config import settings  # noqa: E402
 from acne_llm.di import build_container  # noqa: E402
 from scripts.convert_acne_dataset import SYSTEM_PROMPT, _description, _target_advise  # noqa: E402
 

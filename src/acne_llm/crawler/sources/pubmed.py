@@ -72,6 +72,7 @@ class PubMedSource:
                     html_len=len(r.text), text_len=len(text),
                     source=SourceMeta(
                         domain="pubmed.ncbi.nlm.nih.gov", source_name="PubMed",
+                        source_type="pubmed_review",
                         trust_level="high", language="en",
                         crawled_at=datetime.now(timezone.utc),
                     ),

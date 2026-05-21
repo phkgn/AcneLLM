@@ -1,5 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from fastapi import Request, HTTPException
-from ..di import Container
+
+if TYPE_CHECKING:
+    from ..di import Container
 
 
 def get_container(request: Request) -> Container:
