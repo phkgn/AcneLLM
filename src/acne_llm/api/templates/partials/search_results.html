@@ -1,0 +1,22 @@
+{% if not result.chunks %}
+<p class="text-sm text-slate-400">Không có kết quả.</p>
+{% else %}
+<div class="space-y-3">
+  <p class="text-xs text-slate-500">{{ result.num_chunks }} kết quả · avg score {{ "%.3f"|format(result.avg_score) }}</p>
+  {% for c in result.chunks %}
+  <article class="rounded-lg border p-3 bg-slate-50">
+    <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+      <span class="font-mono">{{ c.chunk_id }}</span>
+      <span>·</span>
+      <span>{{ c.metadata.get('source', '?') }}</span>
+      <span class="ml-auto text-indigo-600 font-medium">score {{ "%.3f"|format(c.score) }}</span>
+    </div>
+    <div class="text-sm font-medium text-slate-800">{{ c.metadata.get('title', '') }}</div>
+    <p class="text-sm text-slate-600 mt-1 line-clamp-3">{{ c.text }}</p>
+    {% if c.metadata.get('url') %}
+    <a href="{{ c.metadata.url }}" target="_blank" class="text-xs text-indigo-600 hover:underline">→ nguồn</a>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endif %}

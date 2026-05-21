@@ -1,0 +1,100 @@
+version: 1
+rules:
+  - id: pregnancy_retinoid_block
+    description: "Cấm khuyến nghị retinoid/isotretinoin cho phụ nữ có thai"
+    when:
+      user.is_pregnant: true
+    forbidden_keywords:
+      - isotretinoin
+      - tretinoin
+      - adapalene
+      - retinoid
+      - retinol
+      - tazarotene
+      - vitamin a liều cao
+      - vitamin a acid
+      - acid retinoic
+    action: rewrite
+    replacement_note: "Thành phần retinoid bị chống chỉ định khi mang thai. Vui lòng hỏi bác sĩ da liễu về lựa chọn an toàn như azelaic acid."
+
+  - id: breastfeeding_retinoid_block
+    description: "Cấm khuyến nghị retinoid/isotretinoin cho phụ nữ cho con bú"
+    when:
+      user.is_breastfeeding: true
+    forbidden_keywords:
+      - isotretinoin
+      - tretinoin
+      - retinoid uống
+      - tazarotene
+      - vitamin a liều cao
+    action: rewrite
+    replacement_note: "Cho con bú — tránh retinoid hệ thống và vitamin A liều cao. Hãy tham khảo bác sĩ da liễu."
+
+  - id: severe_must_see_doctor
+    description: "Mụn nặng phải có khuyến nghị gặp bác sĩ"
+    when:
+      output.severity: severe
+    required_keywords_any:
+      - bác sĩ
+      - chuyên khoa da liễu
+      - cơ sở y tế
+      - khám da liễu
+      - bệnh viện
+      - phòng khám
+      - da liễu
+      - bác sĩ nhi khoa
+    action: inject_red_flag
+    red_flag:
+      flag: "Mụn mức độ nặng — cần thăm khám bác sĩ da liễu"
+      severity: urgent
+      reason: "Nguy cơ sẹo vĩnh viễn và biến chứng nếu không điều trị đúng cách"
+
+  - id: age_under_12_doctor
+    description: "Trẻ em dưới 12 tuổi phải có khuyến nghị gặp bác sĩ nhi khoa/da liễu nhi"
+    when:
+      user.age_lt: 12
+    required_keywords_any:
+      - bác sĩ nhi khoa
+      - da liễu nhi
+      - bác sĩ da liễu
+      - khám da liễu
+      - bệnh viện nhi
+    action: inject_red_flag
+    red_flag:
+      flag: "Trẻ em dưới 12 tuổi — cần thăm khám bác sĩ chuyên khoa nhi"
+      severity: urgent
+      reason: "Da trẻ em mỏng và nhạy cảm, cần đánh giá chuyên khoa trước khi dùng bất kỳ sản phẩm/thuốc điều trị mụn"
+
+  - id: no_popping
+    description: "Không khuyến nghị tự nặn/cạy mụn hoặc can thiệp thủ thuật tại nhà"
+    forbidden_keywords:
+      - tự nặn
+      - tự cạy
+      - tự lấy nhân mụn
+      - tự chích
+      - nặn trứng cá
+      - chích mụn
+      - lăn kim tại nhà
+      - bôi thuốc tự chế
+      - đắp mặt nạ tự pha
+      - tự điều trị bằng
+      - tự dùng thuốc không kê đơn
+      - tự mua thuốc uống
+      - nặn mụn bằng tay
+    action: strip
+
+  - id: medication_allergy_warning
+    description: "Nếu ngườii dùng đang dùng thuốc hoặc có dị ứng và output khuyến nghị thuốc, cần cảnh báo tương tác"
+    when:
+      user.has_medications_or_allergies: true
+      output.has_medication_recommendation: true
+    action: inject_red_flag
+    red_flag:
+      flag: "Đang dùng thuốc / có tiền sử dị ứng — cần tham khảo ý kiến bác sĩ trước khi dùng thêm thuốc điều trị mụn"
+      severity: warn
+      reason: "Nguy cơ tương tác thuốc hoặc dị ứng chéo chưa được loại trừ"
+
+  - id: min_disclaimer
+    description: "Luôn có disclaimer"
+    required_field: disclaimer
+    default: "Thông tin mang tính tham khảo, không thay thế chẩn đoán từ bác sĩ chuyên khoa."

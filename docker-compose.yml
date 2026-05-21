@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: acne_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  acne-llm:
+    build: .
+    container_name: acne_llm_api
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - LLM_MODEL=qwen2.5:7b
+      - LLM_FALLBACK_MODEL=qwen2.5:3b
+      - OLLAMA_HEALTH_TIMEOUT=5
+      - OLLAMA_GENERATE_TIMEOUT=180
+      - DEVICE=cpu
+      - API_KEY=
+      - RATE_LIMIT_PER_MINUTE=60
+      - METRICS_ENABLED=true
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

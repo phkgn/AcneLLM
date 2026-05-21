@@ -1,0 +1,61 @@
+<div class="rounded-2xl border bg-white p-6 shadow-sm space-y-5">
+  <div class="flex items-center gap-3 flex-wrap">
+    <span class="px-3 py-1 rounded-full text-sm font-medium
+      {% if result.severity == 'severe' %}bg-red-100 text-red-800
+      {% elif result.severity == 'moderate' %}bg-amber-100 text-amber-800
+      {% elif result.severity == 'mild' %}bg-emerald-100 text-emerald-800
+      {% else %}bg-slate-100 text-slate-700{% endif %}">
+      {{ result.severity|upper }}
+    </span>
+    <span class="text-sm text-slate-500">Độ tin cậy: {{ "%.0f"|format(result.confidence * 100) }}%</span>
+    <span class="text-xs text-slate-400 ml-auto">{{ result.mode }} · {{ result.latency_ms }}ms</span>
+  </div>
+
+  <div>
+    <h3 class="font-semibold text-slate-900 mb-1">Loại mụn chính</h3>
+    <p class="text-slate-700">{{ result.acne_type_primary }}</p>
+  </div>
+
+  {% if result.causes %}
+  <div>
+    <h3 class="font-semibold text-slate-900 mb-1">Nguyên nhân</h3>
+    <ul class="list-disc pl-5 text-slate-700 text-sm space-y-0.5">
+      {% for c in result.causes %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if result.recommendations %}
+  <div>
+    <h3 class="font-semibold text-slate-900 mb-2">Khuyến nghị</h3>
+    <ol class="space-y-3">
+      {% for r in result.recommendations %}
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-100 text-indigo-700
+                     text-sm font-medium flex items-center justify-center">{{ r.step }}</span>
+        <div class="flex-1">
+          <p class="text-slate-800">{{ r.action }}</p>
+          {% if r.rationale %}<p class="text-sm text-slate-500 mt-1">{{ r.rationale }}</p>{% endif %}
+          {% if r.source_chunk_id %}
+          <span class="inline-block text-xs mt-1 px-2 py-0.5 bg-slate-100 rounded font-mono text-slate-600">
+            📎 {{ r.source_chunk_id }}
+          </span>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+
+  {% if result.red_flags %}
+  <div class="rounded-lg border-l-4 border-red-500 bg-red-50 p-4">
+    <h4 class="font-semibold text-red-900 mb-1">⚠️ Dấu hiệu cảnh báo</h4>
+    {% for f in result.red_flags %}
+    <p class="text-red-800 text-sm">• <strong>{{ f.flag }}</strong>{% if f.reason %} — {{ f.reason }}{% endif %}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <p class="text-xs text-slate-400 italic border-t pt-3">{{ result.disclaimer }}</p>
+</div>

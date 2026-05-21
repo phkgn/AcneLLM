@@ -1,0 +1,922 @@
+version: 1.1
+rate_limit_per_domain: 0.5
+user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+respect_robots: true
+global_settings:
+  crawl_timeout_seconds: 60
+  connect_timeout_seconds: 20
+  read_timeout_seconds: 30
+  retry_policy:
+    max_retries: 5
+    backoff_factor: 2.0
+    retry_on_status:
+    - 403
+    - 408
+    - 429
+    - 500
+    - 502
+    - 503
+    - 504
+  circuit_breaker:
+    failure_threshold: 10
+    recovery_timeout: 300
+sources:
+- name: VnExpress-SucKhoe
+  domain: vnexpress.net
+  trust_level: medium
+  language: vi
+  js_render: false
+  js_wait_until: domcontentloaded
+  js_timeout_ms: 5000
+  discovery:
+    type: search
+    queries:
+    - mụn trứng cá
+    - trị mụn
+    - viêm nang lông
+    - mụn nội tiết
+    - mụn bọc mụn đầu đen
+    - sẹo mụn điều trị
+    - chăm sóc da mụn
+    - retinoid isotretinoin da liễu
+    - benzoyl peroxide salicylic acid
+    max_results_per_query: 200
+  content_selectors:
+  - article
+  - .fck_detail
+  reject_title_keywords:
+  - chính trị
+  - giải trí
+  max_pages: 1000
+  categories:
+  - news
+  - health
+  tags:
+  - vietnamese
+- name: TuoiTre-SucKhoe
+  domain: tuoitre.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: search
+    queries:
+    - mụn trứng cá
+    - trị mụn
+    - viêm nang lông
+    - mụn bọc mụn đầu đen
+    - sẹo mụn da mụn
+    - chăm sóc da mụn nội tiết
+    - kem trị mụn retinol
+    max_results_per_query: 200
+  content_selectors:
+  - .detail-content
+  - '#main-detail-body'
+  max_pages: 1000
+  categories:
+  - news
+  - health
+  tags:
+  - vietnamese
+- name: Vinmec
+  domain: vinmec.com
+  trust_level: high
+  language: vi
+  js_render: true
+  js_wait_until: networkidle
+  js_timeout_ms: 60000
+  discovery:
+    type: sitemap
+    sitemap_url: https://www.vinmec.com/sitemap.xml
+    filter_path_contains:
+    - da-lieu
+    - mun
+    - tri-mun
+    - da-mun
+    - cham-soc-da
+    - bai-viet/da-
+    - benh/mun
+    - dieu-tri-mun
+    - seo-mun
+    - trung-ca
+    exclude_paths:
+    - /chu-de/
+    - /tag/
+    - /author/
+    - /page/
+    - /search/
+    - /bac-si/
+    - /dat-lich/
+    - /co-so/
+    article_path_pattern: /(bai-viet|benh|cham-soc|dieu-tri)/.*-\d+
+    filter_keywords:
+    - mun-trung-ca
+    - mun-viem
+    - mun-boc
+    - mun-dau-den
+    - trung-ca
+    - viem-nang-long
+    - seo-mun
+    - benzoyl
+    - retinoid
+    - isotretinoin
+    - salicylic
+    - adapalene
+    - tretinoin
+    - niacinamide
+    - azelaic
+    - comedone
+    - da-mun
+  content_selectors:
+  - .detail-content
+  - .cms-body
+  - .article-content
+  - .post-content
+  - .blog-detail
+  - .post-body
+  - article
+  - main
+  reject_title_keywords:
+  - viêm da cơ địa
+  - nấm da
+  - vảy nến
+  - da khô
+  - dị ứng da
+  - lupus
+  max_pages: 3000
+  categories:
+  - acne
+  - dermatology
+  tags:
+  - hospital
+  - vietnamese
+- name: HelloBacsi
+  domain: hellobacsi.com
+  trust_level: medium
+  language: vi
+  js_render: true
+  js_wait_until: domcontentloaded
+  exclude_paths:
+  - /community/
+  discovery:
+    type: category
+    start_urls:
+    - https://hellobacsi.com/da-lieu/
+    - https://hellobacsi.com/da-lieu/tri-mun/
+    - https://hellobacsi.com/tin-tuc/tri-mun/
+    - https://hellobacsi.com/da-lieu/cham-soc-da/
+    pagination_selector: a[href*='?page=']
+    link_selector: a
+  max_pages: 3000
+  categories:
+  - acne
+  - dermatology
+  - skincare
+  tags:
+  - health-platform
+  - vietnamese
+- name: Medlatec
+  domain: medlatec.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://medlatec.vn/tin-tuc/da-lieu-s107
+    - https://medlatec.vn/tin-tuc/da-lieu
+    pagination_selector: a[href*='?pagenumber=']
+    link_selector: a[href*='/tin-tuc/']
+  max_pages: 4000
+  categories:
+  - acne
+  - dermatology
+  tags:
+  - hospital
+  - vietnamese
+- name: Youmed
+  domain: youmed.vn
+  trust_level: medium
+  language: vi
+  js_render: true
+  discovery:
+    type: category
+    start_urls:
+    - https://youmed.vn/tin-tuc/da-lieu/
+    - https://youmed.vn/tin-tuc/cham-soc-da/
+    link_selector: h2 a, h3 a, .post-title a, article a.entry-title
+    filter_path_contains:
+    - /tin-tuc
+    exclude_paths:
+    - /tag
+    - /author
+    - /benh-ly/tim-mach
+    - /benh-ly/tieu-hoa
+    - /benh-ly/xuong-khop
+    - /benh-ly/than-kinh
+    - /benh-ly/tieu-duong
+  max_pages: 8000
+  max_depth: 3
+  categories:
+  - acne
+  - dermatology
+  tags:
+  - health-platform
+  - vietnamese
+- name: PubMed
+  domain: pubmed.ncbi.nlm.nih.gov
+  trust_level: high
+  language: en
+  js_render: false
+  discovery:
+    type: api
+    query: '(acne vulgaris[MeSH Terms] OR acne[MeSH Terms]) AND (therapeutics[MeSH Terms] OR treatment[Title/Abstract] OR
+      management[Title/Abstract] OR therapy[Title/Abstract]) AND (hasabstract[text]) AND ("2010"[Date - Publication] : "3000"[Date
+      - Publication]) NOT (animal models[Title/Abstract] OR mice[Title/Abstract] OR rat[Title/Abstract] OR in vitro[Title/Abstract])'
+    retmax: 5000
+  max_pages: 5000
+  categories:
+  - research
+  - acne
+  - treatment
+  tags:
+  - research
+  - english
+  - evidence-based
+- name: AAD
+  domain: aad.org
+  trust_level: high
+  language: en
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.aad.org/public/diseases/acne
+    - https://www.aad.org/public/everyday-care/skin-care-secrets/acne
+    filter_path_contains:
+    - /public/diseases/
+    - /public/everyday-care/
+    - /public/derm-az/
+    exclude_paths:
+    - /about/
+    - /member/
+    - /research/
+    - /forms/
+  max_pages: 200
+  categories:
+  - acne
+  - dermatology
+  - guidelines
+  tags:
+  - authority
+  - english
+  - guidelines
+- name: Mayo-Clinic
+  domain: mayoclinic.org
+  trust_level: high
+  language: en
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.mayoclinic.org/diseases-conditions/acne/symptoms-causes/syc-20368047
+    - https://www.mayoclinic.org/diseases-conditions/acne/diagnosis-treatment/drc-20368048
+    filter_path_contains:
+    - /diseases-conditions/acne
+    - /drugs-supplements/
+    exclude_paths:
+    - /about/
+    - /patient-visitor-guide/
+    - /appointments/
+  max_pages: 150
+  categories:
+  - acne
+  - treatment
+  tags:
+  - authority
+  - english
+  - clinical
+- name: MedlinePlus
+  domain: medlineplus.gov
+  trust_level: high
+  language: en
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://medlineplus.gov/acne.html
+    - https://medlineplus.gov/ency/article/000873.htm
+    filter_path_contains:
+    - /ency/article/
+    - /acne
+    - /skincare
+    exclude_paths:
+    - /medlineplus/
+    - /connect/
+    - /about/
+  max_pages: 100
+  categories:
+  - acne
+  - treatment
+  tags:
+  - authority
+  - english
+  - government
+- name: NICE
+  domain: nice.org.uk
+  trust_level: high
+  language: en
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.nice.org.uk/guidance/ng198
+    link_selector: a[href*='/guidance/'], a[href*='/evidence/']
+    filter_path_contains:
+    - /guidance/
+    - /evidence/
+  max_pages: 80
+  categories:
+  - acne
+  - guidelines
+  tags:
+  - guidelines
+  - english
+  - evidence-based
+- name: WebMD-Acne
+  domain: webmd.com
+  trust_level: medium
+  language: en
+  enabled: true
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.webmd.com/skin-problems-and-treatments/acne/default.htm
+    filter_path_contains:
+    - /skin-problems-and-treatments/acne/
+    - /skin-problems-and-treatments/
+    exclude_paths:
+    - /drugs/
+    - /find-a-doctor/
+    - /pmc/
+  max_pages: 800
+  categories:
+  - acne
+  - skincare
+  tags:
+  - health-platform
+  - english
+- name: Healthline-Acne
+  domain: healthline.com
+  trust_level: medium
+  language: en
+  enabled: true
+  js_render: false
+  discovery:
+    type: sitemap
+    sitemap_url: https://www.healthline.com/sitemap.xml
+    filter_path_contains:
+    - /health/
+    filter_keywords:
+    - acne
+    - pimple
+    - benzoyl-peroxide
+    - salicylic-acid
+    - retinoid
+    - isotretinoin
+    - blackhead
+    - whitehead
+  max_pages: 1500
+  categories:
+  - acne
+  - skincare
+  - treatment
+  tags:
+  - health-platform
+  - english
+- name: VeryWellHealth-Acne
+  domain: verywellhealth.com
+  trust_level: medium
+  language: en
+  enabled: false
+  discovery:
+    type: sitemap
+    sitemap_url: https://www.verywellhealth.com/sitemap.xml
+    filter_keywords:
+    - acne
+    - pimple
+    - dermatology
+    - skin
+  max_pages: 200
+  categories:
+  - acne
+  - skincare
+  tags:
+  - health-platform
+  - english
+- name: INCIDecoder-AcneIngredients
+  domain: incidecoder.com
+  trust_level: medium
+  language: en
+  enabled: true
+  js_render: false
+  discovery:
+    type: manual
+    start_urls:
+    - https://incidecoder.com/ingredients/benzoyl-peroxide
+    - https://incidecoder.com/ingredients/salicylic-acid
+    - https://incidecoder.com/ingredients/niacinamide
+    - https://incidecoder.com/ingredients/retinol
+    - https://incidecoder.com/ingredients/azelaic-acid
+    - https://incidecoder.com/ingredients/tea-tree-oil
+    - https://incidecoder.com/ingredients/zinc-oxide
+    - https://incidecoder.com/ingredients/glycolic-acid
+    - https://incidecoder.com/ingredients/lactic-acid
+    - https://incidecoder.com/ingredients/centella-asiatica-extract
+    - https://incidecoder.com/ingredients/hyaluronic-acid
+    - https://incidecoder.com/ingredients/ceramide-np
+  max_pages: 1000
+  categories:
+  - ingredients
+  - skincare-science
+  tags:
+  - incidecoder
+  - english
+  - ingredients
+- name: BVDL-HCM
+  domain: bvdl.org.vn
+  trust_level: high
+  language: vi
+  enabled: true
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://bvdl.org.vn/cong-dong/n-4/tin-tuc-va-su-kien
+    pagination_selector: a[href*='?page=']
+    link_selector: a.news_infomation-item-title, a.news_banner_title, h3.title a, h2.title a
+    article_path_pattern: /cong-dong/.*-\d+
+    exclude_paths:
+    - /gioi-thieu/
+    - /doi-ngu/
+    - /co-so-vat-chat/
+    - /lien-he/
+  content_selectors:
+  - .detail-content
+  - .news-detail
+  - .article-body
+  - article
+  - main
+  reject_title_keywords:
+  - thông báo
+  - tuyển dụng
+  - hội nghị
+  - khánh thành
+  - lễ ra mắt
+  - sự kiện
+  max_pages: 1500
+  categories:
+  - acne
+  - skincare
+  - treatment
+  tags:
+  - health-platform
+  - english
+- name: OpenStax-SkinAnatomy
+  domain: openstax.org
+  trust_level: high
+  language: en
+  enabled: true
+  discovery:
+    type: manual
+    start_urls:
+    - https://openstax.org/books/anatomy-and-physiology/pages/5-1-layers-of-the-skin
+    - https://openstax.org/books/anatomy-and-physiology/pages/5-2-accessory-structures-of-the-skin
+    - https://openstax.org/books/anatomy-and-physiology/pages/5-3-functions-of-the-integumentary-system
+  max_pages: 3
+  categories:
+  - education
+  - anatomy
+  - physiology
+  tags:
+  - openstax
+  - english
+  - educational
+- name: CeraVe-VN
+  domain: www.cerave.vn
+  trust_level: high
+  language: vi
+  enabled: false
+  js_render: true
+  discovery:
+    type: category
+    start_urls:
+    - https://www.cerave.vn/bai-viet
+    - https://www.cerave.vn/cham-soc-da
+  max_pages: 50
+  categories:
+  - acne
+  - skincare
+  - brand-education
+  tags:
+  - brand
+  - vietnamese
+  - ingredients
+- name: Vichy-VN
+  domain: www.vichy.com.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.vichy.com.vn/bai-viet
+    - https://www.vichy.com.vn/da-mun
+  max_pages: 50
+  categories:
+  - acne
+  - skincare
+  - brand-education
+  tags:
+  - brand
+  - vietnamese
+- name: Avene-VN
+  domain: www.avene.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.avene.vn/bai-viet
+    - https://www.avene.vn/cham-soc-da/da-mun
+  max_pages: 40
+  categories:
+  - acne
+  - skincare
+  - brand-education
+  tags:
+  - brand
+  - vietnamese
+- name: SVR-VN
+  domain: www.svr.com.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.svr.com.vn/bai-viet
+  max_pages: 40
+  categories:
+  - acne
+  - skincare
+  - brand-education
+  tags:
+  - brand
+  - vietnamese
+- name: TheOrdinary-VN
+  domain: theordinary.com.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://theordinary.com.vn/blogs/skincare
+    link_selector: a[href*='/blogs/']
+  max_pages: 60
+  categories:
+  - acne
+  - skincare
+  - ingredients
+  tags:
+  - brand
+  - vietnamese
+  - ingredients
+- name: DrHieuSkincare
+  domain: drhieuskincare.com
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://drhieuskincare.com/blogs/kien-thuc
+    - https://drhieuskincare.com/blogs/tri-mun
+    pagination_selector: a[href*='?page='], a[rel=next]
+    link_selector: a[href*='/blogs/kien-thuc/'], a[href*='/blogs/tri-mun/'], a[href*='/blogs/skincare/']
+    filter_path_contains:
+    - /blogs/
+    exclude_paths:
+    - /pages/
+    - /collections/
+    - /products/
+    - /cart/
+  max_pages: 100
+  categories:
+  - acne
+  - skincare
+  - clinic
+  tags:
+  - clinic
+  - vietnamese
+- name: Watsons-VN
+  domain: www.watsons.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://www.watsons.vn/blog
+    - https://www.watsons.vn/blog/category/cham-soc-da
+    - https://www.watsons.vn/blog/category/skincare
+    pagination_selector: a[rel=next], a.next-page, a[href*='/page/'], .pagination a.next, a.next.page-numbers
+    link_selector: article a, h2 a, h3 a, .card-title a, .post-card a, a[href*='/blog/'][href$='/']
+    filter_path_contains:
+    - /blog/
+    exclude_paths:
+    - /tag/
+    - /author/
+    - /category/chuong-trinh-
+    - /wp-content/
+  max_pages: 80
+  categories:
+  - acne
+  - skincare
+  tags:
+  - beauty-retail
+  - vietnamese
+- name: Schannel-Skincare
+  domain: schannel.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: sitemap
+    sitemap_url: https://schannel.vn/sitemap_index.xml
+    filter_path_contains:
+    - /lam-dep/
+    - /skincare/
+    - /tri-mun/
+    - /cham-soc-da/
+    filter_keywords:
+    - mun
+    - da-lieu
+    - tri-mun
+    - benzoyl
+    - retinol
+    - salicylic
+    - niacinamide
+    exclude_paths:
+    - /tag/
+    - /author/
+    - /trang/
+  max_pages: 200
+  categories:
+  - acne
+  - skincare
+  tags:
+  - blog
+  - vietnamese
+- name: Tikivn-Skincare-Blog
+  domain: tiki.vn
+  trust_level: medium
+  language: vi
+  enabled: false
+  discovery:
+    type: category
+    start_urls:
+    - https://tiki.vn/blog/category/lam-dep/cham-soc-da/
+    - https://tiki.vn/blog/tag/tri-mun/
+    link_selector: h2 a[href*='/blog/'], h3 a[href*='/blog/'], .article-title a, a.blog-card-link, a[href*='/blog/'][href*='cham-soc']
+    pagination_selector: a[rel=next], a.next-page, a[href*='/page/'], button[aria-label=next]
+    filter_path_contains:
+    - /blog/
+    exclude_paths:
+    - /tag/
+    - /category/dien-tu/
+    - /category/nha-cua/
+    - /wp-content/
+  max_pages: 150
+  categories:
+  - acne
+  - skincare
+  tags:
+  - blog
+  - vietnamese
+- name: HappySkin-VN
+  domain: happyskin.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: sitemap
+    sitemap_url: https://happyskin.vn/sitemap.xml
+    filter_keywords:
+    - tri-mun
+    - cham-soc-da
+    - da-mun
+    - mun-trung-ca
+    - mun-dau-den
+    - mun-viem
+    - benzoyl
+    - salicylic
+    - retinol
+    - isotretinoin
+    - adapalene
+    - seo-mun
+    exclude_paths:
+    - /tag/
+    - /author/
+    - /page/
+  content_selectors:
+  - .site-content
+  - .detail_content
+  - .container
+  - .entry-content
+  - .post-content
+  - .article-content
+  - article
+  - main
+  reject_title_keywords:
+  - son môi
+  - mascara
+  - nước hoa
+  - chống nắng toàn thân
+  - làm trắng da toàn thân
+  - rụng tóc
+  - giảm cân
+  max_pages: 220
+  categories:
+  - acne
+  - skincare
+  tags:
+  - blog
+  - vietnamese
+- name: SheIs-VN
+  domain: sheis.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: sitemap
+    sitemap_url: https://sheis.vn/sitemap.xml
+    filter_keywords:
+    - tri-mun
+    - cham-soc-da
+    - da-mun
+    - mun-trung-ca
+    - mun-viem
+    - mun-dau-den
+    - seo-mun
+    - benzoyl
+    - salicylic
+    - retinol
+    - adapalene
+    exclude_paths:
+    - /tag/
+    - /author/
+    - /danh-sach-phong-kham/
+    - /thuong-hieu/
+  content_selectors:
+  - .post-content
+  - .entry-content
+  - .article-content
+  - article
+  - main
+  reject_title_keywords:
+  - review phòng khám
+  - địa chỉ phòng khám
+  - bảng giá dịch vụ
+  - khuyến mãi
+  - giảm giá
+  - son môi
+  - nước hoa
+  - rụng tóc
+  - giảm cân
+  max_pages: 150
+  categories:
+  - acne
+  - skincare
+  tags:
+  - blog
+  - vietnamese
+
+- name: VitaClinic
+  domain: vitaclinic.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://vitaclinic.vn/vi/blog/category/tri-mun
+    pagination_selector: a[href*='?page=']
+    link_selector: h3 > a, a.btn-view-more
+    filter_path_contains:
+    - /vi/blog/
+  content_selectors:
+  - .content-blog
+  max_pages: 500
+  categories:
+  - acne
+  - treatment
+  tags:
+  - clinic
+  - vietnamese
+- name: SucKhoeDoiSong
+  domain: suckhoedoisong.vn
+  trust_level: high
+  language: vi
+  js_render: true
+  js_wait_until: networkidle
+  discovery:
+    type: category
+    start_urls:
+    - https://suckhoedoisong.vn/tim-kiem.htm?keywords=m%E1%BB%A5n
+    pagination_selector: .load-more, a[href*='?page=']
+    link_selector: a.box-category-link-title
+    filter_path_contains:
+    - /
+  content_selectors:
+  - .detail-content
+  max_pages: 800
+  categories:
+  - news
+  - health
+  tags:
+  - authoritative
+  - vietnamese
+- name: DaLieuHaNoi
+  domain: dalieuhanoi.vn
+  trust_level: high
+  language: vi
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://dalieuhanoi.vn/mun
+    pagination_selector: a.next.page-numbers
+    link_selector: a.plain
+    filter_path_contains:
+    - /
+  content_selectors:
+  - .entry-content
+  max_pages: 500
+  categories:
+  - dermatology
+  - acne
+  tags:
+  - hospital
+  - authoritative
+  - vietnamese
+- name: PhuongDongHospital
+  domain: benhvienphuongdong.vn
+  trust_level: medium
+  language: vi
+  js_render: false
+  discovery:
+    type: category
+    start_urls:
+    - https://benhvienphuongdong.vn/tin-tuc/da-lieu/
+    pagination_selector: a[href*='?page=']
+    link_selector: a.smooth.hv-main-sp
+    filter_path_contains:
+    - /tin-tuc/
+  content_selectors:
+  - .content-detail
+  max_pages: 500
+  categories:
+  - dermatology
+  - health
+  tags:
+  - hospital
+  - vietnamese
+- name: MSDManuals-VI
+  domain: msdmanuals.com
+  trust_level: high
+  language: vi
+  js_render: true
+  js_wait_until: networkidle
+  js_timeout_ms: 60000
+  discovery:
+    type: category
+    start_urls:
+    - https://www.msdmanuals.com/vi/professional/searchresults?query=m%E1%BB%A5n&type=topic
+    pagination_selector: span[role="link"][aria-label*="Next"], a[href*='page=']
+    link_selector: h3 > a, a:has(h3)
+    filter_path_contains:
+    - /vi/professional/
+  content_selectors:
+  - .Topic_topicContent
+  max_pages: 100
+  categories:
+  - dermatology
+  - reference
+  tags:
+  - clinical
+  - authoritative
+  - vietnamese

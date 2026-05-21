@@ -1,0 +1,94 @@
+<user_data>
+<description>{{ description }}</description>
+
+<context>
+- Tuổi: {{ age if age is not none else "không rõ" }}
+- Giới tính: {{ sex or "không rõ" }}
+- Loại da: {{ skin_type or "không rõ" }}
+- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
+- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
+- Dị ứng: {{ allergies }}
+- Sản phẩm đang dùng: {{ current_products }}
+- Thuốc đang dùng: {{ medications }}
+- Thờii gian bị: {{ duration_weeks if duration_weeks is not none else "không rõ" }} tuần
+</context>
+
+<vision>{{ vision_summary }}</vision>
+
+<clinical>{{ clinical_summary }}</clinical>
+
+<normalized_case_plan>{{ clinical_plan }}</normalized_case_plan>
+
+<internal_queries>
+- detected_language: {{ detected_language }}
+- query_vi: {{ query_vi or "không có" }}
+- query_en: {{ query_en or "không có" }}
+</internal_queries>
+</user_data>
+
+<retrieved_context>
+{{ retrieved_context }}
+</retrieved_context>
+
+<task>
+Hãy trả về **duy nhất JSON đúng schema `AdviseOutput`**.
+
+### Quy trình phân tích bắt buộc (thực hiện từng bước)
+
+1. **Xác định phạm vi**: Câu hỏi có còn nằm trong phạm vi tư vấn da mụn không? Nếu không, trả JSON từ chối theo system prompt.
+2. **Đọc đa chiều dữ liệu**: Phân tích đồng thờii `<description>`, `<normalized_case_plan>`, `<vision>`, `<clinical>`, `<context>`, và `<retrieved_context>`.
+3. **Phát hiện mâu thuẫn**: Nếu có sự khác biệt giữa các nguồn (ví dụ: vision nói severe nhưng user tự mô tả mild; clinical ghi nodule nhưng context chỉ có thông tin về comedone):
+   - Ưu tiên thông tin `clinical` > `vision` > `description` khi xác định mức độ nghiêm trọng.
+   - Ghi nhận sự mâu thuẫn trong `causes` (ví dụ: "Có sự khác biệt giữa mô tả của bạn và hình ảnh phân tích, cần xác minh lâm sàng") hoặc `disclaimer`.
+   - Nếu mâu thuẫn về mức độ nghiêm trọng, nghiêng về kết luận thận trọng hơn (nghiêng về severe) và thêm khuyến nghị gặp bác sĩ.
+4. **Đánh giá bằng chứng**: `<retrieved_context>` có đủ để trả lờii trực tiếp phần cốt lõi của câu hỏi không?
+   - Chỉ giữ những kết luận có thể nối thẳng tới dữ liệu trong `<user_data>` hoặc một `[Nguồn N]` có `chunk_ref=...`.
+   - Nếu thiếu bằng chứng trực tiếp: dùng `unknown`, ghi "chưa đủ thông tin" trong `causes` hoặc `disclaimer`, để `recommendations=[]` nếu không có khuyến nghị nào được hỗ trợ.
+5. **Kiểm tra an toàn**: Áp dụng các ràng buộc an toàn y tế trước khi xuất JSON.
+
+### Ràng buộc bằng chứng & suy diễn
+
+- **Không dùng kiến thức ngoài** `<retrieved_context>`, dữ liệu trong `<user_data>`, `<normalized_case_plan>`, `<vision>`, `<clinical>`.
+- **Không suy diễn**. Không nối kiến thức chung để lấp chỗ trống.
+- **Không suy từ phylotype sang ribotype**. Không gộp strain khác nhau. Không tự thêm cơ chế sinh học không có trong nguồn.
+- Với câu hỏi cơ chế sâu hoặc strain-specific: nếu nguồn không đủ chi tiết, phải trả lờii "chưa đủ thông tin"; không đưa routine hay điều trị nếu ngườii dùng không hỏi điều trị.
+
+### Ràng buộc an toàn y tế chi tiết
+
+- **Không kê liều lượng thuốc**: Không nêu nồng độ cụ thể, tần suất, số tuần sử dụng (ví dụ cấm: "0.05%", "2 lần/ngày", "6 tuần").
+- **Không khuyên tự nặn mụn**: Cấm mọi hình thức tự can thiệp thủ thuật tại nhà (nặn, chích, lăn kim, đắp mặt nạ tự pha chế, bôi thuốc tự chế).
+- **Nếu mang thai hoặc cho con bú**: Loại bỏ mọi gợi ý liên quan đến retinoid, isotretinoin, tretinoin, adapalene, retinol, tazarotene, doxycycline, minocycline, tetracycline, và các dẫn xuất vitamin A liều cao. Ghi chú: "Cần tham khảo bác sĩ da liễu để chọn phương án an toàn."
+- **Nếu `severity="severe"`**: Bắt buộc có ít nhất 1 `recommendation` `category="see_doctor"` và ít nhất 1 `red_flag`. Nội dung phải nhấn mạnh nguy cơ sẹo vĩnh viễn.
+- **Nếu `age < 12`**: Bắt buộc có khuyến nghị gặp bác sĩ da liễu nhi hoặc bác sĩ nhi khoa. Không tự ý khuyến nghị thuốc điều trị mụn cho trẻ nhỏ.
+- **Nếu có dị ứng hoặc thuốc đang dùng** (`allergies` hoặc `medications` không rỗng):
+  - Không khuyến nghị thành phần trùng với danh sách dị ứng.
+  - Nếu có khuyến nghị thuốc (`category="medication"`), phải thêm `red_flag` cảnh báo về khả năng tương tác thuốc hoặc dị ứng chéo.
+- **Nếu ngườii dùng hỏi bằng tiếng Anh** (`detected_language=en`): Output vẫn phải 100% tiếng Việt.
+
+### Luật citation nghiêm ngặt
+
+- Chỉ dùng `source_chunk_id` lấy từ các dòng `chunk_ref=...` trong `<retrieved_context>`.
+- **Không được bịa `chunk_id`**. Nếu một khuyến nghị không có nguồn trực tiếp, bỏ khuyến nghị đó hoặc để `source_chunk_id=null`.
+- `used_chunks` chỉ gồm các `chunk_id` thực sự đã được trích trong `recommendations[*].source_chunk_id`.
+
+### Luật độ gọn & format
+
+- `causes`: tối đa 4 ý, mỗi ý ngắn gọn (1 câu hoặc 1 cụm danh từ). Không liệt kê dài dòng.
+- `recommendations`: tối đa 4 bước, trừ khi thật sự cần thêm bước gặp bác sĩ (tối đa 5). Mỗi bước có `action` ngắn gọn, `rationale` 1 câu ngắn.
+- `disclaimer`: 1-2 câu ngắn, bắt buộc bằng tiếng Việt.
+- `confidence`: phản ánh đúng chất lượng bằng chứng (tham khảo system prompt).
+
+### Ví dụ minh họa format (không copy y nguyên)
+
+`causes` đúng: `["Tăng tiết bã nhờn ở vùng chữ T", "Tắc nghẽn lỗ chân lông do tế bào chết", "Vi khuẩn C. acnes phát triển quá mức"]`
+`causes` sai: `["Mụn do ăn nhiều đồ ngọt và thức khuya dẫn đến rối loạn nội tiết tố gây tăng hormone androgen và làm tăng bã nhờn..."]` (quá dài, suy diễn)
+
+`recommendations` đúng:
+```json
+[
+  {"step":1, "action":"Rửa mặt nhẹ nhàng 2 lần/ngày bằng sữa rửa mặt dịu nhẹ", "rationale":"Giúp loại bỏ bã nhờn và bụi bẩn không làm khô da", "category":"skincare", "source_chunk_id":"c123"},
+  {"step":2, "action":"Thử dùng BHA (salicylic acid) để làm thông thoáng lỗ chân lông", "rationale":"BHA có tính kháng viêm và thấm sâu vào lỗ chân lông", "category":"skincare", "source_chunk_id":"c124"}
+]
+```
+Lưu ý: Trong `llm_only`, `source_chunk_id` luôn là `null` và `used_chunks=[]`.
+</task>
