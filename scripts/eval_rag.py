@@ -8,9 +8,12 @@ PART 1 — Query Generation
 
 PART 2 — Retrieval Eval
     Load queries JSONL, build HybridRetriever from existing KB (BM25 + Chroma),
-    áp dụng pipeline preprocessing (bước ① preprocess_user_text + ② normalize_chat_message)
-    y chang production trước khi retrieve, compute Hit@k / Recall@k / MRR@k / NDCG@k
-    for k in [1,3,5,10], print table with breakdowns, save JSON report.
+    áp dụng pipeline preprocessing y chang production:
+      ① prepare_user_text (NFC + teencode expand + no-accent twin)
+      ② normalize_chat_message (extract clinical context → UserInput, dual-text)
+      ③ build_retrieval_query_from_user (ghép description + context bits như production)
+    compute Hit@k / Recall@k / MRR@k / NDCG@k for k in [1,3,5,10],
+    print table with breakdowns, save JSON report.
     Targets: hit@3>=0.50, hit@5>=0.65, mrr@10>=0.35, ndcg@5>=0.40.
 
 Usage:
@@ -676,7 +679,18 @@ def run_eval(args: argparse.Namespace) -> bool:
     print(f"  Queries loaded: {len(cases)} | mode={args.mode} | top_k={args.top_k}")
 
     retriever, reranker = _build_retriever(args.mode)
-    rerank_top_k = getattr(args, "rerank_top_k", 3)
+
+    # Đọc production settings để các tham số retrieval khớp 100% với production.
+    # _build_retriever đã insert src vào sys.path nên import được ngay.
+    try:
+        from acne_llm.config import settings as _prod_settings
+        min_score    = float(getattr(_prod_settings, "chat_min_citation_score", 0.25))
+        rerank_top_k = int(getattr(_prod_settings, "chat_rerank_top_k", getattr(args, "rerank_top_k", 3)))
+        print(f"  Production settings: min_score={min_score}  rerank_top_k={rerank_top_k}")
+    except Exception as _se:
+        min_score    = 0.25
+        rerank_top_k = getattr(args, "rerank_top_k", 3)
+        print(f"  Production settings: unavailable ({_se}), using defaults min_score={min_score} rerank_top_k={rerank_top_k}")
 
     ks = [1, 3, 5, 10]
     per_query: list[dict] = []
@@ -691,16 +705,21 @@ def run_eval(args: argparse.Namespace) -> bool:
     results_path.parent.mkdir(parents=True, exist_ok=True)
     results_fh = open(results_path, "w", encoding="utf-8")
 
-    # ── Pipeline preprocessing (bước ① + ② từ production pipeline) ────────────
-    # Bước ①: preprocess_user_text — NFC, strip zero-width chars, collapse whitespace
-    # Bước ②: normalize_chat_message — light-normalize → lấy user.description
-    # Không dùng ClinicalPlanner (bước ⑦) vì tất cả query là knowledge-type,
-    # production cũng không gọi planner cho knowledge intent.
+    # ── Pipeline preprocessing (y chang production intake.py) ──────────────────
+    # Bước ①: prepare_user_text — NFC + teencode expand + tạo no-accent twin
+    # Bước ②: normalize_chat_message — extract clinical context → UserInput
+    #           (nhận cả clean_text lẫn clean_text_no_accent để dual-pattern matching)
+    # Bước ③: build_retrieval_query_from_user — ghép structured context + clean_text
+    #          ← production (intake.py) luôn gọi hàm này với clean_text_normalized=clean_text,
+    #            không dùng user.description thuần.
+    # Không dùng ClinicalPlanner (bước ⑦) vì eval query là one-turn knowledge-type,
+    # production cũng không gọi planner cho knowledge intent đơn giản.
     try:
-        from acne_llm.chat.preprocess import preprocess_user_text
+        from acne_llm.chat.preprocess import prepare_user_text
         from acne_llm.chat.normalizer import normalize_chat_message
+        from acne_llm.utils.retrieval_query import build_retrieval_query_from_user
         _pipeline_preprocess = True
-        print("  Pipeline preprocess: ON (bước ① preprocess_user_text + ② normalize_chat_message)")
+        print("  Pipeline preprocess: ON (① prepare_user_text + ② normalize_chat_message + ③ build_retrieval_query_from_user)")
     except ImportError as _e:
         _pipeline_preprocess = False
         print(f"  Pipeline preprocess: OFF (import failed: {_e})")
@@ -715,14 +734,34 @@ def run_eval(args: argparse.Namespace) -> bool:
         print(f"  Chunk filters: OFF (import failed: {_ef})")
 
     def _prepare_query(raw: str) -> str:
-        """Áp dụng bước ① và ② của production pipeline lên query thô."""
+        """Mirror đúng production pipeline: ① prepare_user_text → ② normalize → ③ build_retrieval_query_from_user.
+
+        Production (intake.py → run_intake):
+          1. prepare_user_text(raw) → PreparedText(clean_text, clean_text_no_accent, teencode_replaced)
+          2. normalize_chat_message(raw, mode, clean_text, clean_text_no_accent) → UserInput
+          3. build_retrieval_query_from_user(user, clean_text_normalized=clean_text) → query string
+
+        Eval phải làm y chang để query gửi vào retriever khớp với lúc production retrieve.
+        """
         if not _pipeline_preprocess:
             return raw
-        # Bước ①
-        clean = preprocess_user_text(raw)
-        # Bước ②: normalize_chat_message trả UserInput, lấy .description (light-normalized)
-        user_input = normalize_chat_message(raw, mode="hybrid", clean_text=clean)
-        return user_input.description or clean
+        # Bước ①: preprocess + teencode + tạo no-accent twin
+        prepared = prepare_user_text(raw)
+        clean_text = prepared.clean_text
+        clean_text_no_accent = prepared.clean_text_no_accent
+        # Bước ②: extract context/clinical → UserInput
+        #   raw truyền vào để light-normalize làm description (giữ emphasis)
+        #   clean_text + clean_text_no_accent dùng nội bộ cho dual-pattern regex
+        user_input = normalize_chat_message(
+            raw,
+            mode="hybrid",
+            clean_text=clean_text,
+            clean_text_no_accent=clean_text_no_accent,
+        )
+        # Bước ③: build query giàu context y chang production
+        #   clean_text_normalized truyền vào để query có text đầy đủ bên cạnh structured parts.
+        #   Nếu không extract được gì, hàm trả về chỉ clean_text (giống hành vi cũ).
+        return build_retrieval_query_from_user(user_input, clean_text_normalized=clean_text)
 
     # ── Ground truth expansion via semantic similarity ───────────────────────────
     # Với mỗi chunk gốc, query Chroma bằng embedding của chunk đó → lấy thêm chunk
@@ -820,16 +859,19 @@ def run_eval(args: argparse.Namespace) -> bool:
                 query, top_k=args.top_k,
                 mode=args.mode if args.mode != "sparse" else "sparse",
             )
-            # Rerank y chang production (_retrieval.py bước ⑨)
+            # Rerank + filter y chang production (_retrieval.py → _do_retrieve_and_rerank):
+            #   - Nếu có reranker: rerank → filter (cả khi rerank fail thì vẫn filter)
+            #   - Nếu không có reranker: filter trực tiếp
+            # Lưu ý: production luôn chạy filter dù rerank thành công hay fail.
             if reranker is not None and retrieval.chunks:
                 try:
                     retrieval = reranker.rerank(query, retrieval, top_k=rerank_top_k)
                 except Exception as _re:
-                    pass  # rerank fail → dùng kết quả RRF thô
-
+                    pass  # rerank fail → giữ kết quả RRF thô, vẫn filter bên dưới
             # drop_noisy_chunks + drop_query_mismatched_chunks y chang production
+            # Áp LUÔN sau rerank (hoặc sau RRF nếu không có reranker), không phân nhánh.
             if _chunk_filter_available and retrieval is not None:
-                retrieval = drop_noisy_chunks(retrieval, min_score=0.25)
+                retrieval = drop_noisy_chunks(retrieval, min_score=min_score)
                 if retrieval is not None:
                     retrieval = drop_query_mismatched_chunks(retrieval, query)
 
@@ -1381,8 +1423,8 @@ def _parse_args() -> argparse.Namespace:
         help="Eval mode: sparse/hybrid retrieval, or e2e backend + judge",
     )
     parser.add_argument(
-        "--top-k", type=int, default=8, dest="top_k",
-        help="Number of chunks to retrieve per query (before rerank, default=8 y chang chat_retrieve_top_k production)",
+        "--top-k", type=int, default=10, dest="top_k",
+        help="Number of chunks to retrieve per query (before rerank, default=10 y chang settings.chat_retrieve_top_k production)",
     )
     parser.add_argument(
         "--rerank-top-k", type=int, default=3, dest="rerank_top_k",

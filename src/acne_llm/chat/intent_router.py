@@ -10,16 +10,19 @@ from dataclasses import dataclass, field
 import json
 import re
 from typing import Literal, Protocol
+import unicodedata
 
 from loguru import logger
 
 from ..schemas import AcneClinicalInput, UserInput
 from .session import ConversationTurn
 from ..llm.query_expander import detect_language_heuristic
+from ._terms import QUESTION_TERMS
 
 
 PrimaryIntent = Literal["advise", "knowledge", "clarify", "reject"]
 IntentSource = Literal["rule", "micro_model", "hybrid"]
+QuerySubject = Literal["self", "other", "general"]
 
 
 @dataclass
@@ -35,6 +38,7 @@ class ClassifierResult:
 class RouteDecision:
     primary_intent: PrimaryIntent
     confidence: float
+    query_subject: QuerySubject = "self"
     source: IntentSource = "rule"
     classifier_used: bool = False
     turn_type: str = "answer"
@@ -46,6 +50,7 @@ class RouteDecision:
     def metadata(self) -> dict:
         data = {
             "primary_intent": self.primary_intent,
+            "query_subject": self.query_subject,
             "intent_confidence": self.confidence,
             "intent_source": self.source,
             "classifier_used": self.classifier_used,
@@ -65,7 +70,7 @@ class IntentClassifier(Protocol):
 
 
 _FOLLOWUP_SHORT_TERMS = (
-    # Câu follow-up ngắn điển hình trong session acne — không có acne keyword
+    # Câu follow-up điển hình trong session acne — không có acne keyword
     # nhưng rõ ràng là tiếp nối cuộc hội thoại.
     "còn gì nữa", "con gi nua", "còn nữa không", "con nua khong",
     "có gì khác", "co gi khac", "còn phương pháp", "con phuong phap",
@@ -78,16 +83,23 @@ _FOLLOWUP_SHORT_TERMS = (
     "oke", "ok hiểu", "hiểu rồi", "hieu roi", "biết rồi", "biet roi",
     "oke vậy", "vậy thôi", "vay thoi",
     "thêm gì nữa", "them gi nua", "có thêm", "co them",
+    # Follow-up context dài hơn 6 từ — continuation rõ ràng trong session
+    "vậy với da", "vay voi da", "thế với da", "the voi da",
+    "còn buổi sáng", "con buoi sang", "còn buổi tối", "con buoi toi",
+    "còn ban ngày thì", "con ban ngay thi",
+    "vậy nếu dùng", "vay neu dung", "thế nếu dùng", "the neu dung",
+    "vậy thì dùng gì", "vay thi dung gi",
+    "còn loại khác", "con loai khac", "có loại nào khác", "co loai nao khac",
+    "vậy mình nên", "vay minh nen", "thế mình nên", "the minh nen",
+    "vậy tôi nên", "vay toi nen",
+    "với da dầu thì", "voi da dau thi", "với da khô thì", "voi da kho thi",
+    "với da nhạy cảm", "voi da nhay cam",
+    "kết hợp được không", "ket hop duoc khong",
+    "dùng chung được không", "dung chung duoc khong",
 )
 
-_QUESTION_TERMS = (
-    "là gì", "la gi", "vì sao", "vi sao", "tại sao", "tai sao",
-    "nguyên nhân", "nguyen nhan", "hoạt động thế nào", "hoat dong the nao",
-    "cơ chế", "co che", "tác dụng", "tac dung",
-    "có nên", "co nen", "có sao không", "co sao khong",
-    "có ảnh hưởng", "co anh huong", "có tốt không", "co tot khong",
-    "bao lâu", "bao lau", "review", "so sánh", "so sanh",
-)
+# _QUESTION_TERMS đã chuyển sang ._terms.QUESTION_TERMS (shared với intake.py)
+_QUESTION_TERMS = QUESTION_TERMS
 # Knowledge-only markers: câu hỏi dạng liệt kê/ranking/nguyên nhân chung
 # → luôn là knowledge question bất kể có clinical terms hay không
 _KNOWLEDGE_RANKING_TERMS = (
@@ -122,6 +134,30 @@ _PERSONAL_TERMS = (
     "đang bị", "dang bi", "tôi bị", "toi bi",
     "mình bị", "minh bi", "em bị", "em bi", "cháu bị", "chau bi",
     "da mình", "da minh", "mặt mình", "mat minh",
+)
+_OTHER_SUBJECT_TERMS = (
+    "bạn tôi", "ban toi",
+    "bạn mình", "ban minh",
+    "bạn em", "ban em",
+    "bạn của tôi", "ban cua toi",
+    "bạn của mình", "ban cua minh",
+    "người khác", "nguoi khac",
+    "người quen", "nguoi quen",
+    "cho người quen", "cho nguoi quen",
+    "người yêu", "nguoi yeu",
+    "em trai", "chị gái", "anh trai",
+    "em gai", "chi gai", "anh trai",
+)
+_SELF_SUBJECT_TERMS = (
+    "tôi", "toi", "mình", "minh",
+    "da tôi", "da toi", "mặt tôi", "mat toi",
+    "da mình", "da minh", "mặt mình", "mat minh",
+    "tôi bị", "toi bi", "mình bị", "minh bi",
+    "em bị", "em bi", "cháu bị", "chau bi",
+    "của tôi", "cua toi", "của mình", "cua minh",
+    "tình trạng tôi", "tinh trang toi",
+    "tình trạng của tôi", "tinh trang cua toi",
+    "tình trạng mình", "tinh trang minh",
 )
 _CASE_TERMS = (
     # Chỉ giữ các terms có chủ thể cá nhân rõ ràng (tôi/mình/em bị...)
@@ -194,6 +230,40 @@ def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     return any(term in lowered for term in terms)
 
 
+def _strip_accents(text: str) -> str:
+    normalized = unicodedata.normalize("NFD", text)
+    without_marks = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
+    return without_marks.replace("đ", "d").replace("Đ", "D")
+
+
+def _subject_signals(text: str) -> tuple[bool, bool]:
+    lowered = text.lower()
+    no_accent = _strip_accents(lowered)
+    has_other = _contains_any(lowered, _OTHER_SUBJECT_TERMS) or _contains_any(
+        no_accent,
+        _OTHER_SUBJECT_TERMS,
+    )
+    has_self = _contains_any(lowered, _SELF_SUBJECT_TERMS) or _contains_any(
+        no_accent,
+        _SELF_SUBJECT_TERMS,
+    )
+    return has_other, has_self
+
+
+def _query_subject_for_intent(
+    primary_intent: PrimaryIntent,
+    has_other_subject: bool,
+    has_self_subject: bool,
+) -> QuerySubject:
+    if has_other_subject:
+        return "other"
+    if has_self_subject:
+        return "self"
+    if primary_intent == "advise":
+        return "self"
+    return "general"
+
+
 def _clinical_has_case_signal(clinical: AcneClinicalInput | None) -> bool:
     if clinical is None:
         return False
@@ -235,32 +305,30 @@ def _has_any_clinical_fact(user: UserInput) -> bool:
     )
 
 
-def _previous_language(history: list[ConversationTurn]) -> str:
-    for turn in reversed(history):
-        if turn.role == "user":
-            meta_lang = (turn.metadata or {}).get("detected_language")
-            if meta_lang in {"vi", "en", "mixed"}:
-                return str(meta_lang)
-            detected = detect_language_heuristic(turn.content)
-            if detected in {"vi", "en", "mixed"}:
-                return detected
-    return "unknown"
-
-
 def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn]) -> RouteDecision:
     lowered = message.lower()
     detected_language = detect_language_heuristic(message)
+    has_other_subject, has_self_subject = _subject_signals(lowered)
     flags: list[str] = []
+
+    def _decision(
+        primary_intent: PrimaryIntent,
+        confidence: float,
+        **kwargs,
+    ) -> RouteDecision:
+        return RouteDecision(
+            primary_intent=primary_intent,
+            confidence=confidence,
+            query_subject=_query_subject_for_intent(
+                primary_intent,
+                has_other_subject,
+                has_self_subject,
+            ),
+            **kwargs,
+        )
 
     if is_repeated_question(message, history):
         flags.append("repeated_question")
-    previous_language = _previous_language(history)
-    if (
-        previous_language != "unknown"
-        and detected_language != "unknown"
-        and previous_language != detected_language
-    ):
-        flags.append("language_switch")
     if _contains_any(lowered, _EMOTIONAL_TERMS):
         flags.append("emotional_distress")
     if _contains_any(lowered, _CRISIS_TERMS):
@@ -274,17 +342,18 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     if _contains_any(lowered, _MULTI_CONDITION_TERMS):
         flags.append("multi_condition")
 
-    # I1: Detect short follow-up turns in an active session.
-    # Câu ngắn như "còn gì nữa k", "sao vậy" không có acne keyword nhưng
-    # rõ ràng là tiếp nối session → route về advise với flag progress_followup.
+    # I1: Detect follow-up turns in an active session.
+    # Không giới hạn cứng 6 từ vì nhiều continuation hợp lệ dài hơn
+    # ("vậy với da khô thì dùng gì", "thế còn buổi sáng thì sao").
+    # Dùng 10 từ để lọc câu quá dài (câu mới thường > 10 từ khi có context đầy đủ).
     is_short_followup = (
-        len(message.split()) <= 6
+        len(message.split()) <= 10
         and bool(history)
         and _contains_any(lowered, _FOLLOWUP_SHORT_TERMS)
     )
     if is_short_followup:
         flags.append("progress_followup")
-        return RouteDecision(
+        return _decision(
             primary_intent="advise",
             confidence=0.75,
             route_flags=flags,
@@ -316,6 +385,8 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     # luôn True → confidence luôn 0.82 dù message là câu hỏi kiến thức.
     # user._current_clinical là snapshot trước fold, nếu không có thì fallback = False.
     _current_clinical = getattr(user, "_current_clinical", None)
+    if _current_clinical is None and not history:
+        _current_clinical = user.clinical
     has_case_signal = _clinical_has_case_signal(_current_clinical)
 
     # Priority 1: Knowledge ranking/explanation questions — route knowledge
@@ -324,7 +395,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     # → đây là câu hỏi chung, không phải case cá nhân.
     # Chỉ override sang advise khi có personal pronoun ("tôi", "mình", "mặt tôi"...)
     if is_knowledge_ranking and not has_personal_terms:
-        return RouteDecision(
+        return _decision(
             primary_intent="knowledge",
             confidence=0.90,
             route_flags=flags,
@@ -334,7 +405,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
 
     # Priority 2: Product/food/mechanism questions without a concrete personal case
     if (is_product_query or is_food_query or is_mechanism_query) and not (has_case_terms and has_case_signal):
-        return RouteDecision(
+        return _decision(
             primary_intent="knowledge",
             confidence=0.86,
             route_flags=flags,
@@ -354,7 +425,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
         and not has_case_signal
     )
     if is_general_comparison:
-        return RouteDecision(
+        return _decision(
             primary_intent="knowledge",
             confidence=0.84,
             route_flags=flags,
@@ -363,7 +434,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
         )
 
     if "crisis_signal" in flags:
-        return RouteDecision(
+        return _decision(
             primary_intent="clarify",
             confidence=0.80,
             turn_type="safety_clarify",
@@ -385,7 +456,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
             flags.append("partial_advise")
         elif has_case_signal and (is_advice_question or len(message.split()) <= 8):
             flags.append("partial_advise")
-        return RouteDecision(
+        return _decision(
             primary_intent="advise",
             confidence=0.82 if has_case_signal else 0.70,
             route_flags=flags,
@@ -395,7 +466,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
 
     if _has_any_clinical_fact(user) and is_advice_question:
         flags.append("partial_advise")
-        return RouteDecision(
+        return _decision(
             primary_intent="advise",
             confidence=0.68,
             route_flags=flags,
@@ -405,7 +476,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
         )
 
     if _contains_any(lowered, _QUESTION_TERMS) or "?" in message:
-        return RouteDecision(
+        return _decision(
             primary_intent="knowledge",
             confidence=0.72,
             route_flags=flags,
@@ -415,7 +486,7 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
 
     # Fallback: chỉ dùng has_case_signal từ current message, không từ folded user.
     # _has_any_clinical_fact(user) sẽ luôn True sau fold → mọi thứ thành advise.
-    return RouteDecision(
+    return _decision(
         primary_intent="advise" if has_case_signal else "knowledge",
         confidence=0.58,
         route_flags=flags + ["ambiguous_intent"],
@@ -449,6 +520,7 @@ def _accept_classifier(
         return RouteDecision(
             primary_intent=rule.primary_intent,
             confidence=rule.confidence,
+            query_subject=rule.query_subject,
             source="hybrid",
             classifier_used=True,
             turn_type=rule.turn_type,
@@ -462,6 +534,7 @@ def _accept_classifier(
     return RouteDecision(
         primary_intent=classifier_result.primary_intent,
         confidence=classifier_result.confidence,
+        query_subject=rule.query_subject,
         source="micro_model",
         classifier_used=True,
         turn_type="answer" if classifier_result.primary_intent in {"advise", "knowledge"} else classifier_result.primary_intent,
@@ -479,14 +552,17 @@ def route_intent(
     settings: object | None = None,
     classifier: IntentClassifier | None = None,
 ) -> RouteDecision:
+    import concurrent.futures
+
     rule = _rule_decision(message, user, history)
     min_confidence = float(getattr(settings, "intent_router_min_confidence", 0.80))
     tie_margin = float(getattr(settings, "intent_router_tie_margin", 0.10))
     enabled = bool(getattr(settings, "intent_router_enabled", False))
+    # Timeout cho classifier call — default 15s (tăng từ 5s để tránh false timeout
+    # khi main model đang warm-up trên GPU cùng lúc với micro-classifier).
+    classifier_timeout = float(getattr(settings, "intent_router_timeout_seconds", 15.0))
 
-    # Gọi classifier mặc định cho mọi turn, trừ hard-rule cases đã chắc chắn.
-    # Lý do: rule luôn cho 0.82 vì folded user.clinical, không phản ánh
-    # current message intent. Mini model đọc raw message chính xác hơn.
+    # Hard-rule cases: không cần classifier, rule đã chắc chắn.
     _hard_rule_cases = {
         "crisis_signal",
         "short_followup_in_session",
@@ -518,19 +594,29 @@ def route_intent(
         "rule_primary_intent": rule.primary_intent,
         "rule_flags": list(rule.route_flags),
     }
+
+    # Chạy classifier trong thread riêng với timeout cứng.
+    # Nếu Ollama bị queue (GPU đang bận với main model), pipeline không bị block.
+    # Rule result được dùng ngay; classifier chỉ enhance nếu trả về kịp.
+    model_result: ClassifierResult | None = None
     try:
-        model_result = classifier.classify(message, signals)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(classifier.classify, message, signals)
+            try:
+                model_result = future.result(timeout=classifier_timeout)
+            except concurrent.futures.TimeoutError:
+                logger.debug(
+                    "[intent_router] classifier timed out after {:.0f}s, using rule result",
+                    classifier_timeout,
+                )
+                future.cancel()
     except Exception as exc:
         logger.debug(f"[intent_router] classifier failed, using rule result: {exc}")
-        rule.classifier_used = True
-        rule.source = "hybrid"
-        rule.reason_code = f"{rule.reason_code}|classifier_error"
-        return rule
 
     if model_result is None:
         rule.classifier_used = True
         rule.source = "hybrid"
-        rule.reason_code = f"{rule.reason_code}|classifier_empty"
+        rule.reason_code = f"{rule.reason_code}|classifier_error"
         return rule
 
     return _accept_classifier(rule, model_result, min_confidence, tie_margin)
@@ -564,18 +650,33 @@ class OllamaIntentClassifier:
             "Classify Vietnamese/English acne-chat user intent. "
             "Return ONLY strict JSON: {\"primary_intent\": <label>, \"scores\": {<label>: <0-1>}, "
             "\"confidence\": <0-1>, \"is_ambiguous\": <bool>, \"reason_code\": <string>}. "
-            "Labels: advise (personal case - user describing their own skin/acne), "
-            "knowledge (general question - asking how/why/what about acne in general), "
-            "clarify (needs more info), reject (off-topic).\n"
+            "Labels:\n"
+            "  advise   = user is describing a personal skin/acne situation and wants specific advice "
+            "(subject may be themselves OR someone else they mention explicitly)\n"
+            "  knowledge = user is asking a general/factual question about acne, ingredients, or skincare — "
+            "NOT about their own specific case\n"
+            "  clarify  = message is too vague for the SYSTEM to give useful advice "
+            "(e.g. just 'mụn' with no context); NOT a label for user asking a clarifying question\n"
+            "  reject   = completely off-topic (not related to acne/skin)\n"
+            "Rules: presence of 'tôi/mình/em bị' → advise. "
+            "Ranking/list/why questions without personal pronoun → knowledge. "
+            "Mixed-language (Vietnamese + English) follows the same rules.\n"
             "Examples:\n"
-            "- \"mình bị mụn bọc ở cằm\" -> advise (personal)\n"
-            "- \"tại sao bị mụn bọc\" -> knowledge (general why)\n"
+            "- \"mình bị mụn bọc ở cằm\" -> advise (personal self)\n"
+            "- \"bạn tôi bị mụn nang, nên làm gì\" -> advise (personal other)\n"
+            "- \"em gái mình hay nổi mụn ở lưng\" -> advise (personal other)\n"
+            "- \"tại sao bị mụn bọc\" -> knowledge (general why, no personal pronoun)\n"
             "- \"top 10 nguyên nhân gây mụn\" -> knowledge (list/ranking)\n"
             "- \"da dầu có dễ bị mụn hơn da khô không\" -> knowledge (comparison)\n"
             "- \"mình nên dùng gì cho da mụn\" -> advise (personal advice request)\n"
             "- \"benzoyl peroxide là gì\" -> knowledge (ingredient)\n"
             "- \"mình bị mụn bọc đau, nên làm gì\" -> advise (personal + advice)\n"
             "- \"liệt kê các loại mụn\" -> knowledge (list)\n"
+            "- \"my skin keeps breaking out on my chin\" -> advise (English personal)\n"
+            "- \"what causes hormonal acne\" -> knowledge (English general)\n"
+            "- \"I have oily skin and acne, what should I use\" -> advise (English personal advice)\n"
+            "- \"mụn\" -> clarify (too vague, system cannot advise)\n"
+            "- \"em bị mụn nhưng không biết loại gì\" -> advise (personal, type unknown — still advise not clarify)\n"
         )
         user_payload = json.dumps(
             {"message": message, "context": {

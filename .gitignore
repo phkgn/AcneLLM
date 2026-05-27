@@ -13,22 +13,40 @@ frontend/.next/
 frontend/out/
 frontend/.turbo/
 
+# ── Data — không push lên GitHub ────────────────────────────
 data/raw/
 data/processed/
 data/chroma_db/
 data/bm25_index.pkl
 data/bm25_index.pkl.sha256
-data/finetune/*.jsonl
+data/finetune/
 data/finetune/clean/
-data/eval_reports/*/
+data/eval_reports/
+data/eval/
+data/eval_labels/
+data/sessions/
+data/logs/
+data/cache/
+data/audit.db
 logs/
 
-LLMData/*.jsonl
-content_backup_*/
+# ── Model weights ─────────────────────────────────────────────
+model/
 *.gguf
 *.pkl
-*.sqlite3
 *.bin
+
+# ── Database / binary artifacts ───────────────────────────────
+*.sqlite3
+*.db
+
+# ── LLMData generated outputs (jsonl) — chỉ giữ source code ──
+LLMData/*.jsonl
+content_backup_*/
+
+# ── Build artifacts ───────────────────────────────────────────
+acnellm_pipeline.html
+acnellm_trace.html
 
 *.ipynb_checkpoints/
 notebooks/*.ipynb

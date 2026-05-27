@@ -5,18 +5,32 @@
 - Tuổi: {{ age if age is not none else "không rõ" }}
 - Giới tính: {{ sex or "không rõ" }}
 - Loại da: {{ skin_type or "không rõ" }}
-- Đang mang thai: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_pregnant else "không" }}
-- Đang cho con bú: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_breastfeeding else "không" }}
+- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
+- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
 - Dị ứng: {{ allergies }}
 - Thuốc đang dùng: {{ medications }}
 </context>
 
-<vision>{{ vision_summary }}</vision>
-
-{% if completeness_hint %}
-<!-- HƯỚNG DẪN: {{ completeness_hint }} -->
+{% if known_facts %}
+<known_facts>{{ known_facts }}</known_facts>
+{% endif %}
+{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" %}
+<normalized_case_plan>{{ normalized_case_plan }}</normalized_case_plan>
+{% endif %}
+{% if query_vi %}
+<query_vi>{{ query_vi }}</query_vi>
+{% endif %}
+{% if route_metadata %}
+<route_guidance>{{ route_metadata }}</route_guidance>
+{% endif %}
+{% if query_subject == "other" %}
+<subject_note>Người dùng đang hỏi về tình trạng của người khác. Không xem dữ kiện này là hồ sơ cá nhân của user.</subject_note>
 {% endif %}
 
+<vision>{{ vision_summary }}</vision>
+{% if completeness_hint %}
+<hint>{{ completeness_hint }}</hint>
+{% endif %}
 {% if history_block %}
 <conversation_history>
 {{ history_block }}
@@ -29,40 +43,10 @@
 </retrieved_context>
 
 <task>
-{% if extended_rules %}
-{{ extended_rules }}
-
+{% if extended_rules %}{{ extended_rules }}
 ---
 {% endif %}
-Hãy trả về **duy nhất JSON đúng schema `AdviseOutput`**.
-
-### Quy trình phân tích
-
-1. **Xác định phạm vi**: Câu hỏi có thuộc phạm vi tư vấn da mụn không? Nếu không, trả JSON từ chối theo system prompt.
-2. **Đọc đa chiều dữ liệu**: Phân tích `<description>`, `<vision>`, `<context>`, và `<retrieved_context>`. Tin vào những gì người dùng viết trong `<description>` — đó là nguồn chính xác nhất.
-3. **Đánh giá bằng chứng**: Chỉ giữ kết luận có thể nối thẳng tới dữ liệu `<user_data>` hoặc `[Nguồn N]` trong `<retrieved_context>`.
-4. **Không hỏi lại những gì đã có**: Nếu `<description>` đã đủ thông tin, trả lời luôn. Chỉ hỏi thêm khi thực sự cần và chỉ hỏi 1 câu.
-5. **Kiểm tra an toàn**: Áp dụng các ràng buộc an toàn y tế trước khi xuất JSON.
-
-### Ràng buộc an toàn y tế
-
-- **Không kê liều lượng thuốc**: Không nêu nồng độ cụ thể, tần suất, số tuần sử dụng.
-- **Không khuyên tự nặn mụn** hoặc bất kỳ thủ thuật tại nhà nào.
-- **Nếu mang thai hoặc cho con bú**: Loại bỏ mọi gợi ý liên quan đến retinoid, isotretinoin, tretinoin, adapalene, retinol, tazarotene, doxycycline, minocycline, tetracycline.
-- **Nếu `severity="severe"`**: Bắt buộc có ít nhất 1 `recommendation` với `category="see_doctor"` và ít nhất 1 `red_flag`.
-- **Nếu `age < 12`**: Bắt buộc khuyến nghị bác sĩ da liễu nhi hoặc bác sĩ nhi khoa.
-- **Nếu có dị ứng hoặc thuốc đang dùng**: Không khuyến nghị thành phần trùng dị ứng; nếu có khuyến nghị thuốc, thêm `red_flag` cảnh báo tương tác.
-
-### Luật citation
-
-- Chỉ dùng `source_chunk_id` lấy từ các dòng `chunk_ref=...` trong `<retrieved_context>`.
-- **Không được bịa `chunk_id`**. Nếu không có nguồn trực tiếp, để `source_chunk_id=null`.
-- `used_chunks` chỉ gồm các `chunk_id` thực sự đã được trích.
-
-### Format output
-
-- `causes`: tối đa 4 ý ngắn gọn (1 câu hoặc 1 cụm danh từ).
-- `recommendations`: tối đa 5 bước; mỗi bước có `action` ngắn, `rationale` 1 câu.
-- `disclaimer`: 1-2 câu ngắn, tiếng Việt.
-- `confidence`: phản ánh chất lượng bằng chứng thực sự (xem system prompt).
+Trả về duy nhất JSON đúng schema `AdviseOutput`. Tin vào description — đó là nguồn chính xác nhất. Chỉ giữ kết luận nối được thẳng tới dữ liệu user hoặc KB. Nếu description đã đủ, trả lời ngay; chỉ hỏi thêm khi thực sự cần, tối đa 1 câu.
+Citation: source_chunk_id chỉ lấy từ dòng chunk_ref= trong retrieved_context, không bịa, không có nguồn thì null.
+Format: causes ≤4 ý; recommendations ≤5 bước (action ngắn + rationale 1 câu); disclaimer 1-2 câu tiếng Việt.
 </task>

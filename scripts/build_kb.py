@@ -98,6 +98,51 @@ _AD_NOISE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Promo tail patterns — paragraph hoặc câu cuối có hotline/SĐT/địa chỉ vật lý
+_PROMO_TAIL_RE = re.compile(
+    r'\b0[35789]\d{8}\b|'           # SĐT VN thật: 09x, 03x, 07x, 08x (10 số)
+    r'1900\s+\d{2}\s+\d{2}\s+\d{2}|'  # 1900 56 56 56 format (MEDLATEC, etc.)
+    r'\bhotline\b|'                  # từ "hotline" bất kỳ
+    r'(?:tầng|lầu|số nhà)\s+\d+.*(?:đường|phố|quận|phường)|'  # địa chỉ vật lý
+    r'(?:địa chỉ|văn phòng|trụ sở)\s*:\s*\d+\s+\w|'           # Địa chỉ: 123 đường
+    r'(?:liên hệ|inbox|nhắn tin)\s+(?:để\s+)?(?:được\s+)?(?:tư vấn|đặt lịch)|'
+    r'(?:đặt lịch|book lịch|đặt hẹn)\s+(?:tại|online|ngay|qua)|'
+    r'(?:mời\s+)?quý khách|'         # boilerplate Vinmec/MEDLATEC
+    r'bấm số.*hotline|đặt lịch trực tiếp|'
+    r'tải và đặt lịch|ứng dụng myvinmec|'  # Vinmec app CTA
+    r'theo dõi lịch và đặt hẹn|'
+    r'tổng đài\s+\d|đường dây nóng\s+\d',  # tổng đài 1900..., đường dây nóng 1900...
+    re.IGNORECASE,
+)
+
+# Sentence-level split: tách theo dấu câu kết thúc
+_SENT_SPLIT_RE = re.compile(r'(?<=[.!?])\s+')
+
+
+def _trim_promo_tail(text: str) -> str:
+    """Xóa mọi câu chứa hotline/SĐT/địa chỉ quảng cáo — bất kể vị trí.
+
+    Xử lý 2 lớp:
+    1. Paragraph level: nếu paragraph chứa noise → tách ra từng câu
+    2. Sentence level: drop bất kỳ câu nào chứa promo pattern (không chỉ cuối)
+    """
+    paragraphs = re.split(r'\n{2,}', text)
+    result = []
+    for para in paragraphs:
+        if not para.strip():
+            continue
+        if _PROMO_TAIL_RE.search(para):
+            # Drop từng câu có noise, giữ câu sạch
+            sents = _SENT_SPLIT_RE.split(para.strip())
+            clean_sents = [s for s in sents if not _PROMO_TAIL_RE.search(s)]
+            clean_para = ' '.join(clean_sents).strip()
+            if clean_para:
+                result.append(clean_para)
+        else:
+            result.append(para)
+    return '\n\n'.join(result).strip()
+
+
 # Listicle / spa / clinic directory filter — drop toàn bộ doc nếu title là listicle
 # địa chỉ, spa, phòng khám, ưu đãi, combo, đặt lịch, review clinic...
 # CHÚ Ý: chỉ drop khi title rõ ràng là directory/spa/clinic/promo, KHÔNG drop medical listicle
@@ -121,7 +166,6 @@ _LISTICLE_TITLE_RE = re.compile(
     r"hướng dẫn\s+đặt lịch\s+",
     re.IGNORECASE,
 )
-
 
 def _is_listicle_doc(title: str) -> bool:
     """Trả True nếu doc là listicle spa/clinic/ưu đãi — không có giá trị y tế."""
@@ -273,6 +317,11 @@ def step_chunk(min_quality: float = 0.3, min_chunk_chars: int = 50,
                 continue
 
             text = clean_vi_text(doc.text)
+            if not text:
+                continue
+
+            # Trim paragraph cuối có hotline/SĐT/địa chỉ trước khi chunk
+            text = _trim_promo_tail(text)
             if not text:
                 continue
 
@@ -601,7 +650,6 @@ def main() -> None:
     logger.info(f"  min-q   : {args.min_quality}")
     logger.info(f"  min-chk : {args.min_chunk_chars}")
     logger.info(f"  force   : {args.force}")
-    logger.info("=" * 60)
 
     t_total = time.time()
 

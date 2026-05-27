@@ -15,6 +15,7 @@ from ..llm.ollama_backend import OllamaBackend
 from ..llm.prompt_builder import PromptBuilder
 from ..guardrails.runner import GuardrailRunner
 from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks
+from ..utils.retrieval_query import build_retrieval_query_from_user
 from ..chat.session import ConversationTurn
 
 if TYPE_CHECKING:
@@ -64,7 +65,6 @@ class HybridPipeline:
                  retrieve_top_k: int = 15, rerank_top_k: int = 5,
                  english_input_notice: bool = True,
                  clinical_planner: ClinicalQueryPlanner | None = None,
-                 use_llm_planner: bool = False,
                  use_mmr_prefilter: bool = True,
                  mmr_lambda: float = 0.6):
         self.retriever = retriever
@@ -76,74 +76,11 @@ class HybridPipeline:
         self.rerank_top_k = rerank_top_k
         self.english_input_notice = english_input_notice
         self.clinical_planner = clinical_planner
-        self.use_llm_planner = use_llm_planner
         self.use_mmr_prefilter = use_mmr_prefilter
         self.mmr_lambda = mmr_lambda
 
     def _build_query(self, user: UserInput) -> str:
-        parts: list[str] = [f"description: {user.description}"]
-        c = user.context
-        ctx_bits: list[str] = []
-        if c.age is not None:
-            ctx_bits.append(f"age {c.age}")
-        if c.sex:
-            ctx_bits.append(f"sex {c.sex}")
-        if c.skin_type:
-            ctx_bits.append(f"skin type {c.skin_type}")
-        if c.is_pregnant:
-            ctx_bits.append("mang thai")
-        if c.is_breastfeeding:
-            ctx_bits.append("cho con bu")
-        if c.allergies:
-            ctx_bits.append("allergies " + ", ".join(c.allergies))
-        if c.current_products:
-            ctx_bits.append("current products " + ", ".join(c.current_products))
-        if c.medications:
-            ctx_bits.append("medications " + ", ".join(c.medications))
-        if c.duration_weeks is not None:
-            ctx_bits.append(f"duration {c.duration_weeks} weeks")
-        if ctx_bits:
-            parts.append("context: " + "; ".join(ctx_bits))
-
-        if user.clinical:
-            cl = user.clinical
-            clinical_bits: list[str] = []
-            if cl.lesion_types:
-                clinical_bits.append("lesions " + ", ".join(self._expand_lesion_terms(cl.lesion_types)))
-            if cl.lesion_distribution:
-                clinical_bits.append("distribution " + ", ".join(cl.lesion_distribution))
-            if cl.inflammation_level:
-                clinical_bits.append(f"inflammation {cl.inflammation_level}")
-            if cl.scarring_signs:
-                clinical_bits.append("scarring " + ", ".join(cl.scarring_signs))
-            if cl.medication_history:
-                clinical_bits.append("medication history " + ", ".join(cl.medication_history))
-            if cl.hormonal_factors:
-                clinical_bits.append("hormonal factors " + ", ".join(cl.hormonal_factors))
-            if cl.skincare_products:
-                clinical_bits.append("skincare " + ", ".join(cl.skincare_products))
-            if cl.treatment_goals:
-                clinical_bits.append("goals " + ", ".join(cl.treatment_goals))
-            if cl.red_flags_input:
-                clinical_bits.append("red flags " + ", ".join(cl.red_flags_input))
-            if clinical_bits:
-                parts.append("clinical: " + "; ".join(clinical_bits))
-
-        vision_bits: list[str] = []
-        if user.vision:
-            vision_bits.append(f"vision severity {user.vision.severity_estimate}")
-            if user.vision.lesion_counts:
-                lesion_terms = self._expand_lesion_terms(user.vision.lesion_counts.keys())
-                counts = ", ".join(f"{k}={v}" for k, v in user.vision.lesion_counts.items())
-                vision_bits.append(f"vision lesions {counts}; terms {', '.join(lesion_terms)}")
-            if user.vision.skin_regions:
-                vision_bits.append("vision regions " + ", ".join(user.vision.skin_regions))
-            if user.vision.notes:
-                vision_bits.append("vision notes " + user.vision.notes)
-        if vision_bits:
-            parts.append("vision: " + "; ".join(vision_bits))
-
-        return "\n".join(parts)
+        return build_retrieval_query_from_user(user, clean_text_normalized=user.description)
 
     @staticmethod
     def _expand_lesion_terms(lesion_types) -> list[str]:
@@ -261,7 +198,14 @@ class HybridPipeline:
                 scope_refusal.latency_ms = int((time.perf_counter() - t0) * 1000)
                 return scope_refusal
 
-        if clinical_plan is None:
+        can_build_clinical_plan = (
+            not route_metadata
+            or (
+                route_metadata.get("primary_intent") == "advise"
+                and route_metadata.get("query_subject", "self") == "self"
+            )
+        )
+        if clinical_plan is None and can_build_clinical_plan:
             clinical_plan = self._clinical_plan(user)
         if clinical_plan is not None:
             retrieval = self._retrieve_clinical_plan(clinical_plan)
@@ -290,10 +234,11 @@ class HybridPipeline:
         else:
             top = retrieval
 
-        top = drop_query_mismatched_chunks(
+        filtered_top = drop_query_mismatched_chunks(
             drop_noisy_chunks(top, min_score=0.0),
             rerank_query,
-        ) or top
+        )
+        top = filtered_top if filtered_top is not None and filtered_top.chunks else top
         logger.info("⑨ RERANK: top_k={} chunks after filter", len(top.chunks))
 
         sys_p, usr_p = self.prompt.build(

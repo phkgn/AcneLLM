@@ -141,6 +141,9 @@ def test_prompt_builder_includes_clinical_plan():
             lesion_types=["papule"],
             distribution=["chin"],
             inflammation_level="moderate",
+            canonical_ingredients=["salicylic_acid"],
+            usage_frequencies=["twice_daily"],
+            concentrations=[0.02],
         ),
         rag_queries=ClinicalRagQueries(query_vi="mụn viêm ở cằm guideline"),
     )
@@ -150,6 +153,9 @@ def test_prompt_builder_includes_clinical_plan():
     assert "<normalized_case_plan>" in usr_p
     assert "mụn viêm đỏ" in usr_p
     assert "vị trí: cằm" in usr_p
+    assert "salicylic_acid" in usr_p
+    assert "twice_daily" in usr_p
+    assert "0.02" in usr_p
 
 
 def test_prompt_builder_includes_full_untruncated_history():
@@ -167,3 +173,36 @@ def test_prompt_builder_includes_full_untruncated_history():
     assert "tôi 22 tuổi da dầu bị mụn ở cằm" in usr_p
     assert long_assistant.strip() in usr_p
     assert "..." not in usr_p
+
+
+def test_prompt_builder_includes_other_subject_note():
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(description="Bạn tôi bị mụn ở lưng nên làm gì")
+
+    _, usr_p = pb.build(
+        user,
+        None,
+        "stream_user.j2",
+        route_metadata={"primary_intent": "advise", "query_subject": "other"},
+    )
+
+    assert "<subject_note>" in usr_p
+    assert "người khác" in usr_p
+
+
+def test_clarify_template_keeps_prompt_minimal():
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(description="ý mình là sao?")
+
+    _, usr_p = pb.build(
+        user,
+        None,
+        "clarify_user.j2",
+        history=[ConversationTurn(role="user", content="tôi bị mụn")],
+    )
+
+    assert "<message>" in usr_p
+    assert "<conversation_history>" in usr_p
+    assert "<context>" not in usr_p
+    assert "<known_facts>" not in usr_p
+    assert "<query_vi>" not in usr_p

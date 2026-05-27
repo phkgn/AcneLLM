@@ -18,9 +18,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = ROOT / "data" / "finetune" / "acne_chat_response.jsonl"
-DEFAULT_OUT_DIR = ROOT / "data" / "finetune" / "clean"
-CLEANING_VERSION = "v1"
+DEFAULT_INPUT = ROOT / "data" / "finetune" / "acne_chat_20k.jsonl"
+DEFAULT_OUT_DIR = ROOT / "data" / "finetune" / "cleanv2"
+CLEANING_VERSION = "v2"
 
 
 OFFTOPIC_TITLE_RX = re.compile(
@@ -56,10 +56,13 @@ CONFIDENT_DIAGNOSIS_RX = re.compile(
     re.IGNORECASE,
 )
 RX_DOSE_RX = re.compile(
-    r"(?:isotretinoin|tretinoin|adapalene|tazarotene|doxycycline|"
-    r"minocycline|tetracycline|spironolactone|kháng\s*sinh)"
-    r"[^\n.]{0,100}\b\d+(?:[.,]\d+)?\s*"
-    r"(?:mg/kg|mg|mcg|%|viên|lần/ngày|ngày|tuần)",
+    # Oral/systemic Rx: flag any dose unit including %
+    # Topical OTC (adapalene, tretinoin %): NOT flagged — educational mention
+    r"(?:isotretinoin|doxycycline|minocycline|lymecycline|"
+    r"spironolactone|prednisolone|prednisone|tazarotene|trifarotene|"
+    r"clindamycin|erythromycin|kháng\s*sinh)"
+    r"[^\n.]{0,80}\b\d+(?:[.,]\d+)?\s*"
+    r"(?:mg/kg|mg|mcg|viên/ngày|viên\s+mỗi|lần/ngày)",
     re.IGNORECASE,
 )
 SAFETY_CONTEXT_RX = re.compile(

@@ -8,6 +8,7 @@ from acne_llm.api.routes import chat
 from acne_llm.chat.session import get_session_store
 from acne_llm.db.jsonl_session_store import JsonlSessionStore
 from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
+from acne_llm.chat.intent_router import ClassifierResult
 
 
 class _MockLLM:
@@ -26,11 +27,17 @@ class _MockLLM:
 
 
 class _MockPrompt:
+    def __init__(self):
+        self.templates = []
+        self.route_metadata = []
+
     def system_stream(self):
         return "Bạn là AcneLLM."
 
     def build(self, user, retrieval=None, **kwargs):
         history = kwargs.get("history") or []
+        self.templates.append(kwargs.get("template"))
+        self.route_metadata.append(kwargs.get("route_metadata") or {})
         return (
             "Bạn là AcneLLM.",
             f"Mô tả người dùng: {user.description}; sex={user.context.sex}; history={len(history)}",
@@ -54,6 +61,19 @@ class _MockContainer:
             chat_rerank_top_k=3,
             chat_min_citation_score=0.12,
             chat_use_llm_planner=False,
+            intent_router_enabled=False,
+            intent_router_min_confidence=0.80,
+            intent_router_tie_margin=0.10,
+        )
+
+
+class _ClarifyClassifier:
+    def classify(self, message, signals):
+        return ClassifierResult(
+            primary_intent="clarify",
+            scores={"clarify": 0.95, "advise": 0.04},
+            confidence=0.95,
+            reason_code="micro_clarify",
         )
 
 
@@ -234,5 +254,67 @@ def test_stream_endpoint_persists_answer_turns_in_session():
         assert history[0].content == "tôi bị mụn ở cằm"
         assert history[1].mode == "llm_only"
         assert history[0].metadata["primary_intent"] == "advise"
+    finally:
+        store.delete(session_id)
+
+
+def test_stream_endpoint_routes_templates_by_intent():
+    container = _MockContainer()
+    c = TestClient(_app(container))
+
+    advise = c.get("/api/v1/chat/stream", params={"message": _SUFFICIENT_MSG})
+    knowledge = c.get("/api/v1/chat/stream", params={"message": "tại sao bị mụn bọc"})
+    clarify = c.get("/api/v1/chat/stream", params={"message": "tôi không muốn sống vì mụn"})
+
+    assert advise.status_code == 200
+    assert knowledge.status_code == 200
+    assert clarify.status_code == 200
+    assert container.prompt.templates[:3] == [
+        "stream_user.j2",
+        "knowledge_user.j2",
+        "clarify_user.j2",
+    ]
+
+
+def test_stream_endpoint_other_subject_metadata_has_no_snapshot():
+    session_id = "test-stream-other-subject"
+    store = get_session_store()
+    store.delete(session_id)
+    container = _MockContainer()
+    c = TestClient(_app(container))
+
+    try:
+        r = c.get(
+            "/api/v1/chat/stream",
+            params={"message": "bạn tôi bị mụn ở lưng nên làm gì", "session_id": session_id},
+        )
+
+        assert r.status_code == 200
+        assert container.prompt.route_metadata[-1]["query_subject"] == "other"
+        history = store.get_history(session_id)
+        assert history[0].normalized_snapshot is None
+    finally:
+        store.delete(session_id)
+
+
+def test_stream_endpoint_persists_self_clarify_snapshot_and_assistant_mode():
+    session_id = "test-stream-self-clarify-memory"
+    store = get_session_store()
+    store.delete(session_id)
+    container = _MockContainer()
+    container.intent_classifier = _ClarifyClassifier()
+    container.settings.intent_router_enabled = True
+    c = TestClient(_app(container))
+
+    try:
+        r = c.get(
+            "/api/v1/chat/stream",
+            params={"message": "tôi 22 tuổi bị mụn", "session_id": session_id},
+        )
+
+        assert r.status_code == 200
+        history = store.get_history(session_id)
+        assert history[0].normalized_snapshot is not None
+        assert history[1].mode == "clarify"
     finally:
         store.delete(session_id)

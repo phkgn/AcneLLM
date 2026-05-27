@@ -157,6 +157,18 @@ class TestPurulentLesions:
         assert "purulent_lesions" in flags(r)
 
 
+class TestSkinIrritation:
+    @pytest.mark.parametrize("text", ["rất nhiều mụn", "bị rất nhiều mụn"])
+    def test_rat_no_accent_does_not_match_rat_adverb(self, text):
+        r = norm(text)
+        assert "skin_irritation" not in flags(r)
+
+    @pytest.mark.parametrize("text", ["da bị rát", "da nong rat"])
+    def test_rat_with_irritation_context_still_matches(self, text):
+        r = norm(text)
+        assert "skin_irritation" in flags(r)
+
+
 # ── Combined / complex cases ──────────────────────────────────────────────────
 
 class TestCombinedRedFlags:
@@ -227,6 +239,74 @@ class TestDistributionExtraction:
         r = norm("mụn ở hai bên má")
         assert "cheeks" in dist(r)
 
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "mun o ma",
+            "mun o hai ben ma",
+            "vung ma bi mun",
+            "go ma noi mun",
+            "ma trai co mun",
+            "acne on cheeks",
+        ],
+    )
+    def test_ma_no_accent_requires_location_context(self, text):
+        r = norm(text)
+        assert "cheeks" in dist(r)
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "mụn lưng mà sao sinh hoạt chung với thằng bạn cùng phòng nó lại không bị",
+            "mụn mà sao cứ nổi hoài",
+            "mà sao da tôi cứ bị mụn",
+            "ma là chuyện không liên quan tới vị trí mụn",
+        ],
+    )
+    def test_ma_no_accent_does_not_match_conjunction_ma(self, text):
+        r = norm(text)
+        assert "cheeks" not in dist(r)
+
+    @pytest.mark.parametrize(
+        ("text", "unexpected"),
+        [
+            ("mụn lưng khi chuyển trọ được 2 tuần thì nổi bên trái bên phải không có bị", "neck"),
+            ("da có mụn nhẹ", "neck"),
+            ("mụn gây đau khi chạm", "neck"),
+            ("nặn vài cục thấy sưng", "shoulders"),
+            ("cam kết không nặn mụn", "chin"),
+            ("mùi hôi do kem", "nose"),
+            ("da mỏng dễ kích ứng", "other"),
+            ("tẩy da chết xong nổi mụn", "other"),
+            ("chán vì mụn", "other"),
+            ("ở trần bị mụn lưng", "forehead"),
+            ("da mà nổi mụn", "cheeks"),
+            ("da dầu hay bị mụn", "other"),
+        ],
+    )
+    def test_no_accent_short_location_tokens_need_context(self, text, unexpected):
+        r = norm(text)
+        assert unexpected not in dist(r)
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("mun tran", "forehead"),
+            ("mun o cam", "chin"),
+            ("mun o ham", "jawline"),
+            ("mun o mui", "nose"),
+            ("mun o vai", "shoulders"),
+            ("mun o co", "neck"),
+            ("vung co noi mun", "neck"),
+            ("mun o mong", "other"),
+            ("mun o tay", "other"),
+            ("mun o chan", "other"),
+        ],
+    )
+    def test_no_accent_location_context_still_matches(self, text, expected):
+        r = norm(text)
+        assert expected in dist(r)
+
     def test_tran(self):
         r = norm("mụn nhiều ở trán")
         assert "forehead" in dist(r)
@@ -234,6 +314,15 @@ class TestDistributionExtraction:
     def test_cam(self):
         r = norm("mụn ở vùng cằm")
         assert "chin" in dist(r)
+
+    def test_mun_cam_no_accent_does_not_shadow_chin(self):
+        r = norm("mụn cằm")
+        assert "chin" in dist(r)
+        assert "closed_comedone" not in lesions(r)
+
+    def test_mun_cam_accented_still_matches_closed_comedone(self):
+        r = norm("mụn cám li ti")
+        assert "closed_comedone" in lesions(r)
 
     def test_lung(self):
         r = norm("mụn nổi nhiều ở lưng")
@@ -268,6 +357,33 @@ class TestContextExtraction:
         r = norm("da dầu, mụn nhiều")
         assert r.context.skin_type is not None
         assert "oily" in str(r.context.skin_type).lower() or "dầu" in str(r.context.skin_type)
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "mụn đầu đen bị 2 tuần rồi",
+            "mụn đau khi sờ",
+            "da đau khi chạm vào mụn",
+            "da khó chịu vì mụn",
+            "thường bị mụn",
+            "mụn bình thường",
+        ],
+    )
+    def test_no_accent_skin_type_tokens_need_context(self, text):
+        r = norm(text)
+        assert r.context.skin_type is None
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("da dau mun nhieu", "oily"),
+            ("da kho va bong troc", "dry"),
+            ("da binh thuong", "normal"),
+        ],
+    )
+    def test_no_accent_skin_type_context_still_matches(self, text, expected):
+        r = norm(text)
+        assert r.context.skin_type == expected
 
 
 # ── Edge cases ────────────────────────────────────────────────────────────────

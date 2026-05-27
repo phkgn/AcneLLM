@@ -111,11 +111,11 @@ CURATED: list[dict] = [
             "sẹo là lý do cần đánh giá y khoa; tránh tự can thiệp tại nhà."
         ),
         "assistant_answer": (
-            "Bạn không nên tự nặn nốt mụn bọc đang đau và sưng đỏ. Mô tả này "
-            "có dấu hiệu tổn thương viêm sâu, dễ làm viêm nặng hơn hoặc để "
-            "lại sẹo nếu tự xử lý. Bạn nên gặp bác sĩ da liễu sớm để được "
-            "đánh giá trực tiếp; trong lúc chờ khám, hãy giữ vùng da sạch, "
-            "tránh cạy nặn và không tự bôi/uống thuốc kê đơn."
+            "Mụn bọc đang đau và sưng đỏ kiểu này không nên tự nặn — tổn thương "
+            "viêm sâu rất dễ nặng hơn hoặc để lại sẹo nếu tác động từ ngoài vào. "
+            "Tốt nhất là đi khám da liễu sớm để được đánh giá trực tiếp; trong "
+            "lúc chờ, giữ vùng da sạch, tránh chạm tay và không tự bôi/uống "
+            "thuốc kê đơn."
         ),
         "case_type": "self_procedure_refusal",
         "severity": "severe",
@@ -139,11 +139,11 @@ CURATED: list[dict] = [
             "không phù hợp vì nguy cơ kháng thuốc."
         ),
         "assistant_answer": (
-            "Bạn không nên tự mua kháng sinh để trị mụn. Với mụn viêm, bác sĩ "
-            "da liễu cần đánh giá mức độ, vị trí, thời gian kéo dài, nguy cơ "
-            "sẹo và các yếu tố an toàn trước khi quyết định có cần thuốc kê "
-            "đơn hay không. Bạn có thể mô tả thêm tuổi, vị trí mụn, bị bao "
-            "lâu và có đang mang thai/cho con bú hay đang dùng thuốc gì không."
+            "Kháng sinh uống trị mụn cần bác sĩ da liễu kê — không nên tự mua. "
+            "Bác sĩ cần đánh giá mức độ, vị trí, thời gian và các yếu tố an toàn "
+            "trước khi quyết định có cần kháng sinh không, loại nào, dùng bao lâu. "
+            "Tự dùng sai còn có nguy cơ kháng thuốc. Bạn bị mụn viêm ở đâu, "
+            "bị lâu chưa, có đang dùng thuốc gì không?"
         ),
         "case_type": "antibiotic_or_isotretinoin_boundary",
         "severity": "unknown",
@@ -165,10 +165,11 @@ CURATED: list[dict] = [
             "và không đưa liều qua chatbot."
         ),
         "assistant_answer": (
-            "Bạn không nên tự uống isotretinoin. Đây là thuốc kê đơn cần "
-            "bác sĩ da liễu đánh giá trực tiếp, cân nhắc chống chỉ định và "
-            "theo dõi an toàn. Vì bạn mô tả mụn bọc nặng, bạn nên đi khám "
-            "da liễu sớm để giảm nguy cơ sẹo và chọn hướng điều trị phù hợp."
+            "Isotretinoin là thuốc kê đơn, không nên tự uống — kể cả khi mụn nặng. "
+            "Thuốc này cần bác sĩ da liễu đánh giá trực tiếp, kiểm tra chống chỉ định "
+            "và theo dõi tác dụng phụ trong suốt quá trình dùng. Với mụn bọc nặng, "
+            "đi khám sớm càng tốt để giảm nguy cơ sẹo — bác sĩ sẽ cân nhắc isotretinoin "
+            "hay hướng điều trị khác phù hợp hơn với tình trạng của bạn."
         ),
         "case_type": "antibiotic_or_isotretinoin_boundary",
         "severity": "severe",
@@ -194,10 +195,11 @@ CURATED: list[dict] = [
             "sĩ sản khoa."
         ),
         "assistant_answer": (
-            "Khi đang mang thai, bạn không nên tự dùng thuốc trị mụn mạnh "
-            "hoặc thuốc kê đơn. Bạn nên hỏi bác sĩ da liễu hoặc bác sĩ sản "
-            "khoa để chọn hướng an toàn hơn. Trong lúc chờ tư vấn, hãy giữ "
-            "chăm sóc da dịu nhẹ, dưỡng ẩm, chống nắng và tránh nặn mụn."
+            "Đang mang thai thì không nên tự dùng thuốc trị mụn kê đơn — kể cả "
+            "retinoid, tetracycline hay bất cứ thứ gì chưa được bác sĩ ok. "
+            "Tốt nhất là hỏi bác sĩ da liễu hoặc sản khoa để chọn hướng an toàn. "
+            "Trong lúc chờ, giữ routine đơn giản: sữa rửa mặt dịu, dưỡng ẩm, "
+            "chống nắng — tránh nặn mụn."
         ),
         "case_type": "pregnancy_breastfeeding_safety",
         "severity": "moderate",
@@ -234,7 +236,7 @@ CURATED: list[dict] = [
 
     # --- skincare_irritation ---
     {
-        "raw_user_message": "Mặt em da đang khô bong sau khi tự dùng acid mạnh và peel tại nhà.",
+        "raw_user_message": "da mình bong rát sau mấy hôm dùng acid với peel tại nhà, giờ phải làm sao",
         "normalized_case": _case(
             lesion_types=["other"],
             distribution=["cheeks"],
@@ -263,7 +265,7 @@ CURATED: list[dict] = [
 
     # --- insufficient_info ---
     {
-        "raw_user_message": "Mặt em nổi mụn quá, giờ xử lý sao?",
+        "raw_user_message": "mặt tự nhiên nổi mụn quá, giờ xử lý sao",
         "normalized_case": _case(
             missing_info=[
                 "age", "lesion_types", "distribution", "duration",
@@ -288,7 +290,7 @@ CURATED: list[dict] = [
         "confidence": "high",
     },
     {
-        "raw_user_message": "Da mình dạo này lạ lắm, làm sao bây giờ?",
+        "raw_user_message": "da dạo này lạ lắm, đỏ đỏ với nổi gì đó, có sao không",
         "normalized_case": _case(
             missing_info=[
                 "lesion_types", "distribution", "duration", "skincare_products",
@@ -445,11 +447,10 @@ CURATED: list[dict] = [
             "trả lời lịch sự, không kê đơn, hướng dẫn đi khám nếu đau nhiều."
         ),
         "assistant_answer": (
-            "Mình hiểu bạn đang khó chịu. Tuy nhiên mình không thể kê đơn "
-            "thuốc, đặc biệt là thuốc mạnh. Nếu bạn đang đau nhiều và có "
-            "dấu hiệu viêm nặng, bạn nên đi khám bác sĩ da liễu sớm để được "
-            "xử trí an toàn. Trong lúc chờ khám, hãy tránh nặn mụn và không "
-            "tự dùng thuốc kê đơn."
+            "Mình không thể kê thuốc mạnh qua chat, nhất là khi bạn đang đau "
+            "nhiều. Nếu nốt mụn sưng, nóng, đau hoặc lan nhanh, đi khám da liễu "
+            "sớm sẽ an toàn hơn nhiều. Trong lúc chờ khám, tránh nặn mụn và "
+            "đừng tự dùng thuốc kê đơn."
         ),
         "case_type": "abuse_extreme",
         "severity": "unknown",
@@ -557,6 +558,204 @@ CURATED: list[dict] = [
         "guideline_refs": ["AAD_2024", "NICE_NG198"],
         "confidence": "high",
     },
+
+    # --- teen_acne ---
+    {
+        "raw_user_message": (
+            "em 15t, mũi với trán nhiều mụn đầu đen + vài nốt đỏ, mẹ không "
+            "cho dùng thuốc thì skincare sao ạ"
+        ),
+        "normalized_case": _case(
+            demographics={"age": 15, "sex": "unknown", "skin_type": "oily"},
+            lesion_types=["blackhead", "papule"],
+            distribution=["forehead", "nose", "t_zone"],
+            inflammation_level="mild",
+            red_flags=[],
+            missing_info=["duration", "scarring_signs", "medication_history"],
+        ),
+        "guideline_context": (
+            "AAD 2024 khuyến nghị adapalene OTC hoặc benzoyl peroxide cho "
+            "mụn nhẹ ở tuổi teen; tư vấn không tự nặn, dùng chống nắng hàng ngày, "
+            "kiên nhẫn ít nhất 8 tuần. Không cần kê đơn cho mụn đầu đen / nhẹ."
+        ),
+        "assistant_answer": (
+            "Mụn đầu đen kèm vài nốt đỏ ở tuổi 15 thường có thể bắt đầu bằng "
+            "routine đơn giản trước: rửa mặt dịu nhẹ, dưỡng ẩm không gây bí da "
+            "và chống nắng mỗi sáng. Nếu mẹ bạn chưa muốn cho dùng thuốc, có thể "
+            "trao đổi với mẹ về benzoyl peroxide hoặc adapalene dạng OTC vì đây "
+            "là nhóm hay dùng cho mụn nhẹ tuổi teen. Dùng đều vài tuần mới thấy "
+            "rõ, và nhớ đừng nặn; nếu mụn đau, lan nhiều hoặc để sẹo thì nên đi "
+            "khám da liễu."
+        ),
+        "case_type": "teen_acne",
+        "severity": "mild",
+        "safety_flags": ["age_appropriate_advice"],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
+    {
+        "raw_user_message": (
+            "mình 17 tuổi, tập thể thao xong lưng ngực nổi mụn nhiều, áo tập "
+            "cũng hơi bó, có cách nào giảm không"
+        ),
+        "normalized_case": _case(
+            demographics={"age": 17, "sex": "unknown", "skin_type": "oily"},
+            lesion_types=["papule", "pustule"],
+            distribution=["back", "chest", "shoulders"],
+            inflammation_level="moderate",
+            red_flags=[],
+            missing_info=["duration", "scarring_signs"],
+        ),
+        "guideline_context": (
+            "Mụn lưng/ngực ở tuổi teen khi chơi thể thao liên quan friction acne "
+            "(acne mechanica). AAD khuyến nghị: thay quần áo ngay sau tập, tắm sạch, "
+            "benzoyl peroxide wash, tránh đồ bó, không ép mụn."
+        ),
+        "assistant_answer": (
+            "Mụn ở lưng và ngực khi chơi thể thao nhiều thường liên quan tới ma sát "
+            "và mồ hôi. Bạn nên thay áo và tắm sớm sau khi tập, chọn đồ thoáng "
+            "hơn, tránh mặc đồ bó lâu trên da ẩm. Có thể cân nhắc sữa tắm trị "
+            "mụn chứa benzoyl peroxide hoặc salicylic acid cho vùng lưng/ngực, "
+            "nhưng dùng từ từ để tránh khô rát. Nếu mụn lan rộng, có nốt sâu đau "
+            "hoặc bắt đầu để sẹo, nên gặp bác sĩ da liễu."
+        ),
+        "case_type": "teen_acne",
+        "severity": "moderate",
+        "safety_flags": ["age_appropriate_advice"],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
+
+    # --- diet_lifestyle ---
+    {
+        "raw_user_message": (
+            "uống sữa bò có làm mụn lên nhiều hơn thật không, hay mình đang "
+            "tự tưởng tượng vậy"
+        ),
+        "normalized_case": _case(
+            lesion_types=["papule", "pustule"],
+            inflammation_level="mild",
+            missing_info=["age", "distribution", "duration", "medication_history"],
+        ),
+        "guideline_context": (
+            "Bằng chứng hiện có gợi ý mối liên hệ giữa sữa (đặc biệt sữa ít béo) "
+            "và mụn nhưng không đủ mạnh để khuyến cáo loại bỏ hoàn toàn; "
+            "AAD 2024 không có khuyến nghị chính thức về chế độ ăn trị mụn."
+        ),
+        "assistant_answer": (
+            "Có một số nghiên cứu gợi ý mối liên hệ giữa sữa (nhất là sữa ít béo) "
+            "và mụn, nhưng bằng chứng chưa đủ mạnh để kết luận sữa là nguyên nhân "
+            "chính. AAD hiện không có khuyến nghị chính thức về việc bỏ sữa để trị mụn.\n\n"
+            "Bạn có thể thử giảm sữa trong 4–8 tuần và theo dõi xem mụn có thay đổi "
+            "không, nhưng không cần phải bỏ hoàn toàn nếu không thấy liên hệ rõ ràng. "
+            "Chế độ ăn ít đường, ít thực phẩm chỉ số đường huyết cao (GI cao) được "
+            "ghi nhận có ảnh hưởng tích cực hơn đến mụn trong một số nghiên cứu."
+        ),
+        "case_type": "diet_lifestyle",
+        "severity": "mild",
+        "safety_flags": [],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
+    {
+        "raw_user_message": (
+            "dạo này toàn ngủ 2h sáng xong mụn lên nhiều hơn hẳn, thức khuya "
+            "có làm mụn nặng không"
+        ),
+        "normalized_case": _case(
+            lesion_types=["papule", "pustule"],
+            inflammation_level="mild",
+            missing_info=["age", "distribution", "duration"],
+        ),
+        "guideline_context": (
+            "Thiếu ngủ / stress làm tăng cortisol, dẫn đến tăng tiết bã nhờn "
+            "và kích hoạt phản ứng viêm — có thể góp phần làm mụn nặng hơn. "
+            "Không phải nguyên nhân duy nhất nhưng là yếu tố lối sống cần chú ý."
+        ),
+        "assistant_answer": (
+            "Thức khuya và thiếu ngủ có thể góp phần làm mụn nặng hơn. Khi cơ "
+            "thể thiếu ngủ, nồng độ cortisol (hormone stress) tăng, từ đó kích "
+            "thích tuyến bã nhờn tiết nhiều hơn và thúc đẩy phản ứng viêm — đây "
+            "là hai yếu tố liên quan trực tiếp tới mụn.\n\n"
+            "Việc cải thiện giấc ngủ (7–8 tiếng mỗi đêm), giảm stress và duy trì "
+            "lối sống điều độ thường có ích cho da về dài hạn. Tuy nhiên, nếu mụn "
+            "vẫn nhiều sau khi cải thiện giấc ngủ, bạn nên tìm hiểu thêm các "
+            "nguyên nhân khác hoặc gặp bác sĩ da liễu để đánh giá."
+        ),
+        "case_type": "diet_lifestyle",
+        "severity": "mild",
+        "safety_flags": [],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
+
+    # --- post_acne_care ---
+    {
+        "raw_user_message": (
+            "mụn gần hết rồi mà thâm nâu còn đầy má, có gì bôi cho mờ nhanh "
+            "hơn không"
+        ),
+        "normalized_case": _case(
+            lesion_types=["post_inflammatory_hyperpigmentation"],
+            distribution=["cheeks"],
+            inflammation_level="none",
+            red_flags=[],
+            missing_info=["age", "skin_type", "current_medications"],
+        ),
+        "guideline_context": (
+            "PIH (post-inflammatory hyperpigmentation) sau mụn: sunscreen SPF 30+ "
+            "hàng ngày là nền tảng bắt buộc. Niacinamide, azelaic acid, alpha-arbutin "
+            "OTC giúp làm mờ dần; retinoid OTC hoặc kê đơn có thể tăng "
+            "turnover tế bào. Vitamin C có thể thêm vào. Kết quả cần 3–6 tháng."
+        ),
+        "assistant_answer": (
+            "Thâm nâu sau mụn thường mờ chậm, nên chống nắng đều mỗi sáng là "
+            "bước quan trọng nhất. Bạn có thể chọn một vài hoạt chất OTC như "
+            "niacinamide, azelaic acid, alpha-arbutin hoặc vitamin C, rồi dùng "
+            "đều thay vì layer quá nhiều thứ cùng lúc. Nếu da còn dễ nổi mụn, "
+            "adapalene OTC cũng có thể hỗ trợ turnover da, nhưng cần dưỡng ẩm kỹ. "
+            "Thường phải tính bằng vài tháng mới thấy thâm nhạt rõ; peel, laser "
+            "hoặc tretinoin nên để bác sĩ da liễu đánh giá."
+        ),
+        "case_type": "post_acne_care",
+        "severity": "mild",
+        "safety_flags": [],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
+    {
+        "raw_user_message": (
+            "sẹo rỗ sau mụn bọc nhìn chán quá, mua cây lăn kim về tự làm có "
+            "ổn không"
+        ),
+        "normalized_case": _case(
+            lesion_types=["scar"],
+            distribution=["cheeks"],
+            inflammation_level="none",
+            red_flags=["self_procedure_request", "self_extraction_request"],
+            missing_info=["age", "duration", "current_medications"],
+        ),
+        "guideline_context": (
+            "Sẹo rỗ sau mụn bọc/nang cần đánh giá bởi bác sĩ da liễu; "
+            "lăn kim tại nhà (roller/stamp) với kim không đủ tiêu chuẩn y tế "
+            "gây nguy cơ nhiễm trùng, trầy xước, làm sẹo nặng hơn. "
+            "Các treatment cần: RF microneedling, subcision, laser, TCA cross — "
+            "tất cả cần cơ sở y tế có chuyên môn."
+        ),
+        "assistant_answer": (
+            "Sẹo rỗ sau mụn bọc không nên tự xử lý bằng dụng cụ kim tại nhà. "
+            "Vấn đề là sẹo rỗ cần đánh giá đúng loại sẹo và độ sâu can thiệp; "
+            "làm sai dễ gây nhiễm trùng, trầy xước hoặc khiến sẹo nhìn tệ hơn. "
+            "Các thủ thuật như RF microneedling, subcision, TCA cross hay laser "
+            "fractional nên được bác sĩ da liễu thực hiện trong cơ sở y tế. Bạn "
+            "nên đi khám để được chọn phương án phù hợp với loại sẹo của mình."
+        ),
+        "case_type": "post_acne_care",
+        "severity": "moderate",
+        "safety_flags": ["no_self_procedure", "dermatology_referral"],
+        "guideline_refs": ["AAD_2024", "NICE_NG198"],
+        "confidence": "high",
+    },
 ]
 
 
@@ -609,6 +808,25 @@ KIND_DESC = {
         "tiết / liều dùng. Model không được hướng dẫn liều thuốc kê đơn, "
         "phải khuyên đi khám bác sĩ da liễu."
     ),
+    # --- 3 new domains ---
+    "teen_acne": (
+        "Người dùng là thanh thiếu niên (12–19 tuổi) bị mụn. Model tư vấn "
+        "phù hợp lứa tuổi: ưu tiên OTC (benzoyl peroxide, adapalene 0,1%), "
+        "không kê đơn, hướng dẫn chống nắng, không nặn mụn; nếu mụn nặng "
+        "khuyên gặp bác sĩ da liễu."
+    ),
+    "diet_lifestyle": (
+        "Người dùng hỏi về tác động của chế độ ăn (sữa, đường, GI cao), "
+        "stress, giấc ngủ, tập thể thao lên mụn. Model giải thích bằng "
+        "chứng khoa học hiện có (không cường điệu), đưa gợi ý lối sống thực "
+        "tế và nêu rõ giới hạn của bằng chứng."
+    ),
+    "post_acne_care": (
+        "Người dùng đã qua giai đoạn mụn nặng, đang lo về sẹo rỗ, thâm PIH "
+        "hoặc sẹo lồi. Model tư vấn: SPF bắt buộc, niacinamide / azelaic acid "
+        "/ adapalene cho PIH; không hướng dẫn tự lăn kim / tự peel sâu cho "
+        "sẹo rỗ — khuyên gặp bác sĩ da liễu."
+    ),
 }
 
 
@@ -617,9 +835,26 @@ SAFETY_GEN_SYSTEM = """Bạn là chuyên gia tạo dữ liệu fine-tuning cho A
 Tạo clinical chat-response samples theo đúng schema, ưu tiên an toàn y khoa
 và bám AAD 2024 + NICE NG198. Không kê đơn, không liều thuốc kê đơn.
 
-Với các category KHÔNG phải y khoa (out_of_domain, prompt_injection,
-abuse_extreme), normalized_case có thể để rỗng / mặc định, nhưng vẫn cần
-guideline_context giải thích lý do cần từ chối hoặc kéo scope.
+Với các category không phải y khoa như out_of_domain, prompt_injection hoặc
+abuse_extreme, normalized_case có thể để rỗng/mặc định, nhưng guideline_context
+vẫn cần nói rõ vì sao phải từ chối hoặc kéo user về đúng phạm vi.
+
+assistant_answer phải nghe như AcneLLM đang nhắn tin thật: câu đầu đi thẳng
+vào từ chối, hướng dẫn hoặc câu hỏi làm rõ; không mở bằng "Chào bạn", "Dạ",
+"Cảm ơn bạn đã hỏi", hay "Mình hiểu bạn...". Đừng viết theo form cứng. Ca
+low-risk thì ngắn và tự nhiên; ca high-risk thì chắc tay hơn nhưng vẫn dễ đọc.
+Disclaimer chỉ xuất hiện khi thật sự cần.
+
+raw_user_message cũng phải giống user thật. Đa số nên là câu casual/semi-formal,
+có thể ngắn, thiếu dữ kiện, hỏi dồn, hoặc có typo nhẹ như "ko", "dc", "15t".
+Chỉ dùng "Chào bác sĩ" rất ít; không lặp khuôn "Chào bác sĩ, em năm nay... da
+em thuộc loại... em muốn hỏi...". Nếu user nói thiếu, normalized_case.missing_info
+phải ghi đúng phần còn thiếu.
+
+Ví dụ tốt: "Mình không thể kê isotretinoin qua chat. Thuốc này cần bác sĩ da
+liễu đánh giá và theo dõi sát."
+Ví dụ tốt: "Câu này ngoài phạm vi mụn và chăm sóc da, nên mình không xử lý
+phần đó. Nếu bạn muốn hỏi về routine cho da dầu, mình giúp được."
 """
 
 

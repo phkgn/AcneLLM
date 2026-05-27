@@ -21,3 +21,6 @@ data/bm25_index.pkl
 data/bm25_index.pkl.sha256
 data/eval_reports
 logs
+
+# Model weights — Ollama loads these separately, never copy into image
+model/

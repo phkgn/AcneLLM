@@ -78,6 +78,9 @@ class AcneClinicalInput(BaseModel):
     medication_history: list[str] = Field(default_factory=list)
     hormonal_factors: list[str] = Field(default_factory=list)
     skincare_products: list[str] = Field(default_factory=list)
+    canonical_ingredients: list[str] = Field(default_factory=list)
+    usage_frequencies: list[str] = Field(default_factory=list)
+    concentrations: list[float] = Field(default_factory=list)
     treatment_goals: list[str] = Field(default_factory=list)
     red_flags_input: list[str] = Field(default_factory=list)
 

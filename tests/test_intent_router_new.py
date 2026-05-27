@@ -40,6 +40,19 @@ def test_food_query_routes_knowledge():
 def test_personal_case_routes_advise():
     r = route_intent("toi bi mun boc o cam da lau roi", _user("mun boc o cam"), [])
     assert r.primary_intent == "advise"
+    assert r.query_subject == "self"
+
+
+def test_other_subject_routes_current_only_subject():
+    r = route_intent("ban toi bi mun o cam nen lam gi", _user("ban toi bi mun"), [])
+    assert r.primary_intent == "advise"
+    assert r.query_subject == "other"
+
+
+def test_general_knowledge_subject_without_personal_signal():
+    r = route_intent("tai sao bi mun boc", _user("tai sao bi mun boc"), [])
+    assert r.primary_intent == "knowledge"
+    assert r.query_subject == "general"
 
 
 def test_clinical_signal_routes_advise():
@@ -85,10 +98,13 @@ def test_progress_followup_flag():
     assert "progress_followup" in r.route_flags
 
 
-def test_language_switch_flag():
+def test_english_input_routes_correctly():
+    # language_switch flag đã bị xóa (bilingual query xử lý trong LESION_BILINGUAL inline)
+    # Kiểm tra thay thế: EN input vẫn route đúng intent
     history = [ConversationTurn(role="user", content="tôi bị mụn viêm", metadata={"detected_language": "vi"})]
     r = route_intent("my acne is getting worse", _user("acne worse"), history)
-    assert "language_switch" in r.route_flags
+    assert r.primary_intent in ("advise", "knowledge")
+    assert "language_switch" not in r.route_flags
 
 
 # ── Repeated question detection ───────────────────────────────────────────────

@@ -37,7 +37,7 @@ SESSION_TTL: float = 1800.0        # seconds idle before session expires
 MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
 HISTORY_CHAR_BUDGET: int = 2000    # max chars injected into prompt (0 = unlimited)
 FIRST_TURN_BUDGET: int = 400       # chars reserved for the first user turn (anchor)
-ASSISTANT_TURN_MAX: int = 120      # assistant turns bị cắt còn tối đa N chars trong history
+ASSISTANT_TURN_MAX: int = 0        # 0 = không cắt assistant turns trong history
 
 
 # ── Data classes ─────────────────────────────────────────────────────────────
@@ -330,6 +330,20 @@ def _mentions_stop(clean_text: str, value: str) -> bool:
     return any(term in before for term in _STOP_PRODUCT_TERMS)
 
 
+_SEVERITY_ORDER = {"unknown": 0, "none": 0, "mild": 1, "moderate": 2, "severe": 3}
+
+
+def _max_severity(a: str | None, b: str | None) -> str | None:
+    """Trả về mức severity cao hơn giữa a và b."""
+    if a is None and b is None:
+        return None
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return a if _SEVERITY_ORDER.get(a, 0) >= _SEVERITY_ORDER.get(b, 0) else b
+
+
 def fold_history_facts(
     current: UserInput,
     history: list[ConversationTurn],
@@ -338,7 +352,9 @@ def fold_history_facts(
 
     Strategy:
     - stable identity facts: first write wins (age, sex, skin_type);
-    - stateful booleans: latest explicit value wins;
+    - pregnancy/breastfeeding: current turn wins; history only fills in khi
+      current turn không mention (tránh contaminate từ turn khác session);
+    - inflammation: lấy max severity giữa current và history (không downgrade);
     - products/medications: union, with simple stop-word removal on later turns;
     - allergies and clinical descriptors: union.
     """
@@ -359,6 +375,19 @@ def fold_history_facts(
     sex = current.context.sex
     skin_type = current.context.skin_type
     duration_weeks = current.context.duration_weeks
+    # Ghi nhận xem turn HIỆN TẠI có explicitly set pregnancy/breastfeeding không.
+    # Nếu current turn đã True → không cần fold từ history (giữ nguyên).
+    # Nếu current turn là False → chỉ fold từ history khi current turn không
+    #   mention pregnancy/breastfeeding gì cả (tức là không negation, không positive).
+    _current_text_lower = current.description.lower()
+    _current_mentions_pregnant = any(
+        t in _current_text_lower
+        for t in ("mang thai", "có thai", "bầu", "pregnant", "pregnancy")
+    )
+    _current_mentions_breastfeed = any(
+        t in _current_text_lower
+        for t in ("cho con bú", "cho con bu", "đang bú", "breastfeed", "lactating")
+    )
     is_pregnant = current.context.is_pregnant
     is_breastfeeding = current.context.is_breastfeeding
     allergies = list(current.context.allergies)
@@ -372,10 +401,13 @@ def fold_history_facts(
     med_history = list(current.clinical.medication_history) if current.clinical else []
     hormonal = list(current.clinical.hormonal_factors) if current.clinical else []
     skincare = list(current.clinical.skincare_products) if current.clinical else []
+    canonical_ingredients = list(current.clinical.canonical_ingredients) if current.clinical else []
+    usage_frequencies = list(current.clinical.usage_frequencies) if current.clinical else []
+    concentrations = list(current.clinical.concentrations) if current.clinical else []
     goals = list(current.clinical.treatment_goals) if current.clinical else []
     red_flags = list(current.clinical.red_flags_input) if current.clinical else []
 
-    for snap in snapshots:
+    for snap in reversed(snapshots):
         ctx = snap.context or {}
         clean = (snap.clean_text or "").lower()
 
@@ -388,15 +420,20 @@ def fold_history_facts(
         if duration_weeks is None and ctx.get("duration_weeks") is not None:
             duration_weeks = ctx.get("duration_weeks")
 
-        if any(term in clean for term in _NEGATE_PREGNANCY_TERMS):
-            is_pregnant = False
-        elif ctx.get("is_pregnant"):
-            is_pregnant = True
+        # Pregnancy: chỉ fold từ history khi current turn KHÔNG mention pregnancy.
+        # Tránh inject "mang thai" từ turn cũ vào session của người dùng mới hoặc
+        # người dùng đã hỏi về chủ đề khác không liên quan đến thai kỳ.
+        if not _current_mentions_pregnant:
+            if any(term in clean for term in _NEGATE_PREGNANCY_TERMS):
+                is_pregnant = False
+            elif ctx.get("is_pregnant") and not is_pregnant:
+                is_pregnant = True
 
-        if any(term in clean for term in _NEGATE_BREASTFEEDING_TERMS):
-            is_breastfeeding = False
-        elif ctx.get("is_breastfeeding"):
-            is_breastfeeding = True
+        if not _current_mentions_breastfeed:
+            if any(term in clean for term in _NEGATE_BREASTFEEDING_TERMS):
+                is_breastfeeding = False
+            elif ctx.get("is_breastfeeding") and not is_breastfeeding:
+                is_breastfeeding = True
 
         allergies.extend(ctx.get("allergies") or [])
         for value in ctx.get("current_products") or []:
@@ -413,12 +450,16 @@ def fold_history_facts(
         clinical = snap.clinical or {}
         lesion_types.extend(clinical.get("lesion_types") or [])
         distribution.extend(clinical.get("lesion_distribution") or [])
-        if inflammation is None and clinical.get("inflammation_level"):
-            inflammation = clinical.get("inflammation_level")
+        # Inflammation: lấy max severity, không downgrade (moderate → mild là sai).
+        history_infl = clinical.get("inflammation_level")
+        inflammation = _max_severity(inflammation, history_infl)
         scarring.extend(clinical.get("scarring_signs") or [])
         med_history.extend(clinical.get("medication_history") or [])
         hormonal.extend(clinical.get("hormonal_factors") or [])
         skincare.extend(clinical.get("skincare_products") or [])
+        canonical_ingredients.extend(clinical.get("canonical_ingredients") or [])
+        usage_frequencies.extend(clinical.get("usage_frequencies") or [])
+        concentrations.extend(clinical.get("concentrations") or [])
         goals.extend(clinical.get("treatment_goals") or [])
         red_flags.extend(clinical.get("red_flags_input") or [])
 
@@ -441,6 +482,9 @@ def fold_history_facts(
         medication_history=_dedupe_values(med_history),
         hormonal_factors=_dedupe_values(hormonal),
         skincare_products=_dedupe_values(skincare),
+        canonical_ingredients=_dedupe_values(canonical_ingredients),
+        usage_frequencies=_dedupe_values(usage_frequencies),
+        concentrations=list(dict.fromkeys(float(x) for x in concentrations)),
         treatment_goals=_dedupe_values(goals),
         red_flags_input=_dedupe_values(red_flags),
     )
@@ -453,6 +497,9 @@ def fold_history_facts(
             merged_clinical.medication_history,
             merged_clinical.hormonal_factors,
             merged_clinical.skincare_products,
+            merged_clinical.canonical_ingredients,
+            merged_clinical.usage_frequencies,
+            merged_clinical.concentrations,
             merged_clinical.treatment_goals,
             merged_clinical.red_flags_input,
         )
@@ -514,32 +561,28 @@ def format_history_block(
     def _fmt(turn: ConversationTurn, assistant_max: int = ASSISTANT_TURN_MAX) -> str:
         role_label = "User" if turn.role == "user" else "AcneLLM"
         content = turn.content.strip()
-        # Cắt ngắn assistant turns để model không bám vào câu trả lời cũ
         if turn.role == "assistant" and assistant_max > 0 and len(content) > assistant_max:
-            content = content[:assistant_max].rsplit(" ", 1)[0] + "…"
-        return f"[{role_label}]: {content}"
+            content = content[:assistant_max].rsplit(" ", 1)[0] + "..."
+        return "[" + role_label + "]: " + content
 
     if not char_budget or char_budget <= 0:
         return "\n".join(_fmt(t) for t in filtered)
 
-    # -- Anchor: luôn giữ turn đầu tiên (user turn 0 = tin nhắn gốc) ----------
-    # Tìm user turn đầu tiên trong filtered list
+    # -- Anchor: keep first user turn as context anchor ----------
     first_user_idx = next(
         (i for i, t in enumerate(filtered) if t.role == "user"), None
     )
-    anchor_line: str | None = None
+    anchor_line = None
     anchor_chars = 0
     if first_user_idx is not None and len(filtered) > 2:
-        # Chỉ anchor khi có đủ history (>2 turns); nếu history ngắn thì không cần
         raw_anchor = _fmt(filtered[first_user_idx])
         anchor_line = raw_anchor[:first_turn_budget]
         anchor_chars = len(anchor_line)
 
-    # -- Phần còn lại: newest-first trong budget còn lại ----------------------
     remaining_budget = char_budget - anchor_chars
     rest_turns = filtered[first_user_idx + 1:] if anchor_line is not None else filtered
 
-    selected: list[str] = []
+    selected = []
     total = 0
     for turn in reversed(rest_turns):
         line = _fmt(turn)

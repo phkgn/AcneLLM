@@ -28,8 +28,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .config import Config
-from .generator import generate_cases_for_chunk, make_deepseek_client
+from .config import Config, CASE_TYPE_RATIOS, compute_budget
+from .generator import generate_cases_for_chunk, make_deepseek_client, normalize_case_type
 from .loader import iter_filtered_chunks, load_processed_chunk_ids
 from .rule_filter import apply_rules
 from .safety_cases import (
@@ -105,6 +105,10 @@ def parse_args() -> argparse.Namespace:
                    help="Skip emitting curated/synthetic safety samples.")
     p.add_argument("--skip-judge", action="store_true",
                    help="No-op (judge layer removed). Kept for backward compat.")
+    p.add_argument("--clinical-target", type=int, default=None,
+                   help=("Total clinical samples to aim for. Used with CASE_TYPE_RATIOS "
+                         "to compute per-case-type budgets. Default: no budget cap "
+                         "(process all chunks)."))
     p.add_argument("-v", "--verbose", action="store_true")
     return p.parse_args()
 
@@ -125,6 +129,59 @@ def _build_config(args: argparse.Namespace) -> Config:
 # ---------------------------------------------------------------------------
 # Helpers — count existing safety samples in output (for --safety-target)
 # ---------------------------------------------------------------------------
+
+def _count_clinical_in_output(path: Path) -> dict[str, int]:
+    """Count written clinical samples per case_type (for budget-aware dispatch)."""
+    counts: dict[str, int] = {k: 0 for k in CASE_TYPE_RATIOS}
+    if not path.exists():
+        return counts
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            # Only count clinical samples (skip safety records)
+            if (obj.get("metadata") or {}).get("sample_type") != "clinical_chat_response":
+                continue
+            ct = normalize_case_type((obj.get("metadata") or {}).get("case_type"))
+            if ct in counts:
+                counts[ct] += 1
+    return counts
+
+
+def _pick_target_case_type(
+    budget: dict[str, int],
+    existing: dict[str, int] | None = None,
+    *,
+    no_cap: bool = False,
+) -> str | None:
+    """Pick the next case_type to generate.
+
+    When a hard cap is set (budget values are finite), picks the case_type
+    with the largest remaining quota and stops when all are exhausted.
+
+    When no hard cap (budget values are 10**9), uses ratio-based routing:
+    picks the case_type most under-represented relative to its CASE_TYPE_RATIOS
+    target, so the distribution stays balanced across the whole run.
+    """
+    remaining = {k: v for k, v in budget.items() if v > 0}
+    if not remaining:
+        return None
+
+    if no_cap and existing is not None:
+        total = max(1, sum(existing.values()))
+        deficit = {
+            k: CASE_TYPE_RATIOS.get(k, 0) - existing.get(k, 0) / total
+            for k in remaining
+        }
+        return max(deficit, key=lambda k: deficit[k])
+
+    return max(remaining, key=lambda k: remaining[k])
+
 
 def _count_safety_in_output(path: Path) -> dict[str, int]:
     """Returns counts per case_type for safety records already written."""
@@ -161,13 +218,20 @@ async def _process_one_chunk(
     skip_rules: bool,
     writer: DatasetWriter,
     counters: Counter,
-) -> None:
-    items = await generate_cases_for_chunk(deepseek_client, cfg, chunk)
+    target_case_type: str | None = None,
+    n_cases: int | None = None,
+) -> int:
+    items = await generate_cases_for_chunk(
+        deepseek_client, cfg, chunk,
+        target_case_type=target_case_type,
+        n_cases=n_cases,
+    )
     if not items:
         counters["chunks_no_output"] += 1
-        return
+        return 0
     counters["chunks_ok"] += 1
 
+    written = 0
     for item in items:
         if skip_rules:
             rule_res = {"passed": True, "reasons": []}
@@ -193,11 +257,13 @@ async def _process_one_chunk(
             },
         )
         if writer.write(record):
+            written += 1
             counters["samples_written"] += 1
             counters[f"severity::{item.get('severity', 'unknown')}"] += 1
             counters[f"case_type::{item.get('case_type', 'general')}"] += 1
         else:
             counters["samples_dedup_skipped"] += 1
+    return written
 
 
 async def _run_chunks_phase(
@@ -217,38 +283,131 @@ async def _run_chunks_phase(
     else:
         processed = set()
 
+    # -----------------------------------------------------------------------
+    # Budget-aware dispatch — scales with --clinical-target if provided.
+    # Without --clinical-target, no hard cap: process all chunks, but still
+    # route each chunk to the most under-represented case_type.
+    # -----------------------------------------------------------------------
+    existing_clinical = _count_clinical_in_output(cfg.output_jsonl)
+    total_existing = sum(existing_clinical.values())
+
+    if args.clinical_target is not None:
+        targets = compute_budget(args.clinical_target)
+        budget: dict[str, int] = {
+            k: max(0, targets[k] - existing_clinical.get(k, 0))
+            for k in targets
+        }
+        total_target = args.clinical_target
+        total_remaining = sum(budget.values())
+        log.info(
+            "Budget-aware dispatch (target=%d, ratios=%.0f%%): "
+            "already_written=%d, remaining=%d",
+            total_target,
+            sum(CASE_TYPE_RATIOS.values()) * 100,
+            total_existing, total_remaining,
+        )
+        for ct in sorted(targets):
+            log.info("  budget  %-40s  ratio=%.1f%%  target=%4d  existing=%4d  remaining=%4d",
+                     ct, CASE_TYPE_RATIOS[ct] * 100, targets[ct],
+                     existing_clinical.get(ct, 0), budget[ct])
+        if total_remaining <= 0:
+            log.info("Clinical target already satisfied — skipping chunk phase.")
+            return
+    else:
+        # No hard cap — budget is effectively infinite per case_type,
+        # but we still route by largest-gap to keep distribution balanced.
+        budget = {k: 10**9 for k in CASE_TYPE_RATIOS}
+        log.info(
+            "Budget-aware dispatch (no hard cap): routing by CASE_TYPE_RATIOS, "
+            "already_written=%d", total_existing,
+        )
+        for ct in sorted(CASE_TYPE_RATIOS):
+            log.info("  ratio  %-40s  %.1f%%  existing=%4d",
+                     ct, CASE_TYPE_RATIOS[ct] * 100, existing_clinical.get(ct, 0))
+
+    # Protect budget dict with a lock (tasks run concurrently).
+    budget_lock = asyncio.Lock()
+
     deepseek_client = make_deepseek_client(cfg)
     sem = asyncio.Semaphore(cfg.concurrency)
 
+    hard_cap = args.clinical_target is not None
+
     async def _runner(chunk: dict) -> None:
+        # Pick target_case_type under lock so concurrent tasks don't double-spend.
+        async with budget_lock:
+            target_ct = _pick_target_case_type(
+                budget, existing_clinical, no_cap=not hard_cap
+            )
+            if target_ct is None:
+                # All quotas filled — skip this chunk.
+                counters["chunks_budget_exhausted"] += 1
+                return
+            target_n = cfg.cases_per_chunk
+            if hard_cap:
+                target_n = min(cfg.cases_per_chunk, budget[target_ct])
+                # Tentatively reserve slots; release unused slots after writing.
+                budget[target_ct] -= target_n
+            # Reserve in the distribution counter immediately so concurrent
+            # no-cap tasks do not all pick the same initially-empty case_type.
+            existing_clinical[target_ct] = existing_clinical.get(target_ct, 0) + target_n
+
         async with sem:
-            await _process_one_chunk(
+            written = await _process_one_chunk(
                 cfg, deepseek_client, chunk,
                 skip_rules=args.skip_rules, writer=writer, counters=counters,
+                target_case_type=target_ct,
+                n_cases=target_n,
             )
+        async with budget_lock:
+            if hard_cap:
+                unused = target_n - written
+                if unused > 0:
+                    budget[target_ct] += unused
+            existing_clinical[target_ct] = max(
+                0, existing_clinical.get(target_ct, 0) + written - target_n
+            )
+            if not written:
+                counters["chunks_no_saved_samples"] += 1
+
+    def _budget_done() -> bool:
+        if not hard_cap:
+            return False
+        return _pick_target_case_type(budget, existing_clinical) is None
 
     tasks: list[asyncio.Task] = []
     n_seen = 0
+    batch_size = max(50, cfg.concurrency * 4)
     for chunk in iter_filtered_chunks(cfg, processed_chunk_ids=processed):
         if args.limit is not None and n_seen >= args.limit:
             break
+        async with budget_lock:
+            all_done = _budget_done()
+        if all_done:
+            log.info("All case_type quotas filled — stopping chunk phase early.")
+            break
         n_seen += 1
         tasks.append(asyncio.create_task(_runner(chunk)))
-        if len(tasks) >= max(50, cfg.concurrency * 4):
+        if len(tasks) >= batch_size:
             await asyncio.gather(*tasks)
             tasks.clear()
             log.info(
                 "Progress: chunks_processed=%d, samples_written=%d, "
-                "chunks_no_output=%d, rule_rejected=%d",
+                "chunks_no_output=%d, rule_rejected=%d, budget_exhausted=%d",
                 counters["chunks_ok"] + counters["chunks_no_output"],
                 counters["samples_written"],
                 counters["chunks_no_output"],
                 counters["rule_rejected"],
+                counters["chunks_budget_exhausted"],
             )
     if tasks:
         await asyncio.gather(*tasks)
     counters["chunks_seen"] = n_seen
     log.info("Chunk phase done: %d chunks attempted.", n_seen)
+    # Final budget summary
+    async with budget_lock:
+        for ct, rem in sorted(budget.items()):
+            log.info("  final budget  %-40s  remaining=%d", ct, rem)
 
 
 # ---------------------------------------------------------------------------
@@ -435,6 +594,17 @@ async def _amain() -> int:
         total_existing_safety = sum(existing_safety.values())
         log.info("Existing safety samples by case_type: total=%d, %s",
                  total_existing_safety, existing_safety)
+        existing_clinical = _count_clinical_in_output(cfg.output_jsonl)
+        total_existing_clinical = sum(existing_clinical.values())
+        log.info("Existing clinical samples: total=%d", total_existing_clinical)
+    log.info(
+        "Case type ratios: %s",
+        {k: f"{v*100:.1f}%" for k, v in sorted(CASE_TYPE_RATIOS.items())},
+    )
+    if args.clinical_target:
+        from .config import compute_budget as _cb
+        log.info("Clinical target=%d → per-type budgets: %s",
+                 args.clinical_target, _cb(args.clinical_target))
 
     counters: Counter = Counter()
     with DatasetWriter(cfg.output_jsonl, dedup_ids=existing) as writer:

@@ -28,6 +28,9 @@ def test_user_input_clinical_optional_full():
             medication_history=["benzoyl peroxide"],
             hormonal_factors=["menstrual_flare"],
             skincare_products=["BHA 2%"],
+            canonical_ingredients=["salicylic_acid"],
+            usage_frequencies=["twice_daily"],
+            concentrations=[0.02],
             treatment_goals=["reduce_inflammation"],
             red_flags_input=[],
         ),
@@ -35,6 +38,9 @@ def test_user_input_clinical_optional_full():
     assert u.clinical is not None
     assert "papule" in u.clinical.lesion_types
     assert u.clinical.inflammation_level == "moderate"
+    assert u.clinical.canonical_ingredients == ["salicylic_acid"]
+    assert u.clinical.usage_frequencies == ["twice_daily"]
+    assert u.clinical.concentrations == [0.02]
 
 
 def test_user_input_clinical_rejects_invalid_lesion():

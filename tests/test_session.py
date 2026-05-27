@@ -210,6 +210,30 @@ class TestFoldHistoryFacts:
         assert merged.context.age == 22
         assert merged.context.skin_type == "oily"
 
+    def test_newest_prior_snapshot_wins_when_current_missing(self):
+        older = ConversationTurn(
+            role="user",
+            content="tôi 22 tuổi da dầu",
+            normalized_snapshot=snapshot_from_user(
+                normalize_chat_message("tôi 22 tuổi da dầu"),
+                "tôi 22 tuổi da dầu",
+            ),
+        )
+        newer = ConversationTurn(
+            role="user",
+            content="tôi 23 tuổi da khô",
+            normalized_snapshot=snapshot_from_user(
+                normalize_chat_message("tôi 23 tuổi da khô"),
+                "tôi 23 tuổi da khô",
+            ),
+        )
+        current = normalize_chat_message("mụn ở cằm")
+
+        merged = fold_history_facts(current, [older, newer])
+
+        assert merged.context.age == 23
+        assert merged.context.skin_type == "dry"
+
 
 # ── Thread safety ─────────────────────────────────────────────────────────────
 

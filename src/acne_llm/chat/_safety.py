@@ -18,11 +18,6 @@ _RX_RECOMMEND_CONTEXT = (
     "su dung", "dung ", "uong",
     "boi", "bat dau", "ke don",
     "lieu", "mg", "%", "apply", "use ", "take ",
-    # unicode
-    "nen dung", "co the dung",
-    "su dung", "dung ", "uong",
-    "boi", "bat dau", "ke don",
-    "lieu",
 )
 
 _RX_RECOMMEND_CONTEXT_UNI = (
@@ -38,10 +33,6 @@ _NEGATION_CONTEXT = (
     "khong khuyen nghi",
     "loai bo", "bo qua", "khong bao gom",
     "avoid", "do not use", "contraindicated",
-    # unicode
-    "khong nen", "khong duoc", "khong dung", "khong su dung",
-    "tranh", "cam", "chong chi dinh",
-    "khong khuyen nghi",
 )
 
 _NEGATION_CONTEXT_UNI = (
@@ -55,26 +46,32 @@ _NEGATION_CONTEXT_UNI = (
 _ALL_NEGATION = _NEGATION_CONTEXT + _NEGATION_CONTEXT_UNI
 _ALL_RX_CONTEXT = _RX_RECOMMEND_CONTEXT + _RX_RECOMMEND_CONTEXT_UNI
 
+# Anchors để detect disclaimer đã có trong response (rộng hơn để tránh miss khi model paraphrase)
 _GENERIC_DISCLAIMER_ANCHORS = (
+    # không dấu
     "chi mang tinh tham khao",
     "khong thay the y kien bac si",
     "tham khao bac si",
     "tham khao y kien",
-    # unicode
+    "thong tin tham khao",
+    "mang tinh tham khao",
+    "khong thay the bac si",
+    "nen gap bac si",
+    "nen den gap bac si",
+    # có dấu
     "chỉ mang tính tham khảo",
     "không thay thế ý kiến bác sĩ",
     "tham khảo bác sĩ",
     "tham khảo ý kiến",
-)
-
-_GENERIC_DISCLAIMER = (
-    "\n\n Luu y: Thong tin tren chi mang tinh tham khao va khong thay the "
-    "y kien bac si da lieu. Neu tinh trang da khong cai thien hoac co dau hieu "
-    "nang hon, ban nen den gap bac si de duoc tu van truc tiep."
+    "thông tin tham khảo",
+    "mang tính tham khảo",
+    "không thay thế bác sĩ",
+    "nên gặp bác sĩ",
+    "nên đến gặp bác sĩ",
 )
 
 _GENERIC_DISCLAIMER_VI = (
-    "\n\n\U0001f4a1 Lưu ý: Thông tin trên chỉ mang tính tham khảo và không thay thế "
+    "\n\nLưu ý: Thông tin trên chỉ mang tính tham khảo và không thay thế "
     "ý kiến bác sĩ da liễu. Nếu tình trạng da không cải thiện hoặc có dấu hiệu "
     "nặng hơn, bạn nên đến gặp bác sĩ để được tư vấn trực tiếp."
 )
@@ -115,30 +112,38 @@ def _mentions_rx_advice(text: str, term: str) -> bool:
     return False
 
 
+_PREGNANCY_MENTION_TERMS = (
+    "mang thai", "có thai", "bầu bí", "thai kỳ", "thai nhi",
+    "cho con bú", "cho con bu", "đang bú", "sau sinh",
+    "pregnant", "pregnancy", "breastfeed", "lactating", "nursing",
+)
+
+
 def get_safety_suffix(
     full_text: str,
     user: UserInput,
     route_flags: list[str] | None = None,
     skip_generic_disclaimer: bool = False,
     recent_turns: list | None = None,
+    current_turn_text: str | None = None,
 ) -> str:
     """Build safety suffix to append after LLM response.
 
     Args:
         full_text: The full LLM-generated response text.
-        user: Parsed UserInput with context (pregnancy, age, medications).
+        user: Parsed UserInput với context đã fold từ history.
         route_flags: Route flags from intent router (e.g. ["urgency_red_flag"]).
-        skip_generic_disclaimer: If True (pure knowledge/product queries),
-            skip the generic disclaimer -- it is redundant for factual questions.
-        recent_turns: Recent conversation turns (from session history). When
-            provided, generic disclaimer is suppressed if it already appeared
-            in the last 2 assistant turns — prevents repetitive disclaimers.
+        skip_generic_disclaimer: If True, skip the generic disclaimer.
+        recent_turns: Recent conversation turns. Generic disclaimer suppressed
+            if already appeared in last 2 assistant turns.
+        current_turn_text: Raw text của turn HIỆN TẠI (chưa fold). Dùng để
+            phân biệt pregnancy được fold từ history vs user vừa nói trong turn này.
+            Khi None, fallback về user.description.
     """
     if not full_text:
         return ""
 
     # Bug fix: skip generic disclaimer if it already appeared recently.
-    # This prevents the same boilerplate appearing in every turn of a session.
     if recent_turns and not skip_generic_disclaimer:
         recent_assistant_texts = [
             t.content for t in recent_turns[-4:]
@@ -153,10 +158,25 @@ def get_safety_suffix(
     warnings: list[str] = []
     route_flags = route_flags or []
 
-    pregnancy_known_positive = user.context.is_pregnant or user.context.is_breastfeeding
+    # Pregnancy/breastfeeding: chỉ trigger warning khi user đã mention trong
+    # turn hiện tại HOẶC response text mention retinoid cùng lúc với pregnancy context.
+    # Không trigger khi pregnancy chỉ đến từ fold history mà turn hiện tại không
+    # liên quan (ví dụ: user hỏi về BPO sau khi đã hỏi về thai kỳ ở turn trước).
+    _check_text = (current_turn_text or user.description).lower()
+    _current_mentions_pregnancy = any(t in _check_text for t in _PREGNANCY_MENTION_TERMS)
+
+    # pregnancy_known_positive: True khi user.context đã được set (fold hoặc current)
+    # nhưng chỉ trigger retinoid warning khi turn hiện tại có liên quan đến pregnancy
+    # hoặc response text thực sự đang advice về retinoid trong bối cảnh pregnancy.
+    _folded_pregnant = user.context.is_pregnant or user.context.is_breastfeeding
+    pregnancy_known_positive = _folded_pregnant and (
+        _current_mentions_pregnancy
+        or any(t in full_text.lower() for t in _PREGNANCY_MENTION_TERMS)
+    )
     pregnancy_unknown = (
-        not pregnancy_known_positive
+        not _folded_pregnant
         and user.context.sex is None
+        and not _current_mentions_pregnancy
     )
 
     # Retinoid warning when pregnant / breastfeeding

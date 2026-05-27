@@ -1,0 +1,13 @@
+<user_data>
+<message>{{ description }}</message>
+
+{% if history_block %}
+<conversation_history>
+{{ history_block }}
+</conversation_history>
+{% endif %}
+</user_data>
+
+<task>
+Trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Hỏi lại đúng 1 câu làm rõ cần thiết nhất trước khi tư vấn. Không đưa routine, không suy diễn dữ kiện lâm sàng, không dùng ngữ cảnh RAG.
+</task>

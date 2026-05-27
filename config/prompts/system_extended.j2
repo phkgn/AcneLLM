@@ -1,31 +1,3 @@
-## Luật ưu tiên nguồn KB (chỉ áp dụng khi có retrieved_context)
-
-Ưu tiên theo thứ tự: [NICE Guideline] / [AAD Guideline] > [JID Paper] / [PubMed Review] > [Textbook] > nguồn khác.
-Nếu guideline và nguồn khác mâu thuẫn: bám theo guideline, ghi rõ "theo hướng dẫn NICE/AAD" trong rationale.
-
-## Luật bằng chứng
-
-- Chỉ dùng thông tin có trong `<user_data>`, `<vision>`, `<clinical>`, `<retrieved_context>`.
-- Không suy diễn. Không nối kiến thức chung để lấp chỗ trống.
-- Nếu thiếu bằng chứng trực tiếp: dùng `unknown`, ghi "chưa đủ thông tin".
-
-## Luật citation (chat stream — văn xuôi, không JSON)
-
-- Đặt `[N]` **inline ngay sau câu** lấy trực tiếp từ `[Nguon N]` trong `<retrieved_context>`.
-- **Không** dump số vào cuối bài. **Không** trích dẫn câu tổng quát, câu chúc, câu khuyến nghị chung.
-- Nếu không có câu nào dùng thẳng từ retrieved_context: không đặt số nào cả.
-
-## Luật xử lý dữ liệu đa chiều
-
-Nếu các nguồn mâu thuẫn: ưu tiên `clinical` > `vision` > `description`. Ghi nhận mâu thuẫn trong `causes` hoặc `disclaimer`. Nghiêng về kết luận thận trọng hơn và thêm `see_doctor`.
-
-## Luật confidence
-
-- `>= 0.8`: bằng chứng trực tiếp mạnh từ nhiều nguồn độc lập, nhất quán.
-- `0.5–0.79`: có bằng chứng nhưng chưa đầy đủ hoặc nguồn ít.
-- `< 0.5`: ít nguồn, thiếu trực tiếp, hoặc có bất định/mâu thuẫn.
-
-## Luật format
-
-- `causes`: tối đa 4 ý ngắn (1 câu hoặc 1 cụm danh từ).
-- `recommendations`: tối đa 5 bước. Mỗi bước: `action` ngắn gọn, `rationale` 1 câu.
+Ưu tiên nguồn KB: [NICE/AAD Guideline] > [JID/PubMed Review] > [Textbook] > nguồn khác. Nếu guideline và nguồn khác mâu thuẫn: bám theo guideline, ghi rõ "theo hướng dẫn NICE/AAD" trong rationale.
+Citation: đặt [N] inline ngay sau câu lấy từ nguồn, không dump số cuối bài, không trích câu tổng quát. Nếu không dùng thẳng từ retrieved_context: không đặt số.
+Dữ liệu mâu thuẫn: ưu tiên clinical > vision > description; nghiêng về kết luận thận trọng hơn; thêm see_doctor.

@@ -102,6 +102,58 @@ def test_bilingual_retrieval_merge_deduplicates_and_boosts():
     assert shared.score > en_only.score
 
 
+def test_hybrid_pipeline_does_not_backfill_plan_for_other_subject():
+    retrieval = RetrievalOutput(
+        query="q",
+        chunks=[
+            RetrievedChunk(
+                chunk_id="c1",
+                source="S",
+                text="Acne care context.",
+                score=0.9,
+                metadata={"source": "S", "title": "Acne"},
+            ),
+        ],
+    )
+    retriever = MagicMock()
+    retriever.retrieve.return_value = retrieval
+    llm = MagicMock()
+    llm.model = "mock"
+    llm.generate_json.return_value = AdviseOutput(
+        severity="unknown",
+        acne_type_primary="unknown",
+        causes=["current only"],
+        confidence=0.3,
+    ).model_dump_json()
+    clinical_planner = MagicMock()
+    prompt = PromptBuilder(PROMPTS)
+    guardrails = GuardrailRunner(str(CFG))
+    pipe = HybridPipeline(
+        retriever,
+        None,
+        llm,
+        prompt,
+        guardrails,
+        clinical_planner=clinical_planner,
+        use_llm_planner=True,
+        use_mmr_prefilter=False,
+    )
+    user = UserInput(
+        description="ban toi bi mun o lung nen lam gi",
+        clinical=AcneClinicalInput(lesion_distribution=["back"]),
+    )
+
+    out = pipe.run(
+        user,
+        prechecked=True,
+        route_metadata={"primary_intent": "advise", "query_subject": "other"},
+    )
+
+    clinical_planner.plan.assert_not_called()
+    assert out.mode == "hybrid"
+    assert "back" in retriever.retrieve.call_args.args[0]
+
+
 def test_llm_only_pipeline_soft_scope_calls_llm_for_out_of_scope():
     llm = MagicMock()
     llm.model = "mock"

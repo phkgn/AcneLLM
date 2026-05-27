@@ -8,16 +8,60 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+      # Mount model dir read-only so ollama-init can create the model from local gguf
+      - ./model:/models:ro
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # One-shot: waits for ollama to be healthy, then loads acnellm-v2-q4.
+  # - Nếu model/V2/Q4/Modelfile + gguf có sẵn → dùng local (nhanh, offline)
+  # - Nếu không có → fallback pull qwen2.5:7b từ Ollama registry (cần internet)
+  # Idempotent: skip nếu model đã được load rồi.
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: acne_ollama_init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./model:/models:ro
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: >
+      sh -c "
+        if ollama list | grep -q 'acnellm-v2-q4'; then
+          echo 'Model acnellm-v2-q4 already loaded, skipping.';
+          exit 0;
+        fi;
+        if [ -f /models/V2/Q4/Modelfile ]; then
+          echo 'Creating acnellm-v2-q4 from local gguf...';
+          cd /models/V2/Q4 && ollama create acnellm-v2-q4 -f Modelfile;
+          echo 'Done (local).';
+        else
+          echo 'Local model not found. Pulling qwen2.5:7b as fallback (requires internet)...';
+          ollama pull qwen2.5:7b;
+          echo 'Done (pulled). Set LLM_MODEL=qwen2.5:7b in environment if using fallback.';
+        fi;
+      "
+    restart: "no"
 
   acne-llm:
     build: .
     container_name: acne_llm_api
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
     environment:
       - OLLAMA_URL=http://ollama:11434
-      - LLM_MODEL=qwen2.5:7b
+      - LLM_MODEL=acnellm-v2-q4
       - LLM_FALLBACK_MODEL=qwen2.5:3b
       - OLLAMA_HEALTH_TIMEOUT=5
       - OLLAMA_GENERATE_TIMEOUT=180
@@ -30,6 +74,28 @@ services:
       - ./config:/app/config
     ports:
       - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # NEXT_PUBLIC_API_URL phải trỏ đến host machine vì browser gọi trực tiếp,
+      # không đi qua Docker network nội bộ.
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    container_name: acne_llm_frontend
+    depends_on:
+      acne-llm:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
     restart: unless-stopped
 
 volumes:

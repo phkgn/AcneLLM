@@ -2,7 +2,7 @@
 
 These models are intentionally additive. Public API responses still use
 AdviseOutput, while these objects help normalize free-form chat into a stable
-clinical case and bilingual RAG queries.
+clinical case and RAG query plan.
 """
 from __future__ import annotations
 
@@ -63,6 +63,9 @@ class NormalizedAcneCase(BaseModel):
     medication_history: list[str] = Field(default_factory=list)
     hormonal_factors: list[str] = Field(default_factory=list)
     skincare_products: list[str] = Field(default_factory=list)
+    canonical_ingredients: list[str] = Field(default_factory=list)
+    usage_frequencies: list[str] = Field(default_factory=list)
+    concentrations: list[float] = Field(default_factory=list)
     treatment_goals: list[str] = Field(default_factory=list)
     allergies: list[str] = Field(default_factory=list)
     red_flags: list[str] = Field(default_factory=list)
@@ -73,8 +76,6 @@ class ClinicalRagQueries(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query_vi: str = ""
-    # M9: English query for bilingual RAG when language_switch detected
-    query_en: str = ""
 
 
 class ClinicalQueryPlan(BaseModel):

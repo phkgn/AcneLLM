@@ -343,15 +343,22 @@ PY
         ;;
 
     docker-build)
-        info "Building Docker image..."
-        docker build -t acne-llm:latest .
-        ok "Image built: acne-llm:latest"
+        info "Building Docker images (API + Frontend)..."
+        docker compose build
+        ok "Images built."
         ;;
 
     docker-up)
-        info "Starting Docker Compose (Ollama + API)..."
+        info "Starting full stack (Ollama + API + Frontend)..."
         docker compose up -d 2>/dev/null || docker-compose up -d
-        ok "Services up. API: http://localhost:8000  Ollama: http://localhost:11434"
+        ok "Services up."
+        ok "  Web UI : http://localhost:3000"
+        ok "  API    : http://localhost:8000"
+        ok "  Ollama : http://localhost:11434"
+        ;;
+
+    docker-logs)
+        docker compose logs -f "${ARG:-acne-llm}"
         ;;
 
     docker-down)
@@ -417,8 +424,9 @@ PY
   ./tasks.sh run-all              Mo Ollama + backend + frontend
 
   -- Docker --
-  ./tasks.sh docker-build         Build Docker image
-  ./tasks.sh docker-up            docker compose up -d
+  ./tasks.sh docker-build         Build Docker images (API + Frontend)
+  ./tasks.sh docker-up            Start full stack (Ollama+API+Frontend)
+  ./tasks.sh docker-logs [svc]    Tail logs (default: acne-llm)
   ./tasks.sh docker-down          docker compose down
 
   -- Dev --

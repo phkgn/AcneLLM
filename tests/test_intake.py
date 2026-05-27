@@ -91,15 +91,86 @@ def test_intake_reads_history_from_container_session_store(tmp_path):
     assert second.user.context.skin_type == "oily"
 
 
-def test_intake_treats_generic_acne_case_as_clarify_when_missing_core_details():
+def test_intake_treats_generic_acne_case_as_soft_missing_core_hint():
     c = _container()
 
     result = run_intake(c, "tôi bị mụn")
 
-    assert result.effective_mode == "clarify"
+    assert result.effective_mode == "llm_only"
     assert result.completeness is not None
     assert result.completeness.level == "none"
     assert result.completeness.missing_fields == ["distribution"]
+
+
+def test_intake_does_not_fold_self_history_into_general_knowledge():
+    session_id = "test-knowledge-no-fold"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+
+    try:
+        first = run_intake(c, "tôi 22 tuổi da dầu bị mụn ở cằm", session_id=session_id)
+        store.append_turn(
+            session_id,
+            ConversationTurn(
+                role="user",
+                content=first.clean_text,
+                normalized_snapshot=first.turn_snapshot,
+                metadata=first.route_decision.metadata(),
+            ),
+        )
+
+        second = run_intake(c, "tại sao bị mụn bọc?", session_id=session_id)
+
+        assert second.route_decision.primary_intent == "knowledge"
+        assert second.route_decision.query_subject == "general"
+        assert second.user.context.age is None
+        assert second.user.context.skin_type is None
+        assert second.completeness is None
+        assert second.clinical_plan is None
+    finally:
+        store.delete(session_id)
+
+
+def test_intake_other_subject_is_current_turn_only_and_no_snapshot():
+    session_id = "test-other-subject-no-fold"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+
+    try:
+        first = run_intake(c, "tôi 22 tuổi da dầu bị mụn ở cằm", session_id=session_id)
+        store.append_turn(
+            session_id,
+            ConversationTurn(
+                role="user",
+                content=first.clean_text,
+                normalized_snapshot=first.turn_snapshot,
+                metadata=first.route_decision.metadata(),
+            ),
+        )
+
+        second = run_intake(c, "bạn tôi bị mụn ở lưng nên làm gì", session_id=session_id)
+
+        assert second.route_decision.primary_intent == "advise"
+        assert second.route_decision.query_subject == "other"
+        assert second.user.context.age is None
+        assert second.turn_snapshot is None
+        assert second.completeness is None
+        assert second.clinical_plan is None
+        assert "back" in second.normalized_query
+        assert "chin" not in second.normalized_query
+    finally:
+        store.delete(session_id)
+
+
+def test_intake_greeting_has_no_normalized_snapshot():
+    c = _container()
+
+    result = run_intake(c, "xin chào")
+
+    assert result.route_decision.query_subject == "general"
+    assert result.turn_snapshot is None
 
 
 def test_intake_returns_hard_scope_refusal():

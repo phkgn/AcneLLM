@@ -68,7 +68,12 @@ def _route_guidance(route_metadata: dict | None) -> str:
     if not route_metadata:
         return ""
     flags = route_metadata.get("route_flags") or []
+    query_subject = route_metadata.get("query_subject", "self")
     guidance: list[str] = []
+    if query_subject == "other":
+        guidance.append("Người dùng đang hỏi về tình trạng của người khác; không xem đây là hồ sơ cá nhân của user.")
+    elif query_subject == "general":
+        guidance.append("Đây là câu hỏi kiến thức chung; không suy ra tình trạng cá nhân của user.")
     if "repeated_question" in flags:
         guidance.append("Người dùng đang hỏi lặp; chỉ bổ sung điểm mới, không lặp lại câu trước.")
     if "emotional_distress" in flags:
@@ -253,6 +258,13 @@ class PromptBuilder:
             if cl.hormonal_factors:
                 vi_horm = [self._vi(self._HORMONAL_VI, x) for x in cl.hormonal_factors]
                 parts.append("yếu tố khởi phát: " + ", ".join(vi_horm))
+            if cl.canonical_ingredients:
+                parts.append("hoạt chất chuẩn hóa: " + ", ".join(cl.canonical_ingredients))
+            if cl.usage_frequencies:
+                parts.append("tần suất dùng: " + ", ".join(cl.usage_frequencies))
+            if cl.concentrations:
+                conc = ", ".join(f"{float(x):.8g}" for x in cl.concentrations)
+                parts.append("nồng độ: " + conc)
             if cl.red_flags_input:
                 parts.append("dấu hiệu cần chú ý: " + ", ".join(cl.red_flags_input))
             if cl.treatment_goals:
@@ -282,6 +294,13 @@ class PromptBuilder:
             parts.append("yếu tố nội tiết/khởi phát: " + ", ".join(vi_horm))
         if c.skincare_products:
             parts.append("sản phẩm chăm sóc da: " + ", ".join(c.skincare_products))
+        if c.canonical_ingredients:
+            parts.append("hoạt chất chuẩn hóa: " + ", ".join(c.canonical_ingredients))
+        if c.usage_frequencies:
+            parts.append("tần suất dùng: " + ", ".join(c.usage_frequencies))
+        if c.concentrations:
+            conc = ", ".join(f"{float(x):.8g}" for x in c.concentrations)
+            parts.append("nồng độ: " + conc)
         if c.treatment_goals:
             parts.append("mong muốn điều trị: " + ", ".join(c.treatment_goals))
         if c.red_flags_input:
@@ -312,6 +331,13 @@ class PromptBuilder:
         if c.hormonal_factors:
             vi_horm = [self._vi(self._HORMONAL_VI, x) for x in c.hormonal_factors]
             parts.append("nội tiết: " + ", ".join(vi_horm))
+        if c.canonical_ingredients:
+            parts.append("hoạt chất chuẩn hóa: " + ", ".join(c.canonical_ingredients))
+        if c.usage_frequencies:
+            parts.append("tần suất dùng: " + ", ".join(c.usage_frequencies))
+        if c.concentrations:
+            conc = ", ".join(f"{float(x):.8g}" for x in c.concentrations)
+            parts.append("nồng độ: " + conc)
         if c.red_flags:
             parts.append("dấu hiệu nghiêm trọng: " + ", ".join(c.red_flags))
         if plan.missing_info:
@@ -374,8 +400,11 @@ class PromptBuilder:
         safe_qv = _escape_jinja(query_vi)
         safe_context = _escape_jinja(self._context_block(retrieval, max_chars=max_context_chars))
         safe_history = _escape_jinja(format_history_block(history or []))
+        safe_known_facts = _escape_jinja(self._known_facts_summary(user))
+        safe_clinical_plan = _escape_jinja(self._clinical_plan_summary(clinical_plan))
         # Route guidance: chỉ truyền những instruction ngắn, không dump metadata nội bộ
         safe_route_guidance = _escape_jinja(_route_guidance(route_metadata))
+        query_subject = str((route_metadata or {}).get("query_subject") or "self")
         safe_extended = _escape_jinja(extended)
         # Completeness hint: hướng dẫn LLM hỏi thêm thay vì gate cứng
         safe_completeness_hint = _escape_jinja(completeness_hint or "")
@@ -393,33 +422,13 @@ class PromptBuilder:
             vision_summary=safe_vision,
             detected_language=detected_language,
             query_vi=safe_qv,
+            known_facts=safe_known_facts,
+            normalized_case_plan=safe_clinical_plan,
             retrieved_context=safe_context,
             history_block=safe_history,
             route_metadata=safe_route_guidance,  # backward-compat: templates dùng biến này
+            query_subject=query_subject,
             extended_rules=safe_extended,
             completeness_hint=safe_completeness_hint,
         )
         return sys_p, user_p
-
-    def build_clinical_planner(self, user: UserInput) -> str:
-        safe_description = _escape_jinja(user.description)
-        safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "khong")
-        safe_products = _escape_jinja(", ".join(user.context.current_products) or "khong")
-        safe_medications = _escape_jinja(", ".join(user.context.medications) or "khong")
-        safe_vision = _escape_jinja(self._vision_summary(user.vision))
-        safe_clinical = _escape_jinja(self._clinical_summary(user))
-
-        return self.env.get_template("clinical_planner_user.j2").render(
-            description=safe_description,
-            age=user.context.age,
-            sex=user.context.sex,
-            skin_type=user.context.skin_type,
-            is_pregnant=user.context.is_pregnant,
-            is_breastfeeding=user.context.is_breastfeeding,
-            allergies=safe_allergies,
-            current_products=safe_products,
-            medications=safe_medications,
-            duration_weeks=user.context.duration_weeks,
-            vision_summary=safe_vision,
-            clinical_summary=safe_clinical,
-        )

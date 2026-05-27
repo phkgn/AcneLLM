@@ -18,9 +18,11 @@ from .session import ConversationTurn, get_session_store
 from ._retrieval import retrieve_for_chat, citation_data, compute_evidence_quality
 from ._safety import get_safety_suffix
 from ..db.audit import AuditEntry
+from ..guardrails.ood_detector import mask_pii
 
 if TYPE_CHECKING:
     from ..di import Container
+    from .intake import IntakeResult
 
 
 # -- SSE helper ---------------------------------------------------------------
@@ -28,6 +30,13 @@ if TYPE_CHECKING:
 def _event(event: str, data) -> str:
     payload = json.dumps({"event": event, "data": data}, ensure_ascii=False)
     return f"data: {payload}\n\n"
+
+
+def _snapshot_for_persistence(intake: "IntakeResult"):
+    route = intake.route_decision
+    if route is None or route.query_subject != "self":
+        return None
+    return intake.turn_snapshot
 
 
 # -- Main stream entry point --------------------------------------------------
@@ -47,8 +56,12 @@ def stream_chat_sse(
         history = intake.history
         user = intake.user
         mode = "hybrid" if intake.effective_mode == "hybrid" else "llm_only"
-        display_mode = mode
+        display_mode = "clarify" if intake.effective_mode == "clarify" else mode
         route_metadata = intake.route_decision.metadata() if intake.route_decision else {}
+        persist_snapshot = _snapshot_for_persistence(intake)
+        _primary_intent = (
+            intake.route_decision.primary_intent if intake.route_decision else "advise"
+        )
         # Dung container session store (JSONL in production; in-memory fallback for tests).
         sess = getattr(c, "session_store", None) or get_session_store()
 
@@ -80,7 +93,7 @@ def stream_chat_sse(
                         role="user",
                         content=clean_message,
                         mode=mode,
-                        normalized_snapshot=intake.turn_snapshot,
+                        normalized_snapshot=persist_snapshot,
                         metadata=route_metadata,
                     ),
                 )
@@ -129,8 +142,14 @@ def stream_chat_sse(
         t_rag = time.perf_counter()
         _route_flags_for_rag = intake.route_decision.route_flags if intake.route_decision else []
         retrieval = (
-            retrieve_for_chat(c, user, clinical_plan, route_flags=_route_flags_for_rag)
-            if mode == "hybrid" and is_acne_signal
+            retrieve_for_chat(
+                c,
+                user,
+                clinical_plan,
+                route_flags=_route_flags_for_rag,
+                normalized_query=intake.normalized_query,
+            )
+            if mode == "hybrid" and is_acne_signal and _primary_intent not in {"clarify", "reject"}
             else None
         )
         if retrieval is not None:
@@ -149,15 +168,13 @@ def stream_chat_sse(
             )
 
         # -- 4. Build prompt --------------------------------------------------
-        # Chọn template theo primary_intent: knowledge → không hỏi clinical info
-        _primary_intent = (
-            intake.route_decision.primary_intent if intake.route_decision else "advise"
-        )
-        _template = (
-            "knowledge_user.j2"
-            if _primary_intent == "knowledge"
-            else "stream_user.j2"
-        )
+        # Chọn template theo primary_intent.
+        if _primary_intent == "clarify":
+            _template = "clarify_user.j2"
+        elif _primary_intent == "knowledge":
+            _template = "knowledge_user.j2"
+        else:
+            _template = "stream_user.j2"
         system, user_message = c.prompt.build(
             user=user,
             retrieval=retrieval,
@@ -166,7 +183,7 @@ def stream_chat_sse(
                 clinical_plan.detected_language if clinical_plan else "unknown"
             ),
             query_vi=(
-                getattr(clinical_plan, "query_vi", "") if clinical_plan else ""
+                clinical_plan.rag_queries.query_vi if clinical_plan else intake.normalized_query
             ),
             max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
             clinical_plan=clinical_plan,
@@ -221,11 +238,17 @@ def stream_chat_sse(
         first_token = True
         # Knowledge queries: không hard-cap output, để model tự dừng khi xong
         _stream_num_predict = -1 if _primary_intent == "knowledge" else None
-        for token in c.llm.stream_text(
-            system, user_message,
-            temperature=effective_temperature,
-            num_predict=_stream_num_predict,
-        ):
+        stream_kwargs = {"temperature": effective_temperature}
+        if _stream_num_predict is not None:
+            stream_kwargs["num_predict"] = _stream_num_predict
+        try:
+            stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
+        except TypeError:
+            if "num_predict" not in stream_kwargs:
+                raise
+            stream_kwargs.pop("num_predict", None)
+            stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
+        for token in stream_iter:
             if first_token:
                 logger.debug(
                     "[{}] LLM first token in {:.0f}ms",
@@ -258,6 +281,7 @@ def stream_chat_sse(
             route_flags=route_flags,
             skip_generic_disclaimer=is_knowledge_intent,
             recent_turns=history,
+            current_turn_text=message,
         )
 
         if warning_suffix:
@@ -288,6 +312,7 @@ def stream_chat_sse(
 
         # -- 8. Persist session -----------------------------------------------
         full_assistant_text = full_text + (warning_suffix or "") + partial_question_suffix
+        assistant_mode = "clarify" if intake.effective_mode == "clarify" else mode
         if session_id:
             sess.append_turn(
                 session_id,
@@ -295,7 +320,7 @@ def stream_chat_sse(
                     role="user",
                     content=clean_message,
                     mode=mode,
-                    normalized_snapshot=intake.turn_snapshot,
+                    normalized_snapshot=persist_snapshot,
                     metadata=route_metadata,
                 ),
             )
@@ -304,7 +329,7 @@ def stream_chat_sse(
                 ConversationTurn(
                     role="assistant",
                     content=full_assistant_text,
-                    mode=mode,
+                    mode=assistant_mode,
                     used_chunks=used_chunks,
                 ),
             )
@@ -315,8 +340,12 @@ def stream_chat_sse(
         # -- 10. Audit log -----------------------------------------------------
         audit = getattr(c, "audit_store", None)
         if audit is not None:
+            masked_clean_message = mask_pii(clean_message) if intake.pii_detected else clean_message
+            masked_normalized_query = (
+                mask_pii(intake.normalized_query) if intake.pii_detected else intake.normalized_query
+            )
             audit.log(AuditEntry(
-                user_message=clean_message,
+                user_message=masked_clean_message,
                 assistant_response=full_assistant_text,
                 used_chunk_ids=used_chunks,
                 scope_decision=intake.scope_decision or "",
@@ -324,6 +353,10 @@ def stream_chat_sse(
                 model_used=getattr(c.llm, "model", ""),
                 temperature=temperature,
                 session_id=session_id,
+                normalized_query=masked_normalized_query,
+                extracted_entities=intake.extracted_entities,
+                pii_detected=intake.pii_detected,
+                teencode_replaced=intake.teencode_replaced,
             ))
 
         latency_ms = int((time.perf_counter() - started) * 1000)
@@ -334,6 +367,7 @@ def stream_chat_sse(
             "session_id": session_id,
             "evidence_quality": evidence_quality,
             "primary_intent": route_metadata.get("primary_intent"),
+            "query_subject": route_metadata.get("query_subject"),
             "route_flags": route_metadata.get("route_flags", []),
         })
 
@@ -344,5 +378,5 @@ def stream_chat_sse(
             "mode": "error",
             "latency_ms": int((time.perf_counter() - started) * 1000),
             "used_chunks": [],
-            "session_id": session_id,
+              "session_id": session_id,
         })

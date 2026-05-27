@@ -45,17 +45,14 @@ def _safe_parse(raw: str) -> AdviseOutput:
 class LLMOnlyPipeline:
     def __init__(self, llm: OllamaBackend, prompt: PromptBuilder,
                  guardrails: GuardrailRunner,
-                 clinical_planner: ClinicalQueryPlanner | None = None,
-                 use_llm_planner: bool = False):
+                 clinical_planner: ClinicalQueryPlanner | None = None):
         self.llm = llm
         self.prompt = prompt
         self.guardrails = guardrails
         self.clinical_planner = clinical_planner
-        # Bug C fix: lưu use_llm_planner để _clinical_plan() có thể check
-        self.use_llm_planner = use_llm_planner
 
     def _clinical_plan(self, user: UserInput) -> ClinicalQueryPlan | None:
-        if self.clinical_planner is None or not self.use_llm_planner:
+        if self.clinical_planner is None:
             return None
         return self.clinical_planner.plan(user)
 
@@ -76,7 +73,14 @@ class LLMOnlyPipeline:
                 scope_refusal.model_name = self.llm.model
                 scope_refusal.latency_ms = int((time.perf_counter() - t0) * 1000)
                 return scope_refusal
-        if clinical_plan is None:
+        can_build_clinical_plan = (
+            not route_metadata
+            or (
+                route_metadata.get("primary_intent") == "advise"
+                and route_metadata.get("query_subject", "self") == "self"
+            )
+        )
+        if clinical_plan is None and can_build_clinical_plan:
             clinical_plan = self._clinical_plan(user)
         sys_p, usr_p = self.prompt.build(
             user,

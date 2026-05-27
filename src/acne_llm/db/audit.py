@@ -22,6 +22,10 @@ class AuditEntry:
     model_used: str = ""
     temperature: Optional[float] = None
     session_id: Optional[str] = None
+    normalized_query: str = ""
+    extracted_entities: dict = field(default_factory=dict)
+    pii_detected: bool = False
+    teencode_replaced: list[str] = field(default_factory=list)
     timestamp: float = field(default_factory=time.time)
 
 
@@ -39,8 +43,9 @@ class AuditStore:
                 self._db.execute(
                     """INSERT INTO audit_log
                        (timestamp, session_id, user_message, assistant_response,
-                        used_chunk_ids, scope_decision, latency_ms, model_used, temperature)
-                       VALUES (?,?,?,?,?,?,?,?,?)""",
+                        used_chunk_ids, scope_decision, latency_ms, model_used, temperature,
+                        normalized_query, extracted_entities, pii_detected, teencode_replaced)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (
                         entry.timestamp,
                         entry.session_id,
@@ -51,6 +56,10 @@ class AuditStore:
                         entry.latency_ms,
                         entry.model_used,
                         entry.temperature,
+                        entry.normalized_query,
+                        json.dumps(entry.extracted_entities, ensure_ascii=False),
+                        1 if entry.pii_detected else 0,
+                        json.dumps(entry.teencode_replaced, ensure_ascii=False),
                     ),
                 )
                 self._db.commit()
@@ -79,6 +88,9 @@ class AuditStore:
         for r in rows:
             d = dict(r)
             d["used_chunk_ids"] = json.loads(d.get("used_chunk_ids") or "[]")
+            d["extracted_entities"] = json.loads(d.get("extracted_entities") or "{}")
+            d["teencode_replaced"] = json.loads(d.get("teencode_replaced") or "[]")
+            d["pii_detected"] = bool(d.get("pii_detected"))
             result.append(d)
         return result
 

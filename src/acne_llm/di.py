@@ -130,7 +130,6 @@ def build_container(settings) -> Container:
         prompt,
         guardrails,
         clinical_planner=clinical_planner,
-        use_llm_planner=settings.chat_use_llm_planner,
     )
     logger.info(f"LLM: {settings.llm_model} @ {settings.ollama_url}")
 
@@ -217,7 +216,6 @@ def build_container(settings) -> Container:
                 rerank_top_k=settings.rerank_top_k,
                 english_input_notice=settings.english_input_notice,
                 clinical_planner=clinical_planner,
-                use_llm_planner=settings.chat_use_llm_planner,
                 use_mmr_prefilter=getattr(settings, "use_mmr_prefilter", True),
                 mmr_lambda=getattr(settings, "mmr_lambda", 0.6),
             )

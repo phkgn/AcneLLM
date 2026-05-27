@@ -49,7 +49,7 @@ def test_product_query_skips_completeness():
     assert result.effective_mode == "hybrid"
     assert result.route_decision.primary_intent == "knowledge"
     assert result.completeness is None
-    assert planner.calls == 1
+    assert planner.calls == 0
 
 
 def test_food_and_drug_knowledge_skip_completeness():
@@ -68,11 +68,12 @@ def test_personal_generic_advise_still_clarifies():
 
     result = run_intake(c, "tôi bị mụn phải làm sao")
 
-    assert result.effective_mode == "clarify"
+    assert result.effective_mode == "hybrid"
     assert result.route_decision.primary_intent == "advise"
+    assert result.route_decision.query_subject == "self"
     assert result.completeness is not None
     assert result.completeness.missing_fields == ["distribution"]
-    assert planner.calls == 0
+    assert planner.calls == 1
 
 
 def test_partial_advise_with_lesion_and_location_is_sufficient():
@@ -105,8 +106,9 @@ def test_session_context_product_question_does_not_ask_skin_type_again():
     )
     second = run_intake(c, "vậy nên dùng kem chống nắng gì?", session_id=session_id)
 
-    assert second.user.context.skin_type == "oily"
+    assert second.user.context.skin_type is None
     assert second.route_decision.primary_intent == "knowledge"
+    assert second.route_decision.query_subject == "general"
     assert second.completeness is None
 
 
@@ -234,6 +236,110 @@ def test_classifier_high_confidence_is_accepted_for_ambiguous_rule():
     assert decision.primary_intent == "knowledge"
     assert decision.source == "micro_model"
     assert decision.reason_code == "micro_knowledge"
+
+
+def test_classifier_override_preserves_query_subject():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="knowledge",
+            scores={"knowledge": 0.91, "advise": 0.04},
+            confidence=0.91,
+            reason_code="micro_knowledge",
+        )
+    )
+    settings = SimpleNamespace(
+        intent_router_enabled=True,
+        intent_router_min_confidence=0.8,
+        intent_router_tie_margin=0.1,
+    )
+
+    decision = route_intent("ban toi bi mun o cam nen lam gi", _fake_user(), [], settings, classifier)
+
+    assert decision.primary_intent == "knowledge"
+    assert decision.query_subject == "other"
+    assert decision.source == "micro_model"
+
+
+def test_classifier_reject_stops_intake_static():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="reject",
+            scores={"reject": 0.95, "knowledge": 0.02},
+            confidence=0.95,
+            reason_code="micro_reject",
+        )
+    )
+    c, planner = _container(classifier=classifier, classifier_enabled=True)
+
+    result = run_intake(c, "giải phương trình bậc hai")
+
+    assert result.effective_mode == "refuse"
+    assert result.scope_refusal is not None
+    assert result.turn_snapshot is None
+    assert result.route_decision.primary_intent == "reject"
+    assert planner.calls == 0
+
+
+def test_clarify_classifier_with_sufficient_self_context_forces_advise():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="clarify",
+            scores={"clarify": 0.95, "advise": 0.04},
+            confidence=0.95,
+            reason_code="micro_clarify",
+        )
+    )
+    c, planner = _container(classifier=classifier, classifier_enabled=True)
+
+    result = run_intake(c, "bị mụn lưng khi chuyển trọ được 2 tuần", session_id="test-force-advise")
+
+    assert result.route_decision.primary_intent == "advise"
+    assert result.route_decision.query_subject == "self"
+    assert "clarify_loop_break" in result.route_decision.route_flags
+    assert "clarify_sufficient_context" in result.route_decision.reason_code
+    assert result.effective_mode == "hybrid"
+    assert result.turn_snapshot is not None
+    assert planner.calls == 1
+
+
+def test_clarify_loop_hard_stop_for_self_acne_session():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="clarify",
+            scores={"clarify": 0.95, "advise": 0.04},
+            confidence=0.95,
+            reason_code="micro_clarify",
+        )
+    )
+    store = SessionStore(max_turns=20)
+    session_id = "test-clarify-hard-stop"
+    c, planner = _container(
+        session_store=store,
+        classifier=classifier,
+        classifier_enabled=True,
+    )
+    first = run_intake(c, "tôi bị mụn", session_id=session_id)
+    store.append_turn(
+        session_id,
+        ConversationTurn(
+            role="user",
+            content=first.clean_text,
+            normalized_snapshot=first.turn_snapshot,
+            metadata=first.route_decision.metadata(),
+        ),
+    )
+    for idx in range(3):
+        store.append_turn(
+            session_id,
+            ConversationTurn(role="assistant", content=f"hỏi thêm {idx}", mode="clarify"),
+        )
+
+    result = run_intake(c, "tôi bị gần 2 tuần rồi", session_id=session_id)
+
+    assert result.route_decision.primary_intent == "advise"
+    assert "clarify_loop_hard_stop" in result.route_decision.reason_code
+    assert result.effective_mode == "hybrid"
+    assert planner.calls >= 1
 
 
 def test_classifier_tie_marks_ambiguous_and_keeps_rule():

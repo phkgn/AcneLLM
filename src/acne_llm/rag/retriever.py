@@ -169,12 +169,20 @@ class HybridRetriever:
         else:
             fused = rrf_fusion([dense_ids, sparse_ids]) if dense_ids else dict(sparse_hits)
             _authority_tags = {"hospital", "guidelines", "government", "authoritative", "evidence-based", "pharmacopoeia"}
+
+            # FIX: Batch fetch metadata cho sparse-only chunks thay vì N lần get_by_id
+            _sparse_only_cids = [cid for cid in fused if not dense_meta.get(cid, {}).get("meta")]
+            _batch_meta: dict[str, dict] = {}
+            if _sparse_only_cids:
+                try:
+                    _got = self.store.get_by_ids(_sparse_only_cids)
+                    for _cid, _m in zip(_got.get("ids") or [], _got.get("metadatas") or []):
+                        _batch_meta[_cid] = _m or {}
+                except Exception as _e:
+                    logger.debug(f"[retriever] batch meta fetch failed: {_e}")
+
             for cid in list(fused.keys()):
-                meta = dense_meta.get(cid, {}).get("meta", {})
-                if not meta:
-                    got = self.store.get_by_id(cid)
-                    metas_got = got.get("metadatas") or []
-                    meta = metas_got[0] if metas_got else {}
+                meta = dense_meta.get(cid, {}).get("meta") or _batch_meta.get(cid, {})
                 raw_tags = meta.get("tags", "")
                 tags = set(raw_tags.split(",")) if isinstance(raw_tags, str) and raw_tags else set()
                 score = fused[cid] * _trust_boost(meta)
@@ -185,17 +193,28 @@ class HybridRetriever:
             ranked = sorted(fused.items(), key=lambda x: x[1], reverse=True)[:top_k]
             logger.debug(f"[retriever] hybrid fused={len(ranked)} chunks")
 
+        # FIX: Batch fetch text+meta cho tất cả chunks không có trong dense_meta
+        _missing_cids = [cid for cid, _ in ranked if cid not in dense_meta]
+        _fetched: dict[str, tuple[str, dict]] = {}
+        if _missing_cids:
+            try:
+                _res = self.store.get_by_ids(_missing_cids)
+                for _cid, _doc, _m in zip(
+                    _res.get("ids") or [],
+                    _res.get("documents") or [],
+                    _res.get("metadatas") or [],
+                ):
+                    _fetched[_cid] = (_doc or "", _m or {})
+            except Exception as _e:
+                logger.debug(f"[retriever] batch fetch failed: {_e}")
+
         chunks: list[RetrievedChunk] = []
         for cid, score in ranked:
             if cid in dense_meta:
                 text = dense_meta[cid]["text"]
                 meta = dense_meta[cid]["meta"]
             else:
-                got = self.store.get_by_id(cid)
-                docs_got = got.get("documents") or []
-                metas_got = got.get("metadatas") or []
-                text = docs_got[0] if docs_got else ""
-                meta = metas_got[0] if metas_got else {}
+                text, meta = _fetched.get(cid, ("", {}))
             if not text:
                 continue
             _source_type_from_meta(meta)
@@ -284,7 +303,7 @@ class HybridRetriever:
         combined = retrieval.chunks + extras
         combined.sort(key=lambda c: c.score, reverse=True)
         avg = sum(c.score for c in combined) / len(combined) if combined else 0.0
-        logger.debug(f"[expand_context] +{len(extras)} neighbor chunks -> tổng {len(combined)}")
+        logger.debug(f"[expand_context] +{len(extras)} neighbor chunks -> tong {len(combined)}")
         return RetrievalOutput(
             query=retrieval.query,
             chunks=combined,
@@ -299,10 +318,10 @@ class HybridRetriever:
         safety_terms: list[str],
         top_k: int = 5,
     ) -> RetrievalOutput:
-        """Second retrieve pass cho context an toàn y tế (thai kỳ, thuốc).
+        """Second retrieve pass cho context an toan y te (thai ky, thuoc).
 
-        Filter Chroma chỉ lấy guideline source_types, sau đó dense retrieve.
-        Được gọi từ pipeline khi safety_terms không rỗng.
+        Filter Chroma chi lay guideline source_types, sau do dense retrieve.
+        Duoc goi tu pipeline khi safety_terms khong rong.
         """
         _EMPTY = RetrievalOutput(
             query=query, chunks=[], retrieval_mode="hybrid",

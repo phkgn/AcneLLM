@@ -6,6 +6,10 @@
 {{ history_block }}
 </conversation_history>
 {% endif %}
+
+{% if query_subject == "other" %}
+<subject_note>Người dùng đang hỏi về tình trạng của người khác, không phải hồ sơ cá nhân của họ.</subject_note>
+{% endif %}
 </user_data>
 
 {% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}

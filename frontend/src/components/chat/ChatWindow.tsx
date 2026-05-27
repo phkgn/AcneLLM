@@ -9,6 +9,8 @@ import { useSSE } from "@/hooks/useSSE";
 import { useChatStore } from "@/stores/chatStore";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
+import { ChunkDetailModal } from "./ChunkDetailModal";
+import type { ChunkDetail } from "./ChunkDetailModal";
 
 const SUGGESTIONS = [
   "Em 22 tuổi, da dầu, mụn viêm ở cằm 4 tuần, đang dùng BHA.",
@@ -149,6 +151,7 @@ function KBExplorer() {
   const [results, setResults] = useState<KBSearchResult[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedChunk, setSelectedChunk] = useState<ChunkDetail | null>(null);
   const topK = useChatStore((state) => state.settings.topK);
 
   const submit = async (event: FormEvent) => {
@@ -167,39 +170,57 @@ function KBExplorer() {
   };
 
   return (
-    <section className="scrollbar-thin flex-1 overflow-y-auto px-4 py-6">
-      <div className="mx-auto max-w-5xl space-y-4">
-        <form onSubmit={submit} className="flex gap-2">
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm trong knowledge base..."
-            className="min-h-12 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-clinic focus:ring-2 focus:ring-teal-100"
-          />
-          <button
-            type="submit"
-            disabled={loading || !query.trim()}
-            className="h-12 shrink-0 rounded-lg bg-clinic px-4 text-sm font-medium text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-          >
-            {loading ? "Đang tìm..." : "Tìm kiếm"}
-          </button>
-        </form>
-        {error ? <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div> : null}
-        {loading ? <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">Đang tìm...</div> : null}
-        <div className="space-y-3">
-          {results.map((item) => (
-            <article key={item.chunk_id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span className="font-mono">{item.chunk_id}</span>
-                <span>{item.source}</span>
-                <span>điểm {item.score.toFixed(4)}</span>
-              </div>
-              <p className="text-sm leading-6 text-slate-700">{item.text}</p>
-            </article>
-          ))}
+    <>
+      <section className="scrollbar-thin flex-1 overflow-y-auto px-4 py-6">
+        <div className="mx-auto max-w-5xl space-y-4">
+          <form onSubmit={submit} className="flex gap-2">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Tìm trong knowledge base..."
+              className="min-h-12 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-clinic focus:ring-2 focus:ring-teal-100"
+            />
+            <button
+              type="submit"
+              disabled={loading || !query.trim()}
+              className="h-12 shrink-0 rounded-lg bg-clinic px-4 text-sm font-medium text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              {loading ? "Đang tìm..." : "Tìm kiếm"}
+            </button>
+          </form>
+          {error ? <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div> : null}
+          {loading ? <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">Đang tìm...</div> : null}
+          <div className="space-y-3">
+            {results.map((item) => (
+              <article
+                key={item.chunk_id}
+                onClick={() => setSelectedChunk({ chunk_id: item.chunk_id, source: item.source, score: item.score, text: item.text })}
+                className="group cursor-pointer rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-teal-300 hover:shadow-md"
+                title="Click để xem toàn bộ nội dung chunk"
+              >
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">{item.chunk_id}</span>
+                    <span>{item.source}</span>
+                    <span>điểm {item.score.toFixed(4)}</span>
+                  </div>
+                  <span className="text-xs text-teal-600 opacity-0 group-hover:opacity-100 transition font-medium flex items-center gap-1">
+                    <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="8" cy="8" r="2"/>
+                    </svg>
+                    Xem chi tiết
+                  </span>
+                </div>
+                <p className="line-clamp-3 text-sm leading-6 text-slate-700">{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <ChunkDetailModal chunk={selectedChunk} onClose={() => setSelectedChunk(null)} />
+    </>
   );
 }
 

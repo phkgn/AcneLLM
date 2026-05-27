@@ -478,6 +478,8 @@ class GuardrailRunner:
             return out
         medications = list(user.context.medications or [])
         medications += list(user.context.current_products or [])
+        if user.clinical is not None:
+            medications += list(user.clinical.canonical_ingredients or [])
         if not medications:
             return out
         try:

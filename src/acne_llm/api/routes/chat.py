@@ -188,10 +188,25 @@ async def chat_stream(
     )
 
 
+def _parse_sse_frame(frame: str) -> dict | None:
+    """Parse SSE frame string thanh dict. Tra None neu khong hop le."""
+    line = next(
+        (item for item in frame.splitlines() if item.startswith("data: ")),
+        "",
+    )
+    if not line:
+        return None
+    try:
+        return json.loads(line[6:])
+    except json.JSONDecodeError:
+        return None
+
+
 @router.websocket("/ws/chat")
 async def chat_ws(websocket: WebSocket):
     await websocket.accept()
     c = websocket.app.state.container
+    loop = asyncio.get_event_loop()
     try:
         while True:
             raw = await websocket.receive_text()
@@ -209,24 +224,45 @@ async def chat_ws(websocket: WebSocket):
                 await websocket.send_json({"event": "error", "data": "message is required"})
                 continue
 
-            # Chay sync generator trong thread pool de khong block event loop
-            import asyncio
-            frames = await asyncio.to_thread(
-                lambda: list(stream_chat_sse(
-                    c,
-                    message=message,
-                    requested_mode=mode,
-                    session_id=session_id,
-                ))
-            )
-            for frame in frames:
-                line = next(
-                    (item for item in frame.splitlines() if item.startswith("data: ")),
-                    "",
-                )
-                if not line:
-                    continue
-                await websocket.send_json(json.loads(line[6:]))
+            # FIX: Stream tung frame ngay khi LLM generate — khong buffer toan bo.
+            # Truoc day: list(stream_chat_sse(...)) buffer het truoc khi gui → user
+            # thay man hinh trang trong suot thoi gian LLM chay.
+            # Sau fix: dung asyncio.Queue lam bridge giua sync generator (thread)
+            # va async WebSocket sender — token xuat hien tren UI ngay khi co.
+            _SENTINEL = object()
+            queue: asyncio.Queue = asyncio.Queue(maxsize=64)
+
+            def _producer():
+                """Chay trong thread rieng; push tung SSE frame vao queue."""
+                try:
+                    for frame in stream_chat_sse(
+                        c,
+                        message=message,
+                        requested_mode=mode,
+                        session_id=session_id,
+                    ):
+                        loop.call_soon_threadsafe(queue.put_nowait, frame)
+                except Exception as exc:
+                    logger.exception("WS stream producer error")
+                    _err = json.dumps({"event": "error", "data": str(exc)})
+                    loop.call_soon_threadsafe(queue.put_nowait, f"data: {_err}\n\n")
+                finally:
+                    loop.call_soon_threadsafe(queue.put_nowait, _SENTINEL)
+
+            producer_future = loop.run_in_executor(None, _producer)
+
+            # Consume: gui moi frame ngay khi nhan duoc tu queue
+            while True:
+                frame = await queue.get()
+                if frame is _SENTINEL:
+                    break
+                parsed = _parse_sse_frame(frame)
+                if parsed is not None:
+                    await websocket.send_json(parsed)
+
+            # Dam bao thread producer da ket thuc
+            await producer_future
+
     except WebSocketDisconnect:
         return
 

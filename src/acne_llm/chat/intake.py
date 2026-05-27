@@ -6,17 +6,18 @@ completeness -> clinical plan -> effective mode.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
 from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
+from ._terms import QUESTION_TERMS
 from ..schemas.clinical import ClinicalQueryPlan
 from .completeness import CompletenessResult, check_completeness
 from .intent_router import RouteDecision, route_intent
 from .normalizer import normalize_chat_message
-from .preprocess import preprocess_user_text
+from .preprocess import prepare_user_text
 from .session import (
     ConversationTurn,
     NormalizedSnapshot,
@@ -24,6 +25,8 @@ from .session import (
     get_session_store,
     snapshot_from_user,
 )
+from ..guardrails.ood_detector import contains_pii
+from ..utils.retrieval_query import build_retrieval_query_from_user, extracted_entities_from_user
 
 if TYPE_CHECKING:
     from ..di import Container
@@ -70,76 +73,8 @@ _COMPLAINT_TERMS = (
     "sao cứ hỏi", "chỉ hỏi không trả lời",
 )
 
-_KNOWLEDGE_QUESTION_TERMS = (
-    # Dạng câu hỏi trực tiếp — KHÔNG dùng "?" vì quá broad (followup cũng có dấu hỏi)
-    "la gi", "tai sao", "vi sao",
-    "nguyen nhan", "cach", "lam sao",
-    "the nao", "nhu nao", "co nen",
-    "nen dung", "dung gi", "san pham nao",
-    "loai nao", "bao nhieu tuoi",
-    "non-comedogenic", "oil-free",
-    # Đánh giá / so sánh sản phẩm
-    "co tot khong", "hieu qua khong", "tot khong",
-    "review", "so sanh", "khac gi", "nen chon",
-    "co an toan khong", "co dung duoc khong",
-    "mua o dau", "gia bao nhieu", "bao nhieu tien",
-    # Thời gian điều trị
-    "bao lau", "may tuan", "may thang",
-    "bao nhieu tuan", "bao nhieu thang",
-    "khi nao het", "khi nao khoi",
-    # Câu hỏi đánh giá / lo ngại — không dấu
-    "co binh thuong khong", "co nguy hiem khong",
-    "co sao khong", "co dang lo khong",
-    "co can kham khong", "co can gap bac si khong",
-    "co anh huong gi khong", "co kham khong",
-    "mun loai nay co sao khong", "loai mun nay",
-    "nen lam gi", "phai lam sao", "lam gi bay gio",
-    "xu ly the nao", "giai quyet the nao",
-    "dieu tri the nao", "cach tri", "cach chua",
-    "co tu khoi khong", "co tu het khong",
-    "co can dieu tri khong", "can lam gi",
-    "co phai di kham khong", "nen di kham khong",
-    "mun co tu het khong", "co het duoc khong",
-    "co lan sang khong", "co lay khong",
-    "nguyen nhan do dau", "do dau ma bi",
-    # unicode
-    "là gì", "tại sao", "vì sao",
-    "nguyên nhân", "cách", "làm sao",
-    "thế nào", "như nào", "có nên",
-    "nên dùng", "dùng gì", "sản phẩm nào",
-    "loại nào", "bao nhiêu tuổi",
-    "không gây bít tắc",
-    "có tốt không", "hiệu quả không", "tốt không",
-    "so sánh", "khác gì", "nên chọn",
-    "có an toàn không", "có dùng được không",
-    "mua ở đâu", "giá bao nhiêu",
-    "bao lâu", "mấy tuần", "mấy tháng",
-    "khi nào hết", "khi nào khỏi",
-    "nên dùng gì", "dùng cái gì",
-    "có hiệu quả không", "có tác dụng không",
-    # Câu hỏi đánh giá / lo ngại — có dấu
-    "có bình thường không", "có nguy hiểm không",
-    "có sao không", "có đáng lo không",
-    "có cần khám không", "có cần gặp bác sĩ không",
-    "có ảnh hưởng gì không", "có khám không",
-    "mụn loại này có sao không", "loại mụn này",
-    "nên làm gì", "phải làm sao", "làm gì bây giờ",
-    "xử lý thế nào", "giải quyết thế nào",
-    "điều trị thế nào", "cách trị", "cách chữa",
-    "có tự khỏi không", "có tự hết không",
-    "có cần điều trị không", "cần làm gì",
-    "có phải đi khám không", "nên đi khám không",
-    "mụn có tự hết không", "có hết được không",
-    "có lan sang không", "có lây không",
-    "nguyên nhân do đâu", "do đâu mà bị",
-    "tại sao bị", "vì sao nổi",
-    "mụn này là gì", "đây là mụn gì",
-    "tình trạng này là gì", "loại da này",
-    "có ổn không", "có nặng không", "nặng không",
-    "nghe có vẻ nặng không", "tình trạng tôi",
-    "tình trạng của tôi", "tình trạng mình",
-    "có cần lo không", "cần lo không",
-)
+# _KNOWLEDGE_QUESTION_TERMS đã chuyển sang ._terms.QUESTION_TERMS (shared với intent_router.py)
+_KNOWLEDGE_QUESTION_TERMS = QUESTION_TERMS
 
 _CASE_INTAKE_TERMS = (
     # ── Chủ ngữ + bị/nổi ──────────────────────────────────────────────────────
@@ -204,7 +139,7 @@ class IntakeResult:
     raw_message: str
     clean_text: str
     user: UserInput
-    turn_snapshot: NormalizedSnapshot
+    turn_snapshot: NormalizedSnapshot | None
     history: list[ConversationTurn]
     effective_mode: EffectiveMode
     scope_decision: ScopeDecision
@@ -213,6 +148,11 @@ class IntakeResult:
     clinical_plan: ClinicalQueryPlan | None = None
     route_decision: RouteDecision | None = None
     session_id: str | None = None
+    clean_text_no_accent: str = ""
+    normalized_query: str = ""
+    extracted_entities: dict = field(default_factory=dict)
+    pii_detected: bool = False
+    teencode_replaced: list[str] = field(default_factory=list)
 
     @property
     def is_acne_signal(self) -> bool:
@@ -246,6 +186,73 @@ def _has_clinical_data(clinical: AcneClinicalInput) -> bool:
             clinical.red_flags_input,
         )
     )
+
+
+def _snapshot_has_values(snapshot: NormalizedSnapshot | None) -> bool:
+    """True when a snapshot contains facts worth folding into future turns."""
+    if snapshot is None:
+        return False
+    ctx = snapshot.context or {}
+    clinical = snapshot.clinical or {}
+    meaningful_context = any(
+        (
+            ctx.get("age") is not None,
+            bool(ctx.get("sex")),
+            bool(ctx.get("skin_type")),
+            ctx.get("duration_weeks") is not None,
+            bool(ctx.get("is_pregnant")),
+            bool(ctx.get("is_breastfeeding")),
+            bool(ctx.get("allergies")),
+            bool(ctx.get("current_products")),
+            bool(ctx.get("medications")),
+        )
+    )
+    meaningful_clinical = any(
+        value not in (None, "", [], {}, "unknown", "none")
+        for value in clinical.values()
+    )
+    return bool(meaningful_context or meaningful_clinical)
+
+
+def _scope_check_compat(
+    guardrails: object,
+    user: UserInput,
+    has_acne_history: bool,
+) -> AdviseOutput | None:
+    if not hasattr(guardrails, "scope_check"):
+        return None
+    try:
+        return guardrails.scope_check(user, has_acne_history=has_acne_history)
+    except TypeError:
+        return guardrails.scope_check(user)
+
+
+def _history_clarify_count(history: list[ConversationTurn]) -> int:
+    return sum(1 for turn in history if turn.role == "assistant" and turn.mode == "clarify")
+
+
+def _session_clarify_count(store: object, session_id: str | None, history: list[ConversationTurn]) -> int:
+    history_count = _history_clarify_count(history)
+    if not session_id or not hasattr(store, "get_or_create"):
+        return history_count
+    try:
+        session = store.get_or_create(session_id)
+    except Exception:
+        return history_count
+    return max(history_count, int(getattr(session, "total_clarify_count", 0) or 0))
+
+
+def _force_advise_route(route_decision: RouteDecision, reason: str) -> None:
+    """Mutate a clarify route into partial advise once self-context is enough."""
+    route_decision.primary_intent = "advise"
+    route_decision.turn_type = "answer"
+    route_decision.confidence = max(route_decision.confidence, 0.72)
+    route_decision.reason_code = f"{route_decision.reason_code}|{reason}"
+    route_decision.route_flags = list(dict.fromkeys([
+        *route_decision.route_flags,
+        "partial_advise",
+        "clarify_loop_break",
+    ]))
 
 
 def _is_intake_reply(message: str, history: list[ConversationTurn]) -> bool:
@@ -308,8 +315,12 @@ def _should_check_completeness(
 
 
 def _is_complaint(message: str) -> bool:
-    """True neu tin nhan la complaint / negative feedback ve cau tra loi truoc."""
-    if len(message.split()) > 12:
+    """True neu tin nhan la complaint / negative feedback ve cau tra loi truoc.
+
+    Nguong 20 tu thay vi 12 de bat complaint co giai thich dai hon,
+    vi du: "bot nay tra loi khong dung truong hop cua toi chut nao, toi da noi la da dau roi".
+    """
+    if len(message.split()) > 20:
         return False
     lowered = message.lower()
     return any(term in lowered for term in _COMPLAINT_TERMS)
@@ -353,13 +364,20 @@ def run_intake(
     logger.info("[{}] ① INPUT ({}c): {!r}", sid_short, len(message), message[:120])
 
     raw_message = message
-    clean_text = preprocess_user_text(raw_message)
+    prepared = prepare_user_text(raw_message)
+    clean_text = prepared.clean_text
+    clean_text_no_accent = prepared.clean_text_no_accent
     # Dùng container session store (SQLite/JSONL) — không dùng in-memory singleton
     # để đảm bảo intake và runtime đọc/ghi cùng một store (history không bị mất sau restart).
     store = getattr(c, "session_store", None) or get_session_store()
     history = store.get_history(session_id)
     mode = _resolve_mode(mode_request, c, clean_text=clean_text, history=history)
-    base_user = normalize_chat_message(raw_message, mode=mode, clean_text=clean_text)
+    base_user = normalize_chat_message(
+        raw_message,
+        mode=mode,
+        clean_text=clean_text,
+        clean_text_no_accent=clean_text_no_accent,
+    )
     turn_snapshot = snapshot_from_user(base_user, clean_text=clean_text)
 
     _cl = base_user.clinical
@@ -381,33 +399,12 @@ def run_intake(
         mode,
     )
 
-    # Lưu clinical snapshot trước khi fold — intent_router dùng để tránh
+    # Lưu clinical snapshot của turn hiện tại — intent_router dùng để tránh
     # session carry-over làm has_case_signal luôn True.
     import copy as _copy
     base_user._current_clinical = _copy.copy(base_user.clinical)
-    user = fold_history_facts(base_user, history)
-    # S2-B: sync merged context ngược vào session store để các component khác
-    # (metrics, audit) có thể query user_context mà không cần fold lại.
-    if session_id:
-        ctx_dict = {
-            k: v for k, v in user.context.model_dump(exclude_none=True).items()
-            if v is not None
-        }
-        if ctx_dict:
-            store.merge_user_context(session_id, ctx_dict)
-    _folded_cl = user.clinical
-    logger.info(
-        "[{}] ③ SESSION FOLD: history={} turns, asked={} | after_fold → age={} lesions={} dist={} inflam={}",
-        sid_short,
-        len(history),
-        store.get_asked_fields(session_id),
-        user.context.age,
-        (_folded_cl.lesion_types if _folded_cl else []),
-        (_folded_cl.lesion_distribution if _folded_cl else []),
-        (_folded_cl.inflammation_level if _folded_cl else None),
-    )
 
-    c.guardrails.pre_check(user)
+    c.guardrails.pre_check(base_user)
 
     # Genital / out-of-scope body region check — phải làm trước OOD để tránh
     # embedding similarity cao do "vùng da" khớp với acne centroid.
@@ -427,15 +424,15 @@ def run_intake(
                 "bác sĩ chuyên khoa kiểm tra trực tiếp — có thể liên quan đến bệnh lây truyền "
                 "qua đường tình dục hoặc tình trạng đặc biệt cần chẩn đoán chuyên khoa."
             ),
-            mode=user.mode,
+            mode=base_user.mode,
             model_name="",
             latency_ms=0,
         )
         return IntakeResult(
             raw_message=raw_message,
             clean_text=clean_text,
-            user=user,
-            turn_snapshot=turn_snapshot,
+            user=base_user,
+            turn_snapshot=None,
             history=history,
             effective_mode="refuse",
             scope_decision="refuse_hard",
@@ -443,11 +440,16 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
+                query_subject="general",
                 turn_type="reject",
                 route_flags=["genital_scope"],
                 reason_code="genital_scope_hard_reject",
             ),
             session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
         )
 
     # Compute has_acne_history once — reused by scope_check and OOD downgrade below.
@@ -456,11 +458,7 @@ def run_intake(
         for t in history
         if t.role == "user"
     )
-    scope_refusal = (
-        c.guardrails.scope_check(user, has_acne_history=has_acne_history)
-        if hasattr(c.guardrails, "scope_check")
-        else None
-    )
+    scope_refusal = _scope_check_compat(c.guardrails, base_user, has_acne_history)
     acne_signal = _is_acne_scope(clean_text)
     logger.info(
         "[{}] ④ GUARDRAILS: acne_signal={} genital=False refused={} scope={}",
@@ -475,8 +473,8 @@ def run_intake(
         return IntakeResult(
             raw_message=raw_message,
             clean_text=clean_text,
-            user=user,
-            turn_snapshot=turn_snapshot,
+            user=base_user,
+            turn_snapshot=None,
             history=history,
             effective_mode="refuse",
             scope_decision="refuse_hard",
@@ -484,11 +482,16 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
+                query_subject="general",
                 turn_type="reject",
                 route_flags=["out_of_scope"],
                 reason_code="scope_hard_reject",
             ),
             session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
         )
 
     scope_decision: ScopeDecision = "in_scope" if acne_signal else "pass_to_llm_soft"
@@ -518,14 +521,15 @@ def run_intake(
         return IntakeResult(
             raw_message=raw_message,
             clean_text=clean_text,
-            user=user,
-            turn_snapshot=turn_snapshot,
+            user=base_user,
+            turn_snapshot=None,
             history=history,
             effective_mode="clarify",
             scope_decision=scope_decision,
             route_decision=RouteDecision(
                 primary_intent="clarify",
                 confidence=0.95,
+                query_subject="general",
                 turn_type="clarify",
                 route_flags=[],
                 reason_code="complaint",
@@ -536,32 +540,117 @@ def run_intake(
                 clarify_reason="complaint",
             ),
             session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            normalized_query=build_retrieval_query_from_user(
+                base_user,
+                clean_text_normalized=clean_text,
+            ),
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
         )
 
     route_decision = route_intent(
         clean_text,
-        user,
+        base_user,
         history,
         settings=getattr(c, "settings", None),
         classifier=getattr(c, "intent_classifier", None),
     )
     logger.info(
-        "[{}] ⑤ ROUTE: intent={} conf={:.2f} flags={} source={} reason={}",
+        "[{}] ⑤ ROUTE: intent={} subject={} conf={:.2f} flags={} source={} reason={}",
         sid_short,
         route_decision.primary_intent,
+        route_decision.query_subject,
         route_decision.confidence,
         route_decision.route_flags,
         route_decision.source,
         route_decision.reason_code,
     )
 
+    if route_decision.primary_intent == "reject":
+        logger.info("[{}] → REFUSE (intent reject)", sid_short)
+        intent_refusal = AdviseOutput(
+            severity="unknown",
+            acne_type_primary="unknown",
+            causes=["Ngoài phạm vi tư vấn mụn trứng cá"],
+            recommendations=[],
+            red_flags=[],
+            used_chunks=[],
+            confidence=0.0,
+            disclaimer=(
+                "Mình chỉ hỗ trợ các câu hỏi về mụn trứng cá, chăm sóc da mụn "
+                "và điều trị mụn an toàn."
+            ),
+            mode=base_user.mode,
+            model_name="",
+            latency_ms=0,
+        )
+        return IntakeResult(
+            raw_message=raw_message,
+            clean_text=clean_text,
+            user=base_user,
+            turn_snapshot=None,
+            history=history,
+            effective_mode="refuse",
+            scope_decision="refuse_hard",
+            scope_refusal=intent_refusal,
+            route_decision=route_decision,
+            session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
+        )
+
+    should_fold_clinical = route_decision.query_subject == "self"
+    user = fold_history_facts(base_user, history) if should_fold_clinical else base_user
+    turn_snapshot = (
+        turn_snapshot
+        if should_fold_clinical and _snapshot_has_values(turn_snapshot)
+        else None
+    )
+
+    # S2-B: chỉ sync merged context cho subject=self. Knowledge/general/other
+    # turns không được ghi vào hồ sơ lâm sàng của người dùng.
+    if session_id and should_fold_clinical:
+        ctx_dict = {
+            k: v for k, v in user.context.model_dump(exclude_none=True).items()
+            if v is not None
+        }
+        if ctx_dict:
+            store.merge_user_context(session_id, ctx_dict)
+    _folded_cl = user.clinical
+    logger.info(
+        "[{}] ③ SESSION FOLD: {} | history={} turns, asked={} | after_fold → age={} lesions={} dist={} inflam={}",
+        sid_short,
+        "applied" if should_fold_clinical else "skipped",
+        len(history),
+        store.get_asked_fields(session_id),
+        user.context.age,
+        (_folded_cl.lesion_types if _folded_cl else []),
+        (_folded_cl.lesion_distribution if _folded_cl else []),
+        (_folded_cl.inflammation_level if _folded_cl else None),
+    )
+
     # Lay asked_fields tu session de completeness checker khong hoi lai
     asked_fields = store.get_asked_fields(session_id)
     completeness = (
         check_completeness(user, history=history, asked_fields=asked_fields)
-        if _should_check_completeness(clean_text, user, history, route_decision)
+        if should_fold_clinical and _should_check_completeness(clean_text, user, history, route_decision)
         else None
     )
+
+    if route_decision.primary_intent == "clarify" and route_decision.query_subject == "self":
+        enough_context = completeness is not None and completeness.level == "sufficient"
+        too_many_clarifies = has_acne_history and _session_clarify_count(store, session_id, history) >= 3
+        if too_many_clarifies:
+            _force_advise_route(route_decision, "clarify_loop_hard_stop")
+            logger.info("[{}] ⑤b ROUTE OVERRIDE: clarify → advise (clarify loop hard stop)", sid_short)
+        elif enough_context:
+            _force_advise_route(route_decision, "clarify_sufficient_context")
+            logger.info("[{}] ⑤b ROUTE OVERRIDE: clarify → advise (sufficient self context)", sid_short)
+
     logger.info(
         "[{}] ⑥ COMPLETENESS: checked={} kind={} level={} missing={} q={!r:.60}",
         sid_short,
@@ -583,15 +672,26 @@ def run_intake(
         )
 
     planner = getattr(c, "clinical_planner", None)
-    use_planner = getattr(getattr(c, "settings", None), "chat_use_llm_planner", True)
-    _intent_is_knowledge = (
-        route_decision is not None and route_decision.primary_intent == "knowledge"
+    should_build_clinical_plan = (
+        route_decision.primary_intent == "advise"
+        and route_decision.query_subject == "self"
+    )
+    has_current_or_history_acne = acne_signal or has_acne_history or _has_clinical_data(
+        user.clinical or AcneClinicalInput()
     )
     clinical_plan = (
         planner.plan(user)
-        if planner is not None and acne_signal and use_planner and not _intent_is_knowledge
+        if planner is not None and should_build_clinical_plan and has_current_or_history_acne
         else None
     )
+    query_user = user if should_fold_clinical else base_user
+    normalized_query = build_retrieval_query_from_user(
+        query_user,
+        clean_text_normalized=clean_text,
+    )
+    if clinical_plan is not None and normalized_query:
+        clinical_plan.rag_queries.query_vi = normalized_query
+    extracted_entities = extracted_entities_from_user(query_user)
     logger.info(
         "[{}] ⑦ CLINICAL PLAN: built={} missing={} lang={} query={!r:.80}",
         sid_short,
@@ -600,17 +700,30 @@ def run_intake(
         clinical_plan.detected_language if clinical_plan else "n/a",
         (clinical_plan.rag_queries.query_vi if clinical_plan else ""),
     )
-    logger.info("[{}] → {} (scope={} plan={})", sid_short, mode.upper(), scope_decision, clinical_plan is not None)
+    effective_mode: EffectiveMode = "clarify" if route_decision.primary_intent == "clarify" else mode
+    logger.info(
+        "[{}] → {} (scope={} plan={} snapshot={})",
+        sid_short,
+        effective_mode.upper(),
+        scope_decision,
+        clinical_plan is not None,
+        turn_snapshot is not None,
+    )
     return IntakeResult(
         raw_message=raw_message,
         clean_text=clean_text,
         user=user,
         turn_snapshot=turn_snapshot,
         history=history,
-        effective_mode=mode,
+        effective_mode=effective_mode,
         scope_decision=scope_decision,
         completeness=completeness,
         clinical_plan=clinical_plan,
         route_decision=route_decision,
         session_id=session_id,
+        clean_text_no_accent=clean_text_no_accent,
+        normalized_query=normalized_query,
+        extracted_entities=extracted_entities,
+        pii_detected=contains_pii(clean_text),
+        teencode_replaced=prepared.teencode_replaced,
     )

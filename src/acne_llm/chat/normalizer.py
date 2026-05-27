@@ -16,7 +16,7 @@ import unicodedata
 from typing import TYPE_CHECKING, Literal, cast
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
-from .preprocess import preprocess_user_text
+from .preprocess import prepare_user_text, strip_accents
 
 
 def _light_normalize(message: str) -> str:
@@ -34,7 +34,8 @@ def _light_normalize(message: str) -> str:
 
 _SKIN_TYPES: list[tuple[str, str]] = [
     ("oily", r"\b(?:da\s*)?(?:"
-     r"dau|dầu"
+     r"dầu"
+     r"|da\s*dau(?!\s*khi)"
      r"|nhờn|nhon"
      r"|bóng\s*dầu|bong\s*dau"
      r"|oily\b"
@@ -48,7 +49,8 @@ _SKIN_TYPES: list[tuple[str, str]] = [
      r"|bóng\s*loáng"
      r")\b"),
     ("dry", r"\b(?:da\s*)?(?:"
-     r"khô|kho\b"
+     r"khô"
+     r"|da\s*kho(?!\s*chiu)"
      r"|khô\s*căng|kho\s*cang"
      r"|dry\b"
      r"|bong\s*tróc|bong\s*troc"
@@ -83,31 +85,45 @@ _SKIN_TYPES: list[tuple[str, str]] = [
      r"|đỏ\s*ửng\s*(?:khi|lúc)"
      r"|reactive\s*skin"
      r")\b"),
-    ("normal", r"\b(?:da\s*)?(?:"
-     r"thường|thuong\b"
+    ("normal", r"\b(?:"
+     r"da\s*thường|da\s*thuong"
      r"|normal\b"
-     r"|bình\s*thường|binh\s*thuong"
+     r"|da\s*bình\s*thường|da\s*binh\s*thuong"
      r"|da\s*bình\s*thường"
      r"|không\s*(?:quá\s*)?dầu\s*(?:không\s*(?:quá\s*)?khô)?"
      r")\b"),
 ]
 
 _SEX_TERMS: list[tuple[str, str]] = [
-    ("male", r"\b(?:tôi|toi|mình|minh|em|cháu|chau|mình)?\s*(?:là|la)?\s*(?:nam|male|con\s*trai|boy|men|man|anh|chú|bạn\s*nam|giới\s*tính\s*nam)\b"),
-    ("female", r"\b(?:tôi|toi|mình|minh|em|cháu|chau|mình)?\s*(?:là|la)?\s*(?:nữ|nu|female|con\s*gái|girl|women|woman|chị|bạn\s*nữ|giới\s*tính\s*nữ)\b"),
+    # male: có/không có subject pronoun, có/không có "là"
+    ("male", r"(?:"
+     # pronoun + là + noun
+     r"\b(?:tôi|toi|mình|minh|em|cháu|chau|con|mình)\s*(?:là|la)\s*(?:nam|male|con\s*trai|boy|men|man|anh|chú|bạn\s*nam|giới\s*tính\s*nam)\b"
+     # standalone: "nam giới", "giới tính nam", "con trai", gender identity phrases
+     r"|\b(?:nam\s*giới|gioi\s*tinh\s*nam|giới\s*tính\s*(?:là\s*)?nam|bạn\s*trai\s*hỏi|con\s*trai\b|đàn\s*ông|dan\s*ong)\b"
+     # pronoun + noun without "là" — e.g. "mình nam", "em nam"
+     r"|\b(?:tôi|toi|mình|minh|em|cháu|chau)\s+(?:nam|male|boy|man)\b"
+     r")"),
+    # female: tương tự male
+    ("female", r"(?:"
+     r"\b(?:tôi|toi|mình|minh|em|cháu|chau|con|mình)\s*(?:là|la)\s*(?:nữ|nu|female|con\s*gái|girl|women|woman|chị|bạn\s*nữ|giới\s*tính\s*nữ)\b"
+     r"|\b(?:nữ\s*giới|nu\s*gioi|giới\s*tính\s*(?:là\s*)?nữ|con\s*gái\b|phụ\s*nữ|phu\s*nu|bạn\s*gái\s*hỏi)\b"
+     r"|\b(?:tôi|toi|mình|minh|em|cháu|chau)\s+(?:nữ|nu|female|girl|woman)\b"
+     r")"),
 ]
 
 _PRODUCT_TERMS = [
     # Acids / actives
     "bha", "aha", "pha", "lha",
-    "salicylic acid", "acid salicylic",
+    "salicylic acid", "acid salicylic", "salicylic",
     "azelaic acid", "acid azelaic",
-    "glycolic acid", "acid glycolic",
+    "glycolic acid", "acid glycolic", "glycolic",
     "lactic acid", "acid lactic",
     "mandelic acid",
     "niacinamide",
     "vitamin c", "vitamin b3", "vitamin b5",
     "hyaluronic acid", "acid hyaluronic",
+    "vitamin a acid",
     # Retinoids
     "retinol", "retinoid", "retinal", "retinaldehyde",
     "tretinoin", "retin-a",
@@ -206,33 +222,35 @@ _MEDICATION_TERMS = [
 
 _DISTRIBUTION_TERMS: list[tuple[str, str]] = [
     ("forehead", r"\b(?:"
-     r"trán|tran"
+     r"trán"
      r"|forehead"
      r"|vùng\s*trán|vung\s*tran"
      r"|giữa\s*trán|giua\s*tran"
      r"|trán\s*dầu"
      r"|trên\s*trán|tren\s*tran"
      r"|trán\s*đầu\s*(?:nhiều\s*)?mụn"
-     r"|phần\s*trán"
+     r"|phần\s*trán|phan\s*tran"
+     r"|mụn\s*(?:ở\s*)?trán|mun\s+o\s+tran"
+     r"|mun\s+tran\b"
      r")\b"),
     ("cheeks", r"\b(?:"
-     r"má|ma\b"
-     r"|hai\s*bên\s*má|2\s*bên\s*má"
-     r"|cheek|cheeks"
-     r"|vùng\s*má|bên\s*má"
-     r"|gò\s*má|go\s*ma"
-     r"|má\s*(?:phải|trái|hai\s*bên)"
-     r"|mụn\s*(?:ở\s*)?má|mun\s*(?:o\s*)?ma"
-     r"|da\s*má|vùng\s*gò\s*má"
-     r"|hai\s*má"
+     r"má"
+     r"|cheeks?"
+     r"|hai\s*bên\s*má|2\s*bên\s*má|hai\s*ben\s*ma|2\s*ben\s*ma"
+     r"|(?:ở|o|trên|tren|vùng|vung|bên|ben|hai|gò|go)\s*(?:gò\s*)?(?:má|ma)"
+     r"|(?:má|ma)\s*(?:phải|phai|trái|trai|hai\s*bên|hai\s*ben)"
+     r"|mụn\s*(?:ở\s*)?má|mun\s+o\s+ma"
+     r"|vùng\s*gò\s*má|vung\s*go\s*ma"
      r")\b"),
     ("chin", r"\b(?:"
-     r"cằm|cam\b"
+     r"cằm"
      r"|chin\b"
      r"|dưới\s*cằm|duoi\s*cam"
      r"|vùng\s*cằm|vung\s*cam"
-     r"|mụn\s*(?:ở\s*)?cằm|mun\s*(?:o\s*)?cam"
-     r"|phần\s*cằm"
+     r"|(?:ở|trên|dưới|vùng|phần|chóp|da)\s*cằm"
+     r"|(?:o|tren|duoi|vung|phan|chop)\s*cam"
+     r"|mụn\s*(?:ở\s*)?cằm|mun\s+o\s+cam"
+     r"|phần\s*cằm|phan\s*cam"
      r"|cằm\s*dưới"
      r"|chóp\s*cằm"
      r")\b"),
@@ -241,22 +259,26 @@ _DISTRIBUTION_TERMS: list[tuple[str, str]] = [
      r"|jawline"
      r"|xương\s*hàm|xuong\s*ham"
      r"|hàm\s*dưới|ham\s*duoi"
-     r"|hàm|ham\b"
-     r"|dọc\s*theo\s*(?:quai\s*)?hàm"
-     r"|mụn\s*(?:dọc\s*)?(?:theo\s*)?hàm"
+     r"|hàm"
+     r"|dọc\s*theo\s*(?:quai\s*)?hàm|doc\s*theo\s*(?:quai\s*)?ham"
+     r"|mụn\s*(?:dọc\s*)?(?:theo\s*)?hàm|mun\s+(?:o|dọc\s*theo|doc\s*theo|theo)\s*ham"
+     r"|mun\s+ham\b"
      r"|viền\s*hàm|vien\s*ham"
-     r"|hai\s*bên\s*hàm"
+     r"|hai\s*bên\s*hàm|hai\s*ben\s*ham"
      r")\b"),
     ("nose", r"\b(?:"
-     r"mũi|mui\b"
+     r"mũi"
      r"|nose\b"
      r"|đầu\s*mũi|dau\s*mui"
      r"|cánh\s*mũi|canh\s*mui"
      r"|sống\s*mũi|song\s*mui"
-     r"|vùng\s*mũi|cuong\s*mui"
-     r"|trên\s*mũi"
-     r"|mụn\s*(?:ở\s*)?mũi"
-     r"|chóp\s*mũi"
+     r"|vùng\s*mũi|vung\s*mui"
+     r"|trên\s*mũi|tren\s*mui"
+     r"|mụn\s*(?:ở\s*)?mũi|mun\s+o\s+mui"
+     r"|mun\s+mui\b"
+     r"|chóp\s*mũi|chop\s*mui"
+     r"|(?:ở|o|da)\s*mũi|o\s*mui"
+     r"|mũi\s*(?:trái|phải)|mui\s*(?:trai|phai)"
      r")\b"),
     ("around_mouth", r"\b(?:"
      r"quanh\s*miệng|quanh\s*mieng"
@@ -295,27 +317,34 @@ _DISTRIBUTION_TERMS: list[tuple[str, str]] = [
      r"|mụn\s*ngực|mun\s*nguc"
      r")\b"),
     ("shoulders", r"\b(?:"
-     r"vai|vai\b"
-     r"|bả\s*vai|ba\s*vai"
+     r"bả\s*vai|ba\s*vai"
      r"|shoulder|shoulders"
-     r"|vùng\s*vai"
-     r"|hai\s*bên\s*vai"
-     r"|mụn\s*(?:ở\s*)?vai"
-     r"|phần\s*vai"
-     r"|bờ\s*vai"
+     r"|vùng\s*vai|vung\s*vai"
+     r"|hai\s*bên\s*vai|hai\s*ben\s*vai"
+     r"|mụn\s*ở\s*vai|mun\s+o\s+vai"
+     r"|mun\s+vai\b"
+     r"|phần\s*vai|phan\s*vai"
+     r"|bờ\s*vai|bo\s*vai"
+     r"|(?:ở|o|trên|tren)\s*vai"
+     r"|vai\s*(?:trái|phải|trai|phai)"
      r")\b"),
     ("neck", r"\b(?:"
-     r"cổ(?!\s*(?:tay|chân|bình|chai|hủ|lọ))|co\b"
+     r"cổ(?!\s*(?:tay|chân|bình|chai|hủ|lọ))"
      r"|neck\b"
      r"|sau\s*gáy|sau\s*gay"
-     r"|gáy|gay\b"
+     r"|gáy"
+     r"|vùng\s*gáy|vung\s*gay"
+     r"|(?:ở|o)\s*gáy|o\s*gay"
+     r"|mụn\s*(?:ở\s*)?gáy|mun\s+o\s+gay"
      r"|vùng\s*cổ|vung\s*co"
-     r"|cổ\s*(?:trước|sau|bên)"
-     r"|mụn\s*(?:ở\s*)?cổ|mun\s*(?:o\s*)?co"
-     r"|phần\s*cổ"
+     r"|cổ\s*(?:trước|sau|bên)|co\s*(?:truoc|sau|ben)"
+     r"|mụn\s*(?:ở\s*)?cổ|mun\s+o\s+co"
+     r"|mun\s+co\b(?!\s*(?:tay|chan|binh|chai|hu|lo|the|vi|gi|dau|san))"
+     r"|phần\s*cổ|phan\s*co"
      r"|da\s*cổ"
-     r"|cổ\s*lan\s*xuống"
-     r"|lan\s*(?:xuống\s*)?(?:cổ|vùng\s*cổ)"
+     r"|(?:ở|o)\s*cổ|o\s*co"
+     r"|cổ\s*lan\s*xuống|co\s*lan\s*xuong"
+     r"|lan\s*(?:xuống\s*)?(?:cổ|vùng\s*cổ)|lan\s*(?:xuong\s*)?(?:co|vung\s*co)"
      r")\b"),
     ("t_zone", r"\b(?:"
      r"t-zone|t\s*zone"
@@ -329,11 +358,12 @@ _DISTRIBUTION_TERMS: list[tuple[str, str]] = [
      r"|vùng\s*mặt|vung\s*mat"
      r"|toàn\s*mặt|khắp\s*mặt"
      r"|face\b"
-     r"|mông|mong\b"
-     r"|đùi|dui\b"
-     r"|da\s*đầu|da\s*dau"
+     r"|mông|(?:ở|o|vùng|vung|phần|phan)\s*mong|mun\s+o\s+mong"
+     r"|đùi|(?:ở|o|vùng|vung|phần|phan)\s*dui|mun\s+o\s+dui"
+     r"|da\s*đầu"
      r"|scalp\b"
-     r"|tay\b|chân|chan\b"
+     r"|(?:ở|o|vùng|vung|phần|phan|cánh|canh|cẳng|cang)\s*tay|mun\s+o\s+tay"
+     r"|chân|(?:ở|o|vùng|vung|phần|phan)\s*chan|mun\s+o\s+chan"
      r"|toàn\s*thân|toan\s*than"
      r"|khắp\s*người|khap\s*nguoi"
      r"|da\s*toàn\s*thân"
@@ -349,7 +379,7 @@ _LESION_TERMS: list[tuple[str, str]] = [
      r"|li\s*ti\s*dưới\s*da|liti\s*duoi\s*da"
      r"|mụn\s*nhỏ\s*li\s*ti|mụn\s*liti"
      r"|mụn\s*đầu\s*trắng\s*kín"
-     r"|mụn\s*cám|mun\s*cam"
+     r"|mụn\s*cám"
      r"|mụn\s*nhân|nhân\s*mụn|nhan\s*mun"
      r"|comedone"
      r"|mụn\s*hạt\s*kê|hat\s*ke"
@@ -580,32 +610,52 @@ _HORMONAL_TERMS: list[tuple[str, str]] = [
      r")\b"),
 ]
 
+_ALLERGY_REACTION_VERBS = (
+    r"(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp|khong\s*hop"
+    r"|không\s*dùng\s*được|khong\s*dung\s*duoc|bị\s*ứng|bi\s*ung"
+    r"|không\s*chịu\s*được|khong\s*chiu\s*duoc)"
+)
+# Pattern xuôi: "dị ứng với X" | ngược: "X làm/gây kích ứng / bị kích ứng khi dùng X"
+# Dùng window .{0,30} để cho phép từ trung gian ("làm da MÌnh bị kích ứng",
+# "gây kích ứng cho da mình", v.v.) — không dùng \s* vì quá strict.
+_ALLERGY_REACTION_AFTER = (
+    r"(?:.{0,30}(?:kích\s*ứng|dị\s*ứng|nổi\s*đỏ|ngứa\s*rát|bỏng\s*rát|phản\s*ứng)"
+    r"|.{0,20}không\s*hợp\s*(?:với\s*)?da"
+    r"|.{0,15}gây\s*(?:mẩn|nổi\s*đỏ|đỏ\s*rát))"
+)
+
+def _allergy_pattern(substance: str) -> str:
+    """Tạo pattern match cả chiều xuôi lẫn ngược cho một chất."""
+    fwd = rf"\b{_ALLERGY_REACTION_VERBS}\s+(?:với\s*|with\s*)?{substance}\b"
+    rev = rf"\b{substance}\b{_ALLERGY_REACTION_AFTER}"
+    return f"(?:{fwd}|{rev})"
+
 _ALLERGY_TERMS: list[tuple[str, str]] = [
-    # Retinoids
-    ("retinol",        r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp|khong\s*hop|không\s*dùng\s*được|khong\s*dung\s*duoc|bị\s*ứng)\s+(?:với\s*|with\s*)?retinol\b"),
-    ("retinoid",       r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp|bị\s*ứng)\s+(?:với\s*)?retinoid\b"),
-    ("tretinoin",      r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*chịu\s*được|bi\s*ung)\s+(?:với\s*)?tretinoin\b"),
-    ("adapalene",      r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp)\s+(?:với\s*)?adapalene\b"),
+    # Retinoids — forward + reverse
+    ("retinol",        _allergy_pattern(r"retinol")),
+    ("retinoid",       _allergy_pattern(r"retinoid")),
+    ("tretinoin",      _allergy_pattern(r"tretinoin")),
+    ("adapalene",      _allergy_pattern(r"adapalene")),
     # Acids
-    ("salicylic_acid", r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp|không\s*chịu)\s+(?:với\s*)?(?:salicylic|bha|acid\s*salicylic)\b"),
-    ("benzoyl_peroxide", r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp)\s+(?:với\s*)?(?:benzoyl|bpo|benzoyl\s*peroxide)\b"),
-    ("niacinamide",    r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung|không\s*hợp)\s+(?:với\s*)?niacinamide\b"),
-    ("aha",            r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung)\s+(?:với\s*)?(?:aha|glycolic\s*acid|lactic\s*acid|acid\s*glycolic)\b"),
-    ("tea_tree",       r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|kich\s*ung)\s+(?:với\s*)?(?:tea\s*tree|tràm\s*trà|tram\s*tra)\b"),
+    ("salicylic_acid", _allergy_pattern(r"(?:salicylic(?:\s*acid)?|bha|acid\s*salicylic)")),
+    ("benzoyl_peroxide", _allergy_pattern(r"(?:benzoyl(?:\s*peroxide)?|bpo)")),
+    ("niacinamide",    _allergy_pattern(r"niacinamide")),
+    ("aha",            _allergy_pattern(r"(?:aha|glycolic\s*acid|lactic\s*acid|acid\s*glycolic)")),
+    ("tea_tree",       _allergy_pattern(r"(?:tea\s*tree|tram\s*tra|trang\s*tra)")),
     # Antibiotics
-    ("clindamycin",    r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|không\s*hợp)\s+(?:với\s*)?clindamycin\b"),
-    ("doxycycline",    r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng)\s+(?:với\s*)?doxycycline\b"),
-    ("penicillin",     r"\b(?:dị\s*ứng|di\s*ung)\s+(?:với\s*)?(?:penicillin|amoxicillin|kháng\s*sinh\s*nhóm\s*beta)\b"),
-    ("erythromycin",   r"\b(?:dị\s*ứng|di\s*ung)\s+(?:với\s*)?erythromycin\b"),
+    ("clindamycin",    _allergy_pattern(r"clindamycin")),
+    ("doxycycline",    _allergy_pattern(r"doxycycline")),
+    ("penicillin",     _allergy_pattern(r"(?:penicillin|amoxicillin)")),
+    ("erythromycin",   _allergy_pattern(r"erythromycin")),
     # Fragrance / preservatives
-    ("fragrance",      r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng|không\s*hợp)\s+(?:với\s*)?(?:hương\s*liệu|huong\s*lieu|fragrance|mùi\s*thơm|nước\s*hoa)\b"),
-    ("preservative",   r"\b(?:dị\s*ứng|di\s*ung|không\s*hợp)\s+(?:với\s*)?(?:chất\s*bảo\s*quản|chat\s*bao\s*quan|preservative|paraben)\b"),
-    # Sunscreen agents
-    ("sunscreen_chemical", r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng)\s+(?:với\s*)?(?:kem\s*chống\s*nắng\s*hóa\s*học|chemical\s*sunscreen|oxybenzone|avobenzone|kem\s*chống\s*nắng)\b"),
-    # Natural / food-derived
-    ("aloe_vera",      r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng)\s+(?:với\s*)?(?:nha\s*đam|nha\s*dam|aloe\s*vera|lô\s*hội|lo\s*hoi)\b"),
-    ("centella",       r"\b(?:dị\s*ứng|di\s*ung|kích\s*ứng)\s+(?:với\s*)?(?:rau\s*má|rau\s*ma|centella|cica)\b"),
-    # Generic / catch-all natural language
+    ("fragrance",      _allergy_pattern(r"(?:huong\s*lieu|fragrance|mui\s*thom|nuoc\s*hoa)")),
+    ("preservative",   _allergy_pattern(r"(?:chat\s*bao\s*quan|preservative|paraben)")),
+    # Sunscreen
+    ("sunscreen_chemical", _allergy_pattern(r"(?:chemical\s*sunscreen|oxybenzone|avobenzone|kem\s*chong\s*nang\s*hoa\s*hoc)")),
+    # Natural
+    ("aloe_vera",      _allergy_pattern(r"(?:nha\s*dam|aloe\s*vera|lo\s*hoi)")),
+    ("centella",       _allergy_pattern(r"(?:rau\s*ma|centella|cica)")),
+    # Generic / catch-all — chỉ dùng khi không match được substance cụ thể
     ("unknown",        r"(?:"
      r"\b(?:dị\s*ứng|di\s*ung)\b"
      r"|bị\s*dị\s*ứng"
@@ -816,7 +866,7 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
     ("skin_irritation", r"\b(?:"
      r"kích\s*ứng|kich\s*ung"
      r"|bong\s*tróc|bong\s*troc"
-     r"|rát(?:\s*bỏng)?|rat\b"
+     r"|rát(?:\s*bỏng)?"
      r"|nóng\s*rát|nong\s*rat"
      r"|châm\s*chích|cham\s*chich"
      r"|ngứa\s*(?:rát|nhiều)|ngua\s*(?:rat|nhieu)"
@@ -860,6 +910,7 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
      r"(?:tự\s*)?nặn\s*mụn|(?:tu\s*)?nan\s*mun"
      r"|tự\s*nặn|tu\s*nan"
      r"|cậy\s*mụn|cay\s*mun"
+     r"|nặn\s*vài\s*cục|nan\s*vai\s*cuc"
      r"|nặn\s*(?:ra\s*)?(?:máu|mủ)"
      r"|sau\s*khi\s*nặn|sau\s*khi\s*nan"
      r"|bôi\s*kem\s*trộn|boi\s*kem\s*tron"
@@ -885,6 +936,97 @@ def _dedupe(items: list[str]) -> list[str]:
             seen.add(item)
             out.append(item)
     return out
+
+
+def _dedupe_floats(items: list[float]) -> list[float]:
+    seen: set[float] = set()
+    out: list[float] = []
+    for item in items:
+        value = round(float(item), 8)
+        if value not in seen:
+            seen.add(value)
+            out.append(value)
+    return out
+
+
+def _texts_for_extraction(clean_text: str, clean_text_no_accent: str | None = None) -> list[str]:
+    texts = [clean_text]
+    no_accent = clean_text_no_accent if clean_text_no_accent is not None else strip_accents(clean_text)
+    if no_accent and no_accent != clean_text:
+        texts.append(no_accent)
+    return texts
+
+
+def _merge_extracted(texts: list[str], extractor) -> list[str]:
+    merged: list[str] = []
+    for text in texts:
+        merged.extend([str(x) for x in extractor(text)])
+    return _dedupe(merged)
+
+
+def _dedupe_accent_insensitive(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        key = strip_accents(str(item)).lower()
+        if key not in seen:
+            seen.add(key)
+            out.append(item)
+    return out
+
+
+def _first_extracted(texts: list[str], extractor):
+    for text in texts:
+        value = extractor(text)
+        if value is not None:
+            return value
+    return None
+
+
+_AcneCount = Literal["few", "moderate_count", "many"]
+
+
+def _extract_acne_count(text: str) -> _AcneCount | None:
+    """Ước lượng số lượng mụn: few / moderate_count / many.
+
+    Dùng để calibrate inflammation inference — "1-2 nốt đỏ" là few dù có papule.
+    Không expose ra schema ngoài; chỉ dùng nội bộ trong _extract_inflammation.
+    """
+    # Many: từ ngữ chỉ số lượng lớn
+    _many = (
+        r"\b(?:"
+        r"rất\s*nhiều|rat\s*nhieu"
+        r"|đầy\s*(?:mặt|lưng|người|da)"
+        r"|chi\s*chít|chi\s*chit"
+        r"|dày\s*đặc|day\s*dac"
+        r"|khắp\s*(?:mặt|người|nơi|da)|khap"
+        r"|nổi\s*(?:nhiều|đầy|khắp)|noi\s*nhieu"
+        r"|mụn\s*(?:nhiều\s*(?:lắm|quá)|lên\s*nhiều|mọc\s*nhiều)"
+        r"|bùng\s*phát|bung\s*phat"
+        r"|hàng\s*chục|hang\s*chuc"
+        r"|[2-9]\d+\s*(?:nốt|cái|mụn)"          # >= 20
+        r")\b"
+    )
+    if _has(_many, text):
+        return "many"
+
+    # Few: từ ngữ rõ ràng chỉ 1-3 mụn
+    _few = (
+        r"\b(?:"
+        r"(?:chỉ\s*)?(?:1|một|2|hai|3|ba)\s*(?:nốt|cái|mụn|hạt)(?:\s*nhỏ)?"
+        r"|vài\s*(?:nốt|cái|mụn)\s*(?:nhỏ|thôi)?"
+        r"|1-?2\s*(?:nốt|cái|mụn)"
+        r"|2-?3\s*(?:nốt|cái|mụn)"
+        r"|chỉ\s*(?:vài|một\s*ít)\s*(?:mụn|nốt)"
+        r"|ít\s*(?:mụn|nốt)\s*(?:thôi|thay)?"
+        r"|mụn\s*ít\s*(?:thôi|lắm)?"
+        r"|không\s*nhiều"
+        r")\b"
+    )
+    if _has(_few, text):
+        return "few"
+
+    return None
 
 
 def _extract_age(text: str) -> int | None:
@@ -947,6 +1089,61 @@ def _extract_products(text: str) -> list[str]:
     return _dedupe(found)
 
 
+def _extract_canonical_ingredients(
+    products: list[str],
+    medications: list[str],
+    clean_text: str,
+    clean_text_no_accent: str,
+) -> list[str]:
+    canonical: list[str] = []
+    joined_terms = " ".join(products + medications).lower()
+    searchable = f"{joined_terms} {clean_text.lower()} {clean_text_no_accent.lower()}"
+
+    if _has(r"(?<!\w)(?:bha|salicylic(?:\s+acid)?|acid\s+salicylic)(?!\w)", searchable):
+        canonical.append("salicylic_acid")
+    if _has(r"(?<!\w)(?:aha|glycolic(?:\s+acid)?|acid\s+glycolic)(?!\w)", searchable):
+        canonical.append("glycolic_acid")
+
+    # Conservative VA handling: uppercase VA is accepted; lowercase "va" is not,
+    # because no-accent "và" also becomes "va".
+    if (
+        re.search(r"(?<!\w)VA(?!\w)", clean_text)
+        or _has(r"(?<!\w)(?:vitamin\s+a\s+acid|tretinoin|retin-a)(?!\w)", searchable)
+    ):
+        canonical.append("tretinoin")
+
+    return _dedupe(canonical)
+
+
+def _extract_usage_frequencies(text: str) -> list[str]:
+    found: list[str] = []
+    if _has(
+        r"\b(?:sáng\s*tối|sang\s*toi|ngày\s*2\s*lần|ngay\s*2\s*lan|"
+        r"2\s*lần\s*/\s*ngày|2\s*lan\s*/\s*ngay|2\s*lần\s*mỗi\s*ngày|"
+        r"2\s*lan\s*moi\s*ngay|twice\s*daily)\b",
+        text,
+    ):
+        found.append("twice_daily")
+    if _has(
+        r"\b(?:cách\s*ngày|cach\s*ngay|2\s*ngày\s*/\s*lần|2\s*ngay\s*/\s*lan|"
+        r"mỗi\s*2\s*ngày|moi\s*2\s*ngay|hai\s*ngày\s*một\s*lần|"
+        r"hai\s*ngay\s*mot\s*lan|every\s*other\s*day)\b",
+        text,
+    ):
+        found.append("every_other_day")
+    return _dedupe(found)
+
+
+def _extract_concentrations(text: str) -> list[float]:
+    values: list[float] = []
+    for match in re.finditer(r"(?<!\w)(\d+(?:[.,]\d+)?)\s*%", text):
+        try:
+            values.append(float(match.group(1).replace(",", ".")) / 100.0)
+        except ValueError:
+            continue
+    return _dedupe_floats(values)
+
+
 def _has_medication_use_context(lowered: str, term: str) -> bool:
     for match in re.finditer(re.escape(term), lowered):
         start = match.start()
@@ -955,11 +1152,13 @@ def _has_medication_use_context(lowered: str, term: str) -> bool:
         window = before + term + after
 
         # ── Loại trừ: hỏi tư vấn, nghe nói, được khuyên ──
-        if _has(r"(?:có\s*(?:nên|cần|thể)|nên|muốn|định|tự\s*ý|mua)\s+(?:uống|bôi|thoa|dùng|xài|sử\s*dụng)", before):
+        if _has(r"(?:có|co)\s*(?:nên|nen|cần|can|thể|the)\s+(?:uống|uong|bôi|boi|thoa|dùng|dung|xài|xai|sử\s*dụng|su\s*dung)", before):
             continue
-        if _has(r"\b(?:khuyên|gợi\s*ý|goi\s*y|nghe\s*nói|nghe\s*noi|trên\s*mạng|tren\s*mang|nghe\s*bảo)\b", before):
+        if _has(r"\b(?:nên|nen|muốn|muon|định|dinh|tự\s*ý|tu\s*y|mua)\s+(?:uống|uong|bôi|boi|thoa|dùng|dung|xài|xai|sử\s*dụng|su\s*dung)\b", before):
             continue
-        if _has(r"\b(?:có\s*nên|có\s*cần|nên\s*dùng|nên\s*uống|có\s*thể\s*dùng)\b", before):
+        if _has(r"\b(?:khuyên|khuyen|gợi\s*ý|goi\s*y|nghe\s*nói|nghe\s*noi|trên\s*mạng|tren\s*mang|nghe\s*bảo|nghe\s*bao)\b", before):
+            continue
+        if _has(r"\b(?:(?:có|co)\s*(?:nên|nen|cần|can)|(?:nên|nen)\s*(?:dùng|dung|uống|uong)|(?:có|co)\s*(?:thể|the)\s*(?:dùng|dung))\b", before):
             continue
 
         # ── Xác nhận đang dùng: aspect marker trước thuốc ──
@@ -1032,6 +1231,23 @@ def _extract_treatment_goals(text: str) -> list[str]:
 
 
 _Inflammation = Literal["none", "mild", "moderate", "severe", "unknown"]
+_INFLAMMATION_ORDER: dict[str, int] = {
+    "unknown": 0,
+    "none": 0,
+    "mild": 1,
+    "moderate": 2,
+    "severe": 3,
+}
+
+
+def _strongest_inflammation(values: list[str | None]) -> _Inflammation | None:
+    best: str | None = None
+    for value in values:
+        if value is None:
+            continue
+        if best is None or _INFLAMMATION_ORDER.get(value, 0) > _INFLAMMATION_ORDER.get(best, 0):
+            best = value
+    return cast(_Inflammation, best) if best is not None else None
 
 
 def _extract_inflammation(text: str, lesion_types: list[_LesionType]) -> _Inflammation | None:
@@ -1062,7 +1278,27 @@ def _extract_inflammation(text: str, lesion_types: list[_LesionType]) -> _Inflam
     if _has(r"\b(?:sốt|sot|fever|nhiễm\s*trùng|nhiem\s*trung|nóng\s*sốt|nong\s*sot|hạch\s*sưng)\b", text):
         return "severe"
 
-    # Moderate: viêm đỏ có mủ / sưng nhẹ / tường minh "vừa"
+    # Count context — dùng để calibrate: few + inflammatory lesion → mild, không phải moderate
+    acne_count = _extract_acne_count(text)
+
+    # Mild explicit signal — kiểm tra TRƯỚC khi suy từ lesion type,
+    # vì "1-2 nốt đỏ nhỏ, không đau" vẫn có papule nhưng là mild thực sự.
+    _mild_signal = (
+        r"\b(?:"
+        r"nhẹ|mild\b"
+        r"|mụn\s*(?:nhỏ|ít|vài\s*cái|1-?2\s*(?:nốt|cái|mụn))"
+        r"|ít\s*mụn"
+        r"|mụn\s*ít\s*(?:thôi|vài\s*cái)?"
+        r"|không\s*(?:đau|sưng|viêm)"
+        r"|mụn\s*không\s*(?:sưng|đau)"
+        r"|chỉ\s*(?:vài|1-?2)\s*(?:nốt|mụn|cái)"
+        r"|vài\s*(?:nốt|mụn|cái)\s*nhỏ"
+        r")\b"
+    )
+    _has_mild_signal = _has(_mild_signal, text) or acne_count == "few"
+
+    # Moderate: viêm đỏ có mủ / sưng / tường minh "vừa"
+    # Suy từ lesion type CHỈ KHI không có explicit mild signal và không phải "few".
     _moderate_signal = (
         r"\b(?:"
         r"viêm\s*(?:vừa|nhẹ\s*đến\s*vừa)|moderate\b"
@@ -1071,22 +1307,35 @@ def _extract_inflammation(text: str, lesion_types: list[_LesionType]) -> _Inflam
         r"|mụn\s*đỏ\s*(?:và\s*)?sưng"
         r")\b"
     )
-    if _has(_moderate_signal, text) or any(t in lesion_types for t in ("papule", "pustule", "nodule")):
+    # Lesion types chỉ dùng để suy moderate nếu không có mild signal tường minh.
+    # scar / post_inflammatory_hyperpigmentation là sequelae, không phải active
+    # inflammation — loại khỏi inference.
+    _active_inflammatory_lesions = {"papule", "pustule", "nodule", "cyst"}
+    _has_inflammatory_lesion = any(t in lesion_types for t in _active_inflammatory_lesions)
+    # "many" + inflammatory lesion → upgrade moderate về phía severe boundary
+    _lesion_moderate = _has_inflammatory_lesion and not _has_mild_signal
+
+    if _has(_moderate_signal, text) or _lesion_moderate:
         return "moderate"
 
-    # Mild: chỉ mụn không viêm hoặc viêm nhẹ tường minh
-    _mild_signal = (
-        r"\b(?:"
-        r"nhẹ|mild\b"
-        r"|mụn\s*(?:nhỏ|ít|vài\s*cái)"
-        r"|ít\s*mụn"
-        r"|mụn\s*ít\s*(?:thôi|thay)?"
-        r"|không\s*(?:đau|sưng|viêm)"
-        r"|mụn\s*không\s*(?:sưng|đau)"
-        r")\b"
-    )
-    if _has(_mild_signal, text) or lesion_types:
+    # Mild: explicit signal, hoặc có any lesion (kể cả comedone/scar/PIH)
+    # nhưng không có dấu hiệu viêm — non-inflammatory acne.
+    _non_inflammatory = {"whitehead", "blackhead", "closed_comedone", "scar",
+                         "post_inflammatory_hyperpigmentation", "other"}
+    _has_any_lesion = bool(lesion_types)
+    _only_non_inflammatory = _has_any_lesion and all(t in _non_inflammatory for t in lesion_types)
+
+    if _has_mild_signal or _only_non_inflammatory:
         return "mild"
+
+    # Có lesion nhưng mixed (vừa có inflammatory vừa có mild signal) → mild
+    if _has_any_lesion and _has_mild_signal:
+        return "mild"
+
+    # Có lesion không rõ loại → mild fallback
+    if _has_any_lesion:
+        return "mild"
+
     return None
 
 
@@ -1100,11 +1349,12 @@ def normalize_chat_message(
     message: str,
     mode: str = "auto",
     clean_text: str | None = None,
+    clean_text_no_accent: str | None = None,
 ) -> UserInput:
     """Convert a free-form chat message into the existing UserInput schema.
 
     description = raw_for_llm  (NFC + strip control chars, giữ emphasis gốc)
-    Regex extraction dùng clean_text (full preprocess) — chỉ là local var.
+    Regex extraction dùng clean_text + clean_text_no_accent — chỉ là local var.
     """
     # raw_for_llm: tối thiểu để LLM thấy ngôn ngữ tự nhiên đầy đủ
     raw_for_llm = _light_normalize(message)
@@ -1113,35 +1363,64 @@ def normalize_chat_message(
     # Intake truyền sẵn để mỗi request chỉ preprocess một lần; legacy callers
     # không truyền thì normalizer tự tính để giữ tương thích.
     if clean_text is None:
-        clean_text = preprocess_user_text(message)
+        prepared = prepare_user_text(message)
+        clean_text = prepared.clean_text
+        clean_text_no_accent = prepared.clean_text_no_accent
+    elif clean_text_no_accent is None:
+        clean_text_no_accent = strip_accents(clean_text)
 
-    lesion_types = _extract_lesions(clean_text)
-    distribution = _extract_distributions(clean_text)
-    inflammation = _extract_inflammation(clean_text, lesion_types)
-    red_flags = _extract_red_flags(clean_text)
-    medications = _extract_medications(clean_text)
-    products = _extract_products(clean_text)
-    hormonal_factors = _extract_hormonal_factors(clean_text)
-    allergies = _extract_allergies(clean_text)
-    treatment_goals = _extract_treatment_goals(clean_text)
+    extraction_texts = _texts_for_extraction(clean_text, clean_text_no_accent)
+    lesion_types = cast(list[_LesionType], _merge_extracted(extraction_texts, _extract_lesions))
+    distribution = cast(list[_Distribution], _merge_extracted(extraction_texts, _extract_distributions))
+    inflammation = _strongest_inflammation(
+        [_extract_inflammation(text, lesion_types) for text in extraction_texts]
+    )
+    red_flags = _merge_extracted(extraction_texts, _extract_red_flags)
+    medications = _dedupe_accent_insensitive(
+        _merge_extracted(extraction_texts, _extract_medications)
+    )
+    products = _dedupe_accent_insensitive(
+        _merge_extracted(extraction_texts, _extract_products)
+    )
+    hormonal_factors = _merge_extracted(extraction_texts, _extract_hormonal_factors)
+    allergies = _merge_extracted(extraction_texts, _extract_allergies)
+    treatment_goals = _merge_extracted(extraction_texts, _extract_treatment_goals)
+    canonical_ingredients = _extract_canonical_ingredients(
+        products,
+        medications,
+        clean_text,
+        clean_text_no_accent,
+    )
+    usage_frequencies = _merge_extracted(extraction_texts, _extract_usage_frequencies)
+    concentrations = _dedupe_floats(
+        [value for text in extraction_texts for value in _extract_concentrations(text)]
+    )
 
     context = UserContext(
-        age=_extract_age(clean_text),
-        sex=_extract_sex(clean_text),
-        skin_type=_extract_skin_type(clean_text),
+        age=_first_extracted(extraction_texts, _extract_age),
+        sex=_first_extracted(extraction_texts, _extract_sex),
+        skin_type=_first_extracted(extraction_texts, _extract_skin_type),
         is_pregnant=_contains_positive(
             clean_text,
             r"\b(?:mang thai|có thai|co thai|đang bầu|dang bau|pregnant)\b",
             r"\b(?:không|khong|ko|k)\s+(?:mang thai|có thai|co thai|bầu|bau)\b",
+        ) or _contains_positive(
+            clean_text_no_accent,
+            r"\b(?:mang thai|co thai|dang bau|pregnant)\b",
+            r"\b(?:khong|ko|k)\s+(?:mang thai|co thai|bau)\b",
         ),
         is_breastfeeding=_contains_positive(
             clean_text,
             r"\b(?:cho con bú|cho con bu|breastfeeding)\b",
             r"\b(?:không|khong|ko|k)\s+(?:cho con bú|cho con bu|breastfeeding)\b",
+        ) or _contains_positive(
+            clean_text_no_accent,
+            r"\b(?:cho con bu|breastfeeding)\b",
+            r"\b(?:khong|ko|k)\s+(?:cho con bu|breastfeeding)\b",
         ),
         current_products=products,
         medications=medications,
-        duration_weeks=_extract_duration_weeks(clean_text),
+        duration_weeks=_first_extracted(extraction_texts, _extract_duration_weeks),
         allergies=allergies,
     )
 
@@ -1149,14 +1428,23 @@ def normalize_chat_message(
         lesion_types=lesion_types,
         lesion_distribution=distribution,
         inflammation_level=inflammation,
-        scarring_signs=_dedupe([value for value, pattern in _RED_FLAG_TERMS
-                                if value in ("scar", "pih") and _has(pattern, clean_text)]),
+        scarring_signs=_dedupe([
+            value for text in extraction_texts for value, pattern in _RED_FLAG_TERMS
+            if value in ("scar", "pih") and _has(pattern, text)
+        ]),
         medication_history=medications,
         skincare_products=products,
+        canonical_ingredients=canonical_ingredients,
+        usage_frequencies=usage_frequencies,
+        concentrations=concentrations,
         red_flags_input=red_flags,
         treatment_goals=treatment_goals,
         hormonal_factors=hormonal_factors,
-    ) if lesion_types or distribution or inflammation or red_flags or hormonal_factors or medications or products or treatment_goals or allergies else None
+    ) if (
+        lesion_types or distribution or inflammation or red_flags or hormonal_factors
+        or medications or products or canonical_ingredients or usage_frequencies
+        or concentrations
+    ) else None
 
     safe_mode = mode if mode in {"hybrid", "llm_only"} else "hybrid"
     return UserInput(description=raw_for_llm, context=context, clinical=clinical, mode=safe_mode)

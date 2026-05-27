@@ -173,12 +173,25 @@ _DANGER_PATTERNS: List[Tuple[re.Pattern, str]] = [
      "self drainage with needle"),
 
     # Dosage instructions for Rx drugs
+    # Oral / systemic Rx drugs with ANY numeric dose unit (mg, mg/kg, viên/ngày…)
+    # Topical % concentrations are intentionally excluded here — they are
+    # educational (e.g. "adapalene 0.1%", "benzoyl peroxide 2.5%") and safe
+    # to mention without a prescription.
     (re.compile(
-        r"(?:isotretinoin|tretinoin|adapalene|doxycycline|minocycline|"
-        r"erythromycin|clindamycin|spironolactone|tazarotene|trifarotene|"
-        r"prednisolone|prednisone)"
-        r"[^\n]{0,100}\d+(?:[.,]\d+)?\s*"
-        r"(?:mg/kg|mg|mcg|%|viên/ngày|viên\s+mỗi|lần/ngày|ngày|tuần)",
+        r"(?:isotretinoin|doxycycline|minocycline|lymecycline|"
+        r"spironolactone|prednisolone|prednisone|trifarotene)"
+        r"[^\n]{0,60}\d+(?:[.,]\d+)?\s*"
+        r"(?:mg/kg|mg|mcg|viên/ngày|viên\s+mỗi|lần/ngày)",
+        re.UNICODE,
+    ), "dosage instruction for Rx drug"),
+    # Topical Rx antibiotics: only flag oral dose units (mg/ngày etc.),
+    # NOT "%" which is a normal educational mention of concentration.
+    # adapalene and tretinoin excluded: mentioning "0.1%" or "0.025%" is
+    # educational; recommending without doctor is caught by other rules.
+    (re.compile(
+        r"(?:tazarotene|clindamycin|erythromycin)"
+        r"[^\n]{0,60}\d+(?:[.,]\d+)?\s*"
+        r"(?:mg/kg|mg|mcg|viên/ngày|viên\s+mỗi|lần/ngày)",
         re.UNICODE,
     ), "dosage instruction for Rx drug"),
 

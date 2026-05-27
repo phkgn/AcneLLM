@@ -81,19 +81,9 @@ def cached_embed_query(
 RETRIEVE_TTL = 3600   # 1 gio
 RETRIEVE_TAG = "retrieve_v1"
 
-# Shadow index key — luu tap hop cac retrieve keys de invalidate chinh xac
-_RETRIEVE_INDEX_KEY = "__retrieve_keys_index__"
-
-
-def _add_to_retrieve_index(cache, key: str) -> None:
-    """Them key vao shadow index de co the invalidate sau nay."""
-    try:
-        index: set = cache.get(_RETRIEVE_INDEX_KEY) or set()
-        index.add(key)
-        # Index khong co TTL -- ton tai den khi xoa thu cong
-        cache.set(_RETRIEVE_INDEX_KEY, index)
-    except Exception as e:
-        logger.debug(f"[Cache] retrieve index write error: {e}")
+# Removed: shadow index (_RETRIEVE_INDEX_KEY) — đã thay bằng diskcache tag.
+# Mỗi entry được gán tag=RETRIEVE_TAG khi set; invalidate dùng cache.evict(tag).
+# Lợi ích: không còn disk read+write set cho mỗi cache miss.
 
 
 def cached_retrieve(
@@ -124,8 +114,9 @@ def cached_retrieve(
 
     result = fn()
     try:
-        cache.set(key, pickle.dumps(result), expire=RETRIEVE_TTL)
-        _add_to_retrieve_index(cache, key)
+        # Tag-based: diskcache.Cache.set hỗ trợ tag= để group invalidation.
+        # cache.evict(RETRIEVE_TAG) xóa toàn bộ group mà không cần shadow index.
+        cache.set(key, pickle.dumps(result), expire=RETRIEVE_TTL, tag=RETRIEVE_TAG)
         logger.debug("[Cache] retrieve MISS -> stored")
     except Exception as e:
         logger.debug(f"[Cache] retrieve write error: {e}")
@@ -136,30 +127,18 @@ def invalidate_retrieve_cache() -> int:
     """Xoa toan bo retrieve cache (goi sau khi rebuild KB).
     Tra ve so entry da xoa.
 
-    Dung shadow index (_RETRIEVE_INDEX_KEY) de biet chinh xac nhung key
-    nao thuoc retrieve cache ma khong can parse internal DiskCache structures.
+    Dung diskcache tag-based eviction — nhanh hon shadow index (khong R/W set).
     """
     cache = get_cache()
     if cache is None:
         return 0
-    deleted = 0
     try:
-        index: set = cache.get(_RETRIEVE_INDEX_KEY) or set()
-        for key in index:
-            try:
-                cache.delete(key)
-                deleted += 1
-            except Exception:
-                pass  # key co the da het TTL va tu xoa
-        # Xoa luon index sau khi invalidate
-        try:
-            cache.delete(_RETRIEVE_INDEX_KEY)
-        except Exception:
-            pass
-        logger.info(f"[Cache] Invalidated {deleted} retrieve entries (index had {len(index)} keys)")
+        deleted = cache.evict(RETRIEVE_TAG)
+        logger.info(f"[Cache] Invalidated {deleted} retrieve entries (tag={RETRIEVE_TAG})")
+        return deleted
     except Exception as e:
         logger.warning(f"[Cache] invalidate error: {e}")
-    return deleted
+        return 0
 
 
 def clear_all_caches() -> None:

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # ── LLM ──────────────────────────────────────────────────────────────────
     ollama_url: str = "http://localhost:11434"
-    llm_model: str = "qwen2.5:7b"
+    llm_model: str = "acnellm-v2-q4"
     llm_fallback_model: str = "qwen2.5:3b"
     llm_num_ctx: int = 8192
     llm_num_predict: int = 2048
@@ -66,8 +66,6 @@ class Settings(BaseSettings):
     chat_min_citation_score: float = 0.25
     # Pool safety pass (thai kỳ, thuốc kê đơn) — ưu tiên guideline source_types
     chat_safety_top_k: int = 5
-    chat_use_llm_planner: bool = False
-
     # ── Intent router / optional micro-classifier ────────────────────────────
     # OFF by default: rule-based routing remains the production path unless the
     # operator explicitly enables the small classifier for ambiguous cases.
@@ -75,7 +73,7 @@ class Settings(BaseSettings):
     intent_router_model: str = "qwen2.5:0.5b"
     intent_router_min_confidence: float = 0.80
     intent_router_tie_margin: float = 0.10
-    intent_router_timeout_seconds: float = 5.0
+    intent_router_timeout_seconds: float = 15.0
     intent_router_num_ctx: int = 1024
     intent_router_num_predict: int = 128
 

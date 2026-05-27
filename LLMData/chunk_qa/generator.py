@@ -44,6 +44,36 @@ Pipeline mỗi sample:
 4. Viết assistant_answer như chatbot AcneLLM đang trả lời người dùng thật.
 
 Nguyên tắc bắt buộc:
+
+PHONG CÁCH assistant_answer — QUAN TRỌNG:
+Viết như một người bạn có kiến thức da liễu đang nhắn tin: tự nhiên, gần gũi,
+đi thẳng vào ý chính nhưng vẫn giữ an toàn y khoa. Câu đầu tiên phải là câu
+trả lời thật, không mở bằng lời chào, không "cảm ơn bạn đã chia sẻ", không
+"dựa trên mô tả". Nếu ca nhẹ thì trả lời gọn, có thể hơi đời thường. Nếu ca
+nặng thì nghiêm túc hơn, giải thích rõ vì sao cần đi khám, nhưng đừng biến
+thành một tờ hướng dẫn thuốc.
+
+Đừng dùng một công thức cho mọi sample. Có câu chỉ cần 2–3 câu là đủ; có câu
+cần một đoạn ngắn về routine; chỉ dùng bullet khi thật sự giúp dễ đọc. Lưu ý
+an toàn xuất hiện đúng lúc: thuốc kê đơn, thai kỳ/cho con bú, mụn bọc/nang,
+sẹo, nhiễm trùng, thất bại điều trị. Những câu low-risk không cần disclaimer
+cuối bài.
+
+Ví dụ tone tốt (low-risk):
+  "Mụn đầu đen ở mũi thường do lỗ chân lông bị bít — BHA (salicylic acid 1–2%)
+   là lựa chọn phù hợp nhất, dùng 2–3 lần/tuần là đủ."
+
+Ví dụ tone tốt (high-risk):
+  "Nodule đau và sưng to kiểu này dễ để lại sẹo nếu tự xử lý. Tốt nhất là đi
+   khám da liễu sớm — bác sĩ có thể tiêm corticoid nội tổn thương để xẹp nhanh
+   hơn và giảm nguy cơ sẹo."
+
+Ví dụ tone tốt (thiếu thông tin):
+  "Mình cần biết thêm mụn của bạn là đầu đen, mụn đỏ/mủ hay mụn bọc, nằm ở đâu
+   và bị bao lâu rồi. Trước mắt cứ giữ routine thật đơn giản, đừng nặn hay tự
+   dùng thuốc kê đơn."
+
+NỘI DUNG:
 - KHÔNG viết kiểu "Tài liệu khuyến cáo..." hoặc "Theo đoạn tài liệu này...".
 - KHÔNG kê đơn, KHÔNG đưa liều / nồng độ / tần suất thuốc kê đơn.
 - Isotretinoin, kháng sinh uống, retinoid kê đơn, spironolactone: chỉ nói ở mức
@@ -59,23 +89,218 @@ Nguyên tắc bắt buộc:
 """
 
 
+RAW_USER_STYLE_PROFILES: tuple[dict[str, str | int], ...] = (
+    {
+        "key": "casual_short",
+        "weight": 30,
+        "description": (
+            "casual ngắn, như người dùng chat nhanh. 1–2 câu, có thể thiếu một vài "
+            "dữ kiện không quan trọng. Không mở đầu bằng lời chào."
+        ),
+        "examples": (
+            "mụn ẩn ở trán mãi ko hết, da dầu, dùng bha bị rát thì nghỉ luôn hả | "
+            "cằm cứ lên mụn đỏ trước kỳ kinh, xử lý sao cho đỡ vậy"
+        ),
+    },
+    {
+        "key": "semi_formal",
+        "weight": 30,
+        "description": (
+            "semi-formal tự nhiên kiểu em/mình hỏi tư vấn. Có thể đủ tuổi, loại da "
+            "hoặc sản phẩm đang dùng, nhưng không viết như bệnh án."
+        ),
+        "examples": (
+            "em 22 tuổi, da dầu, mụn đầu đen ở mũi nhiều quá, nên thêm gì vào routine ạ | "
+            "mình đang dùng sữa rửa mặt với dưỡng ẩm thôi mà mụn cằm cứ lên hoài"
+        ),
+    },
+    {
+        "key": "fragment_missing_info",
+        "weight": 20,
+        "description": (
+            "câu cụt / thiếu thông tin, đúng kiểu user chưa biết cần kể gì. "
+            "normalized_case phải đánh dấu missing_info tương ứng."
+        ),
+        "examples": (
+            "mặt tự nhiên nổi mụn quá giờ làm sao | "
+            "mụn lưng nhiều, có cần bôi gì không"
+        ),
+    },
+    {
+        "key": "light_typo_no_diacritics",
+        "weight": 10,
+        "description": (
+            "casual có typo nhẹ hoặc không dấu một phần, vẫn dễ đọc. Không lạm dụng "
+            "teen code; chỉ dùng vài từ như ko, dc, mn, bi, mun."
+        ),
+        "examples": (
+            "mun an tren tran hoai ko het, da dau nua, dung gi dc | "
+            "bha moi boi da rat voi bong nhẹ, co nen nghi ko"
+        ),
+    },
+    {
+        "key": "formal_doctor",
+        "weight": 10,
+        "description": (
+            "formal vừa phải kiểu hỏi bác sĩ. Chỉ dùng style này khi được chỉ định; "
+            "ngắn gọn, không lặp nguyên mẫu 'Chào bác sĩ, em năm nay... da em thuộc loại...'."
+        ),
+        "examples": (
+            "Bác sĩ cho em hỏi mụn bọc ở cằm đau nhiều thì có nên đi khám sớm không ạ"
+        ),
+    },
+)
+
+
+def _pick_raw_user_style() -> dict[str, str | int]:
+    total = sum(int(profile["weight"]) for profile in RAW_USER_STYLE_PROFILES)
+    roll = random.randint(1, total)
+    upto = 0
+    for profile in RAW_USER_STYLE_PROFILES:
+        upto += int(profile["weight"])
+        if roll <= upto:
+            return profile
+    return RAW_USER_STYLE_PROFILES[0]
+
+
+def _raw_user_message_too_formal(text: str) -> bool:
+    normalized = " ".join((text or "").lower().split())
+    formal_openers = (
+        "chào bác sĩ",
+        "em chào bác sĩ",
+        "xin chào bác sĩ",
+        "kính chào bác sĩ",
+    )
+    if normalized.startswith(formal_openers):
+        return True
+    textbook_markers = (
+        "em năm nay",
+        "da em thuộc loại",
+        "em muốn hỏi",
+        "em xin hỏi",
+    )
+    return sum(1 for marker in textbook_markers if marker in normalized) >= 2
+
+
+# Mô tả từng case_type để guide DeepSeek khi được chỉ định target
+CASE_TYPE_DESCRIPTIONS: dict[str, str] = {
+    "mild_comedonal": (
+        "Người dùng bị mụn nhẹ: mụn đầu đen, đầu trắng, mụn cám, mụn ẩn. "
+        "Chưa hoặc ít viêm. Gợi ý OTC phù hợp (BHA, niacinamide, benzoyl peroxide thấp), "
+        "routine đơn giản, không kê đơn."
+    ),
+    "moderate_inflammatory": (
+        "Người dùng bị mụn viêm mức độ vừa: papule, pustule, một số nodule nhỏ. "
+        "Đã thử OTC nhưng chưa đủ. Hướng dẫn thêm options OTC/non-Rx, "
+        "đặt boundary với kháng sinh/retinoid kê đơn, gợi ý đi khám nếu không cải thiện."
+    ),
+    "severe_nodular_scarring": (
+        "Người dùng bị mụn nặng: nodule, cyst, mụn bọc sâu đau, nguy cơ sẹo rõ. "
+        "Phải khuyên đi khám bác sĩ da liễu sớm, không tự điều trị thuốc mạnh, "
+        "không hướng dẫn liều Rx."
+    ),
+    "skincare_routine": (
+        "Người dùng hỏi về routine chăm sóc da, thứ tự bước, cách layer sản phẩm, "
+        "chọn sản phẩm OTC (cleanser, moisturizer, sunscreen, serum actives nhẹ). "
+        "Tư vấn routine phù hợp loại da, không kê đơn thuốc."
+    ),
+    "product_qna": (
+        "Người dùng hỏi về một sản phẩm/hoạt chất cụ thể: công dụng, cách dùng, "
+        "kết hợp với sản phẩm khác, tần suất, nồng độ OTC an toàn. "
+        "Ví dụ: retinol OTC, niacinamide, azelaic acid, BHA, vitamin C, SPF."
+    ),
+    "when_to_see_doctor": (
+        "Người dùng mô tả triệu chứng cần đánh giá y khoa: mụn kéo dài không đỡ, "
+        "sẹo lan rộng, nhiễm trùng, distress tâm lý, mụn liên quan nội tiết. "
+        "Khuyên đi khám rõ ràng, giải thích lý do."
+    ),
+    "insufficient_info": (
+        "Người dùng mô tả quá mơ hồ, thiếu thông tin về loại mụn, vị trí, thời gian. "
+        "Model hỏi thêm thông tin cụ thể, chỉ đưa hướng an toàn chung, không đoán."
+    ),
+    "antibiotic_or_isotretinoin_boundary": (
+        "Người dùng hỏi về kháng sinh uống, isotretinoin, retinoid kê đơn. "
+        "Đặt boundary rõ ràng: không kê đơn, không liều, giải thích cần bác sĩ, "
+        "antimicrobial stewardship."
+    ),
+    "pregnancy_breastfeeding_safety": (
+        "Người dùng đang mang thai hoặc cho con bú, hỏi về thuốc/sản phẩm trị mụn. "
+        "Không gợi ý retinoid, isotretinoin, tetracycline; khuyên hỏi bác sĩ."
+    ),
+    "skincare_irritation": (
+        "Người dùng có kích ứng da do dùng quá nhiều actives, peel tại nhà, kem trộn. "
+        "Hướng dẫn đơn giản hoá routine, phục hồi hàng rào da, đi khám nếu nặng."
+    ),
+    "teen_acne": (
+        "Người dùng là thanh thiếu niên (12–19 tuổi) bị mụn tuổi dậy thì. "
+        "Tư vấn phù hợp lứa tuổi: gentle routine, OTC an toàn, không kê đơn Rx mạnh, "
+        "đề cập yếu tố hormone, diet, stress tuổi teen."
+    ),
+    "diet_lifestyle": (
+        "Người dùng hỏi về ảnh hưởng của chế độ ăn, thói quen sinh hoạt đến mụn: "
+        "dairy, đường, high-glycemic, stress, ngủ đủ giấc, tập thể dục. "
+        "Cung cấp bằng chứng dựa trên guideline, không phóng đại, không chẩn đoán."
+    ),
+    "post_acne_care": (
+        "Người dùng đã qua giai đoạn mụn nặng, đang lo về sẹo rỗ, thâm PIH, "
+        "phục hồi da sau điều trị. Gợi ý OTC cho PIH (niacinamide, azelaic acid, SPF), "
+        "giải thích sẹo rỗ cần can thiệp y khoa, không hứa hẹn quá."
+    ),
+}
+
+# Mapping từng case_type sang nhóm để chọn prompt phù hợp
+_CLINICAL_CASE_TYPES = frozenset(CASE_TYPE_DESCRIPTIONS.keys())
+
+_CASE_TYPE_ALIASES = {
+    "skincare_routine_product": "skincare_routine",
+    "product_recommendation": "product_qna",
+    "new_domain_teen": "teen_acne",
+    "new_domain_diet": "diet_lifestyle",
+    "new_domain_post_acne": "post_acne_care",
+    "post_acne": "post_acne_care",
+    "diet": "diet_lifestyle",
+    "teen": "teen_acne",
+}
+
+
+def normalize_case_type(case_type: Any) -> str:
+    """Normalize case_type aliases produced by older prompts or models."""
+    raw = str(case_type or "general").strip() or "general"
+    return _CASE_TYPE_ALIASES.get(raw, raw)
+
+
 USER_TEMPLATE = """Source chunk (nguồn: {source_name}, trust_level: {trust_level}, tags: {tags}):
 \"\"\"
 {chunk_text}
 \"\"\"
 
-Hãy tạo CHÍNH XÁC {n} clinical chat-response samples tiếng Việt.
+Hãy tạo CHÍNH XÁC {n} clinical chat-response sample tiếng Việt.{target_instruction}
 
-Case mix nên đa dạng tùy nội dung chunk:
-- mild_comedonal
-- moderate_inflammatory
-- severe_nodular_scarring
-- insufficient_info
-- pregnancy_breastfeeding_safety
-- antibiotic_or_isotretinoin_boundary
-- skincare_irritation
-- self_procedure_refusal
-- when_to_see_doctor
+RAW_USER_MESSAGE STYLE TARGET:
+- Style bắt buộc cho lần generate này: {raw_user_style_key}
+- Mô tả: {raw_user_style_description}
+- Ví dụ cùng style: {raw_user_style_examples}
+
+Luật riêng cho raw_user_message:
+- Viết như user thật đang chat với app, không phải bệnh án phòng khám.
+- Tối đa khoảng 10% sample mới được formal kiểu "Chào bác sĩ"; nếu style không
+  phải formal_doctor thì KHÔNG dùng opener "Chào bác sĩ", "Em chào bác sĩ",
+  "Em năm nay...", "Da em thuộc loại...", "Em muốn hỏi..." theo khuôn.
+- Không phải sample nào cũng cần đủ tuổi, loại da, thời gian bị mụn, treatment
+  history. Nếu user nói thiếu, normalized_case.missing_info phải phản ánh đúng.
+- Được dùng câu ngắn, hỏi dồn, lo lắng, thiếu dấu/typo nhẹ khi style yêu cầu.
+- Với thai kỳ/cho con bú, thuốc kê đơn, isotretinoin/kháng sinh, mụn bọc/nang,
+  sẹo hoặc nhiễm trùng: raw_user_message vẫn phải chứa đủ tín hiệu an toàn quan
+  trọng để assistant_answer xử lý đúng.
+
+Ví dụ raw_user_message tốt:
+- "mụn ẩn ở trán mãi ko hết, da dầu, dùng bha bị rát thì nghỉ luôn hả"
+- "mình đang bầu 3 tháng, nổi mụn đỏ ở cằm, có bôi được gì an toàn không"
+- "mụn lưng nhiều sau khi tập gym, áo bó với ra mồ hôi suốt, làm sao đỡ"
+
+Ví dụ raw_user_message KHÔNG tốt vì quá formal/lặp:
+- "Chào bác sĩ, em năm nay 23 tuổi, da em thuộc loại da dầu..."
+- "Em muốn hỏi là với tình trạng của em thì em nên dùng sản phẩm gì ạ?"
 
 Trả về DUY NHẤT JSON object, không markdown:
 
@@ -120,8 +345,26 @@ Enum bắt buộc:
   shoulders, neck, t_zone, other.
 - inflammation_level: none, mild, moderate, severe, unknown.
 
+Danh sách case_type hợp lệ:
+{valid_case_types}
+
 Random seed: {seed}
 """
+
+
+def _build_target_instruction(target_case_type: str | None) -> str:
+    """Tạo đoạn hướng dẫn case_type chèn vào USER_TEMPLATE."""
+    if not target_case_type or target_case_type not in CASE_TYPE_DESCRIPTIONS:
+        # Không có target → để DeepSeek tự chọn, liệt kê toàn bộ case types
+        return (
+            "\n\nCase mix nên đa dạng, chọn case_type phù hợp với nội dung chunk từ danh sách sau."
+        )
+    desc = CASE_TYPE_DESCRIPTIONS[target_case_type]
+    return (
+        f"\n\nYÊU CẦU BẮT BUỘC: sample PHẢI có case_type = \"{target_case_type}\".\n"
+        f"Mô tả case_type này: {desc}\n"
+        f"Tạo tình huống phù hợp với nội dung chunk nhưng bắt buộc thuộc case_type trên."
+    )
 
 
 def _truncate(text: str, max_chars: int = 3500) -> str:
@@ -175,12 +418,14 @@ def _validate_item(item: dict[str, Any]) -> dict[str, Any] | None:
         if str(x).strip()
     ]
 
+    case_type = normalize_case_type(item.get("case_type"))
+
     return {
         "raw_user_message": raw_user_message,
         "normalized_case": normalized_case.model_dump(),
         "guideline_context": guideline_context,
         "assistant_answer": answer,
-        "case_type": str(item.get("case_type") or "general").strip() or "general",
+        "case_type": case_type,
         "severity": severity,
         "safety_flags": safety_flags,
         "guideline_refs": _coerce_refs(item.get("guideline_refs")),
@@ -192,15 +437,32 @@ async def generate_cases_for_chunk(
     client: AsyncOpenAI,
     cfg: Config,
     chunk: dict,
+    target_case_type: str | None = None,
+    n_cases: int | None = None,
 ) -> list[dict]:
-    """Call DeepSeek and return validated clinical chat-response items."""
+    """Call DeepSeek và trả về validated clinical chat-response items.
+
+    Args:
+        target_case_type: Nếu set, guide DeepSeek generate sample thuộc
+            đúng case_type này (dùng bởi budget-aware dispatcher trong main.py).
+            Nếu None, DeepSeek tự chọn case_type đa dạng.
+    """
     chunk_text = _truncate(chunk.get("text") or "")
+    target_case_type = normalize_case_type(target_case_type) if target_case_type else None
+    target_instruction = _build_target_instruction(target_case_type)
+    requested_n = max(1, n_cases or cfg.cases_per_chunk)
+    raw_user_style = _pick_raw_user_style()
     user_prompt = USER_TEMPLATE.format(
         source_name=chunk.get("source_name", "unknown"),
         trust_level=chunk.get("trust_level", "unknown"),
         tags=", ".join(chunk.get("tags") or []),
         chunk_text=chunk_text,
-        n=cfg.cases_per_chunk,
+        n=requested_n,
+        target_instruction=target_instruction,
+        raw_user_style_key=raw_user_style["key"],
+        raw_user_style_description=raw_user_style["description"],
+        raw_user_style_examples=raw_user_style["examples"],
+        valid_case_types=", ".join(sorted(_CLINICAL_CASE_TYPES)),
         seed=random.randint(1, 10**9),
     )
 
@@ -234,7 +496,24 @@ async def generate_cases_for_chunk(
                     continue
                 validated = _validate_item(raw)
                 if validated is not None:
+                    if target_case_type and validated["case_type"] != target_case_type:
+                        logger.debug(
+                            "Dropped generated item with case_type=%s; expected=%s",
+                            validated["case_type"], target_case_type,
+                        )
+                        continue
+                    if (
+                        raw_user_style["key"] != "formal_doctor"
+                        and _raw_user_message_too_formal(validated["raw_user_message"])
+                    ):
+                        logger.debug(
+                            "Dropped over-formal raw_user_message for style=%s: %s",
+                            raw_user_style["key"], validated["raw_user_message"],
+                        )
+                        continue
                     cleaned.append(validated)
+                    if len(cleaned) >= requested_n:
+                        break
             if not cleaned:
                 raise ValueError("No items survived validation.")
             return cleaned

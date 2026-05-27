@@ -22,7 +22,11 @@ CREATE TABLE IF NOT EXISTS audit_log (
     scope_decision    TEXT    NOT NULL DEFAULT '',
     latency_ms        INTEGER NOT NULL DEFAULT 0,
     model_used        TEXT    NOT NULL DEFAULT '',
-    temperature       REAL
+    temperature       REAL,
+    normalized_query  TEXT    NOT NULL DEFAULT '',
+    extracted_entities TEXT   NOT NULL DEFAULT '{}',  -- JSON
+    pii_detected      INTEGER NOT NULL DEFAULT 0,
+    teencode_replaced TEXT    NOT NULL DEFAULT '[]'   -- JSON
 );
 
 CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp);
@@ -42,6 +46,22 @@ CREATE INDEX IF NOT EXISTS idx_feedback_session ON feedback(session_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_rating  ON feedback(rating);
 """
 
+_AUDIT_EXTRA_COLUMNS: dict[str, str] = {
+    "normalized_query": "TEXT NOT NULL DEFAULT ''",
+    "extracted_entities": "TEXT NOT NULL DEFAULT '{}'",
+    "pii_detected": "INTEGER NOT NULL DEFAULT 0",
+    "teencode_replaced": "TEXT NOT NULL DEFAULT '[]'",
+}
+
+
+def _ensure_audit_columns(conn: sqlite3.Connection) -> None:
+    existing = {
+        row[1] for row in conn.execute("PRAGMA table_info(audit_log)").fetchall()
+    }
+    for name, ddl in _AUDIT_EXTRA_COLUMNS.items():
+        if name not in existing:
+            conn.execute(f"ALTER TABLE audit_log ADD COLUMN {name} {ddl}")
+
 
 class DBConnection:
     """Thread-safe SQLite connection wrapper (một connection per thread via threading.local)."""
@@ -53,6 +73,7 @@ class DBConnection:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(db_path) as conn:
             conn.executescript(_SCHEMA)
+            _ensure_audit_columns(conn)
 
     def _get_conn(self) -> sqlite3.Connection:
         """Trả về connection riêng cho thread hiện tại."""

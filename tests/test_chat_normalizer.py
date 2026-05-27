@@ -1,5 +1,5 @@
 from acne_llm.chat.normalizer import normalize_chat_message
-from acne_llm.chat.preprocess import preprocess_user_text
+from acne_llm.chat.preprocess import prepare_user_text, preprocess_user_text
 
 
 def test_preprocess_user_text_light_cleanup():
@@ -10,6 +10,14 @@ def test_preprocess_user_text_light_cleanup():
     assert preprocess_user_text("mụn!!!!! sao????") == "mụn!! sao??"
     assert preprocess_user_text("benzoyl peroxide 5% + BHA/AHA") == "benzoyl peroxide 5% + BHA/AHA"
     assert preprocess_user_text("mụn 😭") == "mụn 😭"
+
+
+def test_prepare_user_text_expands_teencode_and_tracks_tokens():
+    prepared = prepare_user_text("BHA 2% k dc dùng vs sp này sáng tối")
+
+    assert prepared.clean_text == "BHA 2% không được dùng với sản phẩm này sáng tối"
+    assert prepared.clean_text_no_accent == "BHA 2% khong duoc dung voi san pham nay sang toi"
+    assert prepared.teencode_replaced == ["k", "dc", "vs", "sp"]
 
 
 def test_normalizer_preserves_raw_description_but_extracts_from_clean_text():
@@ -35,6 +43,27 @@ def test_normalizer_extracts_core_context_from_free_text():
     assert "papule" in user.clinical.lesion_types
     assert "chin" in user.clinical.lesion_distribution
     assert user.clinical.inflammation_level == "moderate"
+
+
+def test_normalizer_extracts_canonical_frequency_and_concentration():
+    user = normalize_chat_message("Da mình dùng BHA 2% sáng tối, AHA 0.025% cách ngày.")
+
+    assert user.clinical is not None
+    assert user.clinical.canonical_ingredients == ["salicylic_acid", "glycolic_acid"]
+    assert "twice_daily" in user.clinical.usage_frequencies
+    assert "every_other_day" in user.clinical.usage_frequencies
+    assert 0.02 in user.clinical.concentrations
+    assert 0.00025 in user.clinical.concentrations
+
+
+def test_normalizer_va_alias_is_conservative():
+    lower = normalize_chat_message("retinol va niacinamide dùng chung được không")
+    upper = normalize_chat_message("Em đang bôi VA buổi tối")
+
+    assert lower.clinical is not None
+    assert "tretinoin" not in lower.clinical.canonical_ingredients
+    assert upper.clinical is not None
+    assert "tretinoin" in upper.clinical.canonical_ingredients
 
 
 def test_normalizer_extracts_safety_flags():

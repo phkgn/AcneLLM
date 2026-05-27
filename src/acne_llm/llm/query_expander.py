@@ -1,4 +1,4 @@
-"""Bilingual query expansion for hybrid RAG."""
+"""Query expansion helpers for hybrid RAG."""
 from __future__ import annotations
 
 import json
@@ -14,7 +14,6 @@ from .ollama_backend import OllamaBackend
 class BilingualQueryPlan(BaseModel):
     detected_language: Literal["vi", "en", "mixed", "unknown"] = "unknown"
     query_vi: str
-    query_en: str
     safety_terms: list[str] = Field(default_factory=list)
 
 
@@ -55,7 +54,7 @@ class QueryExpander:
         # Sanitise query to prevent injection into the expander prompt itself
         safe_query = canonical_query.replace("<", "＜").replace(">", "＞")
         user = (
-            "Từ mô tả lâm sàng sau, hãy tạo query tiếng Việt và tiếng Anh để truy hồi "
+            "Từ mô tả lâm sàng sau, hãy tạo query để truy hồi "
             "tài liệu về mụn trứng cá. Giữ nguyên ý định, triệu chứng, vị trí, thuốc, "
             "yếu tố an toàn; không thêm chẩn đoán mới.\n"
             "Nếu có thuật ngữ chuyên sâu như ribotype, phylotype, strain, virulence factors, TLR2, Th17, CAMP factors, porphyrin, hãy giữ nguyên chính xác các thuật ngữ đó và không thay bằng cách diễn đạt chung chung.\n"
@@ -88,7 +87,6 @@ def fallback_query_plan(canonical_query: str) -> BilingualQueryPlan:
     return BilingualQueryPlan(
         detected_language=detected,
         query_vi=canonical_query,
-        query_en=canonical_query,
         safety_terms=safety_terms,
     )
 

@@ -91,6 +91,23 @@ def merge_retrieval_outputs(
     )
 
 
+# -- Medical safety terms for safety pass gate --------------------------------
+
+# FIX: Safety pass chỉ chạy khi có ít nhất 1 medical safety term thực sự.
+# Generic ingredient terms từ product_safety_check KHÔNG trigger safety pass
+# để tránh extra embed + Chroma query không cần thiết (~50-100ms/request).
+_MEDICAL_SAFETY_TERMS = frozenset({
+    "mang thai", "pregnant", "pregnancy",
+    "cho con bu", "cho con bú", "breastfeeding", "lactation",
+    "isotretinoin", "retinoid", "tretinoin", "adapalene", "tazarotene",
+    "doxycycline", "minocycline", "tetracycline", "khang sinh", "kháng sinh", "antibiotic",
+})
+
+
+def _has_medical_safety_terms(safety_terms: list[str]) -> bool:
+    return any(t.lower() in _MEDICAL_SAFETY_TERMS for t in safety_terms)
+
+
 # -- Main retrieve entry point ------------------------------------------------
 
 def retrieve_for_chat(
@@ -98,14 +115,9 @@ def retrieve_for_chat(
     user: UserInput,
     clinical_plan: ClinicalQueryPlan | None = None,
     route_flags: list[str] | None = None,
+    normalized_query: str | None = None,
 ) -> RetrievalOutput | None:
-    """Retrieve + rerank chunks cho chat stream. Tra None neu RAG chua san sang.
-
-    Args:
-        route_flags: Route flags from intent router. When "language_switch" is
-            present and detected_language == "en", an additional English query
-            is issued alongside the Vietnamese one (bilingual RAG, M9).
-    """
+    """Retrieve + rerank chunks cho chat stream. Tra None neu RAG chua san sang."""
     if not c.rag_ready or c.retriever is None:
         return None
 
@@ -122,18 +134,11 @@ def retrieve_for_chat(
             if q and q.strip()
         ]
     if not queries:
-        queries = [build_query_from_user(user)]
+        queries = [normalized_query.strip() if normalized_query else build_query_from_user(user)]
 
-    # M9: Language switch — thêm English query song song (bilingual RAG)
-    if "language_switch" in route_flags and clinical_plan is not None:
-        en_query = getattr(clinical_plan.rag_queries, "query_en", "").strip()
-        if en_query and en_query not in queries:
-            queries.append(en_query)
-            logger.debug("[retrieval] Language switch — added EN query: {!r}", en_query[:60])
-
-    # M3: Product safety check — khi user hỏi về kết hợp hoạt chất (retinol+BHA, AHA+BPO...)
-    # Inject ingredient interaction terms vào safety_terms để trigger safety pass retrieve
-    # guideline chunks về contraindication / safe combination.
+    # M3: Product safety check — khi user hoi ve ket hop hoat chat (retinol+BHA, AHA+BPO...)
+    # Inject ingredient interaction terms vao safety_terms de trigger safety pass retrieve
+    # guideline chunks ve contraindication / safe combination.
     if "product_safety_check" in route_flags and clinical_plan is not None:
         _ingredient_safety_terms = [
             "ingredient interaction", "active combination", "contraindication skincare",
@@ -171,6 +176,13 @@ def retrieve_for_chat(
     )
 
     def _do_retrieve_and_rerank() -> RetrievalOutput | None:
+        def _safe_filter(output: RetrievalOutput, query: str) -> RetrievalOutput:
+            filtered = drop_query_mismatched_chunks(
+                drop_noisy_chunks(output, min_score=min_score),
+                query,
+            )
+            return filtered if filtered is not None and filtered.chunks else output
+
         rerank_query: str
         if len(queries) == 1:
             ret = c.retriever.retrieve(queries[0], top_k=top_k, mode="hybrid")
@@ -182,10 +194,14 @@ def retrieve_for_chat(
             rerank_query = "\n".join(queries)
             ret = merge_retrieval_outputs(outputs, combined_query=rerank_query)
 
-        # Safety pass: guideline chunks cho cau hoi lien quan thai ky / thuoc ke don
+        # FIX: Safety pass chi chay khi co medical safety term thuc su
+        # (pregnancy, isotretinoin, khang sinh...) — khong chay voi generic
+        # ingredient terms tu product_safety_check de tranh extra embed +
+        # Chroma query khong can thiet (~50-100ms/request).
         if (
             clinical_plan is not None
             and clinical_plan.safety_terms
+            and _has_medical_safety_terms(clinical_plan.safety_terms)
             and hasattr(c.retriever, "retrieve_safety_pass")
         ):
             safety = c.retriever.retrieve_safety_pass(
@@ -197,26 +213,17 @@ def retrieve_for_chat(
                 ret = merge_retrieval_outputs([ret, safety], combined_query=rerank_query)
 
         if c.reranker is None:
-            return drop_query_mismatched_chunks(
-                drop_noisy_chunks(ret, min_score=min_score),
-                rerank_query,
-            )
+            return _safe_filter(ret, rerank_query)
         try:
             reranked = c.reranker.rerank(
                 rerank_query,
                 ret,
                 top_k=getattr(settings, "chat_rerank_top_k", 3),
             )
-            return drop_query_mismatched_chunks(
-                drop_noisy_chunks(reranked, min_score=min_score),
-                rerank_query,
-            )
+            return _safe_filter(reranked, rerank_query)
         except Exception as e:
             logger.warning(f"Chat reranker unavailable, using raw retrieval: {e}")
-            return drop_query_mismatched_chunks(
-                drop_noisy_chunks(ret, min_score=min_score),
-                rerank_query,
-            )
+            return _safe_filter(ret, rerank_query)
 
     return cached_retrieve(_do_retrieve_and_rerank, _cache_key)
 

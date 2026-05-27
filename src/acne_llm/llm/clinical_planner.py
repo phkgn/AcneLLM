@@ -4,9 +4,9 @@ Planner nhận UserInput đã được normalize bởi normalizer.py — KHÔNG 
 LLM chỉ được gọi 1 lần duy nhất ở bước generate câu trả lời cuối.
 
 Thay đổi so với phiên bản cũ:
-- Bỏ _LESION_EN / _LOCATION_EN riêng biệt → dùng LESION_BILINGUAL / LOCATION_BILINGUAL
-  (VI + EN inline trong cùng 1 string để BM25 match được chunk EN không cần 2 query)
-- build_query_vi() thay _build_queries() — output 1 query, không còn query_en riêng
+- Dùng LESION_BILINGUAL / LOCATION_BILINGUAL (VI + EN inline) — BM25 match chunk EN
+  không cần 2 query riêng biệt, không cần language_switch
+- build_query_vi() output 1 query duy nhất cho mọi ngôn ngữ
 - fallback_plan() không gọi normalize_chat_message nữa — planner tin user đã clean
 - safety_terms được nhúng vào query (không còn dead code)
 - duration_weeks được append với chronic flag khi >= 12 tuần
@@ -24,6 +24,7 @@ from ..schemas.clinical import (
     ClinicalRagQueries,
     NormalizedAcneCase,
 )
+from ..utils.retrieval_query import build_retrieval_query
 from .query_expander import detect_language_heuristic
 
 
@@ -164,6 +165,9 @@ class ClinicalQueryPlanner:
         medication_history: list[str] = []
         hormonal: list[str] = []
         skincare: list[str] = []
+        canonical_ingredients: list[str] = []
+        usage_frequencies: list[str] = []
+        concentrations: list[float] = []
         goals: list[str] = []
         red_flags: list[str] = []
 
@@ -178,6 +182,9 @@ class ClinicalQueryPlanner:
             medication_history = list(clinical.medication_history)
             hormonal = list(clinical.hormonal_factors)
             skincare = list(clinical.skincare_products)
+            canonical_ingredients = list(clinical.canonical_ingredients)
+            usage_frequencies = list(clinical.usage_frequencies)
+            concentrations = list(clinical.concentrations)
             goals = list(clinical.treatment_goals)
             red_flags = list(clinical.red_flags_input)
 
@@ -224,6 +231,9 @@ class ClinicalQueryPlanner:
             medication_history=_dedupe(medication_history),
             hormonal_factors=_dedupe(hormonal),
             skincare_products=_dedupe(skincare),
+            canonical_ingredients=_dedupe(canonical_ingredients),
+            usage_frequencies=_dedupe(usage_frequencies),
+            concentrations=list(dict.fromkeys(float(x) for x in concentrations)),
             treatment_goals=_dedupe(goals),
             allergies=_dedupe(allergies),
             red_flags=_dedupe(red_flags),
@@ -232,24 +242,24 @@ class ClinicalQueryPlanner:
 
         safety = self._safety_terms(user, case)
         detected_language = detect_language_heuristic(user.description)
-        query_vi = self.build_query_vi(case, ctx.duration_weeks, safety)
-
-        # M9: Build English query when user is writing in English (language switch)
-        query_en = ""
-        if detected_language in ("en", "mixed"):
-            query_en = self.build_query_en(case, ctx.duration_weeks, safety)
+        query_vi = self.build_query_vi(
+            case,
+            ctx.duration_weeks,
+            safety,
+            clean_text_normalized=user.description,
+        )
 
         plan = ClinicalQueryPlan(
             detected_language=detected_language,
             normalized_case=case,
-            rag_queries=ClinicalRagQueries(query_vi=query_vi, query_en=query_en),
+            rag_queries=ClinicalRagQueries(query_vi=query_vi),
             missing_info=case.missing_info,
             safety_terms=safety,
             planner_confidence=0.45,
         )
         logger.debug(
-            "[planner] lang=%s query_vi=%.60s... query_en=%.40s... missing=%s",
-            detected_language, query_vi, query_en, case.missing_info,
+            "[planner] lang=%s query_vi=%.60s... missing=%s",
+            detected_language, query_vi, case.missing_info,
         )
         return plan
 
@@ -258,12 +268,30 @@ class ClinicalQueryPlanner:
         case: NormalizedAcneCase,
         duration_weeks: int | None = None,
         safety_terms: list[str] | None = None,
+        clean_text_normalized: str = "",
     ) -> str:
         """Build 1 query VI với EN tokens inline (code-switching).
 
         Không có prefix cứng — guideline chunks nổi lên qua trust boost trong retriever.
         Safety terms được nhúng trực tiếp để retrieve đúng chunks contraindication.
         """
+        compact_query = build_retrieval_query(
+            lesions=list(case.lesion_types),
+            skin_type=case.demographics.skin_type if case.demographics.skin_type != "unknown" else None,
+            canonical_ingredients=list(case.canonical_ingredients),
+            clean_text_normalized=clean_text_normalized,
+            severity=case.inflammation_level,
+            distribution=list(case.distribution),
+            products=list(case.skincare_products),
+            medications=list(case.medication_history),
+            duration_weeks=duration_weeks,
+            usage_frequencies=list(case.usage_frequencies),
+            concentrations=list(case.concentrations),
+            red_flags=list(case.red_flags),
+        )
+        if compact_query:
+            return compact_query
+
         parts: list[str] = []
 
         # 1. Severity hint — thay prefix cứng
@@ -327,6 +355,13 @@ class ClinicalQueryPlanner:
             if term:
                 parts.append(term)
 
+        if case.canonical_ingredients:
+            parts.append("canonical ingredients " + " ".join(case.canonical_ingredients))
+        if case.usage_frequencies:
+            parts.append("frequency " + " ".join(case.usage_frequencies))
+        if case.concentrations:
+            parts.append("concentration " + " ".join(f"{float(x):.8g}" for x in case.concentrations))
+
         # 11. Allergies — tránh recommend sản phẩm chứa chất dị ứng
         allergies = case.allergies if hasattr(case, "allergies") else []
         if allergies:
@@ -350,84 +385,13 @@ class ClinicalQueryPlanner:
         ):
             if term in text:
                 terms.append(term)
+        terms.extend(
+            ingredient for ingredient in case.canonical_ingredients
+            if ingredient in {"tretinoin", "salicylic_acid", "glycolic_acid"}
+        )
         if case.demographics.is_pregnant:
             terms.append("pregnancy")
         if case.demographics.is_breastfeeding:
             terms.append("breastfeeding")
         return _dedupe(terms)
 
-
-    @staticmethod
-    def build_query_en(
-        case: "NormalizedAcneCase",
-        duration_weeks: int | None = None,
-        safety_terms: list[str] | None = None,
-    ) -> str:
-        """Build pure English RAG query for EN/mixed-language sessions.
-
-        Targets English-language chunks (pubmed, AAD guidelines, JID papers)
-        that BM25 may not retrieve well with a Vietnamese query.
-        """
-        parts: list[str] = []
-
-        infl = case.inflammation_level
-        if infl == "mild":
-            parts.append("mild comedonal acne non-inflammatory")
-        elif infl == "moderate":
-            parts.append("moderate inflammatory acne papulopustular")
-        elif infl == "severe":
-            parts.append("severe nodulocystic acne dermatologist treatment")
-
-        # Lesion types — English only terms
-        _EN_LESION: dict[str, str] = {
-            "comedone": "comedone non-inflammatory acne",
-            "whitehead": "closed comedone whitehead acne",
-            "blackhead": "open comedone blackhead acne",
-            "closed_comedone": "closed comedone microcomedone",
-            "papule": "papule inflammatory acne",
-            "pustule": "pustule purulent acne lesion",
-            "nodule": "nodule nodular acne severe",
-            "cyst": "cyst cystic acne severe inflammatory",
-            "scar": "acne scar atrophic scar post-acne",
-            "post_inflammatory_hyperpigmentation": "PIH post-inflammatory hyperpigmentation dark spot",
-            "other": "acne lesion",
-        }
-        parts.extend(_EN_LESION[x] for x in case.lesion_types if x in _EN_LESION)
-
-        # Distribution
-        _EN_LOCATION: dict[str, str] = {
-            "forehead": "forehead T-zone acne",
-            "cheeks": "cheeks facial acne",
-            "chin": "chin lower face acne",
-            "jawline": "jawline acne hormonal",
-            "nose": "nose nasal acne",
-            "around_mouth": "perioral acne around mouth",
-            "back": "back truncal acne",
-            "chest": "chest truncal acne",
-            "shoulders": "shoulders truncal acne",
-            "neck": "neck acne",
-            "t_zone": "T-zone oily skin acne",
-        }
-        parts.extend(_EN_LOCATION[x] for x in case.distribution if x in _EN_LOCATION)
-
-        if duration_weeks is not None and duration_weeks >= 12:
-            parts.append("chronic acne treatment-resistant long-term management")
-
-        if case.demographics.is_pregnant:
-            parts.append("acne in pregnancy safe topical treatment contraindication retinoid")
-        if case.demographics.is_breastfeeding:
-            parts.append("acne breastfeeding lactation safe treatment")
-
-        st = case.demographics.skin_type
-        if st == "oily":
-            parts.append("oily skin acne sebaceous gland")
-        elif st == "sensitive":
-            parts.append("sensitive skin acne irritation")
-
-        if case.red_flags:
-            parts.append("severe acne dermatologist referral urgent")
-
-        if not case.lesion_types and not case.distribution:
-            parts.append("acne vulgaris initial assessment treatment")
-
-        return " ".join(_dedupe(p for p in parts if p))

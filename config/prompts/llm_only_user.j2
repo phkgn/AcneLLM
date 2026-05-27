@@ -4,18 +4,29 @@
 <context>
 - Tuổi: {{ age if age is not none else "không rõ" }}
 - Loại da: {{ skin_type or "không rõ" }}
-- Đang mang thai: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_pregnant else "không" }}
-- Đang cho con bú: {{ "CÓ — KHÔNG đề cập retinoid/tretinoin/isotretinoin/doxycycline/tetracycline" if is_breastfeeding else "không" }}
+- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
+- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
 - Dị ứng: {{ allergies }}
 - Thuốc đang dùng: {{ medications }}
 </context>
 
-<vision>{{ vision_summary }}</vision>
-
-{% if completeness_hint %}
-<!-- HƯỚNG DẪN: {{ completeness_hint }} -->
+{% if known_facts %}
+<known_facts>{{ known_facts }}</known_facts>
+{% endif %}
+{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" %}
+<normalized_case_plan>{{ normalized_case_plan }}</normalized_case_plan>
+{% endif %}
+{% if route_metadata %}
+<route_guidance>{{ route_metadata }}</route_guidance>
+{% endif %}
+{% if query_subject == "other" %}
+<subject_note>Người dùng đang hỏi về tình trạng của người khác. Không xem dữ kiện này là hồ sơ cá nhân của user.</subject_note>
 {% endif %}
 
+<vision>{{ vision_summary }}</vision>
+{% if completeness_hint %}
+<hint>{{ completeness_hint }}</hint>
+{% endif %}
 {% if history_block %}
 <conversation_history>
 {{ history_block }}
@@ -24,39 +35,11 @@
 </user_data>
 
 <task>
-Trả về **duy nhất JSON đúng schema `AdviseOutput`**.
+Trả về duy nhất JSON đúng schema `AdviseOutput`.
 
-### Quy tắc làm việc (chế độ không có RAG)
-
-1. **Phạm vi**: Chỉ trả lời về da mụn. Câu hỏi ngoài phạm vi → trả JSON từ chối.
-
-2. **Dùng kiến thức y khoa nền**: Trong chế độ này không có KB, được phép dùng kiến thức y khoa phổ quát về da liễu và mụn trứng cá để trả lời. Confidence phản ánh mức độ chắc chắn thực sự của câu trả lời dựa trên dữ kiện — không bị giới hạn cứng.
-
-3. **Nếu dữ kiện đầu vào quá ít**:
-   - Dùng `"unknown"` cho severity nếu không có đủ thông tin.
-   - Để `recommendations` chỉ gồm gợi ý an toàn và phổ quát.
-   - Dựa vào `<description>` và `<context>` để suy luận; nếu vẫn thiếu, set `confidence` thấp và gợi ý hỏi thêm trong `disclaimer`.
-
-4. **Nếu có route guidance** (trong biến `route_metadata`): Áp dụng guidance đó vào cách trả lời, không lộ tên flag nội bộ.
-
-### Ràng buộc an toàn y tế
-
-- **Không kê liều lượng, tần suất, thời gian dùng thuốc**.
-- **Không khuyên tự nặn mụn, tự chích, tự lăn kim, tự đắp mặt nạ pha chế tại nhà**.
-- **Không khẳng định đây là chẩn đoán**. Dùng ngôn ngữ gợi ý ("có thể", "gợi ý", "cần xem thêm").
-- **Thuốc/hoạt chất OTC**: Được phép đề cập BHA (salicylic acid), AHA, benzoyl peroxide, niacinamide, azelaic acid ở mức "có thể tham khảo" — không kê nồng độ, liều dùng.
-- **Không đề cập thuốc kê đơn** (kháng sinh uống, retinoid, isotretinoin, v.v.) như khuyến nghị trực tiếp.
-- **Nếu mang thai hoặc cho con bú**: Không khuyến nghị retinoid, isotretinoin, tretinoin, adapalene, retinol, tazarotene, doxycycline, minocycline, tetracycline.
-- **Nếu `severity="severe"` hoặc có dấu hiệu nguy cơ**: Phải có khuyến nghị gặp bác sĩ da liễu.
-- **Nếu `age < 12`**: Phải khuyến nghị bác sĩ da liễu nhi hoặc bác sĩ nhi khoa.
-- **Nếu có dị ứng hoặc thuốc đang dùng**: Tránh gợi ý trùng dị ứng; nếu có khuyến nghị hoạt chất, thêm cảnh báo tương tác.
-
-### Format output
-
-- `causes`: tối đa 4 ý ngắn, không suy diễn quá mức.
-- `recommendations`: tối đa 4 bước ngắn; chỉ gợi ý an toàn và có cơ sở y khoa.
-- `disclaimer`: 1-2 câu ngắn, tiếng Việt.
-- `used_chunks=[]`.
-- `source_chunk_id=null` cho mọi khuyến nghị.
-- `confidence`: phản ánh mức độ chắc chắn thực sự (0.0–0.9 theo hướng dẫn system prompt).
+Chế độ không có KB — dùng kiến thức y khoa phổ quát về da liễu. Confidence thường <= 0.4 vì thiếu nguồn trực tiếp. Nếu dữ kiện quá ít: severity="unknown", chỉ gợi ý an toàn phổ quát, set confidence thấp.
+Không có ngữ cảnh RAG trong lượt này.
+Nếu có route_metadata guidance: áp dụng, không lộ tên flag nội bộ.
+OTC (BHA, AHA, benzoyl peroxide, niacinamide, azelaic acid): đề cập ở mức "có thể tham khảo", không kê nồng độ/liều. Không đề cập thuốc kê đơn như khuyến nghị trực tiếp.
+Format: causes ≤4 ý; recommendations ≤4 bước; disclaimer 1-2 câu; used_chunks=[]; source_chunk_id=null.
 </task>

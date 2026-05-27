@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Citation } from "@/lib/types";
+import { ChunkDetailModal } from "./ChunkDetailModal";
+import type { ChunkDetail } from "./ChunkDetailModal";
 
 type SourceType =
   | "nice_guideline"
@@ -58,67 +60,93 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export function CitationCard({ citation, index }: { citation: Citation; index: number }) {
-  const [expanded, setExpanded] = useState(false);
+  const [modalChunk, setModalChunk] = useState<ChunkDetail | null>(null);
   const sourceType   = inferSourceType(citation);
   const badge        = SOURCE_BADGE[sourceType];
   const displayTitle = citation.title || citation.source || citation.chunk_id;
-  const isLong       = citation.text && citation.text.length > 150;
+
+  const openModal = () => {
+    setModalChunk({
+      chunk_id: citation.chunk_id,
+      source: citation.source,
+      title: citation.title,
+      url: citation.url,
+      score: citation.score,
+      text: citation.text,
+    });
+  };
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-      {/* Header row */}
-      <div className="flex items-start gap-2 px-3 pt-3 pb-2">
-        {/* Index */}
-        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-slate-100 text-xs font-bold text-slate-500">
-          {index}
-        </span>
+    <>
+      <div
+        onClick={openModal}
+        className="group cursor-pointer rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden transition hover:border-teal-300 hover:shadow-md"
+        title="Click để xem toàn bộ nội dung chunk"
+      >
+        {/* Header row */}
+        <div className="flex items-start gap-2 px-3 pt-3 pb-2">
+          {/* Index */}
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-slate-100 text-xs font-bold text-slate-500">
+            {index}
+          </span>
 
-        {/* Title + badge */}
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="text-sm font-medium leading-snug text-slate-900 line-clamp-2">
-            {displayTitle}
-          </p>
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-semibold ${badge.className}`}>
-              {badge.label}
+          {/* Title + badge */}
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <p className="text-sm font-medium leading-snug text-slate-900 line-clamp-2 group-hover:text-teal-700 transition">
+              {displayTitle}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-semibold ${badge.className}`}>
+                {badge.label}
+              </span>
+              <ScoreBar score={citation.score} />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="ml-1 flex shrink-0 items-center gap-1.5">
+            {/* View detail hint */}
+            <span className="hidden group-hover:inline-flex items-center gap-1 text-xs font-medium text-teal-600">
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="8" cy="8" r="2"/>
+              </svg>
+              Chi tiết
             </span>
-            <ScoreBar score={citation.score} />
+
+            {/* Source link */}
+            {citation.url ? (
+              <a
+                href={citation.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"
+                aria-label={`Mo nguon: ${displayTitle}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <path d="M6.5 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9.5M9.5 2H14m0 0v4.5M14 2L7.5 8.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Nguon
+              </a>
+            ) : null}
           </div>
         </div>
 
-        {/* Source link */}
-        {citation.url ? (
-          <a
-            href={citation.url}
-            target="_blank"
-            rel="noreferrer"
-            className="ml-1 shrink-0 inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"
-            aria-label={`Mo nguon: ${displayTitle}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <path d="M6.5 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9.5M9.5 2H14m0 0v4.5M14 2L7.5 8.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Nguon
-          </a>
-        ) : null}
+        {/* Text excerpt — always clipped to 2 lines; full text visible in modal */}
+        <div className="px-3 pb-3">
+          <p className="line-clamp-2 text-sm leading-relaxed text-slate-600">
+            {citation.text}
+          </p>
+          {citation.text && citation.text.length > 150 ? (
+            <span className="mt-1 block text-xs font-medium text-teal-600">
+              Xem toàn bộ →
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      {/* Text excerpt */}
-      <div className="px-3 pb-3">
-        <p className={`text-sm leading-relaxed text-slate-600 ${expanded ? "" : "line-clamp-2"}`}>
-          {citation.text}
-        </p>
-        {isLong ? (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-1 text-xs font-medium text-teal-600 hover:text-teal-800 transition"
-          >
-            {expanded ? "Thu gon" : "Xem them"}
-          </button>
-        ) : null}
-      </div>
-    </div>
+      <ChunkDetailModal chunk={modalChunk} onClose={() => setModalChunk(null)} />
+    </>
   );
 }

@@ -60,6 +60,18 @@ def test_clinical_planner_safety_terms_include_retinol():
     assert "retinol" in plan.safety_terms
 
 
+def test_clinical_planner_propagates_canonical_usage_fields():
+    planner = ClinicalQueryPlanner()
+    user = normalize_chat_message("Em dùng BHA 2% sáng tối cho mụn đầu đen ở mũi.")
+
+    plan = planner.plan(user)
+
+    assert "salicylic_acid" in plan.normalized_case.canonical_ingredients
+    assert "twice_daily" in plan.normalized_case.usage_frequencies
+    assert 0.02 in plan.normalized_case.concentrations
+    assert "salicylic_acid" in plan.rag_queries.query_vi
+
+
 def test_clinical_planner_plan_equals_fallback_plan():
     """plan() và fallback_plan() phải cho cùng kết quả."""
     planner = ClinicalQueryPlanner()
