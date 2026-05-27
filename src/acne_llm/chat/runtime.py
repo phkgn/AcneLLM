@@ -139,8 +139,9 @@ def stream_chat_sse(
                 )
 
         # -- 3. Retrieve ------------------------------------------------------
-        is_acne_signal = intake.scope_decision == "in_scope"
         clinical_plan = intake.clinical_plan
+        is_acne_signal = intake.scope_decision == "in_scope"
+        rag_signal = is_acne_signal or clinical_plan is not None
         t_rag = time.perf_counter()
         _route_flags_for_rag = intake.route_decision.route_flags if intake.route_decision else []
         retrieval = (
@@ -151,22 +152,25 @@ def stream_chat_sse(
                 route_flags=_route_flags_for_rag,
                 normalized_query=intake.normalized_query,
             )
-            if mode == "hybrid" and is_acne_signal and _primary_intent not in {"clarify", "reject"}
+            if mode == "hybrid" and rag_signal and _primary_intent not in {"clarify", "reject"}
             else None
         )
         if retrieval is not None:
             logger.debug(
-                "[{}] RAG: {} chunks in {:.0f}ms",
+                "[{}] RAG: {} chunks in {:.0f}ms (scope={} plan={})",
                 (session_id or "")[:8],
                 len(retrieval.chunks),
                 (time.perf_counter() - t_rag) * 1000,
+                intake.scope_decision,
+                clinical_plan is not None,
             )
         else:
             logger.debug(
-                "[{}] RAG: skipped (mode={} signal={})",
+                "[{}] RAG: skipped (mode={} signal={} plan={})",
                 (session_id or "")[:8],
                 mode,
-                is_acne_signal,
+                rag_signal,
+                clinical_plan is not None,
             )
 
         # -- 4. Build prompt --------------------------------------------------
@@ -277,10 +281,13 @@ def stream_chat_sse(
             intake.route_decision is not None
             and intake.route_decision.primary_intent == "knowledge"
         )
+        safety_route_flags = route_flags
+        if is_knowledge_intent and "urgent_personal_case" not in route_flags:
+            safety_route_flags = [f for f in route_flags if f != "urgency_red_flag"]
         warning_suffix = get_safety_suffix(
             full_text,
             user,
-            route_flags=route_flags,
+            route_flags=safety_route_flags,
             skip_generic_disclaimer=is_knowledge_intent,
             recent_turns=history,
             current_turn_text=message,

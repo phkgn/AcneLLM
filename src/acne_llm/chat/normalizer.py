@@ -33,20 +33,24 @@ def _light_normalize(message: str) -> str:
 
 
 _SKIN_TYPES: list[tuple[str, str]] = [
-    ("oily", r"\b(?:da\s*)?(?:"
-     r"dầu"
-     r"|da\s*dau(?!\s*khi)"
-     r"|nhờn|nhon"
-     r"|bóng\s*dầu|bong\s*dau"
-     r"|oily\b"
-     r"|tiết\s*(?:nhiều\s*)?dầu|tiet\s*(?:nhieu\s*)?dau"
-     r"|bóng\s*nhờn|bong\s*nhon"
-     r"|da\s*bóng(?:\s*nhờn)?"
-     r"|dầu\s*nhiều|dau\s*nhieu"
-     r"|nhờn\s*nhiều"
-     r"|chảy\s*dầu|chay\s*dau"
-     r"|bết\s*dầu|bet\s*dau"
-     r"|bóng\s*loáng"
+    ("oily", r"\b(?:"
+     r"(?:da|mặt|mat|skin|vùng\s*t|vung\s*t|t-zone|t\s*zone)"
+     r"(?:\s*(?:tôi|toi|mình|minh|em|cháu|chau|con))?\s*"
+     r"(?:"
+     r"(?:có|co)\s*(?:nhiều\s*)?(?:dầu|dau)"
+     r"|(?:dầu|dau(?!\s*(?:khi|lúc|luc|lắm|lam|quá|qua|rát|rat|nhói|nhoi)))\s*(?:nhiều|nhieu)?"
+     r"|(?:nhiều|nhieu)\s*(?:dầu|dau)"
+     r"|(?:nhờn|nhon)(?:\s*nhiều)?"
+     r"|bóng\s*(?:dầu|nhờn|loáng)|bong\s*(?:dau|nhon|loang)"
+     r"|(?:tiết|tiet)\s*(?:nhiều\s*)?(?:dầu|dau)"
+     r"|(?:chảy|chay|bết|bet)\s*(?:dầu|dau)"
+     r"|oily(?:\s*skin)?"
+     r")"
+     r"|(?:da\s*mặt|da\s*mat|da|mặt|mat|skin)"
+     r"(?:(?!\b(?:ăn|an|món|mon|thức\s*ăn|thuc\s*an|sản\s*phẩm|san\s*pham|kem|dầu\s*ăn|dau\s*an)\b)[^.?!\n]){0,60}"
+     r"(?:có|co)\s*(?:nhiều\s*)?(?:dầu|dau)"
+     r"|(?:oily\s*skin|skin\s*(?:is\s*)?oily)"
+     r"|(?:tiết|tiet)\s*(?:nhiều\s*)?(?:dầu|dau)"
      r")\b"),
     ("dry", r"\b(?:da\s*)?(?:"
      r"khô"
@@ -339,7 +343,6 @@ _DISTRIBUTION_TERMS: list[tuple[str, str]] = [
      r"|vùng\s*cổ|vung\s*co"
      r"|cổ\s*(?:trước|sau|bên)|co\s*(?:truoc|sau|ben)"
      r"|mụn\s*(?:ở\s*)?cổ|mun\s+o\s+co"
-     r"|mun\s+co\b(?!\s*(?:tay|chan|binh|chai|hu|lo|the|vi|gi|dau|san))"
      r"|phần\s*cổ|phan\s*co"
      r"|da\s*cổ"
      r"|(?:ở|o)\s*cổ|o\s*co"
@@ -1099,6 +1102,17 @@ def _extract_skin_type(text: str) -> _SkinType | None:
     return None
 
 
+def _extract_skin_type_from_texts(clean_text: str, clean_text_no_accent: str) -> _SkinType | None:
+    value = _extract_skin_type(clean_text)
+    if value is not None:
+        return value
+    if clean_text_no_accent and clean_text_no_accent != clean_text:
+        if _has(r"\b(?:da|mặt)\s*đau\b", clean_text):
+            return None
+        return _extract_skin_type(clean_text_no_accent)
+    return None
+
+
 _Sex = Literal["male", "female", "other"]
 
 
@@ -1432,7 +1446,7 @@ def normalize_chat_message(
     context = UserContext(
         age=_first_extracted(extraction_texts, _extract_age),
         sex=_first_extracted(extraction_texts, _extract_sex),
-        skin_type=_first_extracted(extraction_texts, _extract_skin_type),
+        skin_type=_extract_skin_type_from_texts(clean_text, clean_text_no_accent),
         is_pregnant=_contains_positive(
             clean_text,
             r"\b(?:mang thai|có thai|co thai|đang bầu|dang bau|pregnant)\b",

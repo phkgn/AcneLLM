@@ -280,6 +280,88 @@ def test_classifier_reject_stops_intake_static():
     assert planner.calls == 0
 
 
+def test_urgent_personal_case_bypasses_classifier_override():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="knowledge",
+            scores={"knowledge": 0.95, "advise": 0.02},
+            confidence=0.95,
+            reason_code="micro_knowledge",
+        )
+    )
+    c, planner = _container(classifier=classifier, classifier_enabled=True)
+
+    result = run_intake(
+        c,
+        "tôi bị mụn mủ sưng tấy lan rộng, đau nhiều, sốt, "
+        "không cải thiện sau 48h giờ làm sao",
+    )
+
+    assert classifier.calls == 0
+    assert result.route_decision.primary_intent == "advise"
+    assert result.route_decision.query_subject == "self"
+    assert result.route_decision.reason_code == "urgent_personal_case"
+    assert "urgency_red_flag" in result.route_decision.route_flags
+    assert "urgent_personal_case" in result.route_decision.route_flags
+    assert planner.calls == 1
+
+
+def test_urgent_implicit_personal_evaluation_bypasses_classifier():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="knowledge",
+            scores={"knowledge": 0.95, "advise": 0.02},
+            confidence=0.95,
+            reason_code="micro_knowledge",
+        )
+    )
+    settings = SimpleNamespace(
+        intent_router_enabled=True,
+        intent_router_min_confidence=0.8,
+        intent_router_tie_margin=0.1,
+    )
+    from acne_llm.chat.normalizer import normalize_chat_message
+
+    message = "mụn mủ đau nhiều sốt có nguy hiểm không"
+    user = normalize_chat_message(message)
+
+    decision = route_intent(message, user, [], settings, classifier)
+
+    assert classifier.calls == 0
+    assert decision.primary_intent == "advise"
+    assert decision.query_subject == "self"
+    assert decision.source == "rule"
+    assert decision.reason_code == "urgent_personal_case"
+    assert "urgent_personal_case" in decision.route_flags
+
+
+def test_pure_pustule_knowledge_can_use_classifier_without_urgent_hard_rule():
+    classifier = _Classifier(
+        ClassifierResult(
+            primary_intent="knowledge",
+            scores={"knowledge": 0.95, "advise": 0.02},
+            confidence=0.95,
+            reason_code="micro_knowledge",
+        )
+    )
+    settings = SimpleNamespace(
+        intent_router_enabled=True,
+        intent_router_min_confidence=0.8,
+        intent_router_tie_margin=0.1,
+    )
+    from acne_llm.chat.normalizer import normalize_chat_message
+
+    message = "mụn mủ là gì"
+    user = normalize_chat_message(message)
+
+    decision = route_intent(message, user, [], settings, classifier)
+
+    assert classifier.calls == 1
+    assert decision.primary_intent == "knowledge"
+    assert decision.query_subject == "general"
+    assert "urgent_personal_case" not in decision.route_flags
+
+
 def test_clarify_classifier_with_sufficient_self_context_forces_advise():
     classifier = _Classifier(
         ClassifierResult(

@@ -94,6 +94,9 @@ _FOLLOWUP_SHORT_TERMS = (
     "vậy tôi nên", "vay toi nen",
     "với da dầu thì", "voi da dau thi", "với da khô thì", "voi da kho thi",
     "với da nhạy cảm", "voi da nhay cam",
+    "phương pháp điều trị", "phuong phap dieu tri",
+    "điều trị tại nhà", "dieu tri tai nha",
+    "trị tại nhà", "tri tai nha",
     "kết hợp được không", "ket hop duoc khong",
     "dùng chung được không", "dung chung duoc khong",
 )
@@ -121,10 +124,11 @@ _PRODUCT_QUERY_TERMS = (
     "oil-free", "non-comedogenic", "không gây bít tắc", "khong gay bit tac",
 )
 _FOOD_KNOWLEDGE_TERMS = (
-    "ăn", "an ", "mì cay", "mi cay", "đồ cay", "do cay",
+    "ăn", "mì cay", "mi cay", "đồ cay", "do cay",
     "sữa", "sua", "đường", "duong", "whey", "cà phê", "ca phe",
     "nên ăn", "nen an", "kiêng", "kieng",
 )
+_FOOD_EAT_RE = re.compile(r"(?<!\w)(?:ăn|an)(?!\w)", flags=re.IGNORECASE)
 _PERSONAL_TERMS = (
     # Chỉ dùng personal terms có chủ thể rõ ràng
     # KHÔNG dùng "em", "con" standalone vì trùng với từ thông thường ("em ơi", "con đường")
@@ -187,6 +191,17 @@ _ADVICE_QUESTION_TERMS = (
     "nên làm gì", "nen lam gi", "nên dùng gì", "nen dung gi",
     "dùng gì", "dung gi", "xử lý", "xu ly", "trị", "tri ",
 )
+_URGENT_EVALUATION_TERMS = (
+    "có nguy hiểm không", "co nguy hiem khong",
+    "nguy hiểm không", "nguy hiem khong",
+    "có đáng lo không", "co dang lo khong",
+    "có cần khám không", "co can kham khong",
+    "cần khám không", "can kham khong",
+    "cần đi khám", "can di kham",
+    "nên đi khám", "nen di kham",
+    "giờ làm sao", "gio lam sao",
+    "bây giờ làm sao", "bay gio lam sao",
+)
 _EMOTIONAL_TERMS = (
     "tự ti", "tu ti", "xấu hổ", "xau ho", "stress", "buồn", "buon",
     "chán", "chan", "mất tự tin", "mat tu tin", "hoảng", "hoang",
@@ -209,6 +224,13 @@ _URGENCY_TERMS = (
     "rỉ dịch", "ri dich", "lan rộng", "lan rong", "sốt ", " sốt", " sot ",
     "sẹo", "seo", "nang lớn", "nang lon",
 )
+_URGENT_CLINICAL_FLAGS = frozenset({
+    "infection_signs",
+    "widespread",
+    "painful_lesions",
+    "purulent_lesions",
+    "treatment_failure",
+})
 _MULTI_CONDITION_TERMS = (
     "rosacea", "eczema", "viêm da", "viem da", "kích ứng", "kich ung",
     "viêm quanh miệng", "viem quanh mieng", "dị ứng", "di ung",
@@ -376,10 +398,19 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     # Không giới hạn cứng 6 từ vì nhiều continuation hợp lệ dài hơn
     # ("vậy với da khô thì dùng gì", "thế còn buổi sáng thì sao").
     # Dùng 10 từ để lọc câu quá dài (câu mới thường > 10 từ khi có context đầy đủ).
+    has_use_safety_followup = (
+        bool(history)
+        and len(message.split()) <= 10
+        and _contains_any(lowered, ("được không", "duoc khong", "an toàn không", "an toan khong"))
+        and _contains_any(
+            lowered,
+            ("dùng", "dung", "bôi", "boi", "thoa", "uống", "uong", "ăn", "an "),
+        )
+    )
     is_short_followup = (
         len(message.split()) <= 10
         and bool(history)
-        and _contains_any(lowered, _FOLLOWUP_SHORT_TERMS)
+        and (_contains_any(lowered, _FOLLOWUP_SHORT_TERMS) or has_use_safety_followup)
     )
     if is_short_followup:
         flags.append("progress_followup")
@@ -392,7 +423,10 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
         )
 
     is_product_query = _contains_any(lowered, _PRODUCT_QUERY_TERMS)
-    is_food_query = _contains_any(lowered, _FOOD_KNOWLEDGE_TERMS) and (
+    is_food_query = (
+        _contains_any(lowered, _FOOD_KNOWLEDGE_TERMS)
+        or _FOOD_EAT_RE.search(lowered) is not None
+    ) and (
         _contains_any(lowered, _QUESTION_TERMS)
         or "?" in message
         or "không" in lowered
@@ -407,8 +441,10 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     # nhưng user không đang mô tả case của họ.
     is_knowledge_ranking = _contains_any(lowered, _KNOWLEDGE_RANKING_TERMS)
     is_advice_question = _contains_any(lowered, _ADVICE_QUESTION_TERMS)
+    is_urgent_evaluation_question = _contains_any(lowered, _URGENT_EVALUATION_TERMS)
     has_case_terms = _contains_any(lowered, _CASE_TERMS)
     has_personal_terms = _contains_any(lowered, _PERSONAL_TERMS)
+    _implicit_personal = has_case_terms and is_advice_question
     # Bug fix: chỉ dùng clinical signals từ message hiện tại (base_user / turn_snapshot),
     # KHÔNG dùng user.clinical đã fold từ history.
     # Lý do: fold nhét dist=['chin'] từ turn 1 vào tất cả các turn sau → has_case_signal
@@ -418,6 +454,28 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     if _current_clinical is None and not history:
         _current_clinical = user.clinical
     has_case_signal = _clinical_has_case_signal(_current_clinical)
+    current_red_flags = set(_current_clinical.red_flags_input) if _current_clinical else set()
+    has_urgent_medical_signal = (
+        "urgency_red_flag" in flags
+        and bool(current_red_flags & _URGENT_CLINICAL_FLAGS)
+    )
+
+    if has_urgent_medical_signal and (
+        has_self_subject
+        or has_personal_terms
+        or _implicit_personal
+        or is_advice_question
+        or is_urgent_evaluation_question
+        or bool(history)
+    ):
+        urgent_flags = list(dict.fromkeys([*flags, "urgent_personal_case"]))
+        return _decision(
+            primary_intent="advise",
+            confidence=0.92,
+            route_flags=urgent_flags,
+            detected_language=detected_language,
+            reason_code="urgent_personal_case",
+        )
 
     # Priority 1: Knowledge ranking/explanation questions — route knowledge
     # kể cả khi có case terms ("bị mụn", "nổi mụn") nếu không có personal pronoun rõ ràng.
@@ -480,7 +538,6 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     #   → implicit personal case, cần tư vấn cụ thể
     # KHÔNG route advise chỉ vì has_case_terms đơn thuần (bị mụn trong câu so sánh)
     _strong_personal_signal = has_personal_terms or has_case_signal
-    _implicit_personal = has_case_terms and is_advice_question
     if _strong_personal_signal or _implicit_personal:
         if is_advice_question and not has_case_signal:
             flags.append("partial_advise")
@@ -599,6 +656,7 @@ def route_intent(
         "genital_scope_hard_reject",
         "scope_hard_reject",
         "complaint",
+        "urgent_personal_case",
     }
     should_call_classifier = (
         enabled

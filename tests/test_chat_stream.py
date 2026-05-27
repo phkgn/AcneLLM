@@ -7,6 +7,8 @@ from fastapi.testclient import TestClient
 from acne_llm.api.routes import chat
 from acne_llm.chat.session import get_session_store
 from acne_llm.db.jsonl_session_store import JsonlSessionStore
+from acne_llm.llm.clinical_planner import ClinicalQueryPlanner
+from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
 from acne_llm.chat.intent_router import ClassifierResult
 
@@ -41,6 +43,29 @@ class _MockPrompt:
         return (
             "Bạn là AcneLLM.",
             f"Mô tả người dùng: {user.description}; sex={user.context.sex}; history={len(history)}",
+        )
+
+
+class _MockRetriever:
+    def __init__(self):
+        self.queries = []
+
+    def retrieve(self, query, top_k=8, mode="hybrid"):
+        self.queries.append(query)
+        return RetrievalOutput(
+            query=query,
+            chunks=[
+                RetrievedChunk(
+                    chunk_id="test-chunk",
+                    source="test",
+                    text="Guideline context about painful pustular acne and when to seek care.",
+                    score=0.9,
+                    metadata={"title": "test", "source": "test"},
+                )
+            ],
+            retrieval_mode="hybrid",
+            num_chunks=1,
+            avg_score=0.9,
         )
 
 
@@ -258,6 +283,38 @@ def test_stream_endpoint_persists_answer_turns_in_session():
         store.delete(session_id)
 
 
+def test_stream_followup_soft_scope_uses_rag_from_session_history(tmp_path):
+    session_id = "test-stream-soft-followup-rag"
+    container = _MockContainer()
+    container.rag_ready = True
+    container.retriever = _MockRetriever()
+    container.clinical_planner = ClinicalQueryPlanner()
+    container.session_store = JsonlSessionStore(str(tmp_path))
+    c = TestClient(_app(container))
+
+    first = c.get(
+        "/api/v1/chat/stream",
+        params={
+            "message": "tôi 36 tuổi bị mụn ngay mông, mụn có mủ đau nhiều",
+            "session_id": session_id,
+        },
+    )
+    assert first.status_code == 200
+
+    container.retriever.queries.clear()
+    second = c.get(
+        "/api/v1/chat/stream",
+        params={
+            "message": "có phương pháp điều trị tại nhà k",
+            "session_id": session_id,
+        },
+    )
+
+    assert second.status_code == 200
+    assert container.retriever.queries
+    assert "pustule" in container.retriever.queries[-1]
+
+
 def test_stream_endpoint_routes_templates_by_intent():
     container = _MockContainer()
     c = TestClient(_app(container))
@@ -274,6 +331,19 @@ def test_stream_endpoint_routes_templates_by_intent():
         "knowledge_user.j2",
         "clarify_user.j2",
     ]
+
+
+def test_stream_knowledge_pustule_question_does_not_append_urgent_suffix():
+    container = _MockContainer()
+    c = TestClient(_app(container))
+
+    r = c.get("/api/v1/chat/stream", params={"message": "mụn mủ là gì"})
+
+    assert r.status_code == 200
+    body = r.text.lower()
+    assert "cơ sở y tế" not in body
+    assert "nghiêm trọng" not in body
+    assert container.prompt.templates[-1] == "knowledge_user.j2"
 
 
 def test_stream_endpoint_other_subject_metadata_has_no_snapshot():

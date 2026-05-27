@@ -19,7 +19,9 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 _TEENCODE_MAP: dict[str, str] = {
     "dc": "được",
+    "kop": "không",
     "ko": "không",
+    "k": "không",
     "vs": "với",
     "sp": "sản phẩm",
     "xit": "xịt",

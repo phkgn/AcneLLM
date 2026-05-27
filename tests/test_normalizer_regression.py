@@ -307,6 +307,11 @@ class TestDistributionExtraction:
         r = norm(text)
         assert expected in dist(r)
 
+    def test_mun_co_mu_does_not_match_neck(self):
+        r = norm("tôi bị mụn ngay mông, mụn có mủ, đau nhiều")
+        assert "other" in dist(r)
+        assert "neck" not in dist(r)
+
     def test_tran(self):
         r = norm("mụn nhiều ở trán")
         assert "forehead" in dist(r)
@@ -357,6 +362,41 @@ class TestContextExtraction:
         r = norm("da dầu, mụn nhiều")
         assert r.context.skin_type is not None
         assert "oily" in str(r.context.skin_type).lower() or "dầu" in str(r.context.skin_type)
+
+    def test_oily_skin_from_explicit_oiliness_context(self):
+        r = norm("da có nhiều dầu")
+        assert r.context.skin_type == "oily"
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "da dau nhieu",
+            "da dầu nhiều",
+            "mặt nhiều dầu",
+            "Da mình oily, mụn blackhead ở nose",
+        ],
+    )
+    def test_oily_skin_requires_skin_context_positive_cases(self, text):
+        r = norm(text)
+        assert r.context.skin_type == "oily"
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "đau nhiều",
+            "mụn đau nhiều",
+            "da đau nhiều",
+            "tôi dùng dầu ăn được không",
+            "tôi dùng dầu ăn dc kop",
+            "món ăn có nhiều dầu",
+            "dầu ăn có nhiều dầu mỡ",
+            "sản phẩm nhờn rít",
+            "kem này bóng dầu",
+        ],
+    )
+    def test_pain_and_cooking_oil_do_not_mark_oily_skin(self, text):
+        r = norm(text)
+        assert r.context.skin_type is None
 
     @pytest.mark.parametrize(
         "text",

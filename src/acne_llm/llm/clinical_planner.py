@@ -258,7 +258,7 @@ class ClinicalQueryPlanner:
             planner_confidence=0.45,
         )
         logger.debug(
-            "[planner] lang=%s query_vi=%.60s... missing=%s",
+            "[planner] lang={} query_vi={:.60}... missing={}",
             detected_language, query_vi, case.missing_info,
         )
         return plan
@@ -394,4 +394,3 @@ class ClinicalQueryPlanner:
         if case.demographics.is_breastfeeding:
             terms.append("breastfeeding")
         return _dedupe(terms)
-

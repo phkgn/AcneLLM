@@ -65,6 +65,7 @@ class HybridPipeline:
                  retrieve_top_k: int = 15, rerank_top_k: int = 5,
                  english_input_notice: bool = True,
                  clinical_planner: ClinicalQueryPlanner | None = None,
+                 use_llm_planner: bool | None = None,
                  use_mmr_prefilter: bool = True,
                  mmr_lambda: float = 0.6):
         self.retriever = retriever

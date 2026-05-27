@@ -91,6 +91,50 @@ def test_intake_reads_history_from_container_session_store(tmp_path):
     assert second.user.context.skin_type == "oily"
 
 
+def test_intake_soft_scope_followups_fold_history_and_build_plan(tmp_path):
+    session_id = "test-soft-followups"
+    store = JsonlSessionStore(str(tmp_path))
+    c = _container(rag_ready=True, session_store=store)
+
+    first = run_intake(
+        c,
+        "tôi 36 tuổi bị mụn ngay mông, mụn có mủ đau nhiều",
+        session_id=session_id,
+    )
+    store.append_turn(
+        session_id,
+        ConversationTurn(
+            role="user",
+            content=first.clean_text,
+            normalized_snapshot=first.turn_snapshot,
+            metadata=first.route_decision.metadata(),
+        ),
+    )
+    store.append_turn(
+        session_id,
+        ConversationTurn(role="assistant", content="answer", mode="hybrid"),
+    )
+
+    home = run_intake(c, "có phương pháp điều trị tại nhà k", session_id=session_id)
+    cooking_oil = run_intake(c, "tôi dùng dầu ăn dc kop", session_id=session_id)
+
+    for result in (home, cooking_oil):
+        assert result.scope_decision == "pass_to_llm_soft"
+        assert result.effective_mode == "hybrid"
+        assert result.route_decision.primary_intent == "advise"
+        assert result.route_decision.query_subject == "self"
+        assert result.route_decision.reason_code == "short_followup_in_session"
+        assert result.clinical_plan is not None
+        assert result.user.context.age == 36
+        assert result.user.context.skin_type is None
+        assert result.user.clinical is not None
+        assert "pustule" in result.user.clinical.lesion_types
+        assert "other" in result.user.clinical.lesion_distribution
+
+    assert home.clean_text == "có phương pháp điều trị tại nhà không"
+    assert cooking_oil.clean_text == "tôi dùng dầu ăn được không"
+
+
 def test_intake_treats_generic_acne_case_as_soft_missing_core_hint():
     c = _container()
 
