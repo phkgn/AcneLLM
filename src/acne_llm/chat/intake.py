@@ -38,7 +38,7 @@ EffectiveMode = Literal["hybrid", "llm_only", "refuse", "clarify"]
 
 _COMPLAINT_TERMS = (
     # Chê câu trả lời — không dấu
-    "may tuoi", "tu van vay", "tu van the",
+    "tu van vay", "tu van the",
     "tra loi vay", "tra loi the",
     "khong hieu", "hoi lai", "hoi roi",
     "noi roi", "biet roi", "hoi hoai", "lap lai",
@@ -53,7 +53,6 @@ _COMPLAINT_TERMS = (
     "tra loi cu", "tra loi nhu nhau",
     "vong vo", "dai dong", "khong truong hop",
     # unicode
-    "mấy tuổi",
     "tư vấn vậy", "tư vấn thế",
     "trả lời vậy", "trả lời thế",
     "không hiểu", "hỏi lại", "hỏi rồi",
@@ -404,7 +403,49 @@ def run_intake(
     import copy as _copy
     base_user._current_clinical = _copy.copy(base_user.clinical)
 
-    c.guardrails.pre_check(base_user)
+    try:
+        c.guardrails.pre_check(base_user)
+    except ValueError as exc:
+        logger.info("[{}] → REFUSE (pre_check ValueError: {})", sid_short, exc)
+        precheck_refusal = AdviseOutput(
+            severity="unknown",
+            acne_type_primary="unknown",
+            causes=["Yêu cầu không hợp lệ hoặc vi phạm chính sách an toàn"],
+            recommendations=[],
+            red_flags=[],
+            used_chunks=[],
+            confidence=0.0,
+            disclaimer=(
+                "Mình không thể xử lý tin nhắn này. Vui lòng diễn đạt lại "
+                "câu hỏi về tình trạng mụn của bạn để mình có thể hỗ trợ."
+            ),
+            mode=base_user.mode,
+            model_name="",
+            latency_ms=0,
+        )
+        return IntakeResult(
+            raw_message=raw_message,
+            clean_text=clean_text,
+            user=base_user,
+            turn_snapshot=None,
+            history=history,
+            effective_mode="refuse",
+            scope_decision="refuse_hard",
+            scope_refusal=precheck_refusal,
+            route_decision=RouteDecision(
+                primary_intent="reject",
+                confidence=1.0,
+                query_subject="general",
+                turn_type="reject",
+                route_flags=["pre_check_invalid"],
+                reason_code="pre_check_invalid",
+            ),
+            session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
+        )
 
     # Genital / out-of-scope body region check — phải làm trước OOD để tránh
     # embedding similarity cao do "vùng da" khớp với acne centroid.

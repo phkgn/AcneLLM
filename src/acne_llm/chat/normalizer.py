@@ -66,8 +66,8 @@ _SKIN_TYPES: list[tuple[str, str]] = [
      r"hỗn\s*hợp|hon\s*hop"
      r"|mixed\b|combination\b"
      r"|vùng\s*t\s*(?:thì\s*)?dầu"
-     r"|kết\s*hợp"
      r"|da\s*hỗn\s*hợp"
+     r"|da\s*kết\s*hợp"
      r"|vừa\s*dầu\s*vừa\s*khô"
      r"|dầu\s*ở\s*(?:trán|mũi|vùng\s*t).*khô\s*(?:ở\s*)?(?:má|hai\s*bên)"
      r"|t-zone\s*dầu"
@@ -902,7 +902,7 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
      r"|tai\s*(?:di\s*tai\s*lai|phat)"
      r"|hay\s*bị\s*lại|hay\s*bi\s*lai"
      r"|năm\s*nào\s*cũng\s*bị"
-     r"|\d+\s*(?:năm|tháng)\s*(?:rồi|nay)\s*(?:bị|mụn)"
+     r"|\d+\s*(?:năm|nam|tháng|thang)\s*(?:rồi|roi|nay)"
      r"|mụn\s*mãn\s*tính"
      r"|bị\s*từ\s*(?:nhỏ|bé|lâu)"
      r")\b"),
@@ -1219,9 +1219,16 @@ def _extract_red_flags(text: str) -> list[str]:
 
 
 def _extract_allergies(text: str) -> list[str]:
-    """Extract các chất user dị ứng / kích ứng."""
+    """Extract các chất user dị ứng / kích ứng.
+
+    "unknown" là catch-all generic — nếu cùng câu có chất canonical cụ thể
+    (retinol, bha, niacinamide, ...), drop "unknown" để tránh nhiễu.
+    """
     found = [value for value, pattern in _ALLERGY_TERMS if _has(pattern, text)]
-    return _dedupe(found)
+    deduped = _dedupe(found)
+    if "unknown" in deduped and any(v != "unknown" for v in deduped):
+        deduped = [v for v in deduped if v != "unknown"]
+    return deduped
 
 
 def _extract_treatment_goals(text: str) -> list[str]:

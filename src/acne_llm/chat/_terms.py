@@ -92,8 +92,5 @@ QUESTION_TERMS: tuple[str, ...] = (
     "vì sao nổi", "vi sao noi",
     "nguyên nhân do đâu", "nguyen nhan do dau",
     "do đâu mà bị", "do dau ma bi",
-    "tình trạng tôi", "tinh trang toi",
-    "tình trạng của tôi", "tinh trang cua toi",
-    "tình trạng mình", "tinh trang minh",
     "nghe có vẻ nặng không", "nghe co ve nang khong",
 )

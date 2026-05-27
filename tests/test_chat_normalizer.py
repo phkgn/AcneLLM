@@ -13,11 +13,13 @@ def test_preprocess_user_text_light_cleanup():
 
 
 def test_prepare_user_text_expands_teencode_and_tracks_tokens():
-    prepared = prepare_user_text("BHA 2% k dc dùng vs sp này sáng tối")
+    # "k" (→ không) và "ng" (→ người) đã bị bỏ khỏi teencode map vì gây nhiễu
+    # ("k" trùng tên thành phần, "ng" trùng nhiều từ thông thường).
+    prepared = prepare_user_text("BHA 2% ko dc dùng vs sp này sáng tối")
 
     assert prepared.clean_text == "BHA 2% không được dùng với sản phẩm này sáng tối"
     assert prepared.clean_text_no_accent == "BHA 2% khong duoc dung voi san pham nay sang toi"
-    assert prepared.teencode_replaced == ["k", "dc", "vs", "sp"]
+    assert prepared.teencode_replaced == ["ko", "dc", "vs", "sp"]
 
 
 def test_normalizer_preserves_raw_description_but_extracts_from_clean_text():
