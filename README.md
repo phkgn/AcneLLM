@@ -1,183 +1,245 @@
 # AcneLLM
 
-Chatbot tư vấn mụn trứng cá bằng tiếng Việt, kết hợp RAG (hybrid BM25 + vector search) với LLM chạy local qua Ollama.
+Chatbot tư vấn mụn trứng cá bằng tiếng Việt. Backend dùng FastAPI, LLM chạy local qua
+Ollama, có thể bật RAG hybrid bằng ChromaDB + BM25.
 
----
+## Yêu Cầu
 
-## Yêu cầu hệ thống
+- Git + Git LFS
+- Python 3.10+
+- Ollama
+- Node.js 18+ nếu muốn chạy frontend
+- RAM tối thiểu 8 GB, khuyến nghị 16 GB
 
-- Python **3.10+**
-- [Ollama](https://ollama.com) đã cài và đang chạy
-- RAM tối thiểu **8 GB** (khuyến nghị 16 GB nếu dùng GPU)
-- CUDA 11.8+ (tùy chọn, nếu muốn chạy embedding/reranker trên GPU)
+## Clone / Pull Repo
 
----
+Nếu clone lần đầu:
 
-## Cài đặt
-
-### 1. Clone repo
-
-```bash
-git clone <repo-url>
+```powershell
+git clone https://github.com/phkgn/AcneLLM.git
 cd AcneLLM
+git lfs install
+git lfs pull
 ```
 
-### 2. Tạo virtual environment
+Nếu đã có repo local:
 
-```bash
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Linux / macOS
-source .venv/bin/activate
+```powershell
+git pull
+git lfs pull
 ```
 
-### 3. Cài PyTorch
+`git lfs pull` là bắt buộc để tải `data/chroma_db/` vì ChromaDB đang được lưu bằng
+Git LFS.
 
-Chọn đúng build theo phần cứng:
+## Cài Backend
 
-```bash
-# CPU only
-pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cpu
+Windows PowerShell:
 
-# CUDA 11.8
-pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cu118
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 
-# CUDA 12.1+
-pip install torch>=2.2 --index-url https://download.pytorch.org/whl/cu121
-```
+# Chọn một bản Torch phù hợp máy bạn.
+# CPU:
+pip install "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu
 
-### 4. Cài dependencies
-
-```bash
+# Sau đó cài app:
 pip install -r requirements.txt
+pip install -e .
 ```
 
-### 5. Cài Playwright (crawler JS fallback)
+Linux/macOS:
 
 ```bash
-playwright install chromium
+python3 -m venv .venv-linux
+source .venv-linux/bin/activate
+python -m pip install --upgrade pip
+pip install "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+pip install -e .
 ```
 
-### 6. Cấu hình môi trường
+Nếu dùng CUDA, thay dòng cài Torch CPU bằng wheel CUDA phù hợp từ trang PyTorch.
+
+## Cấu Hình `.env`
+
+Tạo file `.env` từ mẫu:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Linux/macOS:
 
 ```bash
 cp .env.example .env
 ```
 
-Mở `.env` và chỉnh các giá trị cần thiết:
+Các biến tối thiểu nên kiểm tra:
 
-| Biến | Mô tả | Mặc định |
-|------|-------|----------|
-| `OLLAMA_URL` | Địa chỉ Ollama server | `http://localhost:11434` |
-| `LLM_MODEL` | Model LLM chính | `qwen2.5:7b` |
-| `LLM_FALLBACK_MODEL` | Model dự phòng | `qwen2.5:3b` |
-| `DEVICE` | `cpu` hoặc `gpu` | `cpu` |
-| `API_KEY` | API key bảo vệ endpoint (để trống = không xác thực) | _(trống)_ |
+```env
+OLLAMA_URL=http://localhost:11434
+LLM_MODEL=qwen2.5:7b
+LLM_FALLBACK_MODEL=qwen2.5:3b
+DEVICE=cpu
+CHROMA_DIR=./data/chroma_db
+BM25_PATH=./data/bm25_index.pkl
+FRONTEND_URL=http://localhost:3000
+```
 
-### 7. Pull model Ollama
+Không commit `.env`. Các API key trong `.env.example` chỉ cần khi sinh/evaluate dataset,
+không cần để chạy chatbot.
 
-```bash
+## Chuẩn Bị Ollama Model
+
+Mở một terminal riêng:
+
+```powershell
+ollama serve
+```
+
+Terminal khác:
+
+```powershell
 ollama pull qwen2.5:7b
 ollama pull qwen2.5:3b
 ```
 
----
+Nếu bạn có file GGUF local và muốn dùng model custom `acnellm-v2-q4`, đặt GGUF cạnh
+`model/V2/Q4/Modelfile`, rồi chạy:
 
-## Chạy ứng dụng
-
-Knowledge base đã được build sẵn trong thư mục `data/`. Chạy thẳng server:
-
-```bash
-python -m acne_llm.cli serve
+```powershell
+cd model\V2\Q4
+ollama create acnellm-v2-q4 -f Modelfile
 ```
 
-hoặc dùng uvicorn trực tiếp:
+Sau đó đổi trong `.env`:
 
-```bash
+```env
+LLM_MODEL=acnellm-v2-q4
+```
+
+Lưu ý: file GGUF lớn không nằm trong Git repo.
+
+## Chạy Backend
+
+```powershell
 uvicorn acne_llm.api.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-API sẽ chạy tại `http://localhost:8000`.
+Mở:
 
----
+- API docs: http://localhost:8000/docs
+- Health check: http://localhost:8000/api/v1/health
 
-## Build lại Knowledge Base (tùy chọn)
+Test nhanh:
 
-Chỉ cần thực hiện nếu muốn cập nhật dữ liệu mới:
+```powershell
+curl "http://localhost:8000/api/v1/chat/stream?message=toi%20bi%20mun%20o%20cam&mode=auto"
+```
 
-```bash
-# Crawl dữ liệu mới
-python -m acne_llm.crawler.cli crawl
+## Chạy Frontend
 
-# Build lại vector index + BM25
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Mở http://localhost:3000.
+
+Nếu backend không chạy ở `http://localhost:8000`, tạo `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## Chạy Nhanh Trên Windows
+
+Sau khi đã cài Python deps, frontend deps và Ollama model:
+
+```powershell
+.\scripts\RUN.ps1
+```
+
+Script này mở Ollama, backend và frontend ở các cửa sổ PowerShell riêng.
+
+## RAG / Knowledge Base
+
+Repo hiện đã push `data/chroma_db/` qua Git LFS. Tuy nhiên app chỉ bật RAG khi có đủ:
+
+- `data/chroma_db/`
+- `data/bm25_index.pkl`
+
+Nếu thiếu `data/bm25_index.pkl`, backend vẫn chạy nhưng sẽ log:
+
+```text
+KB not ready (...) -- only llm_only mode available
+```
+
+Muốn bật RAG đầy đủ, cần có raw chunks/documents để build BM25:
+
+```powershell
+python scripts/build_kb.py --step bm25
+```
+
+Hoặc rebuild toàn bộ KB từ raw data:
+
+```powershell
 python scripts/build_kb.py
 ```
 
----
+Lưu ý: `data/raw/`, `data/finetune/`, `data/cache/`, `data/sessions/`, model GGUF và
+audit DB không được push mặc định vì lớn hoặc có thể chứa dữ liệu runtime.
 
-## API Endpoints
+## API Chính
 
 | Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| `POST` | `/api/v1/chat` | Chat một lượt |
-| `POST` | `/api/v1/chat/stream` | Chat streaming (SSE) |
-| `WS` | `/ws/chat` | Chat streaming (WebSocket) |
+|---|---|---|
+| `GET` | `/api/v1/chat/stream` | Chat streaming SSE |
+| `POST` | `/api/v1/chat/feedback` | Gửi feedback |
 | `GET` | `/api/v1/health` | Health check |
-| `GET` | `/api/v1/kb/stats` | Thống kê knowledge base |
+| `GET` | `/docs` | OpenAPI UI |
 | `GET` | `/metrics` | Prometheus metrics |
 
-### Ví dụ gọi API
+## Test
 
-```bash
-curl -X POST http://localhost:8000/api/v1/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Mụn đầu đen nên dùng gì?"}'
+Các test liên quan chat pipeline:
+
+```powershell
+pytest tests/test_normalizer_regression.py tests/test_chat_normalizer.py tests/test_intent_router.py tests/test_intent_router_new.py tests/test_intake.py tests/test_chat_stream.py tests/test_stream_safety.py -q
 ```
 
----
+Full test suite hiện có một số test phụ thuộc script/data nội bộ chưa ship trong repo.
 
-## Cấu trúc thư mục
+## Cấu Trúc Chính
 
-```
-AcneLLM/
-├── src/acne_llm/
-│   ├── api/          # FastAPI app, routes, middleware
-│   ├── chat/         # Chat runtime, session, intake
-│   ├── rag/          # Chunker, embedder, retriever, vectorstore, reranker
-│   ├── llm/          # Ollama backend, prompt builder, clinical planner
-│   ├── crawler/      # Web crawler, content extractor
-│   ├── guardrails/   # OOD detector, drug checker
-│   ├── pipeline/     # HybridPipeline, LLMOnlyPipeline
-│   └── config.py     # Cấu hình toàn bộ app
-├── scripts/
-│   └── build_kb.py   # Build vector index + BM25
-├── config/
-│   ├── prompts/      # Jinja2 prompt templates
-│   └── guardrails.yaml
-├── data/
-│   ├── chroma_db/    # Vector database (346 MB)
-│   ├── bm25_index.pkl # BM25 index (50 MB)
-│   └── raw/          # Raw documents + chunks
-├── tests/
-├── .env.example
-└── requirements.txt
+```text
+src/acne_llm/
+  api/          FastAPI routes/app
+  chat/         Intake, session, streaming runtime
+  rag/          Chroma, BM25, retrieval, reranker
+  llm/          Ollama backend, prompt builder, planner
+  guardrails/   Scope/OOD/drug safety
+  pipeline/     Hybrid and LLM-only pipelines
+
+config/prompts/ Prompt templates
+data/chroma_db/ ChromaDB vector index via Git LFS
+frontend/       Next.js UI
+scripts/        Build/eval/run utilities
 ```
 
----
+## Lưu Ý Khi Commit
 
-## Chạy Tests
+Không commit:
 
-```bash
-pytest tests/ -v
-```
+- `.env`
+- `data/sessions/`
+- `data/audit.db*`
+- `data/cache/`
+- model `.gguf`
+- raw/finetune data lớn nếu chưa đưa vào LFS hoặc nơi lưu artifact riêng
 
----
-
-## Lưu ý
-
-- Model embedding (`AITeamVN/Vietnamese_Embedding`) và reranker (`BAAI/bge-reranker-v2-m3`) sẽ được tải tự động từ HuggingFace lần đầu chạy (~1-2 GB).
-- Nếu dùng GPU, đảm bảo đã cài CUDA đúng phiên bản trước khi cài PyTorch.
-- `DEEPSEEK_API_KEY` và `OPENAI_API_KEY` chỉ cần thiết nếu muốn sinh dữ liệu fine-tuning, không cần để chạy chatbot.
+Các file lớn cần push lên GitHub thì phải dùng Git LFS.
