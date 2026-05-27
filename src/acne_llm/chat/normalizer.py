@@ -618,10 +618,12 @@ _ALLERGY_REACTION_VERBS = (
 # Pattern xuôi: "dị ứng với X" | ngược: "X làm/gây kích ứng / bị kích ứng khi dùng X"
 # Dùng window .{0,30} để cho phép từ trung gian ("làm da MÌnh bị kích ứng",
 # "gây kích ứng cho da mình", v.v.) — không dùng \s* vì quá strict.
+# F9.1: thêm verb anchor "(làm|gây|dẫn đến|khiến) da" để bắt "BHA làm da mình rát".
 _ALLERGY_REACTION_AFTER = (
     r"(?:.{0,30}(?:kích\s*ứng|dị\s*ứng|nổi\s*đỏ|ngứa\s*rát|bỏng\s*rát|phản\s*ứng)"
     r"|.{0,20}không\s*hợp\s*(?:với\s*)?da"
-    r"|.{0,15}gây\s*(?:mẩn|nổi\s*đỏ|đỏ\s*rát))"
+    r"|.{0,15}gây\s*(?:mẩn|nổi\s*đỏ|đỏ\s*rát)"
+    r"|.{0,15}(?:làm|gây|dẫn\s+đến|khiến)\s+da\s+\S+\s*(?:rát|đỏ|ngứa|kích\s*ứng|bỏng|châm\s*chích|khô))"
 )
 
 def _allergy_pattern(substance: str) -> str:
@@ -637,10 +639,13 @@ _ALLERGY_TERMS: list[tuple[str, str]] = [
     ("tretinoin",      _allergy_pattern(r"tretinoin")),
     ("adapalene",      _allergy_pattern(r"adapalene")),
     # Acids
-    ("salicylic_acid", _allergy_pattern(r"(?:salicylic(?:\s*acid)?|bha|acid\s*salicylic)")),
+    ("salicylic_acid", _allergy_pattern(r"(?:salicylic(?:\s*acid)?|acid\s*salicylic)")),
     ("benzoyl_peroxide", _allergy_pattern(r"(?:benzoyl(?:\s*peroxide)?|bpo)")),
     ("niacinamide",    _allergy_pattern(r"niacinamide")),
-    ("aha",            _allergy_pattern(r"(?:aha|glycolic\s*acid|lactic\s*acid|acid\s*glycolic)")),
+    # F9: tách BHA/AHA thành alias riêng để extract chính xác hơn.
+    ("bha_irritation", _allergy_pattern(r"bha")),
+    ("aha_irritation", _allergy_pattern(r"aha")),
+    ("aha",            _allergy_pattern(r"(?:glycolic\s*acid|lactic\s*acid|acid\s*glycolic)")),
     ("tea_tree",       _allergy_pattern(r"(?:tea\s*tree|tram\s*tra|trang\s*tra)")),
     # Antibiotics
     ("clindamycin",    _allergy_pattern(r"clindamycin")),
@@ -1066,7 +1071,28 @@ def _extract_duration_weeks(text: str) -> int | None:
 _SkinType = Literal["dry", "oily", "combination", "sensitive", "normal"]
 
 
+# F5.1: Câu so sánh / câu hỏi chung không khai báo skin type cá nhân.
+# Ví dụ: "da dầu có dễ bị mụn hơn da khô không?" — không phải user nói họ da dầu.
+# Drop skin_type khi có các marker này trong cùng câu.
+_SKIN_TYPE_QUESTION_MARKERS = (
+    r"có\s+\S+.{0,40}\s+không\b",
+    r"phải\s+\S+.{0,40}\s+không\b",
+    r"hơn\s+\S+.{0,40}\s+không\b",
+    r"dễ\s+\S+.{0,30}\s+hơn\b",
+    r"khác\s+(?:gì|nhau)\b",
+    r"so\s*sánh\b|so\s*sanh\b",
+)
+_SKIN_TYPE_QUESTION_RE = re.compile(
+    "(?:" + "|".join(_SKIN_TYPE_QUESTION_MARKERS) + ")",
+    flags=re.IGNORECASE,
+)
+
+
 def _extract_skin_type(text: str) -> _SkinType | None:
+    # F5.1: nếu câu có markers so sánh / câu hỏi tổng quát → không extract skin type.
+    # "da dầu có dễ bị mụn hơn da khô không" → user đang hỏi, không khai báo.
+    if _SKIN_TYPE_QUESTION_RE.search(text):
+        return None
     for value, pattern in _SKIN_TYPES:
         if _has(pattern, text):
             return cast(_SkinType, value)

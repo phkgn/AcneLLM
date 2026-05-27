@@ -65,7 +65,8 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
                     session_id,
                     ConversationTurn(
                         role="user",
-                        content=intake.clean_text,
+                        # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
+                        content=intake.raw_message,
                         mode=out.mode,
                         normalized_snapshot=intake.turn_snapshot,
                         metadata=route_metadata,
@@ -96,7 +97,8 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
                     session_id,
                     ConversationTurn(
                         role="user",
-                        content=intake.clean_text,
+                        # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
+                        content=intake.raw_message,
                         mode="llm_only",
                         normalized_snapshot=intake.turn_snapshot,
                         metadata=route_metadata,
@@ -123,7 +125,8 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
                 session_id,
                 ConversationTurn(
                     role="user",
-                    content=intake.clean_text,
+                    # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
+                    content=intake.raw_message,
                     mode=mode,
                     normalized_snapshot=intake.turn_snapshot,
                     metadata=route_metadata,

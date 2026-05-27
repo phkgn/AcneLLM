@@ -91,7 +91,9 @@ def stream_chat_sse(
                     session_id,
                     ConversationTurn(
                         role="user",
-                        content=clean_message,
+                        # F10: lưu nguyên văn user gõ, không phải bản đã preprocess.
+                        # Fold/normalize sẽ re-run trên history nếu cần.
+                        content=intake.raw_message,
                         mode=mode,
                         normalized_snapshot=persist_snapshot,
                         metadata=route_metadata,
@@ -318,7 +320,8 @@ def stream_chat_sse(
                 session_id,
                 ConversationTurn(
                     role="user",
-                    content=clean_message,
+                    # F10: lưu nguyên văn user gõ, không phải bản đã preprocess.
+                    content=intake.raw_message,
                     mode=mode,
                     normalized_snapshot=persist_snapshot,
                     metadata=route_metadata,

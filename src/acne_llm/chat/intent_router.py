@@ -216,6 +216,17 @@ _MULTI_CONDITION_TERMS = (
 
 _STOP_REPEAT_CHARS_RE = re.compile(r"\s+")
 
+# F1.1: Regex bắt pattern "em/con/cháu/tớ/tao + (đang) + verb" để phát hiện
+# subject=self ngay cả khi không có substring rõ ràng ("em" đứng cuối câu).
+# Ví dụ: "em đang dùng BHA bị rát", "cháu nổi mụn ở cằm", "con bị mụn 2 tháng".
+_PERSONAL_PRONOUN_VERB_RE = re.compile(
+    r"\b(em|con|ch[áa]u|t[ớo]|tao|chau|to)\s+"
+    r"(?:đang\s+|dang\s+)?"
+    r"(?:b[ịi]|n[ổo]i|d[ùu]ng|mang\s*thai|co\s*thai|c[óo]\s+thai|"
+    r"cho\s*con\s*b[úu])\b",
+    flags=re.IGNORECASE,
+)
+
 
 def normalize_for_repeat(text: str) -> str:
     lowered = text.lower().strip()
@@ -261,6 +272,11 @@ def _subject_signals(text: str) -> tuple[bool, bool]:
         no_accent,
         _SELF_SUBJECT_TERMS,
     )
+    # F1.1: regex fallback — bắt "em đang bị", "cháu nổi mụn", "con mang thai" v.v.
+    # Chỉ áp dụng khi không có other_subject (tránh "em trai mình đang bị" → self=True).
+    if not has_self and not has_other:
+        if _PERSONAL_PRONOUN_VERB_RE.search(lowered) or _PERSONAL_PRONOUN_VERB_RE.search(no_accent):
+            has_self = True
     return has_other, has_self
 
 
