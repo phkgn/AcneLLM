@@ -35,9 +35,9 @@ _GENITAL_FILTER_TERMS = (
 
 SESSION_TTL: float = 1800.0        # seconds idle before session expires
 MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
-HISTORY_CHAR_BUDGET: int = 2000    # max chars injected into prompt (0 = unlimited)
+HISTORY_CHAR_BUDGET: int = 3000    # max chars injected into prompt (0 = unlimited) — khớp config.session_history_char_budget
 FIRST_TURN_BUDGET: int = 400       # chars reserved for the first user turn (anchor)
-ASSISTANT_TURN_MAX: int = 0        # 0 = không cắt assistant turns trong history
+ASSISTANT_TURN_MAX: int = 200       # max chars mỗi assistant turn trong history (tránh model echo lại)
 
 
 # ── Data classes ─────────────────────────────────────────────────────────────
@@ -254,6 +254,16 @@ class SessionStore:
             sess = self._sessions.get(sid)
             if sess is not None:
                 sess.asked_fields.update(fields)
+
+    def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
+        """Increment accumulated follow-up/progress score for this session."""
+        if not self._is_valid_sid(session_id):
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            sess = self._sessions.get(sid)
+            if sess is not None:
+                sess.accumulated_clinical_score += float(amount)
 
     def delete(self, session_id: str | None) -> None:
         """Explicitly remove a session (e.g. on user logout)."""
@@ -559,7 +569,7 @@ def format_history_block(
         return ""
 
     def _fmt(turn: ConversationTurn, assistant_max: int = ASSISTANT_TURN_MAX) -> str:
-        role_label = "User" if turn.role == "user" else "AcneLLM"
+        role_label = "User" if turn.role == "user" else "Assistant"
         content = turn.content.strip()
         if turn.role == "assistant" and assistant_max > 0 and len(content) > assistant_max:
             content = content[:assistant_max].rsplit(" ", 1)[0] + "..."

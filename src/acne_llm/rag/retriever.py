@@ -26,7 +26,8 @@ _SOURCE_TYPE_BOOST: dict[str, float] = {
 _TRUST_LEVEL_BOOST: dict[str, float] = {"high": 1.4, "medium": 1.0, "low": 0.7}
 _AUTHORITY_TAG_BOOST = 1.15
 _DENSE_MAX_DISTANCE: float = 0.48  # tightened: loại chunk xa centroid (was 0.60)
-_MIN_FUSION_SCORE: float = 0.015   # tightened: loại chunk score quá thấp (was 0.005)
+_MIN_FUSION_SCORE: float = 0.005   # absolute floor (fallback)
+_MIN_FUSION_SCORE_RELATIVE: float = 0.30  # giữ chunk có score >= 30% của max_score
 
 
 def _split_meta_list(value) -> list[str]:
@@ -153,7 +154,7 @@ class HybridRetriever:
 
         sparse_hits: list[tuple[str, float]] = []
         if mode in ("sparse", "hybrid") and self.bm25 is not None:
-            sparse_hits = self.bm25.query(query, top_k=fetch_k)
+            sparse_hits = self.bm25.query(query, top_k=fetch_k, normalize=(mode == "sparse"))
             sparse_ids = [cid for cid, _ in sparse_hits]
             logger.debug(f"[retriever] sparse={len(sparse_ids)} hits")
 
@@ -189,9 +190,35 @@ class HybridRetriever:
                 if tags & _authority_tags:
                     score *= _AUTHORITY_TAG_BOOST
                 fused[cid] = score
-            fused = {cid: s for cid, s in fused.items() if s >= _MIN_FUSION_SCORE}
+            if fused:
+                values = list(fused.values())
+                max_score = max(values)
+                # FIX 2: Relative threshold — loại chunk có score < 30% của max_score.
+                # Tránh tình trạng pruned=0 khi tất cả score nằm trong dải hẹp.
+                # Fallback về absolute floor nếu max_score quá nhỏ.
+                relative_threshold = max(
+                    _MIN_FUSION_SCORE,
+                    max_score * _MIN_FUSION_SCORE_RELATIVE,
+                )
+                logger.debug(
+                    "[retriever] fusion stats before prune: n={} min={:.4f} p50={:.4f} max={:.4f} threshold={:.4f} (relative={:.2f}x)",
+                    len(values),
+                    min(values),
+                    sorted(values)[len(values) // 2],
+                    max_score,
+                    relative_threshold,
+                    _MIN_FUSION_SCORE_RELATIVE,
+                )
+            else:
+                relative_threshold = _MIN_FUSION_SCORE
+            before_prune = len(fused)
+            fused = {cid: s for cid, s in fused.items() if s >= relative_threshold}
             ranked = sorted(fused.items(), key=lambda x: x[1], reverse=True)[:top_k]
-            logger.debug(f"[retriever] hybrid fused={len(ranked)} chunks")
+            logger.debug(
+                "[retriever] hybrid fused={} chunks (pruned={} below threshold)",
+                len(ranked),
+                before_prune - len(fused),
+            )
 
         # FIX: Batch fetch text+meta cho tất cả chunks không có trong dense_meta
         _missing_cids = [cid for cid, _ in ranked if cid not in dense_meta]
@@ -330,11 +357,15 @@ class HybridRetriever:
         if not safety_terms or not self.embedder:
             return _EMPTY
 
-        safety_query = query + " " + " ".join(safety_terms)
-        domain_filter = {"source_type": {"$in": [
+        deduped_terms = list(dict.fromkeys(t.strip() for t in safety_terms if t and t.strip()))
+        safety_query = (query + " " + " ".join(deduped_terms[:20])).strip()
+        if len(safety_query) > 1200:
+            safety_query = safety_query[:1200].rsplit(" ", 1)[0].strip()
+        allowed_source_types = [
             "nice_guideline", "aad_guideline", "jid_paper",
             "pubmed_review", "clinical_textbook",
-        ]}}
+        ]
+        domain_filter = {"source_type": {"$in": allowed_source_types}}
 
         try:
             qvec = self.embedder.embed_query(safety_query)
@@ -362,7 +393,13 @@ class HybridRetriever:
             score = max(0.0, 1.0 - float(dist))
             meta = meta or {}
             source_type = _source_type_from_meta(meta)
-            if source_type not in domain_filter["source_type"]["$in"]:
+            if source_type not in allowed_source_types:
+                logger.debug(
+                    "[safety_pass] drop source_type mismatch cid={} source_type={} allowed={}",
+                    cid,
+                    source_type,
+                    allowed_source_types,
+                )
                 continue
             chunks.append(RetrievedChunk(
                 chunk_id=cid, source=meta.get("source", ""), text=text or "",

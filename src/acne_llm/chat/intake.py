@@ -6,13 +6,13 @@ completeness -> clinical plan -> effective mode.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
 from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
-from ._terms import QUESTION_TERMS
+from ._terms import CASE_INTAKE_TERMS, COMPLAINT_TERMS, QUESTION_TERMS, contains_any
 from ..schemas.clinical import ClinicalQueryPlan
 from .completeness import CompletenessResult, check_completeness
 from .intent_router import RouteDecision, route_intent
@@ -34,103 +34,19 @@ if TYPE_CHECKING:
 
 ScopeDecision = Literal["in_scope", "refuse_hard", "pass_to_llm_soft"]
 EffectiveMode = Literal["hybrid", "llm_only", "refuse", "clarify"]
+MAX_MESSAGE_CHARS = 4000   # hard chars fallback (giữ để tương thích)
+MAX_MESSAGE_WORDS = 500    # giới hạn từ thực sự — ~850 tokens tiếng Việt
 
 
-_COMPLAINT_TERMS = (
-    # Chê câu trả lời — không dấu
-    "tu van vay", "tu van the",
-    "tra loi vay", "tra loi the",
-    "khong hieu", "hoi lai", "hoi roi",
-    "noi roi", "biet roi", "hoi hoai", "lap lai",
-    "tu van kieu gi", "cau tra loi vo nghia",
-    "khong giup duoc gi", "toan hoi lai",
-    "vo ich", "khong dung", "tra loi sai",
-    "te qua", "chan qua", "hieu gi dau",
-    "tra loi linh tinh", "khong chinh xac",
-    "bot vo dung", "bot do", "tra loi lan",
-    "khong ro rang", "kho hieu", "khong thuc te",
-    "co biet gi dau", "biet gi ma tu van",
-    "tra loi cu", "tra loi nhu nhau",
-    "vong vo", "dai dong", "khong truong hop",
-    # unicode
-    "tư vấn vậy", "tư vấn thế",
-    "trả lời vậy", "trả lời thế",
-    "không hiểu", "hỏi lại", "hỏi rồi",
-    "nói rồi", "biết rồi", "hỏi hoài", "lặp lại",
-    "tư vấn kiểu gì", "câu trả lời vô nghĩa",
-    "không giúp được gì", "toàn hỏi lại",
-    "vô ích", "không đúng", "trả lời sai",
-    "tệ quá", "chán quá", "hiểu gì đâu",
-    "trả lời linh tinh", "không chính xác",
-    "bot vô dụng", "bot dở", "trả lời lan",
-    "không rõ ràng", "khó hiểu", "không thực tế",
-    "có biết gì đâu", "biết gì mà tư vấn",
-    "trả lời cũ", "trả lời như nhau",
-    "vòng vo", "dài dòng", "không đúng trường hợp",
-    "hỏi mãi", "hỏi nhiều quá", "tại sao hỏi nhiều",
-    "hỏi lắm vậy", "hỏi hoài không tư vấn",
-    "sao cứ hỏi", "chỉ hỏi không trả lời",
-)
+def _count_words(text: str) -> int:
+    """Đếm số từ đơn giản: split theo whitespace."""
+    return len(text.split())
+
 
 # _KNOWLEDGE_QUESTION_TERMS đã chuyển sang ._terms.QUESTION_TERMS (shared với intent_router.py)
 _KNOWLEDGE_QUESTION_TERMS = QUESTION_TERMS
-
-_CASE_INTAKE_TERMS = (
-    # ── Chủ ngữ + bị/nổi ──────────────────────────────────────────────────────
-    "toi bi", "minh bi", "em bi", "ban than bi", "chau bi", "con bi",
-    "minh dang bi", "toi dang bi", "em dang bi",
-    "bi mun", "mun o", "noi mun", "noi o",
-    "mun xuat hien", "mun moi noi",
-    # ── Loại tổn thương — không dấu ───────────────────────────────────────────
-    "co sung", "sung do", "dau den", "dau trang",
-    "mun boc", "mun viem", "mun mu", "mun nan", "mun nang",
-    "mun dau den", "mun dau trang", "mun li ti",
-    "hat li ti", "hat nho", "mun kho", "mun an",
-    "mun sam", "mun cam", "mun than",
-    # ── Vị trí + chủ sở hữu — không dấu ──────────────────────────────────────
-    "da toi", "mat toi", "lung toi", "co toi", "nguoi toi",
-    "da minh", "mat minh", "lung minh",
-    "mat em", "lung em", "cam em", "tran em",
-    "tren mat", "o mat", "o lung", "o co", "o vai",
-    "o tran", "o cam", "o ma", "o mui", "o hang",
-    # ── Thời gian / diễn biến — không dấu ────────────────────────────────────
-    "hay bi", "thuong bi", "gan day", "dao nay", "tuan nay",
-    "hom nay noi", "moi noi", "tu nhien noi", "tu nhien bi",
-    "noi nhieu", "bi nhieu", "bi nang", "bi lau",
-    "khong het", "mai khong het", "khong khoi",
-    "keo dai", "lau roi", "bao lau roi",
-    "ngay cang nhieu", "ngay cang nang",
-    "lan ra", "lan xuong", "lan sang",
-    # ── Diễn biến đặc biệt ────────────────────────────────────────────────────
-    "bot o mat lai noi o", "giam o mat nhung",
-    "het tren mat roi noi", "chuyen xuong",
-
-    # ── Unicode ───────────────────────────────────────────────────────────────
-    "tôi bị", "mình bị", "em bị", "bản thân bị", "cháu bị", "con bị",
-    "mình đang bị", "tôi đang bị", "em đang bị",
-    "bị mụn", "mụn ở", "nổi mụn", "nổi ở",
-    "mụn xuất hiện", "mụn mới nổi",
-    "có sưng", "sưng đỏ", "đầu đen", "đầu trắng",
-    "mụn bọc", "mụn viêm", "mụn mủ", "mụn nang",
-    "mụn đầu đen", "mụn đầu trắng", "mụn li ti",
-    "hạt li ti", "hạt nhỏ", "mụn khô", "mụn ẩn",
-    "mụn cám", "mụn thâm",
-    "da tôi", "mặt tôi", "lưng tôi", "cổ tôi", "người tôi",
-    "da mình", "mặt mình", "lưng mình",
-    "mặt em", "lưng em", "cằm em", "trán em",
-    "trên mặt", "ở mặt", "ở lưng", "ở cổ", "ở vai",
-    "ở trán", "ở cằm", "ở má", "ở mũi",
-    "hay bị", "thường bị", "gần đây", "dạo này", "tuần này",
-    "hôm nay nổi", "mới nổi", "tự nhiên nổi", "tự nhiên bị",
-    "nổi nhiều", "bị nhiều", "bị nặng", "bị lâu",
-    "không hết", "mãi không hết", "không khỏi",
-    "kéo dài", "lâu rồi", "bao lâu rồi",
-    "ngày càng nhiều", "ngày càng nặng",
-    "lan ra", "lan xuống", "lan sang",
-    "bớt ở mặt lại nổi ở", "giảm ở mặt nhưng",
-    "hết trên mặt rồi nổi", "chuyển xuống",
-    "mụn lan", "lan từ", "từ mặt xuống",
-)
+_COMPLAINT_TERMS = COMPLAINT_TERMS
+_CASE_INTAKE_TERMS = CASE_INTAKE_TERMS
 
 
 @dataclass
@@ -149,6 +65,7 @@ class IntakeResult:
     session_id: str | None = None
     clean_text_no_accent: str = ""
     normalized_query: str = ""
+    safety_terms: list[str] = field(default_factory=list)
     extracted_entities: dict = field(default_factory=dict)
     pii_detected: bool = False
     teencode_replaced: list[str] = field(default_factory=list)
@@ -166,9 +83,50 @@ def _is_genital_scope(message: str) -> bool:
     return GuardrailRunner.is_genital_scope(message)
 
 
+_ALLOWED_ACNE_REGION_TERMS = (
+    "mặt", "mat", "trán", "tran", "má", "ma", "cằm", "cam", "mũi", "mui",
+    "quai hàm", "quai ham", "hàm", "ham", "miệng", "mieng",
+    "lưng", "lung", "ngực", "nguc", "vai", "cổ", "co", "gáy", "gay",
+)
+
+_SAFETY_SIGNAL_TERMS = (
+    "mang thai", "pregnant", "pregnancy",
+    "cho con bú", "cho con bu", "breastfeeding", "lactation",
+    "isotretinoin", "retinoid", "retinol", "tretinoin", "adapalene", "tazarotene",
+    "doxycycline", "minocycline", "tetracycline", "kháng sinh", "khang sinh", "antibiotic",
+)
+
+
+def _has_allowed_acne_region(message: str) -> bool:
+    return contains_any(message, _ALLOWED_ACNE_REGION_TERMS)
+
+
+def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
+    lowered = message.lower()
+    terms = [term for term in _SAFETY_SIGNAL_TERMS if term in lowered]
+    if user.context.is_pregnant:
+        terms.append("pregnancy")
+    if user.context.is_breastfeeding:
+        terms.append("breastfeeding")
+    for medication in user.context.medications or []:
+        med = str(medication).lower()
+        if any(term in med for term in _SAFETY_SIGNAL_TERMS):
+            terms.append(med)
+    if user.clinical:
+        for ingredient in user.clinical.canonical_ingredients or []:
+            ing = str(ingredient).lower()
+            if any(term in ing for term in _SAFETY_SIGNAL_TERMS):
+                terms.append(ing)
+        for medication in user.clinical.medication_history or []:
+            med = str(medication).lower()
+            if any(term in med for term in _SAFETY_SIGNAL_TERMS):
+                terms.append(med)
+    return list(dict.fromkeys(term.strip() for term in terms if term and term.strip()))
+
+
 def _is_knowledge_question(message: str) -> bool:
     lowered = message.lower()
-    return any(term in lowered for term in _KNOWLEDGE_QUESTION_TERMS)
+    return contains_any(lowered, _KNOWLEDGE_QUESTION_TERMS)
 
 
 def _has_clinical_data(clinical: AcneClinicalInput) -> bool:
@@ -241,17 +199,20 @@ def _session_clarify_count(store: object, session_id: str | None, history: list[
     return max(history_count, int(getattr(session, "total_clarify_count", 0) or 0))
 
 
-def _force_advise_route(route_decision: RouteDecision, reason: str) -> None:
-    """Mutate a clarify route into partial advise once self-context is enough."""
-    route_decision.primary_intent = "advise"
-    route_decision.turn_type = "answer"
-    route_decision.confidence = max(route_decision.confidence, 0.72)
-    route_decision.reason_code = f"{route_decision.reason_code}|{reason}"
-    route_decision.route_flags = list(dict.fromkeys([
-        *route_decision.route_flags,
-        "partial_advise",
-        "clarify_loop_break",
-    ]))
+def _force_advise_route(route_decision: RouteDecision, reason: str) -> RouteDecision:
+    """Return a partial-advise copy once self-context is enough."""
+    return replace(
+        route_decision,
+        primary_intent="advise",
+        turn_type="answer",
+        confidence=max(route_decision.confidence, 0.72),
+        reason_code=f"{route_decision.reason_code}|{reason}",
+        route_flags=list(dict.fromkeys([
+            *route_decision.route_flags,
+            "partial_advise",
+            "clarify_loop_break",
+        ])),
+    )
 
 
 def _is_intake_reply(message: str, history: list[ConversationTurn]) -> bool:
@@ -299,7 +260,7 @@ def _should_check_completeness(
     if route_decision is not None and route_decision.primary_intent == "advise":
         return True
 
-    if any(term in lowered for term in _CASE_INTAKE_TERMS):
+    if contains_any(lowered, _CASE_INTAKE_TERMS):
         return True
 
     clinical = user.clinical or AcneClinicalInput()
@@ -322,7 +283,7 @@ def _is_complaint(message: str) -> bool:
     if len(message.split()) > 20:
         return False
     lowered = message.lower()
-    return any(term in lowered for term in _COMPLAINT_TERMS)
+    return contains_any(lowered, _COMPLAINT_TERMS)
 
 
 def _resolve_mode(
@@ -359,6 +320,14 @@ def run_intake(
     mode_request: str = "auto",
 ) -> IntakeResult:
     """Run the shared pre-generation intake path for POST, SSE and WS."""
+    if len(message) > MAX_MESSAGE_CHARS:
+        raise ValueError(f"message is too long (max {MAX_MESSAGE_CHARS} characters)")
+    word_count = _count_words(message)
+    if word_count > MAX_MESSAGE_WORDS:
+        raise ValueError(
+            f"Tin nhắn quá dài ({word_count} từ). Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ."
+        )
+
     sid_short = (session_id or "no-session")[:8]
     logger.info("[{}] ① INPUT ({}c): {!r}", sid_short, len(message), message[:120])
 
@@ -377,6 +346,7 @@ def run_intake(
         clean_text=clean_text,
         clean_text_no_accent=clean_text_no_accent,
     )
+    safety_terms = _extract_safety_terms(clean_text, base_user)
     turn_snapshot = snapshot_from_user(base_user, clean_text=clean_text)
 
     _cl = base_user.clinical
@@ -399,9 +369,11 @@ def run_intake(
     )
 
     # Lưu clinical snapshot của turn hiện tại — intent_router dùng để tránh
-    # session carry-over làm has_case_signal luôn True.
-    import copy as _copy
-    base_user._current_clinical = _copy.copy(base_user.clinical)
+    # session carry-over làm has_case_signal luôn True, không set side-channel
+    # attribute lên Pydantic model.
+    current_clinical = (
+        base_user.clinical.model_copy(deep=True) if base_user.clinical is not None else None
+    )
 
     try:
         c.guardrails.pre_check(base_user)
@@ -442,6 +414,7 @@ def run_intake(
             ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
+            safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
@@ -449,7 +422,10 @@ def run_intake(
 
     # Genital / out-of-scope body region check — phải làm trước OOD để tránh
     # embedding similarity cao do "vùng da" khớp với acne centroid.
-    if _is_genital_scope(clean_text):
+    acne_signal = _is_acne_scope(clean_text)
+    genital_scope = _is_genital_scope(clean_text)
+    mixed_genital_scope = genital_scope and acne_signal and _has_allowed_acne_region(clean_text)
+    if genital_scope and not mixed_genital_scope:
         logger.info("[{}] → REFUSE (genital/out-of-scope body region)", sid_short)
         genital_refusal = AdviseOutput(
             severity="unknown",
@@ -488,10 +464,13 @@ def run_intake(
             ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
+            safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
         )
+    if mixed_genital_scope:
+        logger.info("[{}] ④ MIXED SCOPE: acne region + genital mention", sid_short)
 
     # Compute has_acne_history once — reused by scope_check and OOD downgrade below.
     has_acne_history = any(
@@ -500,11 +479,11 @@ def run_intake(
         if t.role == "user"
     )
     scope_refusal = _scope_check_compat(c.guardrails, base_user, has_acne_history)
-    acne_signal = _is_acne_scope(clean_text)
     logger.info(
-        "[{}] ④ GUARDRAILS: acne_signal={} genital=False refused={} scope={}",
+        "[{}] ④ GUARDRAILS: acne_signal={} genital={} refused={} scope={}",
         sid_short,
         acne_signal,
+        genital_scope,
         scope_refusal is not None,
         "in_scope" if acne_signal else "pass_to_llm_soft",
     )
@@ -530,6 +509,7 @@ def run_intake(
             ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
+            safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
@@ -586,6 +566,7 @@ def run_intake(
                 base_user,
                 clean_text_normalized=clean_text,
             ),
+            safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
@@ -597,7 +578,17 @@ def run_intake(
         history,
         settings=getattr(c, "settings", None),
         classifier=getattr(c, "intent_classifier", None),
+        current_clinical=current_clinical,
     )
+    if mixed_genital_scope:
+        route_decision = replace(
+            route_decision,
+            route_flags=list(dict.fromkeys([
+                *route_decision.route_flags,
+                "mixed_genital_scope",
+            ])),
+            reason_code=f"{route_decision.reason_code}|mixed_genital_scope",
+        )
     logger.info(
         "[{}] ⑤ ROUTE: intent={} subject={} conf={:.2f} flags={} source={} reason={}",
         sid_short,
@@ -639,6 +630,7 @@ def run_intake(
             route_decision=route_decision,
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
+            safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
@@ -684,12 +676,14 @@ def run_intake(
 
     if route_decision.primary_intent == "clarify" and route_decision.query_subject == "self":
         enough_context = completeness is not None and completeness.level == "sufficient"
-        too_many_clarifies = has_acne_history and _session_clarify_count(store, session_id, history) >= 3
+        clarify_count = _session_clarify_count(store, session_id, history)
+        clarify_limit = 3 if has_acne_history else 5
+        too_many_clarifies = clarify_count >= clarify_limit
         if too_many_clarifies:
-            _force_advise_route(route_decision, "clarify_loop_hard_stop")
+            route_decision = _force_advise_route(route_decision, "clarify_loop_hard_stop")
             logger.info("[{}] ⑤b ROUTE OVERRIDE: clarify → advise (clarify loop hard stop)", sid_short)
         elif enough_context:
-            _force_advise_route(route_decision, "clarify_sufficient_context")
+            route_decision = _force_advise_route(route_decision, "clarify_sufficient_context")
             logger.info("[{}] ⑤b ROUTE OVERRIDE: clarify → advise (sufficient self context)", sid_short)
 
     logger.info(
@@ -764,6 +758,7 @@ def run_intake(
         session_id=session_id,
         clean_text_no_accent=clean_text_no_accent,
         normalized_query=normalized_query,
+        safety_terms=safety_terms,
         extracted_entities=extracted_entities,
         pii_detected=contains_pii(clean_text),
         teencode_replaced=prepared.teencode_replaced,

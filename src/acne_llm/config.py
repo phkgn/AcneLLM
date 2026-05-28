@@ -2,7 +2,16 @@
 
 Import:
     from acne_llm.config import settings
+
+Quy ước layer config (đọc kỹ trước khi thêm setting mới):
+  - Modelfile (model/V2/Q4/Modelfile): CHỈ chứa artifact-level (FROM, TEMPLATE,
+    SYSTEM, stop tokens). KHÔNG đặt num_ctx/temperature/top_p ở đây — Python
+    cần quyền override per-request.
+  - .env: chỉ override các giá trị khác giữa môi trường (URL, secret, path,
+    feature flag). Đừng copy nguyên config.py vào đây.
+  - config.py (file này): single source of truth cho SCHEMA + DEFAULTS.
 """
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,21 +22,79 @@ class Settings(BaseSettings):
     ollama_url: str = "http://localhost:11434"
     llm_model: str = "acnellm-v2-q4"
     llm_fallback_model: str = "qwen2.5:3b"
-    llm_num_ctx: int = 8192
-    llm_num_predict: int = 2048
-    llm_temperature: float = 0.3
+    # num_ctx: window context. Giảm = tiết kiệm VRAM cho KV-cache, fit model GPU.
+    llm_num_ctx: int = 4096
+    llm_num_predict: int = 1200
+    llm_temperature: float = 0.35
+    llm_top_p: float = 0.85
+    llm_top_k: int = 40
+    llm_repeat_penalty: float = 1.1
+    llm_repeat_last_n: int = 128
+    # keep_alive: giữ model warm trong VRAM.
+    # Ollama parse như Go duration:
+    #   - int: -1 = vĩnh viễn (đến khi Ollama tắt), 0 = unload ngay, 300 = 300s
+    #   - string: BẮT BUỘC có unit — "30m", "1h", "300s" (KHÔNG dùng "-1" string)
+    # Trong .env ghi LLM_KEEP_ALIVE=-1 (validator sẽ convert sang int -1).
+    llm_keep_alive: str | int = -1
     ollama_health_timeout: float = 5.0
-    ollama_generate_timeout: float = 180.0
+    # 30s đủ cho mọi request khi GPU healthy. Nếu vượt → có vấn đề, không che giấu.
+    ollama_generate_timeout: float = 30.0
     # Khi True: không gửi system message qua API — để Modelfile SYSTEM tự xử lý.
     # Bật khi model đã fine-tune với system prompt nhúng sẵn, tránh 2 system prompt chồng.
     llm_use_modelfile_system: bool = False
+
+    @field_validator("llm_num_ctx")
+    @classmethod
+    def _check_num_ctx(cls, v: int) -> int:
+        if not 512 <= v <= 32768:
+            raise ValueError(f"llm_num_ctx={v} ngoài phạm vi hợp lý [512, 32768]")
+        return v
+
+    @field_validator("llm_keep_alive", mode="before")
+    @classmethod
+    def _check_keep_alive(cls, v) -> str | int:
+        """Normalize về int hoặc string-có-unit.
+
+        Ollama API yêu cầu: int (seconds, -1 = forever) hoặc string có unit
+        ("30m", "1h"). String "-1" trần sẽ gây 400 "missing unit in duration".
+        """
+        if isinstance(v, int):
+            return v
+        s = str(v).strip().lower()
+        # Số (kể cả âm) → convert sang int
+        if s.lstrip("-").isdigit():
+            return int(s)
+        # Có unit → giữ string, Ollama tự parse
+        if s.endswith(("s", "m", "h")) and s[:-1].replace(".", "", 1).isdigit():
+            return s
+        raise ValueError(
+            f"llm_keep_alive={v!r} không hợp lệ. Dùng: -1 (forever), 0, "
+            f"số giây (300), hoặc string có unit ('30m', '1h')."
+        )
 
     # ── Embedding & Reranker ─────────────────────────────────────────────────
     embedding_model: str = "AITeamVN/Vietnamese_Embedding"
     # Để trống = dùng embedding_model; đặt "intfloat/multilingual-e5-large" cho KB VI+EN.
     embedding_model_multilingual: str = ""
     reranker_model: str = "BAAI/bge-reranker-v2-m3"
-    device: str = "gpu"
+    # device cho embedder + reranker. "cuda" để dùng GPU (cần PyTorch+CUDA build).
+    # "cpu" nếu không có GPU hoặc VRAM đã đầy bởi LLM.
+    # Lưu ý: "gpu" không phải giá trị PyTorch chuẩn — validator sẽ map → "cuda".
+    device: str = "cuda"
+
+    @field_validator("device")
+    @classmethod
+    def _normalize_device(cls, v: str) -> str:
+        s = str(v).strip().lower()
+        # Map alias thường gặp
+        if s in {"gpu", "nvidia", "cuda:0"}:
+            return "cuda"
+        if s in {"cpu", "cuda", "mps", "auto"}:
+            return s
+        # Cho phép "cuda:N"
+        if s.startswith("cuda:") and s[5:].isdigit():
+            return s
+        raise ValueError(f"device={v!r} không hợp lệ (chấp nhận: cpu, cuda, cuda:N, mps, auto)")
 
     # ── Storage paths ────────────────────────────────────────────────────────
     chroma_dir: str = "./data/chroma_db"
@@ -58,14 +125,21 @@ class Settings(BaseSettings):
     # Giữ lại sau cross-encoder rerank
     rerank_top_k: int = 5
     # Chat dùng pool nhỏ hơn vì latency quan trọng hơn
-    chat_retrieve_top_k: int = 10
+    # 15 để reranker có đủ candidates — pool 10 sau fusion prune thường còn ~6, quá ít.
+    chat_retrieve_top_k: int = 15
     chat_rerank_top_k: int = 3
+    # Khi có clinical_plan đầy đủ: giữ nhiều chunk hơn để LLM có đủ context
+    chat_rerank_top_k_clinical: int = 5
     # Tổng ký tự context inject vào prompt chat
     chat_max_context_chars: int = 4500
     # Sigmoid score tối thiểu để chunk xuất hiện trong citation (khớp reranker threshold)
     chat_min_citation_score: float = 0.25
     # Pool safety pass (thai kỳ, thuốc kê đơn) — ưu tiên guideline source_types
     chat_safety_top_k: int = 5
+    # OOD guard: nếu avg và max sigmoid sau rerank đều < floor → bỏ chunks, trả None.
+    # 0.45 = gần random (sigmoid(0) = 0.5), nghĩa là reranker không tin chunk nào liên quan.
+    chat_rerank_ood_floor: float = 0.45
+
     # ── Intent router / optional micro-classifier ────────────────────────────
     # OFF by default: rule-based routing remains the production path unless the
     # operator explicitly enables the small classifier for ambiguous cases.

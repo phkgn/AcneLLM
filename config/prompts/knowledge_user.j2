@@ -12,7 +12,7 @@
 {% endif %}
 </user_data>
 
-{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}
+{% if has_retrieved_context %}
 <retrieved_context>
 {{ retrieved_context }}
 </retrieved_context>
@@ -27,8 +27,10 @@ Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt.
 2. **Độ dài**: Trả lời đầy đủ theo yêu cầu — không tóm tắt nếu câu hỏi cần giải thích chi tiết.
 3. **Format**: Dùng danh sách đánh số cho câu hỏi liệt kê. Văn xuôi cho câu hỏi giải thích/cơ chế.
 4. **Không hỏi lại thông tin cá nhân**: Đây là câu hỏi kiến thức tổng quát.
-{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}
+{% if has_retrieved_context %}
 5. **Citation inline**: Đặt `[N]` ngay sau câu lấy từ nguồn đó.
+{% else %}
+5. **Nguồn**: Chưa có nguồn KB phù hợp trong lượt này; trả lời thận trọng và tránh khẳng định quá chắc.
 {% endif %}
 6. **Disclaimer**: Chỉ thêm "thông tin tham khảo" một lần ở cuối, chỉ khi có hướng dẫn điều trị.
 </task>

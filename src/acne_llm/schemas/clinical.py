@@ -76,6 +76,10 @@ class ClinicalRagQueries(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query_vi: str = ""
+    # Query dạng câu tiếng Việt tự nhiên — dùng cho cross-encoder reranker.
+    # Khác query_vi (structured key-value) để reranker so sánh ngôn ngữ tự nhiên
+    # với chunk text tự nhiên, tránh logit thấp do mismatch format.
+    rerank_query: str = ""
 
 
 class ClinicalQueryPlan(BaseModel):

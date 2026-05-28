@@ -33,3 +33,17 @@ def test_generic_acne_query_keeps_semantic_retrieval_unchanged():
     )
 
     assert drop_query_mismatched_chunks(retrieval, retrieval.query) is retrieval
+
+
+def test_domain_acne_terms_are_not_removed_for_concrete_filtering():
+    retrieval = RetrievalOutput(
+        query="retinol cho mụn viêm có an toàn không",
+        chunks=[
+            _chunk("good", "Retinol và acne có thể gây kích ứng trong điều trị mụn viêm."),
+            _chunk("bad", "Kem chống nắng phổ rộng phù hợp đi biển."),
+        ],
+    )
+
+    filtered = drop_query_mismatched_chunks(retrieval, retrieval.query)
+
+    assert [chunk.chunk_id for chunk in filtered.chunks] == ["good"]

@@ -1,4 +1,4 @@
-from acne_llm.rag.retriever import rrf_fusion
+from acne_llm.rag.retriever import _MIN_FUSION_SCORE, rrf_fusion
 from acne_llm.rag.retriever import HybridRetriever
 from acne_llm.rag.sparse import BM25Index, tokenize_vi
 from acne_llm.eval.metrics import recall_at_k, mrr_at_k, ndcg_at_k
@@ -113,3 +113,50 @@ def test_retrieve_safety_pass_uses_embed_query_and_guideline_filter():
     assert out.retrieval_mode == "hybrid"
     assert out.chunks[0].source == "NICE NG198"
     assert out.chunks[0].metadata["source_type"] == "nice_guideline"
+
+
+def test_hybrid_retriever_skips_bm25_normalize_in_hybrid_mode():
+    class BM25:
+        def __init__(self):
+            self.normalize = None
+
+        def query(self, query, top_k=40, normalize=True):
+            self.normalize = normalize
+            return [("c1", 0.1)]
+
+    class Store:
+        def get_by_ids(self, chunk_ids):
+            return {
+                "ids": ["c1"],
+                "documents": ["mụn viêm ở cằm"],
+                "metadatas": [{"source": "test"}],
+            }
+
+    bm25 = BM25()
+    retriever = HybridRetriever(store=Store(), embedder=None, bm25=bm25)
+
+    out = retriever.retrieve("mụn viêm", top_k=1, mode="hybrid")
+
+    assert bm25.normalize is False
+    assert out.chunks[0].chunk_id == "c1"
+
+
+def test_sparse_mode_keeps_bm25_normalize_enabled():
+    class BM25:
+        def __init__(self):
+            self.normalize = None
+
+        def query(self, query, top_k=40, normalize=True):
+            self.normalize = normalize
+            return []
+
+    bm25 = BM25()
+    retriever = HybridRetriever(store=object(), embedder=None, bm25=bm25)
+
+    retriever.retrieve("mụn viêm", top_k=1, mode="sparse")
+
+    assert bm25.normalize is True
+
+
+def test_min_fusion_score_is_recall_friendly():
+    assert _MIN_FUSION_SCORE == 0.005

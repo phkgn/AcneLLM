@@ -19,3 +19,10 @@ def test_chunker_empty():
 def test_chunker_short():
     ch = VietnameseChunker(min_size=50)
     assert ch.chunk("Mụn.") == []
+
+
+def test_chunker_filters_english_footer_patterns():
+    ch = VietnameseChunker(min_size=5)
+    text = "Related articles subscribe to our newsletter privacy policy cookies advertisement"
+
+    assert ch.chunk(text) == []

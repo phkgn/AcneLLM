@@ -1,23 +1,23 @@
 <user_data>
 <description>{{ description }}</description>
 
+{% if age is not none or (sex and sex != "unknown") or (skin_type and skin_type != "unknown") or is_pregnant or is_breastfeeding or (allergies and allergies != "không") or (medications and medications != "không") %}
 <context>
-- Tuổi: {{ age if age is not none else "không rõ" }}
-- Giới tính: {{ sex or "không rõ" }}
-- Loại da: {{ skin_type or "không rõ" }}
-- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
-- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
-- Dị ứng: {{ allergies }}
-- Thuốc đang dùng: {{ medications }}
-</context>
-
-{% if known_facts %}
+{% if age is not none %}- Tuổi: {{ age }}
+{% endif %}{% if sex and sex != "unknown" %}- Giới tính: {{ sex }}
+{% endif %}{% if skin_type and skin_type != "unknown" %}- Loại da: {{ skin_type }}
+{% endif %}{% if is_pregnant %}- Đang mang thai: CÓ
+{% endif %}{% if is_breastfeeding %}- Đang cho con bú: CÓ
+{% endif %}{% if allergies and allergies != "không" %}- Dị ứng: {{ allergies }}
+{% endif %}{% if medications and medications != "không" %}- Thuốc đang dùng: {{ medications }}
+{% endif %}</context>
+{% endif %}
+{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}
+<clinical_summary>{{ normalized_case_plan }}</clinical_summary>
+{% elif known_facts %}
 <known_facts>{{ known_facts }}</known_facts>
 {% endif %}
-{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" %}
-<normalized_case_plan>{{ normalized_case_plan }}</normalized_case_plan>
-{% endif %}
-{% if query_vi %}
+{% if query_vi and not (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") %}
 <query_vi>{{ query_vi }}</query_vi>
 {% endif %}
 {% if route_metadata %}
@@ -26,8 +26,9 @@
 {% if query_subject == "other" %}
 <subject_note>Người dùng đang hỏi về tình trạng của người khác. Không xem dữ kiện này là hồ sơ cá nhân của user.</subject_note>
 {% endif %}
-
+{% if vision_summary and vision_summary != "không có dữ liệu hình ảnh" %}
 <vision>{{ vision_summary }}</vision>
+{% endif %}
 {% if completeness_hint %}
 <hint>{{ completeness_hint }}</hint>
 {% endif %}
@@ -38,15 +39,18 @@
 {% endif %}
 </user_data>
 
-{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}
+{% if has_retrieved_context %}
 <retrieved_context>
 {{ retrieved_context }}
 </retrieved_context>
 {% endif %}
 
+<current_question>{{ description }}</current_question>
+
 <task>
-{% if retrieved_context and retrieved_context != "(khong co ngu canh tu tri thuc)" %}Citation inline: đặt [N] ngay sau câu lấy trực tiếp từ nguồn, không gộp số vào cuối bài.
-{% endif %}Câu đơn giản ≤150 từ, câu phức tạp ≤300 từ. Disclaimer một lần ở cuối, bỏ nếu đã có trong lịch sử. Văn xuôi; bullet point khi cần liệt kê bước.
+{% if has_retrieved_context %}Citation inline: đặt [N] ngay sau câu lấy trực tiếp từ nguồn, không gộp số vào cuối bài.
+{% else %}Chưa có nguồn KB phù hợp trong lượt này; trả lời thận trọng dựa trên dữ kiện user và nói rõ khi thiếu căn cứ.
+{% endif %}Trả lời đúng câu hỏi trong <current_question>. Câu đơn giản ≤150 từ, câu phức tạp ≤300 từ. Disclaimer một lần ở cuối, bỏ nếu đã có trong lịch sử. Văn xuôi; bullet point khi cần liệt kê bước.
 </task>
 {% if extended_rules %}
 <guideline_priority>{{ extended_rules }}</guideline_priority>

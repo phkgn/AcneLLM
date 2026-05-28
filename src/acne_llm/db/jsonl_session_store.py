@@ -43,7 +43,7 @@ class JsonlSessionStore:
         self,
         sessions_dir: str,
         ttl: float = SESSION_TTL,
-        max_turns: int = MAX_HISTORY_TURNS,
+        max_turns: int = 0,
     ) -> None:
         self._dir = Path(sessions_dir)
         self._dir.mkdir(parents=True, exist_ok=True)
@@ -212,6 +212,8 @@ class JsonlSessionStore:
                 last_active=meta.get("last_active", time.time()),
                 user_context=meta.get("user_context", {}),
                 asked_fields=set(meta.get("asked_fields", [])),
+                total_clarify_count=int(meta.get("total_clarify_count", 0) or 0),
+                accumulated_clinical_score=float(meta.get("accumulated_clinical_score", 0.0) or 0.0),
             )
 
     def get_history(self, session_id: str | None) -> list[ConversationTurn]:
@@ -262,6 +264,12 @@ class JsonlSessionStore:
                 "normalized_snapshot": snap_data,
                 "metadata": turn.metadata or {},
             })
+            if turn.role == "assistant" and turn.mode == "clarify":
+                meta = self._get_merged_meta(self._read_lines(sid))
+                self._write_line(sid, {
+                    "type": "meta",
+                    "total_clarify_count": int(meta.get("total_clarify_count", 0) or 0) + 1,
+                })
             self._touch(sid)
             # Compact nếu file quá lớn
             self._compact_if_needed(sid, self._read_lines(sid))
@@ -339,6 +347,24 @@ class JsonlSessionStore:
                     "type": "meta",
                     "asked_fields": list(existing),
                 })
+
+    def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
+        if not self._is_valid_sid(session_id):
+            return
+        sid = session_id.strip()  # type: ignore[union-attr]
+        with self._lock:
+            all_lines = self._read_lines(sid)
+            meta = self._get_merged_meta(all_lines)
+            if not meta:
+                return
+            if self._is_expired(meta):
+                self._delete_file(sid)
+                return
+            current = float(meta.get("accumulated_clinical_score", 0.0) or 0.0)
+            self._write_line(sid, {
+                "type": "meta",
+                "accumulated_clinical_score": current + float(amount),
+            })
 
     def delete(self, session_id: str | None) -> None:
         if not self._is_valid_sid(session_id):

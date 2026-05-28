@@ -8,7 +8,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from ...schemas import UserInput, AdviseOutput
-from ...chat.intake import run_intake
+from ...chat.intake import MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, _count_words, run_intake
 from ...chat.runtime import stream_chat_sse
 from ...chat.session import ConversationTurn, get_session_store
 from ...db.audit import AuditEntry
@@ -42,6 +42,13 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
     message = str(payload.get("message", ""))
     if not message.strip():
         raise HTTPException(status_code=400, detail="message is required")
+    if len(message) > MAX_MESSAGE_CHARS:
+        raise HTTPException(status_code=413, detail=f"message must be <= {MAX_MESSAGE_CHARS} characters")
+    if _count_words(message) > MAX_MESSAGE_WORDS:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Tin nhắn quá dài. Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ.",
+        )
 
     c = request.app.state.container
     session_id = payload.get("session_id")
@@ -83,7 +90,7 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
             out = AdviseOutput(
                 severity="unknown",
                 acne_type_primary="unknown",
-                causes=[question or "Can them thong tin truoc khi tu van"],
+                causes=[question or "Cần thêm thông tin trước khi tư vấn"],
                 recommendations=[],
                 red_flags=[],
                 used_chunks=[],
@@ -119,6 +126,7 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
             True,
             intake.history,
             route_metadata,
+            safety_terms=intake.safety_terms,
         )
         if session_id:
             store.append_turn(
@@ -172,6 +180,13 @@ async def chat_stream(
 ):
     if not message or not message.strip():
         raise HTTPException(status_code=400, detail="message is required")
+    if len(message) > MAX_MESSAGE_CHARS:
+        raise HTTPException(status_code=413, detail=f"message must be <= {MAX_MESSAGE_CHARS} characters")
+    if _count_words(message) > MAX_MESSAGE_WORDS:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Tin nhắn quá dài. Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ.",
+        )
 
     c = request.app.state.container
     return StreamingResponse(
@@ -226,6 +241,18 @@ async def chat_ws(websocket: WebSocket):
             if not message.strip():
                 await websocket.send_json({"event": "error", "data": "message is required"})
                 continue
+            if len(message) > MAX_MESSAGE_CHARS:
+                await websocket.send_json({
+                    "event": "error",
+                    "data": f"message must be <= {MAX_MESSAGE_CHARS} characters",
+                })
+                continue
+            if _count_words(message) > MAX_MESSAGE_WORDS:
+                await websocket.send_json({
+                    "event": "error",
+                    "data": f"Tin nhắn quá dài. Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ.",
+                })
+                continue
 
             # FIX: Stream tung frame ngay khi LLM generate — khong buffer toan bo.
             # Truoc day: list(stream_chat_sse(...)) buffer het truoc khi gui → user
@@ -237,6 +264,9 @@ async def chat_ws(websocket: WebSocket):
 
             def _producer():
                 """Chay trong thread rieng; push tung SSE frame vao queue."""
+                def _put(item) -> None:
+                    asyncio.run_coroutine_threadsafe(queue.put(item), loop).result()
+
                 try:
                     for frame in stream_chat_sse(
                         c,
@@ -244,13 +274,13 @@ async def chat_ws(websocket: WebSocket):
                         requested_mode=mode,
                         session_id=session_id,
                     ):
-                        loop.call_soon_threadsafe(queue.put_nowait, frame)
+                        _put(frame)
                 except Exception as exc:
                     logger.exception("WS stream producer error")
                     _err = json.dumps({"event": "error", "data": str(exc)})
-                    loop.call_soon_threadsafe(queue.put_nowait, f"data: {_err}\n\n")
+                    _put(f"data: {_err}\n\n")
                 finally:
-                    loop.call_soon_threadsafe(queue.put_nowait, _SENTINEL)
+                    _put(_SENTINEL)
 
             producer_future = loop.run_in_executor(None, _producer)
 
@@ -288,7 +318,7 @@ async def submit_feedback(request: Request, payload: FeedbackPayload):
     c = request.app.state.container
     audit = getattr(c, "audit_store", None)
     if audit is None:
-        raise HTTPException(status_code=503, detail="Audit store khong kha dung")
+        raise HTTPException(status_code=503, detail="Audit store không khả dụng")
     rowid = audit.log_feedback(
         message_id=payload.message_id,
         rating=payload.rating,

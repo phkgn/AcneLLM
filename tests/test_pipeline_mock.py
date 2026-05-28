@@ -75,7 +75,7 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
     retrieved_queries = [call.args[0] for call in retriever.retrieve.call_args_list]
     assert "mụn viêm ở cằm inflammatory acne chin guideline" in retrieved_queries
     assert "inflammatory acne chin guideline" in reranker.rerank.call_args.args[0]
-    assert out.disclaimer.startswith("Xin loi, hien toi chi ho tro tu van bang tieng Viet")
+    assert out.disclaimer.startswith("Xin lỗi, hiện mình chỉ hỗ trợ tư vấn bằng tiếng Việt")
 
 
 def test_bilingual_retrieval_merge_deduplicates_and_boosts():

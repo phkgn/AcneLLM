@@ -73,6 +73,27 @@ def test_jsonl_store_asked_fields_and_delete(tmp_path):
     assert store.get_asked_fields("s") == set()
 
 
+def test_jsonl_store_increment_followup_count(tmp_path):
+    store = JsonlSessionStore(str(tmp_path))
+    store.get_or_create("s")
+
+    store.increment_followup_count("s")
+    store.increment_followup_count("s", 2.0)
+
+    sess = store.get_or_create("s")
+    assert sess is not None
+    assert sess.accumulated_clinical_score == 3.0
+
+
+def test_jsonl_store_tracks_total_clarify_count(tmp_path):
+    store = JsonlSessionStore(str(tmp_path))
+    store.append_turn("s", ConversationTurn(role="assistant", content="hỏi thêm", mode="clarify"))
+
+    sess = store.get_or_create("s")
+    assert sess is not None
+    assert sess.total_clarify_count == 1
+
+
 def test_jsonl_store_compacts_when_explicitly_bounded(tmp_path):
     store = JsonlSessionStore(str(tmp_path), max_turns=3)
     for i in range(8):

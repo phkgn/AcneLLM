@@ -20,36 +20,47 @@ class ChromaStore:
             metadata={"hnsw:space": "cosine"},
         )
 
-    def upsert(self, chunks: list[KBChunk], embeddings: list[list[float]]) -> None:
+    def upsert(
+        self,
+        chunks: list[KBChunk],
+        embeddings: list[list[float]],
+        batch_size: int = 512,
+    ) -> None:
         if not chunks:
             return
-        self.col.upsert(
-            ids=[c.chunk_id for c in chunks],
-            embeddings=embeddings,
-            documents=[c.text for c in chunks],
-            metadatas=[
-                {
-                    "doc_id":       c.doc_id,
-                    "title":        c.title,
-                    "url":          str(c.url),
-                    "source":       c.source_name,
-                    "source_type":  c.source_type if c.source_type != "unknown" else infer_source_type(
-                        source_name=c.source_name,
-                        url=str(c.url),
-                        tags=c.tags,
-                        categories=c.categories,
-                    ),
-                    "trust":        c.trust_level,   # fallback cho chunks cũ
-                    "lang":         c.language,
-                    "categories":   ",".join(c.categories),
-                    "tags":         ",".join(c.tags),
-                    "position":     c.position,
-                    "prev_chunk_id": c.prev_chunk_id or "",
-                    "next_chunk_id": c.next_chunk_id or "",
-                }
-                for c in chunks
-            ],
-        )
+        if len(chunks) != len(embeddings):
+            raise ValueError("chunks and embeddings must have the same length")
+        batch_size = max(1, int(batch_size or 512))
+        for start in range(0, len(chunks), batch_size):
+            batch_chunks = chunks[start:start + batch_size]
+            batch_embeddings = embeddings[start:start + batch_size]
+            self.col.upsert(
+                ids=[c.chunk_id for c in batch_chunks],
+                embeddings=batch_embeddings,
+                documents=[c.text for c in batch_chunks],
+                metadatas=[
+                    {
+                        "doc_id":       c.doc_id,
+                        "title":        c.title,
+                        "url":          str(c.url),
+                        "source":       c.source_name,
+                        "source_type":  c.source_type if c.source_type != "unknown" else infer_source_type(
+                            source_name=c.source_name,
+                            url=str(c.url),
+                            tags=c.tags,
+                            categories=c.categories,
+                        ),
+                        "trust":        c.trust_level,   # fallback cho chunks cũ
+                        "lang":         c.language,
+                        "categories":   ",".join(c.categories),
+                        "tags":         ",".join(c.tags),
+                        "position":     c.position,
+                        "prev_chunk_id": c.prev_chunk_id or "",
+                        "next_chunk_id": c.next_chunk_id or "",
+                    }
+                    for c in batch_chunks
+                ],
+            )
 
     def count(self) -> int:
         return self.col.count()

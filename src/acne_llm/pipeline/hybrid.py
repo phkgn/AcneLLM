@@ -45,7 +45,7 @@ def _safe_parse(raw: str) -> AdviseOutput:
     return AdviseOutput(
         severity="unknown",
         acne_type_primary="unknown",
-        causes=["Khong the phan tich phan hoi tu LLM -- vui long thu lai."],
+        causes=["Không thể phân tích phản hồi từ LLM, vui lòng thử lại."],
         confidence=0.1,
     )
 
@@ -154,10 +154,11 @@ class HybridPipeline:
                     )
 
         fused = _rrf_fusion([[chunk.chunk_id for chunk in output.chunks] for output in outputs])
+        max_score = max(fused.values(), default=0.0)
         chunks = []
         for chunk_id, score in fused.items():
             chunk = by_id[chunk_id]
-            chunk.score = float(score)
+            chunk.score = float(score / max_score) if max_score > 0 else 0.0
             chunks.append(chunk)
 
         chunks.sort(key=lambda c: c.score, reverse=True)
@@ -174,8 +175,8 @@ class HybridPipeline:
         if not self.english_input_notice or detected_language != "en":
             return out
         notice = (
-            "Xin loi, hien toi chi ho tro tu van bang tieng Viet. "
-            "Duoi day la cau tra loi cho cau hoi cua ban bang tieng Viet:"
+            "Xin lỗi, hiện mình chỉ hỗ trợ tư vấn bằng tiếng Việt. "
+            "Dưới đây là câu trả lời cho câu hỏi của bạn bằng tiếng Việt:"
         )
         if notice not in out.disclaimer:
             out.disclaimer = f"{notice} {out.disclaimer}".strip()
@@ -189,6 +190,7 @@ class HybridPipeline:
         history: list[ConversationTurn] | None = None,
         route_metadata: dict | None = None,
         completeness_hint: str | None = None,
+        safety_terms: list[str] | None = None,
     ) -> AdviseOutput:
         t0 = time.perf_counter()
         if not prechecked:
@@ -208,14 +210,37 @@ class HybridPipeline:
         )
         if clinical_plan is None and can_build_clinical_plan:
             clinical_plan = self._clinical_plan(user)
+        safety_terms = list(dict.fromkeys(safety_terms or []))
+        if clinical_plan is not None and safety_terms:
+            clinical_plan.safety_terms = list(dict.fromkeys([
+                *clinical_plan.safety_terms,
+                *safety_terms,
+            ]))
+
         if clinical_plan is not None:
             retrieval = self._retrieve_clinical_plan(clinical_plan)
-            rerank_query = clinical_plan.rag_queries.query_vi or user.description
+            # Dùng rerank_query câu tự nhiên nếu có, fallback về query_vi structured
+            rerank_query = (
+                clinical_plan.rag_queries.rerank_query
+                or clinical_plan.rag_queries.query_vi
+                or user.description
+            )
             detected_language = clinical_plan.detected_language
             query_vi = clinical_plan.rag_queries.query_vi
         else:
             canonical_query = self._build_query(user)
             retrieval = self._do_retrieve(canonical_query)
+            if safety_terms and hasattr(self.retriever, "retrieve_safety_pass"):
+                safety = self.retriever.retrieve_safety_pass(
+                    canonical_query,
+                    safety_terms,
+                    top_k=min(self.rerank_top_k + 2, 5),
+                )
+                if safety.chunks:
+                    retrieval = self._merge_retrieval_outputs(
+                        [retrieval, safety],
+                        combined_query=canonical_query,
+                    )
             rerank_query = canonical_query
             detected_language = "unknown"
             query_vi = canonical_query
@@ -258,7 +283,7 @@ class HybridPipeline:
         logger.info("⑩ PROMPT: system={}c user={}c total={}c", len(sys_p), len(usr_p), total_chars)
         schema = AdviseOutput.model_json_schema()
         logger.info("⑪ LLM: calling {} ...", self.llm.model)
-        raw = self.llm.generate_json(sys_p, usr_p, schema=schema, temperature=0.3)
+        raw = self.llm.generate_json(sys_p, usr_p, schema=schema)
         parsed = _safe_parse(raw)
         parsed = self._inject_english_notice(parsed, detected_language)
 

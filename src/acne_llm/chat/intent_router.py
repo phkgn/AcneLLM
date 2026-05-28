@@ -17,7 +17,7 @@ from loguru import logger
 from ..schemas import AcneClinicalInput, UserInput
 from .session import ConversationTurn
 from ..llm.query_expander import detect_language_heuristic
-from ._terms import QUESTION_TERMS
+from ._terms import QUESTION_TERMS, contains_any as _shared_contains_any
 
 
 PrimaryIntent = Literal["advise", "knowledge", "clarify", "reject"]
@@ -273,8 +273,7 @@ def is_repeated_question(message: str, history: list[ConversationTurn], recent_u
 
 
 def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
-    lowered = text.lower()
-    return any(term in lowered for term in terms)
+    return _shared_contains_any(text, terms)
 
 
 def _strip_accents(text: str) -> str:
@@ -357,7 +356,12 @@ def _has_any_clinical_fact(user: UserInput) -> bool:
     )
 
 
-def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn]) -> RouteDecision:
+def _rule_decision(
+    message: str,
+    user: UserInput,
+    history: list[ConversationTurn],
+    current_clinical: AcneClinicalInput | None = None,
+) -> RouteDecision:
     lowered = message.lower()
     detected_language = detect_language_heuristic(message)
     has_other_subject, has_self_subject = _subject_signals(lowered)
@@ -449,8 +453,8 @@ def _rule_decision(message: str, user: UserInput, history: list[ConversationTurn
     # KHÔNG dùng user.clinical đã fold từ history.
     # Lý do: fold nhét dist=['chin'] từ turn 1 vào tất cả các turn sau → has_case_signal
     # luôn True → confidence luôn 0.82 dù message là câu hỏi kiến thức.
-    # user._current_clinical là snapshot trước fold, nếu không có thì fallback = False.
-    _current_clinical = getattr(user, "_current_clinical", None)
+    # current_clinical là snapshot trước fold. getattr fallback giữ compat cho caller cũ.
+    _current_clinical = current_clinical if current_clinical is not None else getattr(user, "_current_clinical", None)
     if _current_clinical is None and not history:
         _current_clinical = user.clinical
     has_case_signal = _clinical_has_case_signal(_current_clinical)
@@ -638,10 +642,11 @@ def route_intent(
     history: list[ConversationTurn],
     settings: object | None = None,
     classifier: IntentClassifier | None = None,
+    current_clinical: AcneClinicalInput | None = None,
 ) -> RouteDecision:
     import concurrent.futures
 
-    rule = _rule_decision(message, user, history)
+    rule = _rule_decision(message, user, history, current_clinical=current_clinical)
     min_confidence = float(getattr(settings, "intent_router_min_confidence", 0.80))
     tie_margin = float(getattr(settings, "intent_router_tie_margin", 0.10))
     enabled = bool(getattr(settings, "intent_router_enabled", False))
@@ -687,6 +692,8 @@ def route_intent(
     # Nếu Ollama bị queue (GPU đang bận với main model), pipeline không bị block.
     # Rule result được dùng ngay; classifier chỉ enhance nếu trả về kịp.
     model_result: ClassifierResult | None = None
+    import time as _time
+    _t_clf = _time.perf_counter()
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(classifier.classify, message, signals)
@@ -700,6 +707,14 @@ def route_intent(
                 future.cancel()
     except Exception as exc:
         logger.debug(f"[intent_router] classifier failed, using rule result: {exc}")
+    # Log thời gian classifier — để biết đây có phải bottleneck thật không.
+    _clf_ms = (_time.perf_counter() - _t_clf) * 1000
+    logger.info(
+        "[intent_router] classifier took {:.0f}ms (model={}, result={})",
+        _clf_ms,
+        getattr(classifier, "model", "?"),
+        "ok" if model_result is not None else "fallback_to_rule",
+    )
 
     if model_result is None:
         rule.classifier_used = True

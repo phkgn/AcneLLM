@@ -7,7 +7,7 @@ from loguru import logger
 
 from ..schemas import RetrievedChunk, RetrievalOutput, UserInput
 from ..schemas.clinical import ClinicalQueryPlan
-from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks
+from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks, _has_concrete_query_marker
 from ..cache import cached_retrieve
 
 if TYPE_CHECKING:
@@ -75,10 +75,11 @@ def merge_retrieval_outputs(
                     metadata=chunk.metadata,
                 )
     fused = rrf_fusion([[chunk.chunk_id for chunk in output.chunks] for output in outputs])
+    max_score = max(fused.values(), default=0.0)
     chunks = []
     for chunk_id, score in fused.items():
         chunk = by_id[chunk_id]
-        chunk.score = score
+        chunk.score = float(score / max_score) if max_score > 0 else 0.0
         chunks.append(chunk)
     chunks.sort(key=lambda c: c.score, reverse=True)
     avg = sum(c.score for c in chunks) / len(chunks) if chunks else 0.0
@@ -103,9 +104,19 @@ _MEDICAL_SAFETY_TERMS = frozenset({
     "doxycycline", "minocycline", "tetracycline", "khang sinh", "kháng sinh", "antibiotic",
 })
 
+# Query fallback dùng khi plan=False + không có concrete acne signal trong query gốc.
+# Giúp dense retriever kéo đúng chunk kiến thức chung về mụn thay vì chunk ngẫu nhiên.
+_VAGUE_QUERY_FALLBACK = (
+    "mụn trứng cá nguyên nhân cơ chế tuyến bã nhờn acne pathophysiology "
+    "vulgaris cause sebum follicle"
+)
+
 
 def _has_medical_safety_terms(safety_terms: list[str]) -> bool:
-    return any(t.lower() in _MEDICAL_SAFETY_TERMS for t in safety_terms)
+    return any(
+        any(marker in str(t).lower() for marker in _MEDICAL_SAFETY_TERMS)
+        for t in safety_terms
+    )
 
 
 # -- Main retrieve entry point ------------------------------------------------
@@ -116,6 +127,7 @@ def retrieve_for_chat(
     clinical_plan: ClinicalQueryPlan | None = None,
     route_flags: list[str] | None = None,
     normalized_query: str | None = None,
+    safety_terms: list[str] | None = None,
 ) -> RetrievalOutput | None:
     """Retrieve + rerank chunks cho chat stream. Tra None neu RAG chua san sang."""
     if not c.rag_ready or c.retriever is None:
@@ -125,6 +137,7 @@ def retrieve_for_chat(
     min_score = float(getattr(settings, "chat_min_citation_score", 0.25))
     top_k = getattr(settings, "chat_retrieve_top_k", 8)
     route_flags = route_flags or []
+    safety_terms = list(dict.fromkeys(safety_terms or []))
 
     queries = []
     if clinical_plan is not None:
@@ -139,16 +152,19 @@ def retrieve_for_chat(
     # M3: Product safety check — khi user hoi ve ket hop hoat chat (retinol+BHA, AHA+BPO...)
     # Inject ingredient interaction terms vao safety_terms de trigger safety pass retrieve
     # guideline chunks ve contraindication / safe combination.
-    if "product_safety_check" in route_flags and clinical_plan is not None:
+    if "product_safety_check" in route_flags:
         _ingredient_safety_terms = [
             "ingredient interaction", "active combination", "contraindication skincare",
             "retinol aha bha", "benzoyl peroxide retinoid", "safe combination actives",
             "ket hop hoat chat", "ket hop retinol aha", "chong chi dinh ket hop",
         ]
-        existing = set(clinical_plan.safety_terms)
+        existing = set((clinical_plan.safety_terms if clinical_plan is not None else []) + safety_terms)
         added = [t for t in _ingredient_safety_terms if t not in existing]
         if added:
-            clinical_plan.safety_terms = list(clinical_plan.safety_terms) + added
+            if clinical_plan is not None:
+                clinical_plan.safety_terms = list(clinical_plan.safety_terms) + added
+            else:
+                safety_terms = list(safety_terms) + added
             logger.debug("[retrieval] product_safety_check — injected {} ingredient safety terms", len(added))
 
     # Cache key: bao gom clinical context sau fold de tranh share cache
@@ -160,6 +176,8 @@ def retrieve_for_chat(
         _ctx.sex,
         _ctx.skin_type,
         _ctx.duration_weeks,
+        _ctx.is_pregnant,
+        _ctx.is_breastfeeding,
         tuple(sorted(_cl.lesion_types)) if _cl else (),
         tuple(sorted(_cl.lesion_distribution)) if _cl else (),
         (_cl.inflammation_level or "") if _cl else "",
@@ -167,63 +185,129 @@ def retrieve_for_chat(
         tuple(sorted(_ctx.medications or [])),
         tuple(sorted(_ctx.current_products or [])),
     )
+    _cache_safety_terms = tuple(sorted(
+        [*(clinical_plan.safety_terms if clinical_plan is not None else []), *safety_terms]
+    ))
     _cache_key = (
         tuple(queries),
         top_k,
         getattr(settings, "chat_rerank_top_k", 3),
         min_score,
         _clinical_fingerprint,
+        _cache_safety_terms,
+    )
+
+    # FIX 1: Khi plan=False và query không có concrete acne signal,
+    # dùng fallback query để tránh kéo chunk không liên quan (e.g. "người sống
+    # thực vật có thể bị mụn không" → text message reminder chunks).
+    has_plan = clinical_plan is not None
+    if not has_plan and len(queries) == 1 and not _has_concrete_query_marker(queries[0]):
+        logger.debug(
+            "[retrieval] vague query detected (plan=False, no concrete marker) "
+            "— injecting fallback query alongside original"
+        )
+        queries = [queries[0], _VAGUE_QUERY_FALLBACK]
+
+    # FIX 4: Dùng top_k lớn hơn khi có clinical_plan đầy đủ để LLM có đủ context.
+    effective_rerank_top_k = (
+        getattr(settings, "chat_rerank_top_k_clinical", 5)
+        if has_plan
+        else getattr(settings, "chat_rerank_top_k", 3)
     )
 
     def _do_retrieve_and_rerank() -> RetrievalOutput | None:
-        def _safe_filter(output: RetrievalOutput, query: str) -> RetrievalOutput:
-            filtered = drop_query_mismatched_chunks(
-                drop_noisy_chunks(output, min_score=min_score),
-                query,
-            )
-            return filtered if filtered is not None and filtered.chunks else output
+        def _noise_filter(output: RetrievalOutput) -> RetrievalOutput:
+            """Chỉ loại noisy chunks — dùng SAU reranker (score đã tin cậy)."""
+            after_noise = drop_noisy_chunks(output, min_score=min_score)
+            if after_noise is not None and len(after_noise.chunks) < len(output.chunks):
+                logger.debug(
+                    "[retrieval] drop_noisy: {} -> {} chunks (min_score={:.2f})",
+                    len(output.chunks), len(after_noise.chunks), min_score,
+                )
+            return (after_noise if after_noise is not None and after_noise.chunks else output)
 
+        def _full_filter(output: RetrievalOutput, query: str) -> RetrievalOutput:
+            """Noise + keyword mismatch — dùng khi KHÔNG có reranker (raw retrieval)."""
+            after_noise = _noise_filter(output)
+            filtered = drop_query_mismatched_chunks(after_noise, query)
+            if filtered is not None and len(filtered.chunks) < len(after_noise.chunks):
+                logger.debug(
+                    "[retrieval] drop_mismatched: {} -> {} chunks (query={!r:.80})",
+                    len(after_noise.chunks), len(filtered.chunks), query,
+                )
+            return filtered if filtered is not None and filtered.chunks else after_noise
+
+        retrieve_query: str
         rerank_query: str
         if len(queries) == 1:
-            ret = c.retriever.retrieve(queries[0], top_k=top_k, mode="hybrid")
-            rerank_query = queries[0]
+            retrieve_query = queries[0]
+            ret = c.retriever.retrieve(retrieve_query, top_k=top_k, mode="hybrid")
         else:
             outputs = [
                 c.retriever.retrieve(q, top_k=top_k, mode="hybrid") for q in queries
             ]
-            rerank_query = "\n".join(queries)
-            ret = merge_retrieval_outputs(outputs, combined_query=rerank_query)
+            retrieve_query = "\n".join(queries)
+            ret = merge_retrieval_outputs(outputs, combined_query=retrieve_query)
+
+        # Dùng rerank_query dạng câu tự nhiên cho cross-encoder nếu có.
+        # Tránh mismatch format giữa query structured và chunk text tự nhiên.
+        _plan_rerank_q = (
+            clinical_plan.rag_queries.rerank_query
+            if clinical_plan is not None and clinical_plan.rag_queries.rerank_query
+            else ""
+        )
+        rerank_query = _plan_rerank_q or retrieve_query
+        if _plan_rerank_q:
+            logger.debug("[retrieval] rerank_query (natural): {:.80}", rerank_query)
 
         # FIX: Safety pass chi chay khi co medical safety term thuc su
         # (pregnancy, isotretinoin, khang sinh...) — khong chay voi generic
         # ingredient terms tu product_safety_check de tranh extra embed +
         # Chroma query khong can thiet (~50-100ms/request).
+        all_safety_terms = list(dict.fromkeys(
+            [*(clinical_plan.safety_terms if clinical_plan is not None else []), *safety_terms]
+        ))
         if (
-            clinical_plan is not None
-            and clinical_plan.safety_terms
-            and _has_medical_safety_terms(clinical_plan.safety_terms)
+            all_safety_terms
+            and _has_medical_safety_terms(all_safety_terms)
             and hasattr(c.retriever, "retrieve_safety_pass")
         ):
             safety = c.retriever.retrieve_safety_pass(
                 rerank_query,
-                clinical_plan.safety_terms,
+                all_safety_terms,
                 top_k=getattr(settings, "chat_safety_top_k", 5),
             )
             if safety.chunks:
                 ret = merge_retrieval_outputs([ret, safety], combined_query=rerank_query)
 
         if c.reranker is None:
-            return _safe_filter(ret, rerank_query)
+            return _full_filter(ret, rerank_query)
         try:
             reranked = c.reranker.rerank(
                 rerank_query,
                 ret,
-                top_k=getattr(settings, "chat_rerank_top_k", 3),
+                top_k=effective_rerank_top_k,
             )
-            return _safe_filter(reranked, rerank_query)
+            # OOD guard: nếu reranker không tìm được chunk nào liên quan
+            # (avg sigmoid thấp + max score gần 0.5 = random logit),
+            # trả None để LLM trả lời không dùng RAG thay vì inject chunk nhiễu.
+            _ood_floor = float(getattr(settings, "chat_rerank_ood_floor", 0.45))
+            if reranked.chunks:
+                _avg = sum(c.score for c in reranked.chunks) / len(reranked.chunks)
+                _max = max(c.score for c in reranked.chunks)
+                if _avg < _ood_floor and _max < _ood_floor:
+                    logger.info(
+                        "[retrieval] OOD guard: avg_sigmoid={:.3f} max={:.3f} < floor={:.2f} "
+                        "— dropping {} chunks (query={!r:.80})",
+                        _avg, _max, _ood_floor, len(reranked.chunks), rerank_query,
+                    )
+                    return None
+            # Sau reranker: chỉ loại noisy chunks, KHÔNG dùng keyword mismatch filter
+            # vì cross-encoder đã score relevance rồi — mismatch filter sẽ drop nhầm.
+            return _noise_filter(reranked)
         except Exception as e:
             logger.warning(f"Chat reranker unavailable, using raw retrieval: {e}")
-            return _safe_filter(ret, rerank_query)
+            return _full_filter(ret, rerank_query)
 
     return cached_retrieve(_do_retrieve_and_rerank, _cache_key)
 

@@ -11,20 +11,56 @@ class OllamaBackend:
     def __init__(self, base_url: str = "http://localhost:11434",
                  model: str = "qwen2.5:7b",
                  fallback_model: str | None = None,
-                 num_ctx: int = 8192, timeout: float = 180.0,
+                 num_ctx: int = 4096, timeout: float = 180.0,
                  health_timeout: float = 5.0,
-                 num_predict: int = 1024,
+                 num_predict: int = 1200,
+                 temperature: float = 0.35,
+                 top_p: float = 0.85,
+                 top_k: int = 40,
+                 repeat_penalty: float = 1.1,
+                 repeat_last_n: int = 128,
+                 keep_alive: str | int = -1,
                  use_modelfile_system: bool = False):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.fallback_model = fallback_model
         self.num_ctx = num_ctx
         self.num_predict = num_predict
+        # Sampling params — Python là source of truth, KHÔNG set ở Modelfile
+        # (Modelfile param sẽ override mọi giá trị gửi qua API). Xem comment ở
+        # model/V2/Q4/Modelfile để hiểu quy ước.
+        self.temperature = temperature
+        self.top_p = top_p
+        self.top_k = top_k
+        self.repeat_penalty = repeat_penalty
+        self.repeat_last_n = repeat_last_n
+        # keep_alive: giữ model warm trong VRAM.
+        # Ollama parse như Go duration: int (-1 = vĩnh viễn, 0 = unload ngay)
+        # hoặc string có UNIT bắt buộc ("30m", "1h", "300s"). KHÔNG chấp nhận "-1"
+        # dạng string — đó là bug 400 "missing unit in duration".
+        self.keep_alive = self._normalize_keep_alive(keep_alive)
         # Khi True: không gửi system message qua API — để Modelfile SYSTEM tự xử lý.
         # Dùng khi model đã được fine-tune với system prompt nhúng sẵn trong Modelfile.
         self.use_modelfile_system = use_modelfile_system
         self._client = httpx.Client(base_url=self.base_url, timeout=timeout)
         self._health_client = httpx.Client(base_url=self.base_url, timeout=health_timeout)
+
+    @staticmethod
+    def _normalize_keep_alive(v) -> str | int:
+        """Chuyển giá trị keep_alive về dạng Ollama chấp nhận.
+
+        Quy tắc: số nguyên (-1, 0, 300) → giữ nguyên int.
+                 string có unit ("30m", "1h") → giữ string.
+                 string thuần số ("-1", "300") → convert sang int.
+        """
+        if isinstance(v, int):
+            return v
+        s = str(v).strip().lower()
+        # Nếu là số (kể cả âm), convert sang int — Ollama coi như seconds.
+        if s.lstrip("-").isdigit():
+            return int(s)
+        # Còn lại phải có unit — Ollama tự validate.
+        return s
 
     @staticmethod
     def _is_runner_terminated(err: Exception) -> bool:
@@ -111,6 +147,25 @@ class OllamaBackend:
         except Exception:
             return []
 
+    def show_params(self) -> dict:
+        """Đọc params Ollama THỰC SỰ áp dụng (qua /api/show).
+
+        Dùng để verify Modelfile có override Python config không. Gọi lúc boot
+        và log ra — nếu thấy num_ctx/temperature ở đây không khớp config.py,
+        nghĩa là Modelfile đang nướng param → cần `ollama create` lại.
+        """
+        try:
+            r = self._health_client.post("/api/show", json={"name": self.model})
+            r.raise_for_status()
+            data = r.json()
+            return {
+                "parameters": data.get("parameters", ""),
+                "template_preview": (data.get("template") or "")[:200],
+            }
+        except Exception as e:
+            logger.warning(f"Ollama /api/show failed: {e}")
+            return {}
+
     def _build_messages(self, system: str, user: str) -> list[dict]:
         """Build messages list.
 
@@ -126,51 +181,57 @@ class OllamaBackend:
         msgs.append({"role": "user", "content": user})
         return msgs
 
+    def _sampling_options(self, temperature: float | None = None,
+                          num_predict: int | None = None) -> dict:
+        """Trả về options sampling đồng bộ với Modelfile.
+
+        Caller có thể override temperature và num_predict; các params còn lại
+        (top_p, top_k, repeat_penalty, repeat_last_n) lấy từ self để đảm bảo
+        nhất quán với PARAMETER trong Modelfile.
+        """
+        return {
+            "temperature":    temperature if temperature is not None else self.temperature,
+            "num_ctx":        self.num_ctx,
+            "num_predict":    num_predict if num_predict is not None else self.num_predict,
+            "top_p":          self.top_p,
+            "top_k":          self.top_k,
+            "repeat_penalty": self.repeat_penalty,
+            "repeat_last_n":  self.repeat_last_n,
+        }
+
     def generate_json(self, system: str, user: str, schema: dict,
-                      temperature: float = 0.3) -> str:
+                      temperature: float | None = None) -> str:
         payload = {
             "model": self.model,
             "messages": self._build_messages(system, user),
             "format": schema,
-            "options": {
-                "temperature": temperature,
-                "num_ctx": self.num_ctx,
-                "top_p": 0.9,
-                "num_predict": self.num_predict,
-            },
+            "options": self._sampling_options(temperature=temperature),
             "stream": False,
+            "keep_alive": self.keep_alive,
         }
         return self._chat(payload)["message"]["content"]
 
     def generate_text(self, system: str, user: str,
-                      temperature: float = 0.3) -> str:
+                      temperature: float | None = None) -> str:
         payload = {
             "model": self.model,
             "messages": self._build_messages(system, user),
-            "options": {
-                "temperature": temperature,
-                "num_ctx": self.num_ctx,
-                "top_p": 0.9,
-                "num_predict": self.num_predict,
-            },
+            "options": self._sampling_options(temperature=temperature),
             "stream": False,
+            "keep_alive": self.keep_alive,
         }
         return self._chat(payload)["message"]["content"]
 
     def stream_text(self, system: str, user: str,
-                    temperature: float = 0.3,
+                    temperature: float | None = None,
                     num_predict: int | None = None) -> Iterator[str]:
         payload = {
             "model": self.model,
             "messages": self._build_messages(system, user),
-            "options": {
-                "temperature": temperature,
-                "num_ctx": self.num_ctx,
-                "top_p": 0.9,
-                # -1 = no hard cap, model stops when done naturally
-                "num_predict": num_predict if num_predict is not None else self.num_predict,
-            },
+            "options": self._sampling_options(temperature=temperature,
+                                              num_predict=num_predict),
             "stream": True,
+            "keep_alive": self.keep_alive,
         }
         yield from self._chat_stream(payload)
 

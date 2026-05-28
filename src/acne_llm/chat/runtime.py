@@ -7,6 +7,7 @@ Flow:
 from __future__ import annotations
 
 from collections.abc import Iterator
+import inspect
 import json
 import time
 from typing import TYPE_CHECKING
@@ -37,6 +38,17 @@ def _snapshot_for_persistence(intake: "IntakeResult"):
     if route is None or route.query_subject != "self":
         return None
     return intake.turn_snapshot
+
+
+def _supports_keyword(callable_obj, keyword: str) -> bool:
+    try:
+        signature = inspect.signature(callable_obj)
+    except (TypeError, ValueError):
+        return True
+    return (
+        keyword in signature.parameters
+        or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in signature.parameters.values())
+    )
 
 
 # -- Main stream entry point --------------------------------------------------
@@ -71,10 +83,8 @@ def stream_chat_sse(
         if "progress_followup" in _rflags:
             route_metadata["is_progress_followup"] = True
             # Increment follow-up counter in session for future turns context
-            if session_id:
-                _sess_obj = sess._sessions.get(session_id) if hasattr(sess, "_sessions") else None
-                if _sess_obj is not None:
-                    _sess_obj.accumulated_clinical_score = getattr(_sess_obj, "accumulated_clinical_score", 0.0) + 1.0
+            if session_id and hasattr(sess, "increment_followup_count"):
+                sess.increment_followup_count(session_id, 1.0)
 
         # -- 1. Scope refusal -------------------------------------------------
         if intake.scope_refusal is not None:
@@ -140,8 +150,7 @@ def stream_chat_sse(
 
         # -- 3. Retrieve ------------------------------------------------------
         clinical_plan = intake.clinical_plan
-        is_acne_signal = intake.scope_decision == "in_scope"
-        rag_signal = is_acne_signal or clinical_plan is not None
+        rag_signal = intake.is_acne_signal or clinical_plan is not None or bool(intake.safety_terms)
         t_rag = time.perf_counter()
         _route_flags_for_rag = intake.route_decision.route_flags if intake.route_decision else []
         retrieval = (
@@ -151,6 +160,7 @@ def stream_chat_sse(
                 clinical_plan,
                 route_flags=_route_flags_for_rag,
                 normalized_query=intake.normalized_query,
+                safety_terms=intake.safety_terms,
             )
             if mode == "hybrid" and rag_signal and _primary_intent not in {"clarify", "reject"}
             else None
@@ -245,15 +255,16 @@ def stream_chat_sse(
         # Knowledge queries: không hard-cap output, để model tự dừng khi xong
         _stream_num_predict = -1 if _primary_intent == "knowledge" else None
         stream_kwargs = {"temperature": effective_temperature}
-        if _stream_num_predict is not None:
+        if (
+            _stream_num_predict is not None
+            and _supports_keyword(c.llm.stream_text, "num_predict")
+        ):
             stream_kwargs["num_predict"] = _stream_num_predict
-        try:
-            stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
-        except TypeError:
-            if "num_predict" not in stream_kwargs:
-                raise
-            stream_kwargs.pop("num_predict", None)
-            stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
+        import re as _re
+        _CJK_RE = _re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
+        _cjk_total = 0
+
+        stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
         for token in stream_iter:
             if first_token:
                 logger.debug(
@@ -262,8 +273,21 @@ def stream_chat_sse(
                     (time.perf_counter() - t_llm) * 1000,
                 )
                 first_token = False
-            tokens.append(token)
-            yield _event("token", token)
+            # Guard: strip CJK per-token trước khi yield ra UI
+            if _CJK_RE.search(token):
+                clean_token = _CJK_RE.sub("", token)
+                _cjk_total += len(token) - len(clean_token)
+                token = clean_token
+            if token:
+                tokens.append(token)
+                yield _event("token", token)
+
+        if _cjk_total > 0:
+            logger.warning(
+                "[{}] CJK guard: stripped {} CJK chars from LLM stream",
+                (session_id or "")[:8],
+                _cjk_total,
+            )
 
         full_text = pre_prefix + "".join(tokens)
         logger.debug(
@@ -383,7 +407,7 @@ def stream_chat_sse(
 
     except Exception as e:
         logger.exception("Streaming chat failed")
-        yield _event("error", str(e))
+        yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
         yield _event("done", {
             "mode": "error",
             "latency_ms": int((time.perf_counter() - started) * 1000),

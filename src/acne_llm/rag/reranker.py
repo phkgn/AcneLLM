@@ -93,6 +93,14 @@ class Reranker:
             cid: _sigmoid(logit) for cid, logit in scores_by_id.items()
         }
 
+        # Log raw logits để calibrate threshold khi đổi model
+        _logit_summary = sorted(scores_by_id.values(), reverse=True)
+        logger.debug(
+            "[reranker] raw logits (top5): {} | sigmoid(top5): {}",
+            [round(x, 3) for x in _logit_summary[:5]],
+            [round(_sigmoid(x), 3) for x in _logit_summary[:5]],
+        )
+
         all_pairs = sorted(
             [(c, sigmoid_scores[c.chunk_id]) for c in retrieval.chunks],
             key=lambda x: x[1],
@@ -122,6 +130,12 @@ class Reranker:
             f"[reranker] {len(retrieval.chunks)} -> {len(new_chunks)} chunks "
             f"| avg_sigmoid={avg:.3f}"
         )
+        if new_chunks:
+            _chunk_summary = [
+                (c.metadata.get("source", c.source or "?")[:35], round(c.score, 3))
+                for c in new_chunks
+            ]
+            logger.debug("[reranker] top chunks: {}", _chunk_summary)
         return RetrievalOutput(
             query=retrieval.query,
             chunks=new_chunks,

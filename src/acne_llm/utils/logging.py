@@ -1,5 +1,6 @@
 """Logging configuration — PowerShell-friendly colours + file sink to data/logs/."""
 import sys
+import tempfile
 from pathlib import Path
 from datetime import datetime, timezone
 from loguru import logger
@@ -23,10 +24,13 @@ def configure_logging(level: str = "INFO", log_dir: str | Path = "data/logs") ->
 
     Returns the path to the session log file.
     """
-    log_dir = Path(log_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
-
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    log_dir = Path(log_dir)
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        log_dir = Path(tempfile.gettempdir()) / "acne_llm_logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
     session_log = log_dir / f"crawl_{ts}.log"
 
     logger.remove()
@@ -41,25 +45,51 @@ def configure_logging(level: str = "INFO", log_dir: str | Path = "data/logs") ->
     )
 
     # ── File sink — full DEBUG detail ─────────────────────────────────────────
-    logger.add(
-        str(session_log),
-        level="DEBUG",
-        format=_FILE_FORMAT,
-        rotation="50 MB",
-        retention=10,
-        encoding="utf-8",
-        enqueue=True,
-    )
+    try:
+        logger.add(
+            str(session_log),
+            level="DEBUG",
+            format=_FILE_FORMAT,
+            rotation="50 MB",
+            retention=10,
+            encoding="utf-8",
+            enqueue=True,
+        )
+    except OSError as exc:
+        fallback_dir = Path(tempfile.gettempdir()) / "acne_llm_logs"
+        fallback_dir.mkdir(parents=True, exist_ok=True)
+        session_log = fallback_dir / f"crawl_{ts}.log"
+        logger.warning(
+            "Cannot open log file in {}; using temp log {} ({})",
+            log_dir,
+            session_log,
+            exc,
+        )
+        try:
+            logger.add(
+                str(session_log),
+                level="DEBUG",
+                format=_FILE_FORMAT,
+                rotation="50 MB",
+                retention=10,
+                encoding="utf-8",
+                enqueue=True,
+            )
+        except OSError as fallback_exc:
+            logger.warning("File logging disabled: {}", fallback_exc)
 
     # ── Errors-only sink (always kept) ────────────────────────────────────────
-    logger.add(
-        str(log_dir / "errors.log"),
-        level="ERROR",
-        format=_FILE_FORMAT,
-        rotation="10 MB",
-        retention=5,
-        encoding="utf-8",
-        enqueue=True,
-    )
+    try:
+        logger.add(
+            str(session_log.parent / "errors.log"),
+            level="ERROR",
+            format=_FILE_FORMAT,
+            rotation="10 MB",
+            retention=5,
+            encoding="utf-8",
+            enqueue=True,
+        )
+    except OSError as exc:
+        logger.warning("Errors-only file logging disabled: {}", exc)
 
     return session_log

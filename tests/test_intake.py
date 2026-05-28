@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
-from acne_llm.chat.intake import run_intake
+from acne_llm.chat.intake import _force_advise_route, run_intake
+from acne_llm.chat.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn, get_session_store
 from acne_llm.db.jsonl_session_store import JsonlSessionStore
 from acne_llm.schemas import AdviseOutput
@@ -144,6 +145,46 @@ def test_intake_treats_generic_acne_case_as_soft_missing_core_hint():
     assert result.completeness is not None
     assert result.completeness.level == "none"
     assert result.completeness.missing_fields == ["distribution"]
+
+
+def test_intake_extracts_safety_terms_without_clinical_plan_for_knowledge():
+    c = _container(rag_ready=True)
+
+    result = run_intake(c, "isotretinoin là gì và vì sao nguy hiểm khi mang thai")
+
+    assert "isotretinoin" in result.safety_terms
+    assert any(term in result.safety_terms for term in ("mang thai", "pregnancy"))
+    assert result.route_decision.primary_intent == "knowledge"
+    assert result.clinical_plan is None
+
+
+def test_intake_mixed_face_and_genital_scope_is_not_hard_rejected():
+    c = _container()
+
+    result = run_intake(c, "tôi bị mụn ở mặt và vùng kín")
+
+    assert result.scope_refusal is None
+    assert result.route_decision is not None
+    assert "mixed_genital_scope" in result.route_decision.route_flags
+
+
+def test_force_advise_route_returns_new_decision_without_mutating_original():
+    original = RouteDecision(
+        primary_intent="clarify",
+        confidence=0.4,
+        query_subject="self",
+        turn_type="clarify",
+        route_flags=["existing"],
+        reason_code="needs_more",
+    )
+
+    updated = _force_advise_route(original, "clarify_loop_hard_stop")
+
+    assert original.primary_intent == "clarify"
+    assert original.turn_type == "clarify"
+    assert updated.primary_intent == "advise"
+    assert updated.turn_type == "answer"
+    assert "clarify_loop_break" in updated.route_flags
 
 
 def test_intake_does_not_fold_self_history_into_general_knowledge():

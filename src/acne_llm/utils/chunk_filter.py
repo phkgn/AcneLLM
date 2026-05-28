@@ -5,9 +5,8 @@ score-pruning logic without duplication.
 """
 from __future__ import annotations
 
-import re
-
 from ..schemas import RetrievedChunk, RetrievalOutput
+from ..rag.sparse import tokenize_vi
 
 # ── Noisy-chunk markers ───────────────────────────────────────────────────────
 
@@ -22,10 +21,10 @@ _NOISY_MARKERS: tuple[str, ...] = (
 )
 
 _QUERY_STOP_TERMS = {
-    "mụn", "mun", "acne", "trứng", "trung", "cá", "ca", "da", "skin",
     "cho", "của", "cua", "tôi", "toi", "mình", "minh", "em", "nên", "nen",
     "dùng", "dung", "không", "khong", "được", "duoc", "với", "voi",
     "là", "la", "gì", "gi", "thì", "thi", "khi", "bị", "bi",
+    "top", "các", "cac", "những", "nhung",
 }
 
 _CONCRETE_QUERY_MARKERS = (
@@ -38,12 +37,16 @@ _CONCRETE_QUERY_MARKERS = (
 
 
 def _query_terms(query: str) -> set[str]:
-    lowered = query.lower()
-    raw_terms = re.findall(r"[\w%+]+", lowered, flags=re.UNICODE)
+    raw_terms = tokenize_vi(query, remove_stopwords=True)
     return {
-        term for term in raw_terms
+        term.lower() for term in raw_terms
         if len(term) >= 3 and term not in _QUERY_STOP_TERMS
     }
+
+
+def _has_concrete_query_marker(query: str) -> bool:
+    lowered = query.lower()
+    return any(marker in lowered for marker in _CONCRETE_QUERY_MARKERS)
 
 
 def is_noisy_chunk(chunk: RetrievedChunk) -> bool:
@@ -104,18 +107,26 @@ def drop_noisy_chunks(
 def drop_query_mismatched_chunks(
     retrieval: RetrievalOutput | None,
     query: str,
-    min_overlap: int = 1,
+    min_overlap: int = 2,
 ) -> RetrievalOutput | None:
     """Remove chunks whose text has zero keyword overlap with the query."""
     if retrieval is None:
         return None
     if not query.strip():
         return retrieval
-    query_tokens = set(query.lower().split())
+    if not _has_concrete_query_marker(query):
+        return retrieval
+    query_tokens = _query_terms(query)
+    if len(query_tokens) < min_overlap:
+        return retrieval
     kept = []
     for chunk in retrieval.chunks:
-        chunk_tokens = set(chunk.text.lower().split())
-        if chunk_tokens & query_tokens:
+        chunk_tokens = {
+            token.lower()
+            for token in tokenize_vi(chunk.text, remove_stopwords=True)
+            if len(token) >= 3 and token.lower() not in _QUERY_STOP_TERMS
+        }
+        if len(chunk_tokens & query_tokens) >= min_overlap:
             kept.append(chunk)
     if len(kept) == len(retrieval.chunks):
         return retrieval

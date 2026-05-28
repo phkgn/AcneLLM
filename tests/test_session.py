@@ -195,6 +195,19 @@ class TestUserContextMerge:
         assert store.get_user_context("ghost") == {}
 
 
+class TestFollowupCount:
+    def test_increment_followup_count_updates_public_session_state(self):
+        store = SessionStore()
+        store.get_or_create("s")
+
+        store.increment_followup_count("s")
+        store.increment_followup_count("s", 2.5)
+
+        sess = store.get_or_create("s")
+        assert sess is not None
+        assert sess.accumulated_clinical_score == 3.5
+
+
 class TestFoldHistoryFacts:
     def test_folds_prior_snapshot_into_current_user(self):
         prior = normalize_chat_message("tôi 22 tuổi da dầu")

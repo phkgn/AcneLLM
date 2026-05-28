@@ -32,6 +32,7 @@ def test_hybrid_merge_uses_rrf_and_deduplicates_chunks():
     assert len({chunk.chunk_id for chunk in merged.chunks}) == len(merged.chunks)
     assert merged.query == "q1\nq2"
     assert merged.avg_score > 0
+    assert max(chunk.score for chunk in merged.chunks) == 1.0
 
 
 def test_chat_merge_uses_same_rrf_order():
@@ -42,3 +43,4 @@ def test_chat_merge_uses_same_rrf_order():
 
     assert [chunk.chunk_id for chunk in merged.chunks][:2] == ["b", "a"]
     assert len({chunk.chunk_id for chunk in merged.chunks}) == len(merged.chunks)
+    assert max(chunk.score for chunk in merged.chunks) == 1.0

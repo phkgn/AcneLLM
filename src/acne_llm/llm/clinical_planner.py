@@ -248,18 +248,19 @@ class ClinicalQueryPlanner:
             safety,
             clean_text_normalized=user.description,
         )
+        rerank_query = self.build_rerank_query(case, ctx.duration_weeks, user.description)
 
         plan = ClinicalQueryPlan(
             detected_language=detected_language,
             normalized_case=case,
-            rag_queries=ClinicalRagQueries(query_vi=query_vi),
+            rag_queries=ClinicalRagQueries(query_vi=query_vi, rerank_query=rerank_query),
             missing_info=case.missing_info,
             safety_terms=safety,
             planner_confidence=0.45,
         )
         logger.debug(
-            "[planner] lang={} query_vi={:.60}... missing={}",
-            detected_language, query_vi, case.missing_info,
+            "[planner] lang={} query_vi={:.60}... rerank_query={:.60}... missing={}",
+            detected_language, query_vi, rerank_query, case.missing_info,
         )
         return plan
 
@@ -373,6 +374,125 @@ class ClinicalQueryPlanner:
             parts.append("đánh giá ban đầu mụn trứng cá acne initial assessment")
 
         return " ".join(_dedupe(p for p in parts if p))
+
+    @staticmethod
+    def build_rerank_query(
+        case: NormalizedAcneCase,
+        duration_weeks: int | None = None,
+        raw_description: str = "",
+    ) -> str:
+        """Sinh câu tiếng Việt tự nhiên để dùng làm rerank query cho cross-encoder.
+
+        Cross-encoder so sánh (query, chunk_text) — cả 2 phải cùng dạng văn xuôi
+        để model cho logit phân tán rộng. Query dạng 'lesions X ; severity Y' gây
+        logit âm lớn vì format khác hoàn toàn với chunk text.
+        """
+        parts: list[str] = []
+
+        # 1. Lesion types → câu mô tả tự nhiên
+        lesion_phrases: dict[str, str] = {
+            "blackhead":       "mụn đầu đen",
+            "whitehead":       "mụn đầu trắng",
+            "closed_comedone": "mụn ẩn dưới da",
+            "comedone":        "mụn cám mụn nhân",
+            "papule":          "mụn viêm đỏ",
+            "pustule":         "mụn mủ có đầu",
+            "nodule":          "mụn bọc cứng sâu",
+            "cyst":            "mụn nang nặng",
+            "scar":            "sẹo mụn",
+            "post_inflammatory_hyperpigmentation": "thâm sau mụn",
+            "other":           "mụn trứng cá",
+        }
+        lesion_labels = [lesion_phrases[x] for x in case.lesion_types if x in lesion_phrases]
+        if lesion_labels:
+            parts.append("bị " + ", ".join(lesion_labels))
+
+        # 2. Distribution
+        dist_phrases: dict[str, str] = {
+            "forehead": "trên trán",
+            "cheeks":   "ở má",
+            "chin":     "ở cằm",
+            "jawline":  "dọc quai hàm",
+            "nose":     "ở mũi",
+            "around_mouth": "quanh miệng",
+            "back":     "ở lưng",
+            "chest":    "ở ngực",
+            "shoulders": "ở vai",
+            "neck":     "ở cổ",
+            "t_zone":   "vùng chữ T",
+            "other":    "trên mặt",
+        }
+        dist_labels = [dist_phrases[x] for x in case.distribution if x in dist_phrases]
+        if dist_labels:
+            parts.append(", ".join(dist_labels))
+
+        # 3. Severity
+        sev_map = {
+            "mild":     "mức độ nhẹ",
+            "moderate": "mức độ vừa",
+            "severe":   "mức độ nặng",
+        }
+        if case.inflammation_level in sev_map:
+            parts.append(sev_map[case.inflammation_level])
+
+        # 4. Skin type
+        skin_map = {
+            "oily":        "da dầu",
+            "dry":         "da khô",
+            "combination": "da hỗn hợp",
+            "sensitive":   "da nhạy cảm",
+            "normal":      "da thường",
+        }
+        st = case.demographics.skin_type
+        if st and st != "unknown":
+            parts.append(skin_map.get(st, f"da {st}"))
+
+        # 5. Duration
+        if duration_weeks is not None:
+            if duration_weeks >= 52:
+                parts.append(f"bị hơn {duration_weeks // 52} năm")
+            elif duration_weeks >= 4:
+                parts.append(f"kéo dài {duration_weeks} tuần")
+            else:
+                parts.append(f"mới bị khoảng {duration_weeks} tuần")
+
+        # 6. Hormonal / special context
+        hormonal_phrases: dict[str, str] = {
+            "menstrual_cycle": "mụn theo chu kỳ kinh nguyệt",
+            "pcos":            "hội chứng buồng trứng đa nang",
+            "stress":          "do stress căng thẳng thiếu ngủ",
+            "diet":            "liên quan chế độ ăn uống",
+            "pregnancy":       "đang mang thai",
+            "postpartum":      "sau sinh cho con bú",
+            "puberty":         "tuổi dậy thì",
+        }
+        for hf in case.hormonal_factors:
+            phrase = hormonal_phrases.get(hf)
+            if phrase:
+                parts.append(phrase)
+
+        # 7. Safety
+        if case.demographics.is_pregnant:
+            parts.append("đang mang thai cần điều trị an toàn")
+        if case.demographics.is_breastfeeding:
+            parts.append("đang cho con bú cần tránh thuốc nguy hiểm")
+
+        # 8. Products / medications đang dùng
+        if case.skincare_products:
+            parts.append("đang dùng " + ", ".join(case.skincare_products[:3]))
+        if case.medication_history:
+            parts.append("đang dùng thuốc " + ", ".join(case.medication_history[:3]))
+
+        # 9. Fallback: dùng raw description nếu không có signal nào
+        if not parts:
+            return raw_description[:300] if raw_description else "mụn trứng cá điều trị"
+
+        base = " ".join(parts)
+        # Append raw description ngắn gọn để giữ ngữ cảnh user gốc
+        if raw_description:
+            short_desc = raw_description[:150].rsplit(" ", 1)[0]
+            return f"{base}. {short_desc}"
+        return base
 
     @staticmethod
     def _safety_terms(user: UserInput, case: NormalizedAcneCase) -> list[str]:

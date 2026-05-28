@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import tempfile
 from typing import Optional
 
 from loguru import logger
@@ -95,7 +96,17 @@ def build_container(settings) -> Container:
     session_store = JsonlSessionStore(sessions_dir, ttl=db_ttl, max_turns=db_max_turns)
     # Audit log: vẫn dùng SQLite (cần ORDER BY timestamp, COUNT, etc.)
     audit_db_path = getattr(settings, "audit_db_path", "./data/audit.db")
-    _db_conn      = DBConnection(audit_db_path)
+    try:
+        _db_conn = DBConnection(audit_db_path)
+    except Exception as exc:
+        fallback_audit_db = str(Path(tempfile.gettempdir()) / "acne_llm_audit.db")
+        logger.warning(
+            "Audit DB unavailable at {}; using temp DB {} ({})",
+            audit_db_path,
+            fallback_audit_db,
+            exc,
+        )
+        _db_conn = DBConnection(fallback_audit_db)
     audit_store   = AuditStore(_db_conn)
     logger.info(f"Sessions JSONL: {sessions_dir} | Audit SQLite: {audit_db_path}")
 
@@ -112,10 +123,43 @@ def build_container(settings) -> Container:
         fallback_model=settings.llm_fallback_model,
         num_ctx=settings.llm_num_ctx,
         num_predict=settings.llm_num_predict,
+        temperature=getattr(settings, "llm_temperature", 0.35),
+        top_p=getattr(settings, "llm_top_p", 0.85),
+        top_k=getattr(settings, "llm_top_k", 40),
+        repeat_penalty=getattr(settings, "llm_repeat_penalty", 1.1),
+        repeat_last_n=getattr(settings, "llm_repeat_last_n", 128),
+        keep_alive=getattr(settings, "llm_keep_alive", "-1"),
         timeout=settings.ollama_generate_timeout,
         health_timeout=settings.ollama_health_timeout,
         use_modelfile_system=getattr(settings, "llm_use_modelfile_system", False),
     )
+
+    # Log effective LLM config — phát hiện sớm config drift giữa .env / config.py / Modelfile.
+    logger.info(
+        "LLM effective: model={} ctx={} predict={} temp={} top_p={} top_k={} "
+        "keep_alive={} use_modelfile_system={}",
+        settings.llm_model,
+        settings.llm_num_ctx,
+        settings.llm_num_predict,
+        getattr(settings, "llm_temperature", 0.35),
+        getattr(settings, "llm_top_p", 0.85),
+        getattr(settings, "llm_top_k", 40),
+        getattr(settings, "llm_keep_alive", "-1"),
+        getattr(settings, "llm_use_modelfile_system", False),
+    )
+    # Đọc params Ollama THỰC SỰ áp dụng (Modelfile) — verify không có param
+    # nướng sẵn override Python config.
+    try:
+        modelfile_info = llm.show_params()
+        if modelfile_info.get("parameters"):
+            logger.info(
+                "Modelfile PARAMETER (Ollama-side):\n{}", modelfile_info["parameters"]
+            )
+        else:
+            logger.info("Modelfile không có PARAMETER override (tốt — Python full control)")
+    except Exception as e:
+        logger.warning(f"Không đọc được Modelfile params: {e}")
+
     prompt = PromptBuilder(settings.prompts_dir)
     clinical_planner = ClinicalQueryPlanner()
     guardrails = GuardrailRunner(

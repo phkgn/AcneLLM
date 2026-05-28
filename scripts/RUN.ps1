@@ -76,6 +76,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "ollama serve"
 Start-Sleep -Seconds 2
 
 Write-Host "Starting Backend API..." -ForegroundColor Green
+Stop-PortProcess -Port 8000
 if ($Log) {
     $null = Remove-Item -Force $BackendLog -ErrorAction SilentlyContinue
     $null = New-Item -ItemType File -Force -Path $BackendLog
@@ -91,6 +92,11 @@ if ($Log) {
 
 Write-Host "Waiting for backend on http://localhost:8000..." -ForegroundColor Cyan
 if (-not (Wait-ForHttpOk -Uri "http://localhost:8000/docs" -TimeoutSeconds 180)) {
+    if (Test-Path $BackendLog) {
+        Write-Host ""
+        Write-Host "Backend log tail ($BackendLog):" -ForegroundColor Yellow
+        Get-Content -Path $BackendLog -Tail 80 -ErrorAction SilentlyContinue
+    }
     throw "Backend did not respond on http://localhost:8000 within 180 seconds."
 }
 

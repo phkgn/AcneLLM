@@ -1,5 +1,6 @@
 """Jinja2 prompt builder với sanitization chống injection."""
 from __future__ import annotations
+from dataclasses import replace
 import re
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from ..schemas import UserInput, RetrievalOutput, VisionOutput
@@ -59,6 +60,14 @@ def _sanitize_chunk_text(text: str) -> str:
     return text.strip()
 
 
+def sanitize_history_turns(history: list[ConversationTurn]) -> list[ConversationTurn]:
+    """Return history copies with prompt-injection markers neutralized per turn."""
+    return [
+        replace(turn, content=_sanitize_chunk_text(turn.content))
+        for turn in history
+    ]
+
+
 def _route_guidance(route_metadata: dict | None) -> str:
     """Trả về hướng dẫn ngắn gọn từ route flags — không expose metadata nội bộ.
 
@@ -88,6 +97,11 @@ def _route_guidance(route_metadata: dict | None) -> str:
         guidance.append("Tập trung kiểm tra hoạt chất/sản phẩm và rủi ro kích ứng.")
     if "urgency_red_flag" in flags:
         guidance.append("Nhắc dấu hiệu cần khám sớm.")
+    if "mixed_genital_scope" in flags:
+        guidance.append(
+            "Tin nhắn có cả vùng da trong phạm vi và vùng sinh dục/hậu môn; "
+            "chỉ tư vấn phần mặt/lưng/ngực/vai/cổ, từ chối ngắn phần vùng kín."
+        )
     return " ".join(guidance) if guidance else ""
 
 
@@ -130,9 +144,10 @@ class PromptBuilder:
 
     def _context_block(self, retrieval: RetrievalOutput | None, max_chars: int = 6000) -> str:
         if not retrieval or not retrieval.chunks:
-            return "(khong co ngu canh tu tri thuc)"
+            return "(không có ngữ cảnh từ tri thức phù hợp.)"
         blocks: list[str] = []
         used_chars = 0
+        total_chunks = len(retrieval.chunks)
         for i, c in enumerate(retrieval.chunks, 1):
             meta = c.metadata or {}
             title = meta.get("title", "?") or "?"
@@ -158,15 +173,32 @@ class PromptBuilder:
             header_len = len(header)
             sep_len = 5  # "\n---\n"
             # Giới hạn kép: budget tổng và budget mỗi chunk
-            text_budget = min(remaining - header_len - sep_len, self._MAX_CHARS_PER_CHUNK)
+            remaining_chunks = max(1, total_chunks - i + 1)
+            dynamic_chunk_budget = max(
+                self._MAX_CHARS_PER_CHUNK,
+                (remaining - header_len - sep_len) // remaining_chunks,
+            )
+            text_budget = min(remaining - header_len - sep_len, dynamic_chunk_budget)
             if text_budget <= 0:
                 break
             if len(text) > text_budget:
-                text = text[:text_budget].rsplit(" ", 1)[0].strip() + "..."
+                text = self._truncate_at_sentence(text, text_budget)
             block = header + text
             blocks.append(block)
             used_chars += len(block) + sep_len
-        return "\n---\n".join(blocks) if blocks else "(khong co ngu canh tu tri thuc)"
+        return "\n---\n".join(blocks) if blocks else "(không có ngữ cảnh từ tri thức phù hợp.)"
+
+    @staticmethod
+    def _truncate_at_sentence(text: str, budget: int) -> str:
+        if len(text) <= budget:
+            return text
+        snippet = text[:budget].strip()
+        sentence_cut = max(snippet.rfind("."), snippet.rfind("!"), snippet.rfind("?"), snippet.rfind("。"))
+        if sentence_cut >= max(80, int(budget * 0.55)):
+            snippet = snippet[:sentence_cut + 1].strip()
+        else:
+            snippet = snippet.rsplit(" ", 1)[0].strip()
+        return snippet + "..."
 
     # Mapping thuật ngữ EN → tên Việt để truyền vào prompt
     _LESION_VI: dict[str, str] = {
@@ -203,6 +235,13 @@ class PromptBuilder:
         "severe":   "nặng",
         "unknown":  "chưa rõ",
     }
+    _SKIN_TYPE_VI: dict[str, str] = {
+        "dry": "da khô",
+        "oily": "da dầu",
+        "combination": "da hỗn hợp",
+        "sensitive": "da nhạy cảm",
+        "normal": "da thường",
+    }
     _HORMONAL_VI: dict[str, str] = {
         "menstrual_cycle": "theo chu kỳ kinh nguyệt",
         "pcos":            "hội chứng buồng trứng đa nang (PCOS)",
@@ -232,7 +271,7 @@ class PromptBuilder:
         if ctx.sex:
             parts.append(f"giới tính: {'nam' if ctx.sex == 'male' else 'nữ' if ctx.sex == 'female' else ctx.sex}")
         if ctx.skin_type:
-            parts.append(f"loại da: {self._vi(self._INFLAMMATION_VI, ctx.skin_type) if ctx.skin_type in self._INFLAMMATION_VI else ctx.skin_type}")
+            parts.append(f"loại da: {self._vi(self._SKIN_TYPE_VI, ctx.skin_type)}")
         if ctx.duration_weeks is not None:
             parts.append(f"thời gian bị: ~{ctx.duration_weeks} tuần")
         if ctx.is_pregnant:
@@ -389,17 +428,22 @@ class PromptBuilder:
         system_override: str | None = None,
         completeness_hint: str | None = None,
     ) -> tuple[str, str]:
-        sys_p = system_override if system_override is not None else self.system()
+        stream_templates = {"stream_user.j2", "knowledge_user.j2", "clarify_user.j2"}
+        sys_p = (
+            system_override
+            if system_override is not None
+            else self.system_stream() if template in stream_templates else self.system()
+        )
         # Extended rules chỉ inject khi hybrid và thực sự có KB chunks
         has_kb = retrieval is not None and bool(retrieval.chunks)
         extended = self._extended_rules() if has_kb else ""
         safe_description = _escape_jinja(user.description)
-        safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "khong")
-        safe_medications = _escape_jinja(", ".join(user.context.medications) or "khong")
+        safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
+        safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
         safe_qv = _escape_jinja(query_vi)
         safe_context = _escape_jinja(self._context_block(retrieval, max_chars=max_context_chars))
-        safe_history = _escape_jinja(format_history_block(history or []))
+        safe_history = _escape_jinja(format_history_block(sanitize_history_turns(history or [])))
         safe_known_facts = _escape_jinja(self._known_facts_summary(user))
         safe_clinical_plan = _escape_jinja(self._clinical_plan_summary(clinical_plan))
         # Route guidance: chỉ truyền những instruction ngắn, không dump metadata nội bộ
@@ -430,5 +474,6 @@ class PromptBuilder:
             query_subject=query_subject,
             extended_rules=safe_extended,
             completeness_hint=safe_completeness_hint,
+            has_retrieved_context=has_kb,
         )
         return sys_p, user_p

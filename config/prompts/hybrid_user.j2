@@ -1,23 +1,23 @@
 <user_data>
 <description>{{ description }}</description>
 
+{% if age is not none or (sex and sex != "unknown") or (skin_type and skin_type != "unknown") or is_pregnant or is_breastfeeding or (allergies and allergies != "không") or (medications and medications != "không") %}
 <context>
-- Tuổi: {{ age if age is not none else "không rõ" }}
-- Giới tính: {{ sex or "không rõ" }}
-- Loại da: {{ skin_type or "không rõ" }}
-- Đang mang thai: {{ "CÓ" if is_pregnant else "không" }}
-- Đang cho con bú: {{ "CÓ" if is_breastfeeding else "không" }}
-- Dị ứng: {{ allergies }}
-- Thuốc đang dùng: {{ medications }}
-</context>
-
-{% if known_facts %}
+{% if age is not none %}- Tuổi: {{ age }}
+{% endif %}{% if sex and sex != "unknown" %}- Giới tính: {{ sex }}
+{% endif %}{% if skin_type and skin_type != "unknown" %}- Loại da: {{ skin_type }}
+{% endif %}{% if is_pregnant %}- Đang mang thai: CÓ
+{% endif %}{% if is_breastfeeding %}- Đang cho con bú: CÓ
+{% endif %}{% if allergies and allergies != "không" %}- Dị ứng: {{ allergies }}
+{% endif %}{% if medications and medications != "không" %}- Thuốc đang dùng: {{ medications }}
+{% endif %}</context>
+{% endif %}
+{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}
+<clinical_summary>{{ normalized_case_plan }}</clinical_summary>
+{% elif known_facts %}
 <known_facts>{{ known_facts }}</known_facts>
 {% endif %}
-{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" %}
-<normalized_case_plan>{{ normalized_case_plan }}</normalized_case_plan>
-{% endif %}
-{% if query_vi %}
+{% if query_vi and not (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") %}
 <query_vi>{{ query_vi }}</query_vi>
 {% endif %}
 {% if route_metadata %}
@@ -26,8 +26,9 @@
 {% if query_subject == "other" %}
 <subject_note>Người dùng đang hỏi về tình trạng của người khác. Không xem dữ kiện này là hồ sơ cá nhân của user.</subject_note>
 {% endif %}
-
+{% if vision_summary and vision_summary != "không có dữ liệu hình ảnh" %}
 <vision>{{ vision_summary }}</vision>
+{% endif %}
 {% if completeness_hint %}
 <hint>{{ completeness_hint }}</hint>
 {% endif %}
@@ -47,6 +48,8 @@
 ---
 {% endif %}
 Trả về duy nhất JSON đúng schema `AdviseOutput`. Tin vào description — đó là nguồn chính xác nhất. Chỉ giữ kết luận nối được thẳng tới dữ liệu user hoặc KB. Nếu description đã đủ, trả lời ngay; chỉ hỏi thêm khi thực sự cần, tối đa 1 câu.
+{% if not has_retrieved_context %}Chưa có nguồn KB phù hợp trong lượt này; đặt confidence thấp hơn và không bịa nguồn.
+{% endif %}
 Citation: source_chunk_id chỉ lấy từ dòng chunk_ref= trong retrieved_context, không bịa, không có nguồn thì null.
 Format: causes ≤4 ý; recommendations ≤5 bước (action ngắn + rationale 1 câu); disclaimer 1-2 câu tiếng Việt.
 </task>

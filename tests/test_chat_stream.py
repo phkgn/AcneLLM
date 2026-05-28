@@ -49,6 +49,7 @@ class _MockPrompt:
 class _MockRetriever:
     def __init__(self):
         self.queries = []
+        self.safety_calls = []
 
     def retrieve(self, query, top_k=8, mode="hybrid"):
         self.queries.append(query)
@@ -61,6 +62,24 @@ class _MockRetriever:
                     text="Guideline context about painful pustular acne and when to seek care.",
                     score=0.9,
                     metadata={"title": "test", "source": "test"},
+                )
+            ],
+            retrieval_mode="hybrid",
+            num_chunks=1,
+            avg_score=0.9,
+        )
+
+    def retrieve_safety_pass(self, query, safety_terms, top_k=5):
+        self.safety_calls.append((query, list(safety_terms), top_k))
+        return RetrievalOutput(
+            query=query,
+            chunks=[
+                RetrievedChunk(
+                    chunk_id="safety-chunk",
+                    source="NICE",
+                    text="Pregnancy and retinoid safety context.",
+                    score=0.9,
+                    metadata={"title": "safety", "source": "NICE"},
                 )
             ],
             retrieval_mode="hybrid",
@@ -125,6 +144,14 @@ def test_stream_endpoint_returns_token_and_done_events():
     assert "Xin chào" in body
     assert '"event": "done"' in body
     assert '"mode": "llm_only"' in body
+
+
+def test_stream_endpoint_rejects_overlong_message():
+    c = TestClient(_app())
+
+    r = c.get("/api/v1/chat/stream", params={"message": "x" * 4001})
+
+    assert r.status_code == 413
 
 
 def test_stream_endpoint_passes_temperature_param_to_llm():
@@ -313,6 +340,24 @@ def test_stream_followup_soft_scope_uses_rag_from_session_history(tmp_path):
     assert second.status_code == 200
     assert container.retriever.queries
     assert "pustule" in container.retriever.queries[-1]
+
+
+def test_stream_safety_terms_trigger_safety_pass_without_clinical_plan():
+    container = _MockContainer()
+    container.rag_ready = True
+    container.retriever = _MockRetriever()
+    c = TestClient(_app(container))
+
+    r = c.get(
+        "/api/v1/chat/stream",
+        params={"message": "isotretinoin có dùng khi mang thai để trị mụn không"},
+    )
+
+    assert r.status_code == 200
+    assert container.retriever.safety_calls
+    safety_terms = container.retriever.safety_calls[-1][1]
+    assert "isotretinoin" in safety_terms
+    assert any(term in safety_terms for term in ("mang thai", "pregnancy"))
 
 
 def test_stream_endpoint_routes_templates_by_intent():

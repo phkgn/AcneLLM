@@ -4,6 +4,7 @@ from __future__ import annotations
 from ..schemas import RetrievalOutput, UserInput
 from ..schemas.clinical import ClinicalQueryPlan
 from .session import ConversationTurn, format_history_block
+from ..llm.prompt_builder import _sanitize_chunk_text, sanitize_history_turns
 
 _FALLBACK_SYSTEM = (
     "Bạn là AcneLLM, trợ lý tư vấn da mụn bằng tiếng Việt. Trả lời thẳng vào vấn đề, không chào hỏi, không dẫn dắt. "
@@ -26,7 +27,7 @@ def _context_block(retrieval: RetrievalOutput | None, max_chars: int) -> str:
         meta = chunk.metadata or {}
         title = meta.get("title", "?")
         source = meta.get("source", chunk.source or "?")
-        text = chunk.text.strip()
+        text = _sanitize_chunk_text(chunk.text)
         remaining = max_chars - used_chars
         if remaining <= 0:
             break
@@ -107,7 +108,7 @@ def build_chat_prompt(
     if mode == "llm_only":
         context = "(Chế độ LLM only: không dùng KB retrieval.)"
 
-    history_block = format_history_block(history or [])
+    history_block = format_history_block(sanitize_history_turns(history or []))
     history_section = (
         f"\n## Lịch sử cuộc hội thoại\n{history_block}\n---"
         if history_block else ""

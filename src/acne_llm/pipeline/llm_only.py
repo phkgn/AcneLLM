@@ -37,7 +37,7 @@ def _safe_parse(raw: str) -> AdviseOutput:
     return AdviseOutput(
         severity="unknown",
         acne_type_primary="unknown",
-        causes=["Khong the phan tich phan hoi tu LLM -- vui long thu lai."],
+        causes=["Không thể phân tích phản hồi từ LLM, vui lòng thử lại."],
         confidence=0.1,
     )
 
@@ -64,6 +64,7 @@ class LLMOnlyPipeline:
         history: list[ConversationTurn] | None = None,
         route_metadata: dict | None = None,
         completeness_hint: str | None = None,
+        safety_terms: list[str] | None = None,
     ) -> AdviseOutput:
         t0 = time.perf_counter()
         if not prechecked:
@@ -94,8 +95,7 @@ class LLMOnlyPipeline:
         total_chars = len(sys_p) + len(usr_p)
         logger.info(f"LLM-only prompt size: system={len(sys_p)} user={len(usr_p)} total={total_chars}")
         raw = self.llm.generate_json(sys_p, usr_p,
-                                     schema=AdviseOutput.model_json_schema(),
-                                     temperature=0.3)
+                                     schema=AdviseOutput.model_json_schema())
         parsed = _safe_parse(raw)
         parsed.mode = "llm_only"
         parsed.model_name = self.llm.model

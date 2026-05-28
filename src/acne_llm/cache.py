@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
+import zlib
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -80,6 +81,7 @@ def cached_embed_query(
 
 RETRIEVE_TTL = 3600   # 1 gio
 RETRIEVE_TAG = "retrieve_v1"
+RETRIEVE_MAX_ENTRY_BYTES = 8 * 1024 * 1024
 
 # Removed: shadow index (_RETRIEVE_INDEX_KEY) — đã thay bằng diskcache tag.
 # Mỗi entry được gán tag=RETRIEVE_TAG khi set; invalidate dùng cache.evict(tag).
@@ -108,15 +110,26 @@ def cached_retrieve(
         hit = cache.get(key, default=None)
         if hit is not None:
             logger.debug("[Cache] retrieve HIT")
-            return pickle.loads(hit)
+            try:
+                return pickle.loads(zlib.decompress(hit))
+            except zlib.error:
+                # Backward-compatible with older uncompressed retrieve entries.
+                return pickle.loads(hit)
     except Exception as e:
         logger.debug(f"[Cache] retrieve read error: {e}")
 
     result = fn()
     try:
+        payload = zlib.compress(pickle.dumps(result), level=3)
+        if len(payload) > RETRIEVE_MAX_ENTRY_BYTES:
+            logger.debug(
+                "[Cache] retrieve MISS -> skip store (entry too large: {} bytes)",
+                len(payload),
+            )
+            return result
         # Tag-based: diskcache.Cache.set hỗ trợ tag= để group invalidation.
         # cache.evict(RETRIEVE_TAG) xóa toàn bộ group mà không cần shadow index.
-        cache.set(key, pickle.dumps(result), expire=RETRIEVE_TTL, tag=RETRIEVE_TAG)
+        cache.set(key, payload, expire=RETRIEVE_TTL, tag=RETRIEVE_TAG)
         logger.debug("[Cache] retrieve MISS -> stored")
     except Exception as e:
         logger.debug(f"[Cache] retrieve write error: {e}")

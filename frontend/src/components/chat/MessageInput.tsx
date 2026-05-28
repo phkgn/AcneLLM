@@ -55,7 +55,10 @@ export function MessageInput({ autoFocusTrigger }: { autoFocusTrigger?: unknown 
     }
   };
 
-  const canSend = input.trim().length > 0 && !isLoading;
+  const MAX_WORDS = 500;
+  const wordCount = input.trim() ? input.trim().split(/\s+/).length : 0;
+  const overLimit = wordCount > MAX_WORDS;
+  const canSend = input.trim().length > 0 && !isLoading && !overLimit;
 
   // Label mode: ưu tiên mode thực tế từ done event, fallback về setting
   const modeLabel = lastActualMode ?? settings.mode;
@@ -101,8 +104,15 @@ export function MessageInput({ autoFocusTrigger }: { autoFocusTrigger?: unknown 
             <span>Enter để gửi · Shift+Enter xuống dòng</span>
           )}
         </span>
-        <span title="Chế độ thực tế của lượt cuối (từ backend)">
-          {modeDisplay[modeLabel] ?? modeLabel}
+        <span className="flex items-center gap-3">
+          {wordCount > 400 && (
+            <span className={overLimit ? "text-red-500 font-medium" : "text-amber-500"}>
+              {wordCount}/{MAX_WORDS} từ{overLimit ? " — quá giới hạn" : ""}
+            </span>
+          )}
+          <span title="Chế độ thực tế của lượt cuối (từ backend)">
+            {modeDisplay[modeLabel] ?? modeLabel}
+          </span>
         </span>
       </div>
     </form>
