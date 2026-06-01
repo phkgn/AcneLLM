@@ -32,6 +32,7 @@ transformers>=4.44
 torch>=2.2                # cài riêng theo README để chọn đúng CUDA / CPU build
 rank-bm25>=0.2.2
 underthesea>=6.8          # NLP tiếng Việt — sentence & word tokenize
+rapidfuzz>=3.0            # fuzzy matching cho intake extraction (rule-based, deterministic)
 
 # ── Crawl ────────────────────────────────────────────────────
 trafilatura>=1.12

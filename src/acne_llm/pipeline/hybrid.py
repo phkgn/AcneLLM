@@ -65,9 +65,12 @@ class HybridPipeline:
                  retrieve_top_k: int = 15, rerank_top_k: int = 5,
                  english_input_notice: bool = True,
                  clinical_planner: ClinicalQueryPlanner | None = None,
-                 use_llm_planner: bool | None = None,
+                 use_llm_planner: bool | None = None,  # DEPRECATED: no-op, giữ để không vỡ caller cũ
                  use_mmr_prefilter: bool = True,
                  mmr_lambda: float = 0.6):
+        # use_llm_planner KHÔNG còn tác dụng: ClinicalQueryPlanner là rule-based,
+        # không gọi LLM. Param giữ lại chỉ để tương thích ngược (test/caller cũ
+        # truyền kwarg này). Mọi task xử lý là rule-based; LLM chỉ chạy ở generate cuối.
         self.retriever = retriever
         self.reranker = reranker
         self.llm = llm
@@ -89,7 +92,6 @@ class HybridPipeline:
             "whitehead": "mun dau trang whitehead",
             "blackhead": "mun dau den blackhead",
             "closed_comedone": "mun an mun dau trang kin closed comedone",
-            "hidden_acne": "mun an closed comedone hidden acne",
             "papule": "mun viem papule inflammatory acne",
             "pustule": "mun mu pustule",
             "nodule": "mun boc mun nang nodular acne",

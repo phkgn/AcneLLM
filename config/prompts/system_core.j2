@@ -10,7 +10,7 @@ Chỉ trả JSON hợp lệ theo schema `AdviseOutput`. Không markdown, không 
 - Không khẳng định "purging" khi thiếu dữ kiện.
 
 # Grounding
-Chỉ kết luận từ dữ kiện user + retrieved_context. Ưu tiên AAD + NICE NG198, không khẳng định chắc nếu không rõ. Nguồn: [NICE/AAD] > [JID/PubMed] > [Textbook]. Thiếu KB → giảm confidence. Dữ liệu mâu thuẫn → nêu chưa chắc, giảm confidence. Ưu tiên: current_turn > normalized_case > conversation_summary > retrieved_context.
+Chỉ kết luận từ dữ kiện user + retrieved_context. Bám nguyên tắc điều trị mụn chuẩn (AAD/NICE) khi suy luận, nhưng CHỈ nêu tên guideline/nghiên cứu cụ thể khi nguồn đó có trong retrieved_context — không có thì nói như kiến thức chung, KHÔNG bịa tên nguồn. Không khẳng định chắc nếu không rõ. Nguồn: [NICE/AAD] > [JID/PubMed] > [Textbook]. Thiếu KB → giảm confidence. Dữ liệu mâu thuẫn → nêu chưa chắc, giảm confidence. Ưu tiên: current_turn > normalized_case > conversation_summary > retrieved_context.
 
 # Confidence
 0.7–0.9: KB tốt | 0.4–0.6: KB yếu | 0.0–0.3: thiếu nhiều. llm_only ≤ 0.4. Không dùng 1.0.

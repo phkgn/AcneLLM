@@ -23,7 +23,6 @@ from .db.base import DBConnection
 from .db.jsonl_session_store import JsonlSessionStore
 from .db.audit import AuditStore
 from .cache import init_cache
-from .chat.intent_router import OllamaIntentClassifier
 
 
 class Container:
@@ -40,7 +39,6 @@ class Container:
         vision: MockVision,
         session_store: JsonlSessionStore,
         audit_store: AuditStore,
-        intent_classifier: Optional[OllamaIntentClassifier] = None,
         embedder: Optional[Embedder] = None,
         store: Optional[ChromaStore] = None,
         bm25: Optional[BM25Index] = None,
@@ -57,7 +55,6 @@ class Container:
         self.vision           = vision
         self.session_store    = session_store
         self.audit_store      = audit_store
-        self.intent_classifier = intent_classifier
         self.embedder         = embedder
         self.store            = store
         self.bm25             = bm25
@@ -76,11 +73,6 @@ class Container:
             pass
         try:
             self.session_store.close()
-        except Exception:
-            pass
-        try:
-            if self.intent_classifier is not None:
-                self.intent_classifier.close()
         except Exception:
             pass
 
@@ -176,17 +168,6 @@ def build_container(settings) -> Container:
         clinical_planner=clinical_planner,
     )
     logger.info(f"LLM: {settings.llm_model} @ {settings.ollama_url}")
-
-    intent_classifier = None
-    if getattr(settings, "intent_router_enabled", False):
-        intent_classifier = OllamaIntentClassifier(
-            base_url=settings.ollama_url,
-            model=getattr(settings, "intent_router_model", "qwen2.5:0.5b"),
-            timeout=getattr(settings, "intent_router_timeout_seconds", 5.0),
-            num_ctx=getattr(settings, "intent_router_num_ctx", 1024),
-            num_predict=getattr(settings, "intent_router_num_predict", 128),
-        )
-        logger.info(f"Intent router micro-classifier enabled: {settings.intent_router_model}")
 
     # -- RAG (chi load neu KB da build) ---------------------------------------
     chroma_dir = Path(settings.chroma_dir)
@@ -286,7 +267,6 @@ def build_container(settings) -> Container:
         vision=MockVision(),
         session_store=session_store,
         audit_store=audit_store,
-        intent_classifier=intent_classifier,
         embedder=embedder,
         store=store,
         bm25=bm25,

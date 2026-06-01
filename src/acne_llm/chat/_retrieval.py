@@ -7,7 +7,7 @@ from loguru import logger
 
 from ..schemas import RetrievedChunk, RetrievalOutput, UserInput
 from ..schemas.clinical import ClinicalQueryPlan
-from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks, _has_concrete_query_marker
+from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks, _has_concrete_query_marker, _is_acne_concrete_query
 from ..cache import cached_retrieve
 
 if TYPE_CHECKING:
@@ -201,9 +201,12 @@ def retrieve_for_chat(
     # dùng fallback query để tránh kéo chunk không liên quan (e.g. "người sống
     # thực vật có thể bị mụn không" → text message reminder chunks).
     has_plan = clinical_plan is not None
-    if not has_plan and len(queries) == 1 and not _has_concrete_query_marker(queries[0]):
+    # Chỉ coi là "vague" khi query KHÔNG hề on-topic về mụn (không nhắc mụn/vị trí/
+    # nguyên nhân/cơ chế...). Câu hỏi knowledge rõ ràng như "khác biệt nguyên nhân
+    # mụn mặt vs lưng" có topic marker → KHÔNG inject fallback (tránh làm loãng retrieval).
+    if not has_plan and len(queries) == 1 and not _is_acne_concrete_query(queries[0]):
         logger.debug(
-            "[retrieval] vague query detected (plan=False, no concrete marker) "
+            "[retrieval] vague query detected (plan=False, off-topic / no acne marker) "
             "— injecting fallback query alongside original"
         )
         queries = [queries[0], _VAGUE_QUERY_FALLBACK]
@@ -292,16 +295,25 @@ def retrieve_for_chat(
             # (avg sigmoid thấp + max score gần 0.5 = random logit),
             # trả None để LLM trả lời không dùng RAG thay vì inject chunk nhiễu.
             _ood_floor = float(getattr(settings, "chat_rerank_ood_floor", 0.45))
+            _keep_floor = float(getattr(settings, "chat_rerank_keep_floor", _ood_floor))
             if reranked.chunks:
                 _avg = sum(c.score for c in reranked.chunks) / len(reranked.chunks)
                 _max = max(c.score for c in reranked.chunks)
-                if _avg < _ood_floor and _max < _ood_floor:
+                # Ngưỡng MỀM: giữ riêng chunk vượt keep_floor thay vì all-or-nothing.
+                _kept = [c for c in reranked.chunks if c.score >= _keep_floor]
+                if not _kept:
                     logger.info(
-                        "[retrieval] OOD guard: avg_sigmoid={:.3f} max={:.3f} < floor={:.2f} "
+                        "[retrieval] OOD guard: avg_sigmoid={:.3f} max={:.3f} < keep_floor={:.3f} "
                         "— dropping {} chunks (query={!r:.80})",
-                        _avg, _max, _ood_floor, len(reranked.chunks), rerank_query,
+                        _avg, _max, _keep_floor, len(reranked.chunks), rerank_query,
                     )
                     return None
+                if len(_kept) < len(reranked.chunks):
+                    logger.debug(
+                        "[retrieval] OOD soft-filter: kept {}/{} chunks (keep_floor={:.3f} max={:.3f})",
+                        len(_kept), len(reranked.chunks), _keep_floor, _max,
+                    )
+                    reranked = reranked.model_copy(update={"chunks": _kept, "num_chunks": len(_kept)})
             # Sau reranker: chỉ loại noisy chunks, KHÔNG dùng keyword mismatch filter
             # vì cross-encoder đã score relevance rồi — mismatch filter sẽ drop nhầm.
             return _noise_filter(reranked)

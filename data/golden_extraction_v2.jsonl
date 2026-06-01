@@ -1,0 +1,55 @@
+{"text": "da minh nhieu dau, bi mun mu o ma", "skin_type": "oily", "skin_type_conf_min": 0.7, "lesions": ["pustule"], "distribution": ["cheeks"]}
+{"text": "mat em rat bong dau va noi mun dau den o mui", "skin_type": "oily", "skin_type_conf_min": 0.7, "lesions": ["blackhead"], "distribution": ["nose"]}
+{"text": "da kho cang, bong troc", "skin_type": "dry", "skin_type_conf_min": 0.7}
+{"text": "da minh hon hop, vung t dau ma kho", "skin_type": "combination", "skin_type_conf_min": 0.6}
+{"text": "da nhay cam de kich ung", "skin_type": "sensitive", "skin_type_conf_min": 0.7}
+{"text": "da minh binh thuong khong dau khong kho", "skin_type": "normal", "skin_type_conf_min": 0.6}
+{"text": "so sanh da dau va da kho khac gi nhau", "skin_type": null, "skin_type_conf_max": 0.0, "note": "câu hỏi so sánh - skin_type bị drop"}
+{"text": "da dau co de bi mun hon khong", "skin_type": null, "note": "câu hỏi tổng quát"}
+{"text": "xin chao", "skin_type": null, "products_empty": true, "medications_empty": true}
+{"text": "minh nam 25 tuoi bi mun o lung 3 thang nay", "age": 25, "skin_type": null, "distribution": ["back"]}
+{"text": "em 18t bi mun duc", "age": 18}
+{"text": "toi 30 tuoi", "age": 30}
+{"text": "nam gioi bi mun dai", "sex": "male", "note": "sex extraction"}
+{"text": "toi la nu", "sex": "female"}
+{"text": "minh dang mang thai", "is_pregnant": true, "is_pregnant_conf_min": 0.85}
+{"text": "khong mang thai", "is_pregnant": false, "is_pregnant_conf_min": 0.85}
+{"text": "dang cho con bu", "is_breastfeeding": true, "is_breastfeeding_conf_min": 0.85}
+{"text": "khong cho con bu", "is_breastfeeding": false, "is_breastfeeding_conf_min": 0.85}
+{"text": "dang dung niacinamid va retinol", "products_contains": ["niacinamide", "retinol"]}
+{"text": "em boi salicilic acid moi toi", "products_contains": ["salicylic acid"], "note": "sai chính tả -> fuzzy"}
+{"text": "dang dung differin va benzoyl peroxide", "products_contains": ["differin", "benzoyl peroxide"]}
+{"text": "dung cleanser va kem chong nang", "products_contains": ["cleanser", "kem chống nắng"]}
+{"text": "dang uong doxycycline", "medications_contains": ["doxycycline"]}
+{"text": "uong thuoc tranh thai", "medications_contains": ["thuốc tránh thai"]}
+{"text": "da minh di ung voi retinol", "allergies_contains": ["retinol"]}
+{"text": "BHA lam da bi rat", "allergies_contains": ["bha_irritation"], "note": "BHA gây kích ứng"}
+{"text": "mun boc rat to va dau sung do khap mat", "inflammation": "severe", "inflammation_conf_min": 0.85, "lesions": ["nodule", "cyst"]}
+{"text": "bi mun viem o tran", "inflammation": "moderate", "lesions": ["papule"]}
+{"text": "minh bi 1-2 not nho khong dau o tran", "inflammation": "mild", "lesions": []}
+{"text": "mun mem khong co dau", "inflammation": "mild"}
+{"text": "co mun o tran va ma", "lesions": [], "distribution": ["forehead", "cheeks"]}
+{"text": "bi mun o cam", "distribution": ["chin"]}
+{"text": "mun o vai va lung", "distribution": ["shoulders", "back"]}
+{"text": "mun o vung chu T", "distribution": ["t_zone"]}
+{"text": "bi mun o mui va quanh mieng", "distribution": ["nose", "around_mouth"]}
+{"text": "co seo ro o mat", "scarring_signs_contains": ["sẹo mụn"], "lesions": ["scar"]}
+{"text": "co tham sau mun", "scarring_signs_contains": ["thâm sau mụn"], "lesions": ["post_inflammatory_hyperpigmentation"]}
+{"text": "mun len theo chu ky kinh", "hormonal_factors_contains": ["menstrual_cycle"]}
+{"text": "bi mun do stress", "hormonal_factors_contains": ["stress"]}
+{"text": "co PCOS", "hormonal_factors_contains": ["pcos"]}
+{"text": "mun len nhieu khi an nhieu duong", "hormonal_factors_contains": ["diet"]}
+{"text": "dang day thi", "hormonal_factors_contains": ["puberty"]}
+{"text": "muon trị mun", "treatment_goals_contains": ["clear_acne"]}
+{"text": "muon xoa seo", "treatment_goals_contains": ["treat_scar"]}
+{"text": "muon giam tham", "treatment_goals_contains": ["fade_hyperpigmentation"]}
+{"text": "muon giam dau", "treatment_goals_contains": ["reduce_oilyness"]}
+{"text": "da bi rach", "red_flags_contains": ["skin_irritation"]}
+{"text": "da sau 3 thang chua het", "red_flags_contains": ["chronic"]}
+{"text": "mun nhieu lam, rat dau", "red_flags_contains": ["painful_lesions", "widespread"]}
+{"text": "co mu chay nhieu", "red_flags_contains": ["purulent_lesions"]}
+{"text": "dang co comedone tren mat", "lesions": ["comedone"], "note": "comedone từ tiếng Anh"}
+{"text": "bi mun comedone", "lesions": ["comedone"]}
+{"text": "mun o khap mat", "red_flags_contains": ["widespread"]}
+{"text": "tuc ung voi BHA", "allergies_contains": ["bha_irritation"]}
+{"text": "di ung niacinamide", "allergies_contains": ["niacinamide"]}

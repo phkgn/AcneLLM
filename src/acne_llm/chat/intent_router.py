@@ -1,37 +1,28 @@
 """Lightweight intent routing for chat intake.
 
-The router is intentionally conservative: deterministic rules make the primary
-decision, while an optional micro-classifier can help only when rules are weak
-or ambiguous. Hard guardrails live outside this module and must run first.
+The router is fully rule-based: deterministic rules make the routing decision.
+(Lịch sử: từng có tuỳ chọn micro-classifier qwen2.5:0.5b — đã gỡ bỏ vì gây
+model-swap thrash trên GPU. Routing giờ chỉ dùng luật cứng.)
+Hard guardrails live outside this module and must run first.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-import json
 import re
-from typing import Literal, Protocol
+from typing import Literal
 import unicodedata
 
 from loguru import logger
 
 from ..schemas import AcneClinicalInput, UserInput
 from .session import ConversationTurn
-from ..llm.query_expander import detect_language_heuristic
+from ..llm.language import detect_language_heuristic
 from ._terms import QUESTION_TERMS, contains_any as _shared_contains_any
 
 
 PrimaryIntent = Literal["advise", "knowledge", "clarify", "reject"]
-IntentSource = Literal["rule", "micro_model", "hybrid"]
+IntentSource = Literal["rule", "hybrid"]
 QuerySubject = Literal["self", "other", "general"]
-
-
-@dataclass
-class ClassifierResult:
-    primary_intent: PrimaryIntent
-    scores: dict[str, float] = field(default_factory=dict)
-    confidence: float = 0.0
-    is_ambiguous: bool = False
-    reason_code: str = ""
 
 
 @dataclass
@@ -40,7 +31,6 @@ class RouteDecision:
     confidence: float
     query_subject: QuerySubject = "self"
     source: IntentSource = "rule"
-    classifier_used: bool = False
     turn_type: str = "answer"
     route_flags: list[str] = field(default_factory=list)
     detected_language: str = "unknown"
@@ -53,7 +43,6 @@ class RouteDecision:
             "query_subject": self.query_subject,
             "intent_confidence": self.confidence,
             "intent_source": self.source,
-            "classifier_used": self.classifier_used,
             "turn_type": self.turn_type if self.turn_type != "answer" else self.primary_intent,
             "route_flags": list(self.route_flags),
             "detected_language": self.detected_language,
@@ -62,11 +51,6 @@ class RouteDecision:
         if self.ambiguity_reason:
             data["ambiguity_reason"] = self.ambiguity_reason
         return data
-
-
-class IntentClassifier(Protocol):
-    def classify(self, message: str, signals: dict) -> ClassifierResult | None:
-        ...
 
 
 _FOLLOWUP_SHORT_TERMS = (
@@ -204,7 +188,10 @@ _URGENT_EVALUATION_TERMS = (
 )
 _EMOTIONAL_TERMS = (
     "tự ti", "tu ti", "xấu hổ", "xau ho", "stress", "buồn", "buon",
-    "chán", "chan", "mất tự tin", "mat tu tin", "hoảng", "hoang",
+    # Dùng cụm đầy đủ để tránh match nhầm chuỗi con:
+    #   "chan" đụng "chẳng" (chang), "hoang" đụng "khoảng" (khoang).
+    "chán nản", "chan nan", "mất tự tin", "mat tu tin",
+    "hoảng loạn", "hoang loan", "hoang mang", "tuyệt vọng", "tuyet vong",
 )
 _CRISIS_TERMS = (
     "tự tử", "tu tu", "tự sát", "tu sat", "không muốn sống", "khong muon song",
@@ -242,7 +229,7 @@ _STOP_REPEAT_CHARS_RE = re.compile(r"\s+")
 # subject=self ngay cả khi không có substring rõ ràng ("em" đứng cuối câu).
 # Ví dụ: "em đang dùng BHA bị rát", "cháu nổi mụn ở cằm", "con bị mụn 2 tháng".
 _PERSONAL_PRONOUN_VERB_RE = re.compile(
-    r"\b(em|con|ch[áa]u|t[ớo]|tao|chau|to)\s+"
+    r"\b(em|con|ch[áa]u|tôi|toi|t[ớo]|tao|mình|minh)\s+"
     r"(?:đang\s+|dang\s+)?"
     r"(?:b[ịi]|n[ổo]i|d[ùu]ng|mang\s*thai|co\s*thai|c[óo]\s+thai|"
     r"cho\s*con\s*b[úu])\b",
@@ -587,241 +574,42 @@ def _rule_decision(
     )
 
 
-def _accept_classifier(
-    rule: RouteDecision,
-    classifier_result: ClassifierResult,
-    min_confidence: float,
-    tie_margin: float,
-) -> RouteDecision:
-    scores = classifier_result.scores or {}
-    ordered = sorted(scores.items(), key=lambda item: item[1], reverse=True)
-    ambiguous = classifier_result.is_ambiguous
-    if len(ordered) >= 2 and ordered[0][1] - ordered[1][1] < tie_margin:
-        ambiguous = True
-
-    if classifier_result.confidence < min_confidence:
-        out = rule
-        out.classifier_used = True
-        out.source = "hybrid"
-        out.reason_code = f"{rule.reason_code}|classifier_low_confidence"
-        return out
-
-    if ambiguous:
-        flags = list(dict.fromkeys([*rule.route_flags, "ambiguous_intent"]))
-        return RouteDecision(
-            primary_intent=rule.primary_intent,
-            confidence=rule.confidence,
-            query_subject=rule.query_subject,
-            source="hybrid",
-            classifier_used=True,
-            turn_type=rule.turn_type,
-            route_flags=flags,
-            detected_language=rule.detected_language,
-            reason_code=f"{rule.reason_code}|classifier_tie",
-            ambiguity_reason=classifier_result.reason_code or "classifier_tie",
-        )
-
-    flags = list(rule.route_flags)
-    return RouteDecision(
-        primary_intent=classifier_result.primary_intent,
-        confidence=classifier_result.confidence,
-        query_subject=rule.query_subject,
-        source="micro_model",
-        classifier_used=True,
-        turn_type="answer" if classifier_result.primary_intent in {"advise", "knowledge"} else classifier_result.primary_intent,
-        route_flags=flags,
-        detected_language=rule.detected_language,
-        reason_code=classifier_result.reason_code or "classifier_override",
-        ambiguity_reason=rule.ambiguity_reason,
-    )
-
-
 def route_intent(
     message: str,
     user: UserInput,
     history: list[ConversationTurn],
     settings: object | None = None,
-    classifier: IntentClassifier | None = None,
+    classifier: object | None = None,
     current_clinical: AcneClinicalInput | None = None,
 ) -> RouteDecision:
-    import concurrent.futures
+    """Rule-based intent routing.
 
-    rule = _rule_decision(message, user, history, current_clinical=current_clinical)
-    min_confidence = float(getattr(settings, "intent_router_min_confidence", 0.80))
-    tie_margin = float(getattr(settings, "intent_router_tie_margin", 0.10))
-    enabled = bool(getattr(settings, "intent_router_enabled", False))
-    # Timeout cho classifier call — default 15s (tăng từ 5s để tránh false timeout
-    # khi main model đang warm-up trên GPU cùng lúc với micro-classifier).
-    classifier_timeout = float(getattr(settings, "intent_router_timeout_seconds", 15.0))
-
-    # Hard-rule cases: không cần classifier, rule đã chắc chắn.
-    _hard_rule_cases = {
-        "crisis_signal",
-        "short_followup_in_session",
-        "genital_scope_hard_reject",
-        "scope_hard_reject",
-        "complaint",
-        "urgent_personal_case",
-    }
-    should_call_classifier = (
-        enabled
-        and classifier is not None
-        and rule.reason_code not in _hard_rule_cases
-    )
-    if not should_call_classifier:
-        return rule
-
-    signals = {
-        "previous_assistant_turn_type": next(
-            (t.mode for t in reversed(history) if t.role == "assistant"),
-            "",
-        ),
-        "last_primary_intent": next(
-            ((t.metadata or {}).get("primary_intent") for t in reversed(history) if t.role == "user"),
-            "",
-        ),
-        "previous_bot_asked_clarify": any(
-            t.role == "assistant" and t.mode == "clarify" for t in history[-2:]
-        ),
-        "has_clinical_facts": _has_any_clinical_fact(user),
-        "rule_primary_intent": rule.primary_intent,
-        "rule_flags": list(rule.route_flags),
-    }
-
-    # Chạy classifier trong thread riêng với timeout cứng.
-    # Nếu Ollama bị queue (GPU đang bận với main model), pipeline không bị block.
-    # Rule result được dùng ngay; classifier chỉ enhance nếu trả về kịp.
-    model_result: ClassifierResult | None = None
-    import time as _time
-    _t_clf = _time.perf_counter()
-    try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(classifier.classify, message, signals)
-            try:
-                model_result = future.result(timeout=classifier_timeout)
-            except concurrent.futures.TimeoutError:
-                logger.debug(
-                    "[intent_router] classifier timed out after {:.0f}s, using rule result",
-                    classifier_timeout,
-                )
-                future.cancel()
-    except Exception as exc:
-        logger.debug(f"[intent_router] classifier failed, using rule result: {exc}")
-    # Log thời gian classifier — để biết đây có phải bottleneck thật không.
-    _clf_ms = (_time.perf_counter() - _t_clf) * 1000
-    logger.info(
-        "[intent_router] classifier took {:.0f}ms (model={}, result={})",
-        _clf_ms,
-        getattr(classifier, "model", "?"),
-        "ok" if model_result is not None else "fallback_to_rule",
-    )
-
-    if model_result is None:
-        rule.classifier_used = True
-        rule.source = "hybrid"
-        rule.reason_code = f"{rule.reason_code}|classifier_error"
-        return rule
-
-    return _accept_classifier(rule, model_result, min_confidence, tie_margin)
-
-
-class OllamaIntentClassifier:
-    """Tiny Ollama-backed JSON classifier.
-
-    Constructed only when INTENT_ROUTER_ENABLED=true. The model name is config,
-    not code policy.
+    Toàn bộ quyết định routing dùng luật cứng trong ``_rule_decision``.
+    Tham số ``classifier`` được giữ lại cho tương thích ngược (caller cũ truyền
+    ``classifier=...``) nhưng KHÔNG còn được dùng — micro-classifier đã gỡ bỏ.
     """
+    decision = _rule_decision(message, user, history, current_clinical=current_clinical)
 
-    def __init__(
-        self,
-        base_url: str,
-        model: str,
-        timeout: float = 5.0,
-        num_ctx: int = 1024,
-        num_predict: int = 128,
-    ) -> None:
-        import httpx
-
-        self.base_url = base_url.rstrip("/")
-        self.model = model
-        self.num_ctx = num_ctx
-        self.num_predict = num_predict
-        self._client = httpx.Client(base_url=self.base_url, timeout=timeout)
-
-    def classify(self, message: str, signals: dict) -> ClassifierResult | None:
-        system = (
-            "Classify Vietnamese/English acne-chat user intent. "
-            "Return ONLY strict JSON: {\"primary_intent\": <label>, \"scores\": {<label>: <0-1>}, "
-            "\"confidence\": <0-1>, \"is_ambiguous\": <bool>, \"reason_code\": <string>}. "
-            "Labels:\n"
-            "  advise   = user is describing a personal skin/acne situation and wants specific advice "
-            "(subject may be themselves OR someone else they mention explicitly)\n"
-            "  knowledge = user is asking a general/factual question about acne, ingredients, or skincare — "
-            "NOT about their own specific case\n"
-            "  clarify  = message is too vague for the SYSTEM to give useful advice "
-            "(e.g. just 'mụn' with no context); NOT a label for user asking a clarifying question\n"
-            "  reject   = completely off-topic (not related to acne/skin)\n"
-            "Rules: presence of 'tôi/mình/em bị' → advise. "
-            "Ranking/list/why questions without personal pronoun → knowledge. "
-            "Mixed-language (Vietnamese + English) follows the same rules.\n"
-            "Examples:\n"
-            "- \"mình bị mụn bọc ở cằm\" -> advise (personal self)\n"
-            "- \"bạn tôi bị mụn nang, nên làm gì\" -> advise (personal other)\n"
-            "- \"em gái mình hay nổi mụn ở lưng\" -> advise (personal other)\n"
-            "- \"tại sao bị mụn bọc\" -> knowledge (general why, no personal pronoun)\n"
-            "- \"top 10 nguyên nhân gây mụn\" -> knowledge (list/ranking)\n"
-            "- \"da dầu có dễ bị mụn hơn da khô không\" -> knowledge (comparison)\n"
-            "- \"mình nên dùng gì cho da mụn\" -> advise (personal advice request)\n"
-            "- \"benzoyl peroxide là gì\" -> knowledge (ingredient)\n"
-            "- \"mình bị mụn bọc đau, nên làm gì\" -> advise (personal + advice)\n"
-            "- \"liệt kê các loại mụn\" -> knowledge (list)\n"
-            "- \"my skin keeps breaking out on my chin\" -> advise (English personal)\n"
-            "- \"what causes hormonal acne\" -> knowledge (English general)\n"
-            "- \"I have oily skin and acne, what should I use\" -> advise (English personal advice)\n"
-            "- \"mụn\" -> clarify (too vague, system cannot advise)\n"
-            "- \"em bị mụn nhưng không biết loại gì\" -> advise (personal, type unknown — still advise not clarify)\n"
+    # Luat degrade an toan: routing duoi nguong tin cay -> clarify thay vi doan.
+    # Chi ap cho advise/knowledge (reject/clarify giu nguyen). Khong goi LLM.
+    try:
+        from ..config import Settings as _S
+        _route_min = _S().route_min_confidence
+    except Exception:
+        _route_min = 0.55
+    if (
+        decision.primary_intent in ("advise", "knowledge")
+        and decision.confidence < _route_min
+    ):
+        flags = list(getattr(decision, "route_flags", []) or [])
+        if "low_route_confidence" not in flags:
+            flags.append("low_route_confidence")
+        return RouteDecision(
+            primary_intent="clarify",
+            confidence=decision.confidence,
+            query_subject=decision.query_subject,
+            route_flags=flags,
+            detected_language=getattr(decision, "detected_language", "vi"),
+            reason_code="route_confidence_below_threshold",
         )
-        user_payload = json.dumps(
-            {"message": message, "context": {
-                "last_intent": signals.get("last_primary_intent", ""),
-                "has_clinical_facts": signals.get("has_clinical_facts", False),
-            }},
-            ensure_ascii=False,
-        )
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user_payload},
-            ],
-            "format": "json",
-            "options": {
-                "temperature": 0.0,
-                "num_ctx": self.num_ctx,
-                "num_predict": self.num_predict,
-            },
-            "stream": False,
-        }
-        response = self._client.post("/api/chat", json=payload)
-        response.raise_for_status()
-        content = (response.json().get("message") or {}).get("content") or ""
-        data = json.loads(content)
-        label = str(data.get("primary_intent") or "").strip()
-        if label not in {"advise", "knowledge", "clarify", "reject"}:
-            return None
-        scores = {
-            key: float(value)
-            for key, value in (data.get("scores") or {}).items()
-            if key in {"advise", "knowledge", "clarify", "reject"}
-        }
-        confidence = float(data.get("confidence", scores.get(label, 0.0)))
-        return ClassifierResult(
-            primary_intent=label,  # type: ignore[arg-type]
-            scores=scores,
-            confidence=max(0.0, min(1.0, confidence)),
-            is_ambiguous=bool(data.get("is_ambiguous", False)),
-            reason_code=str(data.get("reason_code") or "micro_model"),
-        )
-
-    def close(self) -> None:
-        self._client.close()
+    return decision

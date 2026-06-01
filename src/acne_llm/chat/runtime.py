@@ -148,6 +148,24 @@ def stream_chat_sse(
                     "rồi hỏi tự nhiên 1 câu bổ sung ở cuối nếu cần."
                 )
 
+        # -- 2b. Confidence hedging (BẰNG LỜI, không số) ----------------------
+        # Extract không bao giờ đúng 100% → nối hedging vào completeness_hint để
+        # model thận trọng đúng chỗ field conf thấp. Chỉ áp cho nhánh tư vấn
+        # (advise); knowledge/clarify/reject không cần.
+        _ec = getattr(intake, "extraction_confidence", None)
+        if _ec is not None and _primary_intent == "advise":
+            try:
+                from .extraction_confidence import build_confidence_hint
+                _min_conf = getattr(c.settings, "extract_min_field_conf", 0.60)
+                _conf_hint = build_confidence_hint(_ec, field_threshold=_min_conf)
+                if _conf_hint:
+                    completeness_hint = (
+                        f"{completeness_hint} {_conf_hint}".strip()
+                        if completeness_hint else _conf_hint
+                    )
+            except Exception:
+                pass  # hedging là tăng cường, không được làm vỡ luồng chính
+
         # -- 3. Retrieve ------------------------------------------------------
         clinical_plan = intake.clinical_plan
         rag_signal = intake.is_acne_signal or clinical_plan is not None or bool(intake.safety_terms)

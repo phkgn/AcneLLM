@@ -49,6 +49,41 @@ def _has_concrete_query_marker(query: str) -> bool:
     return any(marker in lowered for marker in _CONCRETE_QUERY_MARKERS)
 
 
+# Marker "on-topic acne" — rộng hơn _CONCRETE_QUERY_MARKERS (vốn chỉ là tên sản phẩm).
+# Dùng riêng cho vague-detection: một câu hỏi kiến thức rõ ràng về mụn (nhắc tới
+# mụn / vị trí / cơ chế / nguyên nhân) KHÔNG nên bị coi là "vague" chỉ vì không
+# nhắc tên sản phẩm cụ thể.
+_ACNE_TOPIC_MARKERS = (
+    # tổn thương / từ khoá mụn
+    "mụn", "mun", "trứng cá", "trung ca", "acne", "comedone", "comedo",
+    "sẩn", "san", "nang", "viêm", "viem", "thâm", "tham", "sẹo", "seo",
+    "đầu đen", "dau den", "đầu trắng", "dau trang", "nhân mụn", "nhan mun",
+    "papule", "pustule", "nodule", "cyst", "blackhead", "whitehead",
+    "lỗ chân lông", "lo chan long", "bã nhờn", "ba nhon", "tuyến bã", "tuyen ba",
+    # vị trí cơ thể
+    "mặt", "mat", "trán", "tran", "má", "cằm", "cam", "mũi", "mui",
+    "lưng", "lung", "ngực", "nguc", "vai", "cổ", "hàm", "ham",
+    # khái niệm / nguyên nhân / cơ chế (câu hỏi knowledge)
+    "nguyên nhân", "nguyen nhan", "cơ chế", "co che", "vì sao", "vi sao",
+    "tại sao", "tai sao", "nội tiết", "noi tiet", "hormone", "hormonal",
+    "vi khuẩn", "vi khuan", "dầu", "dau", "khác biệt", "khac biet",
+    "so sánh", "so sanh", "phân biệt", "phan biet", "loại mụn", "loai mun",
+    "điều trị", "dieu tri", "trị mụn", "tri mun", "phòng ngừa", "phong ngua",
+)
+
+
+def _is_acne_concrete_query(query: str) -> bool:
+    """True khi query là câu hỏi/mô tả on-topic về mụn (không mơ hồ).
+
+    Rộng hơn _has_concrete_query_marker: chấp nhận cả thuật ngữ mụn, vị trí cơ thể,
+    và từ khái niệm/nguyên nhân — để câu hỏi knowledge rõ ràng không bị gắn "vague".
+    """
+    lowered = query.lower()
+    if _has_concrete_query_marker(query):
+        return True
+    return any(marker in lowered for marker in _ACNE_TOPIC_MARKERS)
+
+
 def is_noisy_chunk(chunk: RetrievedChunk) -> bool:
     """Return True when a chunk is likely a Wikipedia meta-page or edit artefact."""
     meta = chunk.metadata or {}

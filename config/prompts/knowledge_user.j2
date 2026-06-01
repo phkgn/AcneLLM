@@ -5,6 +5,7 @@
 <conversation_history>
 {{ history_block }}
 </conversation_history>
+<history_note>Lịch sử chỉ để hiểu ngữ cảnh và đại từ. Hãy trả lời ĐÚNG `<question>` hiện tại. Nếu câu hỏi đã chuyển sang chủ đề khác với các lượt trước, KHÔNG lặp lại nội dung câu trả lời cũ.</history_note>
 {% endif %}
 
 {% if query_subject == "other" %}
@@ -30,9 +31,11 @@ Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt.
 {% if has_retrieved_context %}
 5. **Citation inline**: Đặt `[N]` ngay sau câu lấy từ nguồn đó.
 {% else %}
-5. **Nguồn**: Chưa có nguồn KB phù hợp trong lượt này; trả lời thận trọng và tránh khẳng định quá chắc.
+5. **Nguồn**: Chưa có nguồn KB phù hợp trong lượt này. Trả lời ở mức kiến thức chung và thận trọng. Nếu câu hỏi đòi hỏi dữ kiện cụ thể mà bạn không chắc (ví dụ một tình huống hiếm, một so sánh chuyên biệt), hãy nói thẳng là chưa có đủ dữ liệu chắc chắn thay vì suy đoán.
 {% endif %}
-6. **Disclaimer**: Chỉ thêm "thông tin tham khảo" một lần ở cuối, chỉ khi có hướng dẫn điều trị.
+6. **Không bịa nguồn**: KHÔNG dùng cấu trúc kiểu "một nghiên cứu cho thấy [kết luận/số liệu cụ thể]" trừ khi `<retrieved_context>` nêu đúng nghiên cứu đó. Nếu chỉ là phát biểu chung, hãy diễn đạt chung ("nhìn chung", "thường thì") và không gán cho một nghiên cứu cụ thể.
+7. **Khi bị hỏi nguồn**: Nếu người dùng hỏi "theo nghiên cứu nào / nguồn nào / dẫn chứng đâu" mà bạn không có nguồn cụ thể trong ngữ cảnh, hãy thừa nhận đó là nhận định chung chưa kèm trích dẫn cụ thể — KHÔNG bịa tên hay kết quả nghiên cứu.
+8. **Disclaimer**: Chỉ thêm "thông tin tham khảo" một lần ở cuối, chỉ khi có hướng dẫn điều trị.
 </task>
 
 {% if extended_rules %}

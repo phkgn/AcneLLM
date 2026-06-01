@@ -63,12 +63,11 @@ class ConversationTurn:
     used_chunks: list[str] = field(default_factory=list)
     normalized_snapshot: NormalizedSnapshot | None = None
     metadata: dict = field(default_factory=dict)
-    # ── Intent routing fields (task #6) ─────────────────────────────────────
+    # ── Intent routing fields ────────────────────────────────────────────────
     # Typed fields cho intent data — dễ query hơn metadata dict chung chung.
     intent_label: str = ""          # "advise" | "knowledge" | "clarify" | "reject" | ""
-    intent_confidence: float = 0.0  # 0.0 nếu classifier không chạy
+    intent_confidence: float = 0.0
     turn_type: str = ""             # "answer" | "clarify" | "reject" | "safety_clarify" | ...
-    classifier_used: bool = False   # True nếu micro-model được gọi
 
 
 @dataclass
@@ -190,8 +189,6 @@ class SessionStore:
                     turn.intent_confidence = float(turn.metadata.get("intent_confidence", 0.0))
                 if not turn.turn_type:
                     turn.turn_type = str(turn.metadata.get("turn_type", ""))
-                if not turn.classifier_used:
-                    turn.classifier_used = bool(turn.metadata.get("classifier_used", False))
 
             # Cập nhật session-level counters
             if turn.role == "user" and turn.intent_label:
@@ -536,6 +533,8 @@ def format_history_block(
     turns: list[ConversationTurn],
     char_budget: int = HISTORY_CHAR_BUDGET,
     first_turn_budget: int = FIRST_TURN_BUDGET,
+    keep_anchor: bool = True,
+    max_turns: int | None = None,
 ) -> str:
     """Render conversation history as a compact prompt block.
 
@@ -568,12 +567,17 @@ def format_history_block(
     if not filtered:
         return ""
 
-    def _fmt(turn: ConversationTurn, assistant_max: int = ASSISTANT_TURN_MAX) -> str:
+    def _fmt(turn: ConversationTurn) -> str:
         role_label = "User" if turn.role == "user" else "Assistant"
         content = turn.content.strip()
-        if turn.role == "assistant" and assistant_max > 0 and len(content) > assistant_max:
-            content = content[:assistant_max].rsplit(" ", 1)[0] + "..."
         return "[" + role_label + "]: " + content
+
+    # Knowledge/general flow: history hay kéo model về chủ đề cũ (anchor turn đầu
+    # ghim chủ đề mãi mãi). Khi keep_anchor=False, bỏ anchor và chỉ giữ vài lượt
+    # gần nhất để hỗ trợ đại từ/coreference, tránh "đè" câu hỏi mới.
+    if not keep_anchor:
+        tail = filtered[-max_turns:] if max_turns else filtered
+        return "\n".join(_fmt(t) for t in tail)
 
     if not char_budget or char_budget <= 0:
         return "\n".join(_fmt(t) for t in filtered)

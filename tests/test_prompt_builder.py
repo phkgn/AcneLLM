@@ -121,7 +121,7 @@ def test_prompt_builder_hybrid():
     user = UserInput(description="Em bị mụn ở cằm",
                      context=UserContext(age=22, skin_type="oily", is_pregnant=True),
                      clinical=AcneClinicalInput(
-                         lesion_types=["papule", "hidden_acne"],
+                         lesion_types=["papule", "closed_comedone"],
                          lesion_distribution=["chin"],
                          inflammation_level="moderate",
                      ))

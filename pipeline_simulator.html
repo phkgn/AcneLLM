@@ -455,9 +455,16 @@
     <textarea id="userInput" placeholder="Nhập câu hỏi của user...&#10;&#10;Ví dụ: Em 22 tuổi, đang mang thai 3 tháng, bị mụn viêm 2 năm ở cằm, định dùng tretinoin có sao không?"></textarea>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="runBtn">▶ Chạy pipeline</button>
+      <button class="btn btn-primary" id="runBtn">▶ Chạy mock</button>
       <button class="btn btn-secondary" id="stepBtn">⏭ Step</button>
       <button class="btn btn-danger" id="resetBtn">↺ Reset</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn btn-primary" id="liveBtn" style="background:linear-gradient(135deg,#c93b3b,#e25555)">🔴 Live (API thật)</button>
+    </div>
+    <div class="speed-row" style="margin-top:8px">
+      <span style="font-size:12px">API:</span>
+      <input id="apiBase" value="http://localhost:8000/api/v1" style="flex:1;font-family:var(--mono);font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px">
     </div>
 
     <div class="speed-row">
@@ -1383,9 +1390,136 @@ document.querySelectorAll('.sample-btn').forEach(btn => {
   });
 });
 
+// ============================================================
+// LIVE MODE — gọi /debug/trace thật, đổ output thật vào từng stage.
+// "Giống y chang" vì đây CHÍNH là output backend, không mô phỏng lại.
+// ============================================================
+function _kv(obj) {
+  if (obj == null) return '<span class="tag tag-yellow">null</span>';
+  return Object.entries(obj).map(([k, v]) => {
+    let val;
+    if (Array.isArray(v)) val = v.length ? v.map(escapeHtml).join(', ') : '∅';
+    else if (v === null || v === undefined) val = '∅';
+    else if (typeof v === 'object') val = escapeHtml(JSON.stringify(v));
+    else val = escapeHtml(String(v));
+    return `<div><span style="color:var(--muted)">${escapeHtml(k)}:</span> <b>${val}</b></div>`;
+  }).join('');
+}
+
+function _confBlock(cb) {
+  if (!cb) return '∅';
+  return Object.entries(cb).map(([field, fr]) => {
+    if (!fr) return '';
+    if (fr.items !== undefined) {  // ListFieldResult
+      if (!fr.items.length) return '';
+      const its = fr.items.map(it =>
+        `<span class="tag ${it.confidence >= 0.86 ? 'tag-green' : it.confidence >= 0.72 ? 'tag-yellow' : 'tag-red'}">${escapeHtml(it.value)} · ${it.confidence} · ${it.method}</span>`
+      ).join(' ');
+      return `<div style="margin:3px 0"><span style="color:var(--muted)">${field}:</span> ${its}</div>`;
+    }
+    if (fr.value == null) return '';
+    const c = fr.confidence;
+    return `<div style="margin:3px 0"><span style="color:var(--muted)">${field}:</span> <span class="tag ${c >= 0.86 ? 'tag-green' : c >= 0.72 ? 'tag-yellow' : 'tag-red'}">${escapeHtml(String(fr.value))} · ${c} · ${fr.method}</span></div>`;
+  }).join('');
+}
+
+async function runLiveTrace() {
+  if (running) return;
+  running = true;
+  resetAll();
+  const text = document.getElementById('userInput').value.trim();
+  if (!text) { alert('Vui lòng nhập câu hỏi!'); running = false; return; }
+  const base = document.getElementById('apiBase').value.replace(/\/$/, '');
+
+  // Stage 1 active ngay
+  setStatus(1, 'active', 'gọi API...');
+  let trace;
+  try {
+    const resp = await fetch(`${base}/debug/trace?message=${encodeURIComponent(text)}&mode=auto`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    trace = await resp.json();
+  } catch (e) {
+    setStatus(1, 'refused', 'lỗi');
+    renderBody(1, `<div class="io-box warn">Không gọi được API: ${escapeHtml(String(e.message))}<br><br>Đảm bảo backend đang chạy: <code>uvicorn ... :8000</code> và API base đúng.</div>`);
+    running = false;
+    return;
+  }
+
+  const d = getDelay;
+
+  // ① Preprocess
+  setStatus(1, 'active', 'running'); await sleep(d());
+  renderBody(1, `<div class="stage-section"><div class="stage-section-label">📥 Input</div><div class="io-box">${escapeHtml(trace.input.raw)}</div></div>
+    <div class="stage-section"><div class="stage-section-label">📤 clean_text / no_accent</div>
+    <div class="io-box success">${escapeHtml(trace.stage_1_preprocess.clean_text)}</div>
+    <div class="io-box" style="margin-top:4px">${escapeHtml(trace.stage_1_preprocess.clean_text_no_accent)}</div></div>
+    <div class="stage-section"><div class="stage-section-label">teencode</div>${(trace.stage_1_preprocess.teencode_replaced||[]).map(t=>`<span class="tag tag-blue">${escapeHtml(t)}</span>`).join(' ')||'∅'}</div>`);
+  setStatus(1, 'done', `${trace.stage_1_preprocess.clean_text.length} chars`);
+
+  // ② Normalize + ②b Confidence
+  setStatus(2, 'active', 'extract'); await sleep(d());
+  renderBody(2, `<div class="stage-section"><div class="stage-section-label">🔬 Fields (giá trị thật từ normalizer)</div><div class="io-box">${_kv(trace.stage_2_normalize)}</div></div>
+    <div class="stage-section"><div class="stage-section-label">📊 Confidence per-field (value · conf · method)</div><div class="io-box">${_confBlock(trace.stage_2b_confidence)||'∅'}</div></div>`);
+  setStatus(2, 'done', 'extracted');
+
+  // ③ Snapshot/fold (gộp — hiển thị note)
+  setStatus(3, 'done', 'n/a (1-turn)');
+  renderBody(3, `<div class="io-box">Trace 1-turn, không có history để fold. Fold facts hiển thị trong session thật.</div>`);
+
+  // ④ Guardrails
+  setStatus(4, 'active', 'check'); await sleep(d());
+  const g = trace.stage_3_guardrails;
+  setStatus(4, g.refused ? 'refused' : 'done', g.refused ? 'REFUSED' : g.scope_decision);
+  renderBody(4, `<div class="io-box ${g.refused ? 'warn' : 'success'}">${_kv(g)}</div>`);
+
+  // ⑤ Completeness + Planner
+  setStatus(5, 'active', 'check'); await sleep(d());
+  renderBody(5, `<div class="stage-section"><div class="stage-section-label">📋 Completeness</div><div class="io-box">${_kv(trace.stage_5_completeness)}</div></div>
+    <div class="stage-section"><div class="stage-section-label">🗺️ Clinical Plan</div><div class="io-box">${_kv(trace.stage_6_clinical_plan)}</div></div>
+    <div class="stage-section"><div class="stage-section-label">🧭 Route</div><div class="io-box">${_kv(trace.stage_4_route)}</div></div>`);
+  setStatus(5, 'done', trace.stage_5_completeness.kind || trace.stage_5_completeness.checked === false ? (trace.stage_5_completeness.kind||'skipped') : 'done');
+
+  // ⑥ Retrieve + ⑦ Rerank
+  const r = trace.stage_7_retrieve;
+  setStatus(6, 'active', 'retrieve'); await sleep(d());
+  if (r.ran) {
+    renderBody(6, `<div class="io-box success">${r.num_chunks} chunks (sau fusion + rerank, giống production)</div>
+      ${r.chunks.map((ch,i)=>`<div class="io-box" style="margin-top:4px"><b>#${i+1}</b> [${escapeHtml(ch.source||ch.source_type||'?')}] score=${(ch.score!=null?ch.score.toFixed(3):'?')}<br>${escapeHtml((ch.text||'').slice(0,180))}…</div>`).join('')}`);
+    setStatus(6, 'done', `${r.num_chunks} chunks`);
+    setStatus(7, 'done', 'reranked (trong retrieve)');
+    renderBody(7, `<div class="io-box">Rerank bge-reranker-v2-m3 đã chạy bên trong retrieve_for_chat — chunks ở trên là kết quả cuối sau rerank + filter.</div>`);
+  } else {
+    setStatus(6, 'warn', 'skipped'); setStatus(7, 'warn', 'skipped');
+    renderBody(6, `<div class="io-box warn">Retrieve KHÔNG chạy: ${escapeHtml(r.reason||'')}</div>`);
+    renderBody(7, `<div class="io-box empty">Bỏ qua (không có chunks)</div>`);
+  }
+
+  // ⑧ Prompt
+  setStatus(8, 'active', 'build'); await sleep(d());
+  const p = trace.stage_8_prompt;
+  if (p.built) {
+    renderBody(8, `<div class="stage-section"><div class="stage-section-label">📝 Template: ${escapeHtml(p.template)} · ${p.total_chars} chars (~${Math.round(p.approx_tokens)} tokens)</div></div>
+      <div class="stage-section"><div class="stage-section-label">SYSTEM</div><div class="io-box" style="max-height:200px;overflow:auto;white-space:pre-wrap">${escapeHtml(p.system)}</div></div>
+      <div class="stage-section"><div class="stage-section-label">USER MESSAGE (prompt thật gửi LLM)</div><div class="io-box" style="max-height:300px;overflow:auto;white-space:pre-wrap">${escapeHtml(p.user_message)}</div></div>`);
+    setStatus(8, 'done', `${p.total_chars} chars`);
+  } else {
+    renderBody(8, `<div class="io-box warn">Không build prompt: ${escapeHtml(p.reason||p.error||'')}${p.fixed_reply?`<br><br><b>Trả lời cố định:</b><br>${escapeHtml(p.fixed_reply)}`:''}</div>`);
+    setStatus(8, p.fixed_reply ? 'warn' : 'done', 'no prompt');
+  }
+
+  // ⑨ ⑩ — LLM thật không gọi trong trace (read-only)
+  setStatus(9, 'warn', 'không gọi (read-only)');
+  renderBody(9, `<div class="io-box">Trace dừng TRƯỚC khi gọi LLM (read-only). Prompt ở stage 8 là thứ sẽ được gửi nguyên văn cho Ollama. Để xem câu trả lời thật, dùng chat UI.</div>`);
+  setStatus(10, 'done', `${trace.elapsed_ms}ms`);
+  renderBody(10, `<div class="io-box success">Pipeline trace hoàn tất trong ${trace.elapsed_ms}ms (không tính LLM). effective_mode=<b>${escapeHtml(trace.effective_mode)}</b></div>`);
+
+  running = false;
+}
+
 document.getElementById('runBtn').addEventListener('click', runPipeline);
 document.getElementById('stepBtn').addEventListener('click', stepPipeline);
 document.getElementById('resetBtn').addEventListener('click', resetAll);
+document.getElementById('liveBtn').addEventListener('click', runLiveTrace);
 
 document.getElementById('speedRange').addEventListener('input', (e) => {
   document.getElementById('speedLabel').textContent = e.target.value + 'ms';

@@ -272,4 +272,4 @@ UserInput (description + context + clinical)
 | **Extended rules** | `system_extended.j2` chỉ inject vào **user message** (không phải system) khi có KB, tránh nhồi system prompt cho model 7B |
 | **Safety pass** | `retrieve_safety_pass()` boost thêm chunks liên quan safety terms (retinoid, pregnancy...) rồi merge RRF |
 | **Fallback** | Nếu parse JSON fail: `_safe_parse()` thử regex `\{.*\}`, nếu vẫn fail → trả `AdviseOutput(severity="unknown", confidence=0.1)` |
-| **LLM planner** | `use_llm_planner=True` → dùng LLM cho ClinicalQueryPlanner thay vì rule-based |
+| **LLM planner** | DEPRECATED — `use_llm_planner` no-op. ClinicalQueryPlanner là rule-based hoàn toàn, KHÔNG gọi LLM. LLM chỉ chạy ở generate cuối |

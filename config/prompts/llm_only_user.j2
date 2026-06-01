@@ -12,7 +12,7 @@
 {% endif %}</context>
 {% endif %}
 {% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}
-<clinical_summary>{{ normalized_case_plan }}</clinical_summary>
+<normalized_case_plan>{{ normalized_case_plan }}</normalized_case_plan>
 {% elif known_facts %}
 <known_facts>{{ known_facts }}</known_facts>
 {% endif %}

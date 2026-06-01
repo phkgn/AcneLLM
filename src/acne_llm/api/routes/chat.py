@@ -206,6 +206,197 @@ async def chat_stream(
     )
 
 
+@router.get("/debug/trace")
+async def debug_trace(
+    request: Request,
+    message: str,
+    session_id: str | None = None,
+    mode: str = "auto",
+):
+    """Trace ĐẦY ĐỦ từng stage của pipeline cho pipeline_simulator.html.
+
+    Tái dùng CHÍNH các lời gọi mà runtime/stream dùng (run_intake →
+    extract_with_confidence → retrieve_for_chat → c.prompt.build) nên kết quả
+    GIỐNG Y CHANG production, không phải mô phỏng lại. Read-only: KHÔNG ghi
+    session, KHÔNG gọi LLM (dừng ngay trước bước stream).
+    """
+    if not message or not message.strip():
+        raise HTTPException(status_code=400, detail="message is required")
+    if len(message) > MAX_MESSAGE_CHARS:
+        raise HTTPException(status_code=413, detail=f"message must be <= {MAX_MESSAGE_CHARS} chars")
+
+    c = request.app.state.container
+    from ...chat.preprocess import prepare_user_text
+    from ...chat.extraction_confidence import extract_with_confidence
+    from ...chat._retrieval import retrieve_for_chat, citation_data
+
+    t0 = time.perf_counter()
+
+    # ① Preprocess
+    prepared = prepare_user_text(message)
+
+    # ②–⑥ Intake (normalize, guardrails, route, fold, completeness, plan)
+    intake = run_intake(c, message, session_id=session_id, mode_request=mode)
+    user = intake.user
+    route = intake.route_decision
+    route_metadata = route.metadata() if route else {}
+
+    # Confidence per-field (kênh phụ — chính cái dùng ở completeness)
+    ec = extract_with_confidence(
+        message,
+        clean_text=prepared.clean_text,
+        clean_text_no_accent=prepared.clean_text_no_accent,
+    )
+
+    def _fr(fr) -> dict | None:
+        if fr is None:
+            return None
+        if hasattr(fr, "items"):  # ListFieldResult
+            return {
+                "values": fr.values,
+                "items": [
+                    {"value": it.value, "confidence": round(it.confidence, 3), "method": it.method}
+                    for it in fr.items
+                ],
+            }
+        return {"value": fr.value, "confidence": round(fr.confidence, 3), "method": fr.method}
+
+    confidence_block = {
+        name: _fr(getattr(ec, name))
+        for name in (
+            "skin_type", "sex", "age", "duration_weeks", "inflammation",
+            "lesion_types", "distribution", "products", "medications", "red_flags",
+        )
+    }
+
+    cl = user.clinical
+    trace: dict = {
+        "input": {"raw": message, "chars": len(message)},
+        "stage_1_preprocess": {
+            "clean_text": prepared.clean_text,
+            "clean_text_no_accent": prepared.clean_text_no_accent,
+            "teencode_replaced": prepared.teencode_replaced,
+        },
+        "stage_2_normalize": {
+            "age": user.context.age,
+            "sex": user.context.sex,
+            "skin_type": user.context.skin_type,
+            "is_pregnant": user.context.is_pregnant,
+            "is_breastfeeding": user.context.is_breastfeeding,
+            "current_products": user.context.current_products,
+            "medications": user.context.medications,
+            "duration_weeks": user.context.duration_weeks,
+            "lesion_types": (cl.lesion_types if cl else []),
+            "lesion_distribution": (cl.lesion_distribution if cl else []),
+            "inflammation_level": (cl.inflammation_level if cl else None),
+            "red_flags_input": (cl.red_flags_input if cl else []),
+            "hormonal_factors": (cl.hormonal_factors if cl else []),
+            "treatment_goals": (cl.treatment_goals if cl else []),
+        },
+        "stage_2b_confidence": confidence_block,
+        "stage_3_guardrails": {
+            "scope_decision": intake.scope_decision,
+            "pii_detected": intake.pii_detected,
+            "safety_terms": intake.safety_terms,
+            "refused": intake.scope_refusal is not None,
+        },
+        "stage_4_route": {
+            "primary_intent": route_metadata.get("primary_intent"),
+            "query_subject": route_metadata.get("query_subject"),
+            "confidence": route_metadata.get("intent_confidence"),
+            "route_flags": route_metadata.get("route_flags", []),
+            "reason_code": getattr(route, "reason_code", None),
+        },
+        "stage_5_completeness": (
+            {
+                "kind": intake.completeness.kind,
+                "level": intake.completeness.level,
+                "missing_fields": intake.completeness.missing_fields,
+                "question": intake.completeness.followup_question,
+                "checked": True,
+            }
+            if intake.completeness is not None
+            else {"checked": False, "reason": "skipped (knowledge/clarify/reject hoặc không acne-scope)"}
+        ),
+        "stage_6_clinical_plan": (
+            {
+                "built": True,
+                "query_vi": getattr(getattr(intake.clinical_plan, "rag_queries", None), "query_vi", None),
+                "detected_language": getattr(intake.clinical_plan, "detected_language", None),
+            }
+            if intake.clinical_plan is not None
+            else {"built": False}
+        ),
+        "effective_mode": intake.effective_mode,
+    }
+
+    # Nếu reject/clarify → dừng, trả thẳng (giống runtime không retrieve/không prompt)
+    _intent = route_metadata.get("primary_intent")
+    if intake.scope_refusal is not None or intake.effective_mode in ("refuse", "clarify"):
+        trace["stage_7_retrieve"] = {"ran": False, "reason": f"effective_mode={intake.effective_mode}"}
+        trace["stage_8_prompt"] = {
+            "built": False,
+            "reason": "reject/clarify → trả lời cố định, không build prompt tư vấn",
+            "fixed_reply": (intake.scope_refusal.disclaimer if intake.scope_refusal
+                            else (intake.completeness.followup_question if intake.completeness else "")),
+        }
+        trace["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
+        return trace
+
+    # ⑦ Retrieve (chỉ khi hybrid + acne signal, GIỐNG runtime)
+    clinical_plan = intake.clinical_plan
+    rag_signal = intake.is_acne_signal or clinical_plan is not None or bool(intake.safety_terms)
+    retrieval = None
+    if intake.effective_mode == "hybrid" and rag_signal and _intent not in {"clarify", "reject"}:
+        retrieval = await asyncio.to_thread(
+            retrieve_for_chat,
+            c, user, clinical_plan,
+            route_flags=(route.route_flags if route else []),
+            normalized_query=intake.normalized_query,
+            safety_terms=intake.safety_terms,
+        )
+    trace["stage_7_retrieve"] = {
+        "ran": retrieval is not None,
+        "num_chunks": len(retrieval.chunks) if retrieval else 0,
+        "chunks": [citation_data(ch) for ch in (retrieval.chunks if retrieval else [])],
+    }
+
+    # ⑧ Build prompt — TÁI DÙNG c.prompt.build y như runtime
+    if _intent == "clarify":
+        _template = "clarify_user.j2"
+    elif _intent == "knowledge":
+        _template = "knowledge_user.j2"
+    else:
+        _template = "stream_user.j2"
+    try:
+        system, user_message = c.prompt.build(
+            user=user,
+            retrieval=retrieval,
+            template=_template,
+            detected_language=(clinical_plan.detected_language if clinical_plan else "unknown"),
+            query_vi=(clinical_plan.rag_queries.query_vi if clinical_plan else intake.normalized_query),
+            max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
+            clinical_plan=clinical_plan,
+            history=intake.history,
+            route_metadata=route_metadata,
+            system_override=c.prompt.system_stream(),
+            completeness_hint=None,
+        )
+        trace["stage_8_prompt"] = {
+            "built": True,
+            "template": _template,
+            "system": system,
+            "user_message": user_message,
+            "total_chars": len(system) + len(user_message),
+            "approx_tokens": (len(system) + len(user_message)) // 3.5,
+        }
+    except Exception as e:
+        trace["stage_8_prompt"] = {"built": False, "error": str(e), "template": _template}
+
+    trace["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
+    return trace
+
+
 def _parse_sse_frame(frame: str) -> dict | None:
     """Parse SSE frame string thanh dict. Tra None neu khong hop le."""
     line = next(

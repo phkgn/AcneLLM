@@ -25,7 +25,7 @@ from ..schemas.clinical import (
     NormalizedAcneCase,
 )
 from ..utils.retrieval_query import build_retrieval_query
-from .query_expander import detect_language_heuristic
+from .language import detect_language_heuristic
 
 
 # ── Bilingual inline mappings ────────────────────────────────────────────────
@@ -125,7 +125,6 @@ def _map_lesion(value: str) -> str | None:
         "whitehead": "whitehead",
         "blackhead": "blackhead",
         "closed_comedone": "closed_comedone",
-        "hidden_acne": "closed_comedone",
         "papule": "papule",
         "pustule": "pustule",
         "nodule": "nodule",

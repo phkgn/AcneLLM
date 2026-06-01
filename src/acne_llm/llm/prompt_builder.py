@@ -206,7 +206,6 @@ class PromptBuilder:
         "whitehead":      "mụn đầu trắng",
         "comedone":       "mụn nhân/mụn cám",
         "closed_comedone":"mụn đầu trắng/mụn ẩn",
-        "hidden_acne":    "mụn ẩn dưới da",
         "papule":         "mụn viêm đỏ (sẩn viêm)",
         "pustule":        "mụn mủ",
         "nodule":         "mụn bọc cứng",
@@ -443,7 +442,15 @@ class PromptBuilder:
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
         safe_qv = _escape_jinja(query_vi)
         safe_context = _escape_jinja(self._context_block(retrieval, max_chars=max_context_chars))
-        safe_history = _escape_jinja(format_history_block(sanitize_history_turns(history or [])))
+        # Knowledge intent: bỏ anchor turn-đầu + giới hạn lượt gần nhất để history
+        # không "đè" câu hỏi hiện tại (model nhỏ hay parrot chủ đề cũ). Luồng clinical
+        # (advise/stream) giữ anchor để duy trì ngữ cảnh ca bệnh.
+        _is_knowledge = template == "knowledge_user.j2"
+        safe_history = _escape_jinja(format_history_block(
+            sanitize_history_turns(history or []),
+            keep_anchor=not _is_knowledge,
+            max_turns=2 if _is_knowledge else None,
+        ))
         safe_known_facts = _escape_jinja(self._known_facts_summary(user))
         safe_clinical_plan = _escape_jinja(self._clinical_plan_summary(clinical_plan))
         # Route guidance: chỉ truyền những instruction ngắn, không dump metadata nội bộ

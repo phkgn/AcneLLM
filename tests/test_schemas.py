@@ -21,7 +21,7 @@ def test_user_input_clinical_optional_full():
     u = UserInput(
         description="Em bị mụn viêm ở cằm",
         clinical=AcneClinicalInput(
-            lesion_types=["whitehead", "papule", "pustule", "hidden_acne"],
+            lesion_types=["whitehead", "papule", "pustule", "closed_comedone"],
             lesion_distribution=["chin", "cheeks"],
             inflammation_level="moderate",
             scarring_signs=["dark_marks"],

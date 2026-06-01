@@ -30,7 +30,8 @@ class UserContext(BaseModel):
     model_config = ConfigDict(extra="forbid")
     age: Optional[int] = Field(default=None, ge=0, le=120)
     sex: Optional[Literal["male", "female", "other"]] = None
-    skin_type: Optional[Literal["dry", "oily", "combination", "sensitive", "normal"]] = None
+    # Note: "unknown" được thêm để match với NormalizedAcneCase và extraction_confidence
+    skin_type: Optional[Literal["dry", "oily", "combination", "sensitive", "normal", "unknown"]] = None
     is_pregnant: bool = False
     is_breastfeeding: bool = False
     allergies: list[str] = Field(default_factory=list)
@@ -45,6 +46,7 @@ class AcneClinicalInput(BaseModel):
     """
     model_config = ConfigDict(extra="forbid")
     lesion_types: list[Literal[
+        "comedone",
         "whitehead",
         "blackhead",
         "closed_comedone",
@@ -52,11 +54,13 @@ class AcneClinicalInput(BaseModel):
         "pustule",
         "nodule",
         "cyst",
-        "hidden_acne",
         "scar",
         "post_inflammatory_hyperpigmentation",
         "other",
     ]] = Field(default_factory=list)
+    inflammation_level: Literal[
+        "none", "mild", "moderate", "severe", "unknown",
+    ] = "unknown"
     lesion_distribution: list[Literal[
         "forehead",
         "cheeks",
@@ -71,9 +75,6 @@ class AcneClinicalInput(BaseModel):
         "t_zone",
         "other",
     ]] = Field(default_factory=list)
-    inflammation_level: Optional[Literal[
-        "none", "mild", "moderate", "severe", "unknown",
-    ]] = None
     scarring_signs: list[str] = Field(default_factory=list)
     medication_history: list[str] = Field(default_factory=list)
     hormonal_factors: list[str] = Field(default_factory=list)

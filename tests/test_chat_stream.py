@@ -10,7 +10,6 @@ from acne_llm.db.jsonl_session_store import JsonlSessionStore
 from acne_llm.llm.clinical_planner import ClinicalQueryPlanner
 from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
-from acne_llm.chat.intent_router import ClassifierResult
 
 
 class _MockLLM:
@@ -104,20 +103,8 @@ class _MockContainer:
             chat_retrieve_top_k=8,
             chat_rerank_top_k=3,
             chat_min_citation_score=0.12,
-            chat_use_llm_planner=False,
-            intent_router_enabled=False,
             intent_router_min_confidence=0.80,
             intent_router_tie_margin=0.10,
-        )
-
-
-class _ClarifyClassifier:
-    def classify(self, message, signals):
-        return ClassifierResult(
-            primary_intent="clarify",
-            scores={"clarify": 0.95, "advise": 0.04},
-            confidence=0.95,
-            reason_code="micro_clarify",
         )
 
 
@@ -242,7 +229,6 @@ def test_stream_endpoint_calls_plan_once():
 
     container = _MockContainer()
     container.clinical_planner = planner
-    container.settings.chat_use_llm_planner = True
     app = FastAPI()
     app.state.container = container
     app.include_router(chat.router, prefix="/api/v1")
@@ -412,24 +398,22 @@ def test_stream_endpoint_other_subject_metadata_has_no_snapshot():
         store.delete(session_id)
 
 
-def test_stream_endpoint_persists_self_clarify_snapshot_and_assistant_mode():
+def test_stream_endpoint_persists_self_snapshot_when_safety_clarify_is_overridden():
     session_id = "test-stream-self-clarify-memory"
     store = get_session_store()
     store.delete(session_id)
     container = _MockContainer()
-    container.intent_classifier = _ClarifyClassifier()
-    container.settings.intent_router_enabled = True
     c = TestClient(_app(container))
 
     try:
         r = c.get(
             "/api/v1/chat/stream",
-            params={"message": "tôi 22 tuổi bị mụn", "session_id": session_id},
+            params={"message": "tôi không muốn sống nữa vì mụn viêm ở cằm", "session_id": session_id},
         )
 
         assert r.status_code == 200
         history = store.get_history(session_id)
         assert history[0].normalized_snapshot is not None
-        assert history[1].mode == "clarify"
+        assert history[1].mode == "llm_only"
     finally:
         store.delete(session_id)

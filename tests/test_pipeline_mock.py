@@ -62,7 +62,7 @@ def test_hybrid_pipeline_end_to_end_with_mocks():
     user = UserInput(description="Em bi mun o cam",
                      context=UserContext(age=22, skin_type="oily"),
                      clinical=AcneClinicalInput(
-                         lesion_types=["papule", "hidden_acne"],
+                         lesion_types=["papule", "closed_comedone"],
                          lesion_distribution=["chin"],
                      ))
     out = pipe.run(user)

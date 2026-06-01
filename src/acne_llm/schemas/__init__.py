@@ -9,6 +9,7 @@ from .clinical import (
     ClinicalRagQueries, ClinicalQueryPlan,
 )
 from .kb import SourceMeta, DocumentRaw, KBChunk, EntityRecord
+from .extraction import FieldResult, ListFieldResult, Method, clamp01
 
 __all__ = [
     "VisionLesion", "VisionOutput",
@@ -18,4 +19,5 @@ __all__ = [
     "ClinicalDemographics", "NormalizedAcneCase",
     "ClinicalRagQueries", "ClinicalQueryPlan",
     "SourceMeta", "DocumentRaw", "KBChunk", "EntityRecord",
+    "FieldResult", "ListFieldResult", "Method", "clamp01",
 ]

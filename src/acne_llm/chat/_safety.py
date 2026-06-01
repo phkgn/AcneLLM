@@ -240,12 +240,20 @@ def get_safety_suffix(
         ):
             warnings.append(warning)
 
-    # Urgency red flag: prompt to seek care
-    if "urgency_red_flag" in route_flags:
+    # Urgency red flag: prompt to seek care.
+    # Siết độ nhạy: chỉ bật 🚨 khi có red flag CẤP TÍNH thật sự (nhiễm trùng,
+    # mủ, đau, lan rộng) — KHÔNG bật cho cờ mạn tính/nhẹ như treatment_failure
+    # hay scarring_risk (tránh cảnh báo khẩn cấp lạm phát).
+    _EMERGENCY_FLAGS = {"infection_signs", "purulent_lesions", "painful_lesions", "widespread"}
+    _rf = set(getattr(user.clinical, "red_flags_input", []) or []) if user.clinical else set()
+    if "urgency_red_flag" in route_flags and (_rf & _EMERGENCY_FLAGS):
         if not _already_has_warning(
             full_text,
             ("đi khám ngay", "gặp bác sĩ ngay", "cấp cứu", "khám ngay",
-             "di kham ngay", "gap bac si ngay"),
+             "di kham ngay", "gap bac si ngay",
+             "đi khám", "di kham", "bác sĩ da liễu", "bac si da lieu",
+             "gặp bác sĩ", "gap bac si", "khám bác sĩ", "kham bac si",
+             "cơ sở y tế", "co so y te"),
         ):
             warnings.append(
                 "\n\n\U0001f6a8 Nếu tình trạng có dấu hiệu nghiêm trọng (sưng tấy lan rộng, "

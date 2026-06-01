@@ -41,7 +41,8 @@ class Settings(BaseSettings):
     ollama_generate_timeout: float = 30.0
     # Khi True: không gửi system message qua API — để Modelfile SYSTEM tự xử lý.
     # Bật khi model đã fine-tune với system prompt nhúng sẵn, tránh 2 system prompt chồng.
-    llm_use_modelfile_system: bool = False
+    # Default True: model production acnellm-v2-q4 đã nhúng SYSTEM trong Modelfile.
+    llm_use_modelfile_system: bool = True
 
     @field_validator("llm_num_ctx")
     @classmethod
@@ -120,37 +121,57 @@ class Settings(BaseSettings):
     guardrails_scope_mode: str = "soft"
 
     # ── Retrieval ────────────────────────────────────────────────────────────
-    # Pool trước rerank (giảm từ 20→15 sau khi có distance filter + fusion pruning)
-    retrieve_top_k: int = 15
+    # Default = giá trị production đang chạy (tune xuống để giảm latency).
+    # Pool trước rerank. (Lịch sử: 20→15→6; 6 là giá trị vận hành thực tế.)
+    retrieve_top_k: int = 6
     # Giữ lại sau cross-encoder rerank
-    rerank_top_k: int = 5
+    rerank_top_k: int = 3
     # Chat dùng pool nhỏ hơn vì latency quan trọng hơn
-    # 15 để reranker có đủ candidates — pool 10 sau fusion prune thường còn ~6, quá ít.
-    chat_retrieve_top_k: int = 15
+    chat_retrieve_top_k: int = 6
     chat_rerank_top_k: int = 3
     # Khi có clinical_plan đầy đủ: giữ nhiều chunk hơn để LLM có đủ context
     chat_rerank_top_k_clinical: int = 5
+    # ── Retrieval source boost (tune riêng) ───────────────────────────
+    # Dùng trong rag/retriever.py thay vì hardcode
+    retrieval_source_boosts: dict = {
+        "nice_guideline": 1.50,
+        "aad_guideline": 1.50,
+        "jid_paper": 1.30,
+        "pubmed_review": 1.20,
+        "clinical_textbook": 1.20,
+        "vi_medical_site": 1.00,
+        "forum_post": 0.80,
+        "blog": 0.70,
+        "unknown": 1.00,
+    }
+    retrieval_trust_boosts: dict = {"high": 1.40, "medium": 1.00, "low": 0.70}
+    retrieval_authority_boost: float = 1.15
+
+
     # Tổng ký tự context inject vào prompt chat
-    chat_max_context_chars: int = 4500
+    chat_max_context_chars: int = 6000
     # Sigmoid score tối thiểu để chunk xuất hiện trong citation (khớp reranker threshold)
     chat_min_citation_score: float = 0.25
     # Pool safety pass (thai kỳ, thuốc kê đơn) — ưu tiên guideline source_types
     chat_safety_top_k: int = 5
-    # OOD guard: nếu avg và max sigmoid sau rerank đều < floor → bỏ chunks, trả None.
-    # 0.45 = gần random (sigmoid(0) = 0.5), nghĩa là reranker không tin chunk nào liên quan.
-    chat_rerank_ood_floor: float = 0.45
-
-    # ── Intent router / optional micro-classifier ────────────────────────────
-    # OFF by default: rule-based routing remains the production path unless the
-    # operator explicitly enables the small classifier for ambiguous cases.
-    intent_router_enabled: bool = False
-    intent_router_model: str = "qwen2.5:0.5b"
-    intent_router_min_confidence: float = 0.80
-    intent_router_tie_margin: float = 0.10
-    intent_router_timeout_seconds: float = 15.0
-    intent_router_num_ctx: int = 1024
-    intent_router_num_predict: int = 128
-
+    # OOD guard: nếu avg VÀ max sigmoid sau rerank đều < floor → bỏ chunks, trả None.
+    # QUAN TRỌNG: sigmoid(0)=0.50 là mức "ngẫu nhiên" (reranker không thấy liên quan).
+    # Floor PHẢI > 0.50 mới phân biệt được chunk rác (~0.50) với chunk tốt (~0.65+).
+    # 0.52 = chặn được retrieval rỗng nghĩa nhưng vẫn giữ chunk thật sự liên quan.
+    # (Trước đây 0.45 < 0.50 nên guard không bao giờ kích hoạt — dead code.)
+    chat_rerank_ood_floor: float = 0.52
+    # Ngưỡng MỀM per-chunk: thay vì drop sạch khi cả pool yếu, giữ riêng những
+    # chunk vượt keep_floor (cứu chunk liên quan nhưng reranker chấm thấp, ví dụ
+    # tiếng Việt domain hẹp ~0.515), chỉ drop hết khi KHÔNG chunk nào vượt.
+    chat_rerank_keep_floor: float = 0.515
+    # ── Extraction confidence (rule-based intake) ────────────────────────────
+    # Ngưỡng cho tầng confidence bọc quanh normalizer (extraction_confidence.py).
+    # Heuristic khởi điểm; golden set (scripts/tune_extraction_thresholds.py) dò lại.
+    extract_fuzzy_accept: float = 0.86   # similarity ≥ → nhận chắc (method=fuzzy)
+    extract_fuzzy_review: float = 0.72   # review ≤ sim < accept → giữ low-confidence
+    extract_min_field_conf: float = 0.60  # completeness coi field "đã có" khi ≥ ngưỡng
+    extract_safety_accept: float = 0.78  # red_flags/allergies hạ ngưỡng (ưu tiên recall)
+    route_min_confidence: float = 0.55   # routing dưới ngưỡng → clarify thay vì đoán
     # ── Reranker tuning ──────────────────────────────────────────────────────
     reranker_batch_size: int = 16
     reranker_cache_size: int = 2048
@@ -161,10 +182,7 @@ class Settings(BaseSettings):
     # Cosine distance threshold Chroma: 0.60 ≈ similarity 0.40, đủ chặt cho medical
     dense_max_distance: float = 0.60
     bm25_normalize: bool = True
-    # Deprecated — giữ để .env cũ không vỡ
-    enable_bilingual_query: bool = False
     english_input_notice: bool = True
-    query_expansion_temperature: float = 0.1
 
     # ── Cache (DiskCache) ────────────────────────────────────────────────────
     # Thu muc luu cache tren disk (embedding vectors + retrieval results)
@@ -204,14 +222,10 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 60
     metrics_enabled: bool = True
 
-    # ── Crawler ──────────────────────────────────────────────────────────────
-    user_agent: str = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    )
+    # ── Crawler ────────────────────────────────────────────────────────────────
     crawl_concurrency: int = 8
     crawl_rate_per_sec: float = 1.0
 
 
+# Singleton instance — import sẵn để dùng khắp codebase: `from acne_llm.config import settings`
 settings = Settings()

@@ -124,7 +124,7 @@ User message
   │  advise + self:
   │    ├── fold_history_facts(history)
   │    ├── check_completeness()
-  │    ├── ClinicalQueryPlanner (nếu CHAT_USE_LLM_PLANNER=true)
+  │    ├── ClinicalQueryPlanner (RULE-BASED — dựng query RAG, KHÔNG gọi LLM)
   │    ├── retrieve_for_chat() → HybridRetriever
   │    └── stream → stream_user.j2
   │
@@ -216,7 +216,7 @@ Thứ tự: `ollama` → `ollama-init` (load gguf từ `model/V2/Q4/` hoặc pul
 | `INTENT_ROUTER_MODEL` | `qwen2.5:0.5b` | Micro-classifier |
 | `EMBEDDING_MODEL` | `AITeamVN/Vietnamese_Embedding` | |
 | `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` | |
-| `CHAT_USE_LLM_PLANNER` | `false` | Bật để dùng ClinicalQueryPlanner |
+| `CHAT_USE_LLM_PLANNER` | `true` | DEPRECATED — không còn tác dụng; planner là rule-based |
 | `DEEPSEEK_API_KEY` | — | Chỉ dùng cho eval/dataset gen |
 | `OPENAI_API_KEY` | — | Chỉ dùng cho LLM judge |
 

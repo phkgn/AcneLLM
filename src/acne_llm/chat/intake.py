@@ -17,6 +17,7 @@ from ..schemas.clinical import ClinicalQueryPlan
 from .completeness import CompletenessResult, check_completeness
 from .intent_router import RouteDecision, route_intent
 from .normalizer import normalize_chat_message
+from .extraction_confidence import extract_with_confidence, ExtractionConfidence
 from .preprocess import prepare_user_text
 from .session import (
     ConversationTurn,
@@ -69,6 +70,7 @@ class IntakeResult:
     extracted_entities: dict = field(default_factory=dict)
     pii_detected: bool = False
     teencode_replaced: list[str] = field(default_factory=list)
+    extraction_confidence: ExtractionConfidence | None = None  # Kênh phụ cho prompt hedging
 
     @property
     def is_acne_signal(self) -> bool:
@@ -346,6 +348,11 @@ def run_intake(
         clean_text=clean_text,
         clean_text_no_accent=clean_text_no_accent,
     )
+    _extraction_conf = extract_with_confidence(
+        raw_message,
+        clean_text=clean_text,
+        clean_text_no_accent=clean_text_no_accent,
+    )
     safety_terms = _extract_safety_terms(clean_text, base_user)
     turn_snapshot = snapshot_from_user(base_user, clean_text=clean_text)
 
@@ -577,7 +584,6 @@ def run_intake(
         base_user,
         history,
         settings=getattr(c, "settings", None),
-        classifier=getattr(c, "intent_classifier", None),
         current_clinical=current_clinical,
     )
     if mixed_genital_scope:
@@ -669,7 +675,7 @@ def run_intake(
     # Lay asked_fields tu session de completeness checker khong hoi lai
     asked_fields = store.get_asked_fields(session_id)
     completeness = (
-        check_completeness(user, history=history, asked_fields=asked_fields)
+        check_completeness(user, history=history, asked_fields=asked_fields, confidence=_extraction_conf)
         if should_fold_clinical and _should_check_completeness(clean_text, user, history, route_decision)
         else None
     )
@@ -762,4 +768,5 @@ def run_intake(
         extracted_entities=extracted_entities,
         pii_detected=contains_pii(clean_text),
         teencode_replaced=prepared.teencode_replaced,
+        extraction_confidence=_extraction_conf,
     )
