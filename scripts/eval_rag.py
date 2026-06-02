@@ -50,6 +50,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -1017,20 +1018,88 @@ def run_eval(args: argparse.Namespace) -> bool:
 _JUDGE_FIELDS = ("accuracy", "safety", "completeness", "tone")
 
 
+def _api_url(api_url: str, path: str) -> str:
+    base = api_url.rstrip("/")
+    if base.endswith("/api/v1"):
+        return base + path
+    return base + "/api/v1" + path
+
+
+def _parse_sse_chat(raw: str) -> dict:
+    events: list[dict] = []
+    tokens: list[str] = []
+    citations: list[dict] = []
+    done: dict = {}
+    errors: list[str] = []
+
+    for block in raw.split("\n\n"):
+        data_lines = [
+            line.removeprefix("data:").strip()
+            for line in block.splitlines()
+            if line.startswith("data:")
+        ]
+        if not data_lines:
+            continue
+        try:
+            event = json.loads("\n".join(data_lines))
+        except json.JSONDecodeError:
+            continue
+        events.append(event)
+
+        name = event.get("event")
+        data = event.get("data")
+        if name == "token":
+            tokens.append(str(data))
+        elif name == "citation" and isinstance(data, dict):
+            citations.append(data)
+        elif name == "done" and isinstance(data, dict):
+            done = data
+        elif name == "error":
+            errors.append(str(data))
+
+    answer = "".join(tokens).strip()
+    used_chunks = done.get("used_chunks") or []
+    if not used_chunks:
+        used_chunks = [
+            str(c.get("chunk_id") or c.get("id") or "")
+            for c in citations
+            if c.get("chunk_id") or c.get("id")
+        ]
+
+    return {
+        "answer": answer,
+        "used_chunks": used_chunks,
+        "mode": done.get("mode", ""),
+        "latency_ms": done.get("latency_ms", 0),
+        "session_id": done.get("session_id"),
+        "evidence_quality": done.get("evidence_quality"),
+        "primary_intent": done.get("primary_intent"),
+        "query_subject": done.get("query_subject"),
+        "route_flags": done.get("route_flags", []),
+        "citations": citations,
+        "errors": errors,
+        "raw_events": events,
+    }
+
+
 def _post_chat_api(api_url: str, query: str, chat_mode: str, timeout: int) -> dict:
-    payload = json.dumps({
+    params = urllib.parse.urlencode({
         "message": query,
         "mode": chat_mode,
-    }).encode("utf-8")
+    })
     req = urllib.request.Request(
-        api_url.rstrip("/") + "/chat",
-        data=payload,
-        headers={"Content-Type": "application/json"},
-        method="POST",
+        _api_url(api_url, "/chat/stream") + "?" + params,
+        headers={"Accept": "text/event-stream"},
+        method="GET",
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+            payload = _parse_sse_chat(resp.read().decode("utf-8"))
+            if payload["errors"]:
+                raise RuntimeError("; ".join(payload["errors"]))
+            if not payload["answer"] and payload.get("mode") != "refuse":
+                raise RuntimeError("empty chat stream response")
+            return payload
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"HTTP {exc.code}: {detail}") from exc
@@ -1435,7 +1504,7 @@ def _parse_args() -> argparse.Namespace:
         help="Backend API base URL for --mode e2e",
     )
     parser.add_argument(
-        "--chat-mode", choices=["auto", "hybrid", "llm_only"], default="hybrid",
+        "--chat-mode", choices=["auto", "hybrid", "llm_only"], default="auto",
         help="Chat generation mode sent to backend for --mode e2e",
     )
     parser.add_argument(

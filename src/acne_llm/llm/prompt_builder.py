@@ -68,6 +68,31 @@ def sanitize_history_turns(history: list[ConversationTurn]) -> list[Conversation
     ]
 
 
+def _sanitize_user_description(text: str) -> str:
+    """Neutralize injection markers trong user-supplied text trước khi inject vào prompt.
+
+    Khác _sanitize_chunk_text:
+    - Không strip HTML (user text không có HTML từ crawler).
+    - Không collapse whitespace mạnh (giữ định dạng user gõ).
+    - Chỉ: neutralize injection markers + bỏ control chars nguy hiểm.
+
+    Lý do cần riêng: guardrails.pre_check() chạy trên raw text trước preprocess,
+    nhưng prompt nhận preprocessed text — có window nhỏ để bypass nếu teencode/
+    unicode variant được normalize thành injection phrase sau preprocess.
+    """
+    if not text:
+        return ""
+    # Bỏ control characters (ngoài newline, tab)
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
+    # Neutralize injection markers (case-insensitive)
+    lower = text.lower()
+    for marker in _INJECTION_MARKERS:
+        if marker in lower:
+            text = re.sub(re.escape(marker), "[nội dung đã lọc]", text, flags=re.IGNORECASE)
+            lower = text.lower()  # re-check sau mỗi substitution
+    return text
+
+
 def _route_guidance(route_metadata: dict | None) -> str:
     """Trả về hướng dẫn ngắn gọn từ route flags — không expose metadata nội bộ.
 
@@ -436,7 +461,7 @@ class PromptBuilder:
         # Extended rules chỉ inject khi hybrid và thực sự có KB chunks
         has_kb = retrieval is not None and bool(retrieval.chunks)
         extended = self._extended_rules() if has_kb else ""
-        safe_description = _escape_jinja(user.description)
+        safe_description = _escape_jinja(_sanitize_user_description(user.description))
         safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
         safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
