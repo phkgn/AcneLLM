@@ -1,4 +1,4 @@
-."""Build Knowledge Base pipeline.
+"""Build Knowledge Base pipeline.
 
 3 bước độc lập, có thể resume từng bước:
   Step 1: chunk  -- documents.jsonl -> chunks.jsonl
