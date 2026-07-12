@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     llm_model: str = "acnellm-v2-q4"
     llm_fallback_model: str = "qwen2.5:3b"
     # num_ctx: window context. Giảm = tiết kiệm VRAM cho KV-cache, fit model GPU.
-    llm_num_ctx: int = 4096
+    llm_num_ctx: int = 3072 #4096
     llm_num_predict: int = 1200
     llm_temperature: float = 0.35
     llm_top_p: float = 0.85
@@ -81,7 +81,7 @@ class Settings(BaseSettings):
     # device cho embedder + reranker. "cuda" để dùng GPU (cần PyTorch+CUDA build).
     # "cpu" nếu không có GPU hoặc VRAM đã đầy bởi LLM.
     # Lưu ý: "gpu" không phải giá trị PyTorch chuẩn — validator sẽ map → "cuda".
-    device: str = "cuda"
+    device: str = "cpu"
 
     @field_validator("device")
     @classmethod

@@ -231,7 +231,7 @@ def test_prompt_builder_includes_other_subject_note():
         route_metadata={"primary_intent": "advise", "query_subject": "other"},
     )
 
-    assert "<subject_note>" in usr_p
+    assert "Lưu ý đối tượng" in usr_p
     assert "người khác" in usr_p
 
 

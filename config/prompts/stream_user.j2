@@ -1,57 +1,51 @@
-<user_data>
-<description>{{ description }}</description>
+[CÂU HỎI CỦA NGƯỜI DÙNG]
+{{ description }}
 
-{% if age is not none or (sex and sex != "unknown") or (skin_type and skin_type != "unknown") or is_pregnant or is_breastfeeding or (allergies and allergies != "không") or (medications and medications != "không") %}
-<context>
+{% if age is not none or (sex and sex != "unknown") or (skin_type and skin_type != "unknown") or is_pregnant or is_breastfeeding or (allergies and allergies != "không") or (medications and medications != "không") or (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") or known_facts or (vision_summary and vision_summary != "không có dữ liệu hình ảnh") %}
+[THÔNG TIN NGƯỜI DÙNG ĐÃ KHAI BÁO VÀ TRÍCH XUẤT]
+(Lưu ý: Các thông tin dưới đây được hệ thống trích xuất tự động từ câu hỏi. Nếu có điểm mâu thuẫn hoặc chưa chắc chắn, hãy luôn ưu tiên nội dung câu hỏi tự nhiên ở trên của người dùng).
 {% if age is not none %}- Tuổi: {{ age }}
 {% endif %}{% if sex and sex != "unknown" %}- Giới tính: {{ sex }}
 {% endif %}{% if skin_type and skin_type != "unknown" %}- Loại da: {{ skin_type }}
 {% endif %}{% if is_pregnant %}- Đang mang thai: CÓ
 {% endif %}{% if is_breastfeeding %}- Đang cho con bú: CÓ
-{% endif %}{% if allergies and allergies != "không" %}- Dị ứng: {{ allergies }}
+{% endif %}{% if allergies and allergies != "không" %}- Tiền sử dị ứng/kích ứng: {{ allergies }}
 {% endif %}{% if medications and medications != "không" %}- Thuốc đang dùng: {{ medications }}
-{% endif %}</context>
+{% endif %}{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}- Tóm tắt lâm sàng: {{ normalized_case_plan }}
+{% elif known_facts %}- Các dữ kiện bệnh lý đã biết: {{ known_facts }}
+{% endif %}{% if vision_summary and vision_summary != "không có dữ liệu hình ảnh" %}- Phân tích hình ảnh: {{ vision_summary }}
 {% endif %}
-{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}
-<clinical_summary>{{ normalized_case_plan }}</clinical_summary>
-{% elif known_facts %}
-<known_facts>{{ known_facts }}</known_facts>
 {% endif %}
+
 {% if query_vi and not (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") %}
-<query_vi>{{ query_vi }}</query_vi>
+- Từ khóa tìm kiếm lâm sàng: {{ query_vi }}
 {% endif %}
 {% if route_metadata %}
-<route_guidance>{{ route_metadata }}</route_guidance>
+- Chỉ dẫn định hướng: {{ route_metadata }}
 {% endif %}
 {% if query_subject == "other" %}
-<subject_note>Người dùng đang hỏi về tình trạng của người khác. Không xem dữ kiện này là hồ sơ cá nhân của user.</subject_note>
-{% endif %}
-{% if vision_summary and vision_summary != "không có dữ liệu hình ảnh" %}
-<vision>{{ vision_summary }}</vision>
+- Lưu ý đối tượng: Người dùng đang hỏi hộ cho người khác. Không gộp thông tin này vào hồ sơ bệnh án cá nhân của người dùng.
 {% endif %}
 {% if completeness_hint %}
-<hint>{{ completeness_hint }}</hint>
+- Gợi ý thu thập thông tin bổ sung: {{ completeness_hint }}
 {% endif %}
+
 {% if history_block %}
-<conversation_history>
+[LỊCH SỬ TRÒ CHUYỆN]
 {{ history_block }}
-</conversation_history>
 {% endif %}
-</user_data>
 
 {% if has_retrieved_context %}
-<retrieved_context>
+[TÀI LIỆU Y KHOA THAM KHẢO]
 {{ retrieved_context }}
-</retrieved_context>
 {% endif %}
 
-<current_question>{{ description }}</current_question>
-
-<task>
-{% if has_retrieved_context %}Citation inline: đặt [N] ngay sau câu lấy trực tiếp từ nguồn, không gộp số vào cuối bài.
-{% else %}Chưa có nguồn KB phù hợp trong lượt này; trả lời thận trọng dựa trên dữ kiện user và nói rõ khi thiếu căn cứ.
-{% endif %}Trả lời đúng câu hỏi trong <current_question>. Câu đơn giản ≤150 từ, câu phức tạp ≤300 từ. Disclaimer một lần ở cuối, bỏ nếu đã có trong lịch sử. Văn xuôi; bullet point khi cần liệt kê bước.
-</task>
+[YÊU CẦU TRẢ LỜI]
+- Hãy trả lời trực tiếp và giải quyết câu hỏi trong phần [CÂU HỎI CỦA NGƯỜI DÙNG].
+- Trả lời bằng tiếng Việt tự nhiên, thân thiện, ngắn gọn và cô đọng (tránh dài dòng lan man).
+{% if has_retrieved_context %}- Sử dụng thông tin trong phần [TÀI LIỆU Y KHOA THAM KHẢO] để trả lời. Đặt trích dẫn nguồn dạng [N] (ví dụ: [1]) ngay sau mỗi câu hoặc ý phát biểu sử dụng thông tin từ nguồn đó. Không gộp tất cả các số trích dẫn về cuối câu trả lời.
+{% else %}- Hiện tại chưa tìm thấy tài liệu tham khảo chính xác phù hợp. Hãy trả lời thận trọng dựa trên dữ kiện đã biết của người dùng, nêu rõ khi thiếu căn cứ và tuyệt đối không tự bịa đặt thông tin.
+{% endif %}- Chỉ thêm disclaimer y khoa ("Thông tin trên chỉ mang tính chất tham khảo...") tối đa một lần ở cuối câu trả lời nếu thực sự cần thiết (bỏ qua nếu cuộc trò chuyện trước đó đã có disclaimer).
 {% if extended_rules %}
-<guideline_priority>{{ extended_rules }}</guideline_priority>
+- Hướng dẫn bổ sung: {{ extended_rules }}
 {% endif %}

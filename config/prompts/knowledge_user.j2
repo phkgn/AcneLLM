@@ -1,45 +1,29 @@
-<user_data>
-<question>{{ description }}</question>
-
-{% if history_block %}
-<conversation_history>
-{{ history_block }}
-</conversation_history>
-<history_note>Lịch sử chỉ để hiểu ngữ cảnh và đại từ. Hãy trả lời ĐÚNG `<question>` hiện tại. Nếu câu hỏi đã chuyển sang chủ đề khác với các lượt trước, KHÔNG lặp lại nội dung câu trả lời cũ.</history_note>
-{% endif %}
+[CÂU HỎI KIẾN THỨC CỦA NGƯỜI DÙNG]
+{{ description }}
 
 {% if query_subject == "other" %}
-<subject_note>Người dùng đang hỏi về tình trạng của người khác, không phải hồ sơ cá nhân của họ.</subject_note>
+- Lưu ý đối tượng: Người dùng đang hỏi hộ cho người khác.
 {% endif %}
-</user_data>
+
+{% if history_block %}
+[LỊCH SỬ TRÒ CHUYỆN]
+{{ history_block }}
+(Lưu ý: Lịch sử trò chuyện chỉ để hiểu ngữ cảnh và đại từ xưng hô. Hãy tập trung trả lời đúng câu hỏi hiện tại ở trên. Nếu câu hỏi đã chuyển sang chủ đề khác, không lặp lại nội dung cũ).
+{% endif %}
 
 {% if has_retrieved_context %}
-<retrieved_context>
+[TÀI LIỆU Y KHOA THAM KHẢO]
 {{ retrieved_context }}
-</retrieved_context>
 {% endif %}
 
-<task>
-Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt.
-
-### Quy tắc
-
-1. **Phạm vi**: Chỉ trả lời về da mụn, chăm sóc da, điều trị mụn. Ngoài phạm vi → từ chối lịch sự.
-2. **Độ dài**: Trả lời đầy đủ theo yêu cầu — không tóm tắt nếu câu hỏi cần giải thích chi tiết.
-3. **Format**: Dùng danh sách đánh số cho câu hỏi liệt kê. Văn xuôi cho câu hỏi giải thích/cơ chế.
-4. **Không hỏi lại thông tin cá nhân**: Đây là câu hỏi kiến thức tổng quát.
-{% if has_retrieved_context %}
-5. **Citation inline**: Đặt `[N]` ngay sau câu lấy từ nguồn đó.
-{% else %}
-5. **Nguồn**: Chưa có nguồn KB phù hợp trong lượt này. Trả lời ở mức kiến thức chung và thận trọng. Nếu câu hỏi đòi hỏi dữ kiện cụ thể mà bạn không chắc (ví dụ một tình huống hiếm, một so sánh chuyên biệt), hãy nói thẳng là chưa có đủ dữ liệu chắc chắn thay vì suy đoán.
-{% endif %}
-6. **Không bịa nguồn**: KHÔNG dùng cấu trúc kiểu "một nghiên cứu cho thấy [kết luận/số liệu cụ thể]" trừ khi `<retrieved_context>` nêu đúng nghiên cứu đó. Nếu chỉ là phát biểu chung, hãy diễn đạt chung ("nhìn chung", "thường thì") và không gán cho một nghiên cứu cụ thể.
-7. **Khi bị hỏi nguồn**: Nếu người dùng hỏi "theo nghiên cứu nào / nguồn nào / dẫn chứng đâu" mà bạn không có nguồn cụ thể trong ngữ cảnh, hãy thừa nhận đó là nhận định chung chưa kèm trích dẫn cụ thể — KHÔNG bịa tên hay kết quả nghiên cứu.
-8. **Disclaimer**: Chỉ thêm "thông tin tham khảo" một lần ở cuối, chỉ khi có hướng dẫn điều trị.
-</task>
-
+[YÊU CẦU TRẢ LỜI]
+- Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt tự nhiên, chính xác và rõ ràng.
+- Chỉ trả lời trong phạm vi chăm sóc da mụn, điều trị mụn. Từ chối lịch sự nếu ngoài phạm vi.
+- Không hỏi lại thông tin cá nhân của người dùng vì đây là câu hỏi tìm hiểu kiến thức chung.
+{% if has_retrieved_context %}- Sử dụng thông tin trong phần [TÀI LIỆU Y KHOA THAM KHẢO] để trả lời. Đặt trích dẫn nguồn dạng [N] (ví dụ: [1]) ngay sau mỗi câu hoặc ý phát biểu sử dụng thông tin từ nguồn đó.
+{% else %}- Chưa có nguồn KB phù hợp trong lượt này. Hãy trả lời ở mức kiến thức khoa học chung và thận trọng, nêu rõ nếu chưa có đủ dữ liệu chắc chắn thay vì tự suy đoán.
+{% endif %}- Tuyệt đối không bịa đặt nguồn hoặc số liệu nghiên cứu không có trong phần [TÀI LIỆU Y KHOA THAM KHẢO].
+- Chỉ thêm disclaimer y khoa ("Thông tin trên chỉ mang tính chất tham khảo...") tối đa một lần ở cuối câu trả lời nếu thực sự cần thiết (bỏ qua nếu cuộc trò chuyện trước đó đã có disclaimer).
 {% if extended_rules %}
-<guideline_priority>
-{{ extended_rules }}
-</guideline_priority>
+- Hướng dẫn bổ sung: {{ extended_rules }}
 {% endif %}
