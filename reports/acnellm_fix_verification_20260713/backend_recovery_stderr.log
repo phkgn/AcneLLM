@@ -1,0 +1,66 @@
+INFO:     Will watch for changes in these directories: ['E:\\project\\AcneLLM']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [27732] using WatchFiles
+INFO:     Started server process [23400]
+INFO:     Waiting for application startup.
+[32m20:00:00[0m | [1mINFO   [0m | AcneLLM starting...
+[32m20:00:00[0m | [1mINFO   [0m | Building DI container...
+[32m20:00:00[0m | [1mINFO   [0m | [SessionStore] JSONL @ ./data/sessions
+[32m20:00:00[0m | [1mINFO   [0m | Sessions JSONL: ./data/sessions | Audit SQLite: ./data/audit.db
+[32m20:00:01[0m | [1mINFO   [0m | [Cache] DiskCache @ ./data/cache (2.0GB limit)
+[32m20:00:01[0m | [1mINFO   [0m | LLM effective: model=acnellm-v2-q4:latest ctx=3072 predict=1200 temp=0.35 top_p=0.85 top_k=40 keep_alive=-1 use_modelfile_system=True
+[32m20:00:03[0m | [1mINFO   [0m | Modelfile PARAMETER (Ollama-side):
+stop                           "<|im_end|>"
+stop                           "<|im_start|>"
+stop                           "<|endoftext|>"
+[32m20:00:03[0m | [1mINFO   [0m | [DrugChecker] Loaded 20 drug entries from config\drugs_acne.yaml
+[32m20:00:03[0m | [1mINFO   [0m | LLM: acnellm-v2-q4:latest @ http://localhost:11434
+[32m20:00:03[0m | [1mINFO   [0m | KB detected -- loading RAG components...
+[32m20:00:05[0m | [1mINFO   [0m | ChromaDB: 16635 vectors | BM25: 16635 chunks
+[32m20:00:08[0m | [1mINFO   [0m | Loading embedder: AITeamVN/Vietnamese_Embedding on cpu
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 5172.88it/s]
+[32m20:00:17[0m | [1mINFO   [0m | Embedder ready (dim=1024)
+[32m20:00:17[0m | [1mINFO   [0m | [OOD] Loaded centroid from config\ood_centroid.json (dim=1024)
+[32m20:00:17[0m | [1mINFO   [0m | [guardrails] OOD detector attached with embedder
+[32m20:00:17[0m | [1mINFO   [0m | Loading reranker: BAAI/bge-reranker-v2-m3 on cpu
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 5435.26it/s]
+[32m20:00:24[0m | [1mINFO   [0m | Reranker ready
+[32m20:00:24[0m | [32m[1mSUCCESS[0m | RAG ready -- shared chat orchestrator enabled
+[32m20:00:24[0m | [1mINFO   [0m | AcneLLM ready
+INFO:     Application startup complete.
+[32m20:00:25[0m | [1mINFO   [0m | request_id=dfc3d2ce8ffc406e94fb2fa6e30aa390 method=GET path=/api/v1/chat/stream status=200 latency_ms=3.6
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] INPUT (76c): 'toi bi mun quai ham 8 thang r, dung ada 0.1% dc 3 tuan ma van len mun va rat'
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] NORMALIZE: age=None sex=None skin=None lesions=['other'] inflam=unknown mode=hybrid
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] GUARDRAILS: acne_signal=True genital=False refused=False scope=in_scope
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] ROUTE: intent=advise subject=self conf=0.82 flags=['urgency_red_flag', 'progress_followup'] reason=personal_acne_case
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] SESSION FOLD: structured-fold | history=0 turns | age=None lesions=['other'] inflam=unknown
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] COMPLETENESS: checked=True kind=partial level=sufficient missing=['lesion_types']
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] CLINICAL PLAN: built=False lang=n/a query=''
+[32m20:00:25[0m | [1mINFO   [0m | [audit-20] -> HYBRID (scope=in_scope plan=False snapshot=True)
+[32m20:00:25[0m | [34m[1mDEBUG  [0m | [retriever] dense=0 chunks (max_dist=0.6)
+[32m20:00:25[0m | [34m[1mDEBUG  [0m | [retriever] sparse=18 hits
+[32m20:00:25[0m | [34m[1mDEBUG  [0m | [retriever] fusion stats before prune: n=18 min=6.3721 p50=10.2821 max=16.2647 threshold=4.8794 (relative=0.30x)
+[32m20:00:25[0m | [34m[1mDEBUG  [0m | [retriever] hybrid fused=6 chunks (pruned=0 below threshold)
+[32m20:00:25[0m | [34m[1mDEBUG  [0m | [safety_pass] 5 guideline chunks for safety context
+[32m20:00:30[0m | [1mINFO   [0m | request_id=6fdecaec60ff407aa9d38773516b4598 method=GET path=/api/v1/health status=200 latency_ms=2094.2
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [reranker] raw logits (top5): [0.007, 0.002, 0.001, 0.001, 0.0] | sigmoid(top5): [0.502, 0.5, 0.5, 0.5, 0.5]
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [reranker] 11 -> 3 chunks | avg_sigmoid=0.501
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [reranker] top chunks: [('PubMed', 0.502), ('PubMed', 0.5), ('PubMed', 0.5)]
+[32m20:00:37[0m | [1mINFO   [0m | [retrieval] OOD guard: avg_sigmoid=0.501 max=0.502 < keep_floor=0.580 — dropping 3 chunks (query='toi bi mun quai ham 8 thang r, dung ada 0.1% được 3 tuan ma van len mun va rat')
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [Cache] retrieve MISS -> stored
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [audit-20] RAG: skipped (mode=hybrid signal=True plan=False)
+[32m20:00:37[0m | [34m[1mDEBUG  [0m | [audit-20] PROMPT: 2659 chars (~760 tokens) -> LLM
+[32m20:00:47[0m | [1mINFO   [0m | request_id=a47ea9010fc84279a8a0a3819d45e2d6 method=GET path=/api/v1/health status=200 latency_ms=2074.6
+[32m20:00:58[0m | [1mINFO   [0m | request_id=997aa9e0d0a3494ba1d29c0aa761f3ff method=GET path=/api/v1/chat/stream status=200 latency_ms=1.6
+[32m20:00:58[0m | [1mINFO   [0m | [prefligh] INPUT (43c): 'Mụn đầu đen khác mụn đầu trắng như thế nào?'
+[32m20:00:58[0m | [1mINFO   [0m | [prefligh] NORMALIZE: age=None sex=None skin=None lesions=['whitehead', 'blackhead'] inflam=none mode=hybrid
+[32m20:00:58[0m | [1mINFO   [0m | [prefligh] GUARDRAILS: acne_signal=True genital=False refused=False scope=in_scope
+[32m20:00:59[0m | [1mINFO   [0m | [prefligh] ROUTE: intent=knowledge subject=non_self conf=0.84 flags=[] reason=general_comparison_question
+[32m20:00:59[0m | [1mINFO   [0m | [prefligh] SESSION FOLD: skipped | history=0 turns | age=None lesions=['whitehead', 'blackhead'] inflam=none
+[32m20:00:59[0m | [1mINFO   [0m | [prefligh] COMPLETENESS: checked=False kind=skip level=skip missing=[]
+[32m20:00:59[0m | [1mINFO   [0m | [prefligh] CLINICAL PLAN: built=False lang=n/a query=''
+[32m20:00:59[0m | [1mINFO   [0m | [prefligh] -> HYBRID (scope=in_scope plan=False snapshot=False)
+[32m20:00:59[0m | [34m[1mDEBUG  [0m | [Cache] retrieve HIT
+[32m20:00:59[0m | [34m[1mDEBUG  [0m | [prefligh] RAG: 3 chunks in 13ms (scope=in_scope plan=False)
+[32m20:00:59[0m | [34m[1mDEBUG  [0m | [prefligh] PROMPT: 5628 chars (~1608 tokens) -> LLM
+[32m20:01:21[0m | [34m[1mDEBUG  [0m | [audit-20] LLM first token in 43861ms

@@ -36,6 +36,8 @@ _SKIN_TYPES: list[tuple[str, str]] = [
     ("oily", r"\b(?:"
      r"(?:da|mặt|mat|skin|vùng\s*t|vung\s*t|t-zone|t\s*zone)"
      r"(?:\s*(?:tôi|toi|mình|minh|em|cháu|chau|con))?\s*"
+     # Cho phép trạng từ mức độ giữa 'da' và 'dầu': "da khá dầu", "da hơi dầu"…
+     r"(?:(?:khá|kha|hơi|hoi|rất|rat|cũng|cung|khá\s*là|kha\s*la|nhìn\s*chung|nhin\s*chung)\s*)?"
      r"(?:"
      r"(?:có|co)\s*(?:nhiều\s*)?(?:dầu|dau)"
      r"|(?:dầu|dau(?!\s*(?:khi|lúc|luc|lắm|lam|quá|qua|rát|rat|nhói|nhoi)))\s*(?:nhiều|nhieu)?"
@@ -189,7 +191,7 @@ _MEDICATION_TERMS = [
     "adapalene", "differin",       # topical retinoid OTC/Rx
     "tazarotene",                  # topical retinoid mạnh
     # Oral antibiotics
-    "doxycycline", "minocycline", "tetracycline",
+    "doxycycline", "minocycline", "tetracycline", "ada",
     "lymecycline", "sarecycline",
     "erythromycin", "azithromycin",
     "trimethoprim", "sulfamethoxazole",
@@ -380,7 +382,7 @@ _LESION_TERMS: list[tuple[str, str]] = [
      r"|closed\s*comedone|microcomedone"
      r"|ẩn\s*dưới\s*da|an\s*duoi\s*da"
      r"|li\s*ti\s*dưới\s*da|liti\s*duoi\s*da"
-     r"|mụn\s*nhỏ\s*li\s*ti|mụn\s*liti"
+     r"|mụn\s*(?:nhỏ\s*)?li\s*ti|mụn\s*liti|mun\s*(?:nho\s*)?li\s*ti"
      r"|mụn\s*đầu\s*trắng\s*kín"
      r"|mụn\s*cám"
      r"|mụn\s*nhân|nhân\s*mụn|nhan\s*mun"
@@ -388,6 +390,9 @@ _LESION_TERMS: list[tuple[str, str]] = [
      r"|mụn\s*hạt\s*kê|hat\s*ke"
      r"|nổi\s*hạt\s*li\s*ti|hat\s*nho\s*li\s*ti"
      r"|mụn\s*trắng\s*nhỏ|mun\s*trang\s*nho"
+     r"|b[íị]\s*(?:tắc\s*)?lỗ\s*chân\s*lông|bi\s*(?:tac\s*)?lo\s*chan\s*long"
+     r"|bít\s*(?:tắc\s*)?lỗ\s*chân\s*lông|bit\s*(?:tac\s*)?lo\s*chan\s*long"
+     r"|tắc\s*nghẽn\s*lỗ\s*chân\s*lông|tac\s*nghen\s*lo\s*chan\s*long"
      r")\b"),
     # Whitehead
     ("whitehead", r"\b(?:"
@@ -475,6 +480,8 @@ _LESION_TERMS: list[tuple[str, str]] = [
      r"|mụn\s*nang\s*mủ"
      r"|nodulocystic"
      r"|mụn\s*bọc\s*nang"
+     r"|nang\s*(?:to|lớn|cứng|mủ)?\s*(?:ở\s*)?dưới\s*da|nang\s*(?:to|lon|cung|mu)?\s*duoi\s*da"
+     r"|có\s*nang\s*(?:to|lớn|cứng)|co\s*nang"
      r"|mụn\s*nước(?:\s*dưới\s*da)?"
      r"|bọc\s*mủ\s*lớn"
      r")\b"),
@@ -865,7 +872,9 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
      r"|đau\s*(?:khi\s*)?(?:sờ|chạm|ấn)"
      r"|nhức\s*(?:nhối|đầu\s*mụn)"
      r"|đau\s*âm\s*ỉ"
-     r"|(?:khá|hơi|cũng|hơ)\s*đau|(?:kha|hoi|cung)\s*dau"
+     # Chỉ khớp bản CÓ DẤU: twin không dấu 'kha/hoi/cung dau' trùng
+     # 'khá/hơi/cũng dầu' (da dầu) → false painful. (accent-collision fix)
+     r"|(?:khá|hơi|cũng|hơ)\s*đau"
      r"|sờ\s*(?:vào\s*)?(?:khá|hơi|thấy)?\s*đau|so\s*(?:vao\s*)?(?:kha|hoi|thay)?\s*dau"
      r"|cộm\s*(?:cộm|đau)|com\s*(?:com|dau)"
      r")\b"),
@@ -875,7 +884,7 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
      r"|mủ\s*(?:vàng|trắng|xanh)|mu\s*(?:vang|trang|xanh)"
      r"|chảy\s*(?:dịch|nước)|chay\s*(?:dich|nuoc)"
      r"|rỉ\s*dịch|ri\s*dich"
-     r"|có\s*(?:cả\s*)?máu|co\s*(?:ca\s*)?mau"
+     r"|có\s*(?:cả\s*)?máu|co\s*(?:ca\s*)?mau(?!\s*(?:đen|den|trắng|trang|đỏ|do|nâu|nau|vàng|vang|xanh))"
      r"|chảy\s*máu|chay\s*mau"
      r"|ra\s*máu|ra\s*mau"
      # Dạng đảo: "máu cũng ra nhiều", "máu ra nhiều", "máu chảy" — máu đứng trước động từ
@@ -913,7 +922,7 @@ _RED_FLAG_TERMS: list[tuple[str, str]] = [
      r"\bbị\s*(?:kích\s*ứng|kich\s*ung)\b"     # bị kích ứng (user's skin)
      r"|\bda\s*(?:bị\s*)?(?:kích\s*ứng|kich\s*ung)\b"
      r"|\bbong\s*tróc\b|\bbong\s*troc\b"
-     r"|\brát(?:\s*bỏng)?\b"
+     r"|\brát(?:\s*bỏng)?\b|\b(?:da|va)\s+rat\b"
      r"|\bnóng\s*rát\b|\bnong\s*rat\b"
      r"|\bchâm\s*chích\b|\bcham\s*chich\b"
      r"|\bngứa\s*(?:rát|nhiều)\b|\bngua\s*(?:rat|nhieu)\b"
@@ -1425,7 +1434,7 @@ def _extract_medications(text: str) -> list[str]:
         if _has(rf"(?<!\w){re.escape(term)}(?!\w)", lowered)
         and _has_medication_use_context(lowered, term)
     ]
-    return _dedupe(found)
+    return _dedupe("adapalene" if term == "ada" else term for term in found)
 
 
 _LesionType = Literal[
@@ -1739,6 +1748,7 @@ def _extract_inflammation(text: str, lesion_types: list[_LesionType]) -> _Inflam
         r"|sưng\s*đỏ(?!\s*(?:và\s*)?đau\s*nhiều)"
         r"|mụn\s*đỏ\s*(?:và\s*)?sưng"
         r"|viêm\s*đỏ"
+        r"|mụn\s*mủ(?:\s*(?:vàng|trắng|xanh))?|mun\s*mu(?:\s*(?:vang|trang|xanh))?"
         r")\b"
     )
     _has_explicit_moderate = _has(_moderate_signal, text)
@@ -1760,6 +1770,50 @@ def _extract_inflammation(text: str, lesion_types: list[_LesionType]) -> _Inflam
 
     # Không đủ tín hiệu rõ ràng → không suy
     return None
+
+
+# Mụn đã khỏi / thuộc quá khứ — chỉ còn quan tâm thâm/sẹo.
+# Khi khớp, ta KHÔNG suy mụn viêm đang hoạt động (papule/pustule/nodule/cyst)
+# và ép inflammation = none, vì gold coi đây là ca đã hết mụn.
+_ACNE_RESOLVED_PATTERNS: tuple[str, ...] = (
+    r"\b(?:đã|giờ|hiện\s*(?:giờ|tại)?|nay|bây\s*giờ)\s*(?:đã\s*)?hết\s*mụn\b",
+    r"\bhết\s*mụn\s*(?:rồi|lâu\s*rồi|hẳn|sạch)\b",
+    r"\bmụn\s*(?:đã|giờ|nay)\s*(?:đã\s*)?(?:hết|hết\s*rồi|khỏi|lặn|xẹp|đỡ\s*hẳn)\b",
+    r"\bmụn\s*(?:đã\s*)?khỏi\b",
+    r"\bkhỏi\s*mụn\b",
+    r"\bsau\s*(?:khi\s*)?hết\s*mụn\b",
+    r"\bmụn\s*hết\s*(?:rồi|hẳn|sạch)\b",
+    r"\btừng\s*bị\s*mụn\b",
+    r"\bhồi\b.{0,40}\b(?:giờ|nay|bây\s*giờ)\s*(?:đã\s*)?hết\b",
+    # unaccented
+    r"\b(?:da|gio|hien)\s*(?:da\s*)?het\s*mun\b",
+    r"\bhet\s*mun\s*roi\b",
+    r"\bmun\s*(?:da|gio|nay)\s*(?:het|khoi|lan|xep)\b",
+    r"\btung\s*bi\s*mun\b",
+)
+# Nếu có tín hiệu mụn ĐANG hoạt động thì KHÔNG áp guard (tránh suppress nhầm ca hỗn hợp).
+_ACNE_PRESENT_PATTERNS: tuple[str, ...] = (
+    r"\b(?:vẫn|van)\s*(?:còn|con|bị|bi|đang|dang)\b",
+    r"\bhiện\s*(?:tại\s*)?(?:vẫn\s*)?(?:đang\s*)?(?:bị|nổi|mọc|còn)\b",
+    r"\bđang\s*bị\s*mụn\b|dang\s*bi\s*mun",
+    r"\b(?:dạo|dao|gần|gan)\s*(?:này|nay|đây|day)\b",
+    r"\bmới\s*(?:nổi|lên|mọc|bị)\b|moi\s*(?:noi|len|moc|bi)",
+    r"\bmọc\s*(?:thêm|nhiều)\b|moc\s*(?:them|nhieu)",
+)
+
+_ACTIVE_INFLAMMATORY_LESIONS = frozenset(
+    {"papule", "pustule", "nodule", "cyst", "other"}
+)
+
+
+def _acne_resolved(clean_text: str, clean_text_no_accent: str) -> bool:
+    for pat in _ACNE_PRESENT_PATTERNS:
+        if _has(pat, clean_text) or _has(pat, clean_text_no_accent):
+            return False
+    for pat in _ACNE_RESOLVED_PATTERNS:
+        if _has(pat, clean_text) or _has(pat, clean_text_no_accent):
+            return True
+    return False
 
 
 def _contains_positive(text: str, positive: str, negative: str) -> bool:
@@ -1795,9 +1849,22 @@ def normalize_chat_message(
     extraction_texts = _texts_for_extraction(clean_text, clean_text_no_accent)
     lesion_types = cast(list[_LesionType], _merge_extracted(extraction_texts, _extract_lesions))
     distribution = cast(list[_Distribution], _merge_extracted(extraction_texts, _extract_distributions))
+
+    # Guard "mụn đã khỏi": nếu mụn thuộc quá khứ, bỏ các lesion viêm đang hoạt
+    # động (giữ lại thâm/sẹo/comedone user vẫn đang quan tâm) và ép viêm = none.
+    acne_resolved = _acne_resolved(clean_text, clean_text_no_accent or "")
+    if acne_resolved:
+        lesion_types = cast(
+            list[_LesionType],
+            [l for l in lesion_types if l not in _ACTIVE_INFLAMMATORY_LESIONS],
+        )
+
     inflammation = _strongest_inflammation(
         [_extract_inflammation(text, lesion_types) for text in extraction_texts]
     )
+    if acne_resolved:
+        # Mụn đã khỏi → không còn viêm hoạt động.
+        inflammation = cast(_Inflammation, "none")
     red_flags = _merge_extracted(extraction_texts, _extract_red_flags)
     medications = _dedupe_accent_insensitive(
         _merge_extracted(extraction_texts, _extract_medications)
@@ -1820,9 +1887,18 @@ def normalize_chat_message(
         [value for text in extraction_texts for value in _extract_concentrations(text)]
     )
 
+    # Suy female CHỈ từ tín hiệu chắc chắn (kinh nguyệt/thai/sau sinh/PCOS),
+    # KHÔNG đoán từ đại từ chị/em vì không đáng tin.
+    sex = _first_extracted(extraction_texts, _extract_sex)
+    if sex is None and any(
+        h in {"menstrual_cycle", "pregnancy", "postpartum", "pcos"}
+        for h in hormonal_factors
+    ):
+        sex = cast(_Sex, "female")
+
     context = UserContext(
         age=_first_extracted(extraction_texts, _extract_age),
-        sex=_first_extracted(extraction_texts, _extract_sex),
+        sex=sex,
         skin_type=_extract_skin_type_from_texts(clean_text, clean_text_no_accent),
         is_pregnant=_contains_positive(
             clean_text,

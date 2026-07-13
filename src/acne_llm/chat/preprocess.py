@@ -66,6 +66,11 @@ def normalize_teencode(text: str) -> tuple[str, list[str]]:
 
     def _replace(match: re.Match[str]) -> str:
         token = match.group(1).lower()
+        # 'k' ngay sau 'vitamin'/'vit' là ký hiệu vitamin K, không phải teencode 'không'.
+        if token == "k":
+            before = match.string[: match.start()].rstrip().lower()
+            if before.endswith("vitamin") or before.endswith("vit"):
+                return match.group(0)
         if token not in seen:
             seen.add(token)
             replaced.append(token)

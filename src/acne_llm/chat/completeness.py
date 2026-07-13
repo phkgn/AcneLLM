@@ -268,7 +268,11 @@ def check_completeness(
     # + an toàn (không hỏi field phụ: tuổi, thời gian, loại da, mục tiêu, nội
     # tiết, sẹo). Field đã có giá trị nhưng confidence thấp KHÔNG hỏi lại nữa —
     # độ thiếu chắc chắn được xử lý mềm qua low_confidence_fields (hedging).
-    _askable = _CORE_FIELDS + _SAFETY_FIELDS
+    # Generic acne intake asks only clinical core fields. Safety facts are
+    # collected when the user mentions medication/pregnancy and are enforced
+    # by the deterministic safety context; asking every user about pregnancy
+    # and allergies creates irrelevant, repetitive clarification loops.
+    _askable = _CORE_FIELDS
     missing: list[str] = []
     for field in _askable:
         has_val = _field_has_value(field)

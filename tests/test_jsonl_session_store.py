@@ -1,3 +1,4 @@
+import json
 import time
 
 from acne_llm.chat.session import ConversationTurn, NormalizedSnapshot
@@ -101,3 +102,22 @@ def test_jsonl_store_compacts_when_explicitly_bounded(tmp_path):
 
     history = JsonlSessionStore(str(tmp_path), max_turns=3).get_history("s")
     assert [turn.content for turn in history] == ["msg-5", "msg-6", "msg-7"]
+
+
+def test_jsonl_store_resets_pre_v2_session_state(tmp_path):
+    path = tmp_path / "legacy.jsonl"
+    path.write_text(
+        "\n".join([
+            json.dumps({"type": "meta", "last_active": time.time(), "user_context": {"age": 99}}),
+            json.dumps({"type": "turn", "role": "user", "content": "legacy"}),
+        ]),
+        encoding="utf-8",
+    )
+
+    store = JsonlSessionStore(str(tmp_path))
+
+    assert store.get_history("legacy") == []
+    session = store.get_or_create("legacy")
+    assert session is not None
+    assert session.schema_version == 2
+    assert session.user_context == {}

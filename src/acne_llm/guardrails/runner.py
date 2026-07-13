@@ -7,7 +7,7 @@ from loguru import logger
 
 from ..schemas import UserInput, AdviseOutput, RedFlag, Recommendation
 from .ood_detector import OodDetector, mask_pii, contains_pii
-from .drug_checker import DrugChecker, DrugWarning
+from .drug_checker import DrugChecker
 
 
 # ─────────── Scope detection terms ───────────
@@ -266,7 +266,12 @@ _PROMPT_INJECTION_PHRASES = (
 
 def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in terms)
+    boundary_aliases = {"aha", "bha", "pha", "bp", "bpo", "sa"}
+    return any(
+        re.search(rf"(?<!\w){re.escape(term)}(?!\w)", lowered) is not None
+        if term in boundary_aliases else term in lowered
+        for term in terms
+    )
 
 
 def is_prompt_injection(text: str) -> bool:
@@ -378,9 +383,18 @@ class GuardrailRunner:
         if self.is_acne_scope_text(user.description):
             return None  # clearly in-scope → pass
 
+        lowered_description = user.description.lower()
+        explicit_out_of_scope = (
+            (
+                _contains_any(lowered_description, _OUT_OF_SCOPE_INTENT_TERMS)
+                or bool(re.search(r"\b(?:giải|giai)\b.{0,24}\b(?:phương trình|phuong trinh)\b", lowered_description))
+            )
+            and not _contains_any(lowered_description, _ACNE_SCOPE_TERMS)
+        )
+
         # Tầng 2: embedding OOD check (chỉ khi keyword tầng 1 không xác định
         # rõ là in-scope — tức là không có acne keyword rõ ràng)
-        if self._ood is not None:
+        if self._ood is not None and not explicit_out_of_scope:
             ood = self._ood.is_out_of_domain(user.description)
             sim = self._ood.similarity(user.description)
             if sim is None:
@@ -440,7 +454,15 @@ class GuardrailRunner:
         if refusal is None:
             return None
 
-        if self.scope_mode == "soft":
+        lowered_description = user.description.lower()
+        explicit_out_of_scope = (
+            (
+                _contains_any(lowered_description, _OUT_OF_SCOPE_INTENT_TERMS)
+                or bool(re.search(r"\b(?:giải|giai)\b.{0,24}\b(?:phương trình|phuong trinh)\b", lowered_description))
+            )
+            and not _contains_any(lowered_description, _ACNE_SCOPE_TERMS)
+        )
+        if self.scope_mode == "soft" and not explicit_out_of_scope:
             logger.info(
                 "[guardrails] Soft out-of-scope signal; passing to LLM: "
                 f"{user.description[:160]}"
@@ -448,6 +470,92 @@ class GuardrailRunner:
             return None
 
         return refusal
+
+    def medication_safety_refusal(
+        self,
+        user: UserInput,
+        mentioned_terms: list[str] | None = None,
+    ) -> AdviseOutput | None:
+        """Return a deterministic refusal for critical drug risks.
+
+        This check deliberately runs before generation. It combines medication
+        facts folded from the session with drug names mentioned in the current
+        question, so the LLM cannot override pregnancy contraindications or a
+        tetracycline/isotretinoin interaction.
+        """
+        drug_terms = {
+            "isotretinoin", "tretinoin", "adapalene", "retinol", "tazarotene",
+            "doxycycline", "minocycline", "tetracycline", "lymecycline",
+            "clindamycin", "erythromycin", "spironolactone",
+        }
+        medications = list(user.context.medications or [])
+        if user.clinical is not None:
+            medications.extend(user.clinical.medication_history or [])
+        medications.extend(
+            term for term in (mentioned_terms or [])
+            if str(term).lower() in drug_terms
+        )
+        medications = list(dict.fromkeys(str(item).lower() for item in medications if item))
+        if not medications:
+            return None
+
+        _mentioned = {str(term).lower() for term in (mentioned_terms or [])}
+        pregnant = bool(
+            user.context.is_pregnant or user.context.is_breastfeeding
+            or "pregnancy" in _mentioned or "breastfeeding" in _mentioned
+        )
+        # Thai kỳ/cho con bú + bất kỳ retinoid/tetracycline/isotretinoin nào là
+        # chống chỉ định TUYỆT ĐỐI — chặn ngay, không phụ thuộc mức độ của
+        # drug_checker (vốn có thể không đánh dấu tretinoin/adapalene bôi là critical).
+        preg_block = pregnant and any(med in drug_terms for med in medications)
+
+        warnings = self._drug_checker.check(medications, user.context)
+        blocking = [
+            warning for warning in warnings
+            if warning.is_critical or warning.interactions_triggered
+        ]
+        if not preg_block and not blocking:
+            return None
+
+        has_isotretinoin = "isotretinoin" in medications
+        has_tetracycline = any(
+            med in medications
+            for med in ("doxycycline", "minocycline", "tetracycline", "lymecycline")
+        )
+        if pregnant and any(med in medications for med in drug_terms):
+            message = (
+                "Không sử dụng isotretinoin, retinoid hoặc kháng sinh nhóm tetracycline "
+                "trong thai kỳ/cho con bú. Hãy ngừng ý định tự dùng thuốc và liên hệ "
+                "bác sĩ sản khoa hoặc bác sĩ da liễu để được chọn phương án an toàn."
+            )
+        elif has_isotretinoin and has_tetracycline:
+            message = (
+                "Không dùng isotretinoin cùng doxycycline, minocycline hoặc kháng sinh "
+                "nhóm tetracycline vì có nguy cơ tăng áp lực nội sọ. Hãy liên hệ bác sĩ "
+                "da liễu kê đơn; không tự phối hợp hai nhóm thuốc này."
+            )
+        else:
+            message = (
+                "Không nên tự sử dụng hoặc phối hợp các thuốc vừa nêu vì có chống chỉ định "
+                "hoặc tương tác quan trọng. Hãy xác nhận trực tiếp với bác sĩ kê đơn."
+            )
+        return AdviseOutput(
+            severity="severe",
+            acne_type_primary="unknown",
+            causes=["Phát hiện chống chỉ định hoặc tương tác thuốc quan trọng"],
+            recommendations=[],
+            red_flags=[RedFlag(
+                flag="Chống chỉ định/tương tác thuốc",
+                severity="urgent",
+                reason=message,
+            )],
+            used_chunks=[],
+            confidence=1.0,
+            disclaimer=message,
+            mode=user.mode,
+            model_name="deterministic-safety",
+            latency_ms=0,
+        )
 
     @staticmethod
     def is_acne_scope_text(text: str) -> bool:

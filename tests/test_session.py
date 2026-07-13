@@ -4,20 +4,15 @@ from __future__ import annotations
 import time
 import threading
 
-import pytest
-
 from acne_llm.chat.session import (
     ConversationTurn,
     NormalizedSnapshot,
-    Session,
     SessionStore,
     fold_history_facts,
     format_history_block,
     get_session_store,
     snapshot_from_user,
-    SESSION_TTL,
-    MAX_HISTORY_TURNS,
-    HISTORY_CHAR_BUDGET,
+    select_relevant_history,
 )
 from acne_llm.chat.normalizer import normalize_chat_message
 
@@ -26,6 +21,31 @@ from acne_llm.chat.normalizer import normalize_chat_message
 
 def _turn(role="user", content="mụn viêm ở cằm", mode="hybrid"):
     return ConversationTurn(role=role, content=content, mode=mode)
+
+
+def test_knowledge_followup_keeps_only_latest_user_turn():
+    history = [
+        _turn("user", "turn cũ"),
+        _turn("assistant", "trả lời cũ"),
+        _turn("user", "mụn viêm ở má"),
+        _turn("assistant", "trả lời gần nhất"),
+    ]
+
+    selected = select_relevant_history(
+        "còn mụn nào ngoài mụn này?",
+        "knowledge",
+        history,
+    )
+
+    assert [turn.content for turn in selected] == ["mụn viêm ở má"]
+
+
+def test_short_v_slang_is_treated_as_explicit_followup():
+    history = [_turn("user", "tôi bị mụn viêm"), _turn("assistant", "trả lời")]
+
+    selected = select_relevant_history("v dùng nghệ đi", "advise", history)
+
+    assert selected == history
 
 
 # ── SessionStore basic operations ────────────────────────────────────────────
@@ -179,12 +199,12 @@ class TestUserContextMerge:
         assert ctx["age"] == 22
         assert ctx["skin_type"] == "oily"
 
-    def test_first_write_wins(self):
+    def test_latest_explicit_write_wins(self):
         store = SessionStore()
         store.get_or_create("s")
         store.merge_user_context("s", {"age": 22})
-        store.merge_user_context("s", {"age": 25})  # should NOT overwrite
-        assert store.get_user_context("s")["age"] == 22
+        store.merge_user_context("s", {"age": 25})
+        assert store.get_user_context("s")["age"] == 25
 
     def test_noop_for_none_session(self):
         store = SessionStore()
@@ -296,7 +316,7 @@ class TestFormatHistoryBlock:
     def test_assistant_label(self):
         turns = [ConversationTurn(role="assistant", content="BHA phù hợp")]
         block = format_history_block(turns)
-        assert "[AcneLLM]: BHA phù hợp" in block
+        assert "[Assistant]: BHA phù hợp" in block
 
     def test_respects_char_budget(self):
         # Each turn ~50 chars; budget=100 → only 2 turns max
@@ -321,7 +341,7 @@ class TestFormatHistoryBlock:
             ConversationTurn(role="user", content="tin 2"),
         ]
         block = format_history_block(turns)
-        idx1 = block.index("tin 1")
         idx2 = block.index("tra loi 1")
         idx3 = block.index("tin 2")
-        assert idx1 < idx2 < idx3
+        assert "tin 1" not in block
+        assert idx2 < idx3

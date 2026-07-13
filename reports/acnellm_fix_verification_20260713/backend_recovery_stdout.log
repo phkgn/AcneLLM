@@ -1,0 +1,4 @@
+INFO:     127.0.0.1:6123 - "GET /api/v1/chat/stream?message=toi+bi+mun+quai+ham+8+thang+r%2C+dung+ada+0.1%25+dc+3+tuan+ma+van+len+mun+va+rat&session_id=audit-20260713-postfix-s08-1783947617&mode=auto&temperature=0.35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6124 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6136 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6143 - "GET /api/v1/chat/stream?message=M%e1%bb%a5n+%c4%91%e1%ba%a7u+%c4%91en+kh%c3%a1c+m%e1%bb%a5n+%c4%91%e1%ba%a7u+tr%e1%ba%afng+nh%c6%b0+th%e1%ba%bf+n%c3%a0o%3f&session_id=preflight-postfix-1783947658&mode=auto&temperature=0.35 HTTP/1.1" 200 OK

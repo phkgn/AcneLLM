@@ -26,7 +26,7 @@ from ..chat.session import (
     NormalizedSnapshot,
     Session,
     SESSION_TTL,
-    MAX_HISTORY_TURNS,
+    SESSION_SCHEMA_VERSION,
 )
 
 
@@ -111,6 +111,7 @@ class JsonlSessionStore:
         now = time.time()
         self._write_line(sid, {
             "type": "meta",
+            "schema_version": SESSION_SCHEMA_VERSION,
             "created_at": now,
             "last_active": now,
             "user_context": {},
@@ -131,7 +132,7 @@ class JsonlSessionStore:
         """Rewrite file nếu quá nhiều turn (compact để tránh file phình to)."""
         if not self.max_turns or self.max_turns <= 0:
             return
-        turn_count = sum(1 for l in all_lines if l.get("type") == "turn")
+        turn_count = sum(1 for line in all_lines if line.get("type") == "turn")
         if turn_count <= self.max_turns * 2:
             return
         # Lấy meta mới nhất
@@ -140,7 +141,7 @@ class JsonlSessionStore:
             if obj.get("type") == "meta":
                 meta_merged.update({k: v for k, v in obj.items() if k != "type"})
         # Lấy max_turns turn mới nhất
-        turns = [l for l in all_lines if l.get("type") == "turn"]
+        turns = [line for line in all_lines if line.get("type") == "turn"]
         turns_keep = turns[-self.max_turns:]
         # Rewrite
         p = self._path(sid)
@@ -165,6 +166,10 @@ class JsonlSessionStore:
             if obj.get("type") == "meta":
                 merged.update({k: v for k, v in obj.items() if k != "type"})
         return merged
+
+    @staticmethod
+    def _schema_is_current(meta: dict) -> bool:
+        return int(meta.get("schema_version", 0) or 0) == SESSION_SCHEMA_VERSION
 
     def _row_to_turn(self, obj: dict) -> ConversationTurn:
         snap = None
@@ -194,7 +199,7 @@ class JsonlSessionStore:
         with self._lock:
             all_lines = self._read_lines(sid)
             meta = self._get_merged_meta(all_lines)
-            if not meta or self._is_expired(meta):
+            if not meta or self._is_expired(meta) or not self._schema_is_current(meta):
                 # Tạo mới (hoặc reset nếu expired)
                 self._delete_file(sid)
                 self._init_session(sid)
@@ -214,6 +219,7 @@ class JsonlSessionStore:
                 asked_fields=set(meta.get("asked_fields", [])),
                 total_clarify_count=int(meta.get("total_clarify_count", 0) or 0),
                 accumulated_clinical_score=float(meta.get("accumulated_clinical_score", 0.0) or 0.0),
+                schema_version=SESSION_SCHEMA_VERSION,
             )
 
     def get_history(self, session_id: str | None) -> list[ConversationTurn]:
@@ -223,14 +229,14 @@ class JsonlSessionStore:
         with self._lock:
             all_lines = self._read_lines(sid)
             meta = self._get_merged_meta(all_lines)
-            if self._is_expired(meta):
+            if self._is_expired(meta) or (meta and not self._schema_is_current(meta)):
                 self._delete_file(sid)
                 return []
-            turn_lines = [l for l in all_lines if l.get("type") == "turn"]
+            turn_lines = [line for line in all_lines if line.get("type") == "turn"]
             # Lấy max_turns mới nhất khi cấu hình explicit bound.
             if self.max_turns and self.max_turns > 0:
                 turn_lines = turn_lines[-self.max_turns:]
-            return [self._row_to_turn(l) for l in turn_lines]
+            return [self._row_to_turn(line) for line in turn_lines]
 
     def append_turn(
         self,
@@ -244,7 +250,7 @@ class JsonlSessionStore:
             all_lines = self._read_lines(sid)
             meta = self._get_merged_meta(all_lines)
             p = self._path(sid)
-            if not p.exists() or self._is_expired(meta):
+            if not p.exists() or self._is_expired(meta) or (meta and not self._schema_is_current(meta)):
                 self._delete_file(sid)
                 self._init_session(sid)
             snap_data = None
@@ -291,10 +297,9 @@ class JsonlSessionStore:
                 self._delete_file(sid)
                 return
             existing: dict = meta.get("user_context", {})
-            # First write wins — không overwrite key đã có
             updated = False
             for k, v in context.items():
-                if v is not None and k not in existing:
+                if v is not None and existing.get(k) != v:
                     existing[k] = v
                     updated = True
             if updated:

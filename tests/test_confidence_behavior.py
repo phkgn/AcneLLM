@@ -14,8 +14,8 @@ def _user(lesion_types=None, dist=None, inflammation="none"):
                                    inflammation_level=inflammation))
 
 
-def test_low_confidence_field_triggers_missing():
-    """Field co gia tri nhung confidence THAP -> coi nhu thieu -> hoi lai."""
+def test_low_confidence_field_is_hedged_without_reasking():
+    """A present low-confidence field is retained but explicitly hedged."""
     user = _user(lesion_types=["papule"], dist=["cheeks"], inflammation="moderate")
     # confidence map: lesion_types conf cao, distribution conf THAP (duoi 0.6)
     conf = ExtractionConfidence(
@@ -23,8 +23,8 @@ def test_low_confidence_field_triggers_missing():
         distribution=ListFieldResult(items=(FieldResult.make("cheeks", "fuzzy", confidence=0.40),)),  # thap
     )
     r = check_completeness(user, confidence=conf)
-    # distribution conf thap -> van nam trong missing
-    assert "distribution" in (r.missing_fields or []) or r.kind in ("partial", "missing_core")
+    assert r.kind == "sufficient"
+    assert "distribution" in r.low_confidence_fields
 
 
 def test_high_confidence_field_not_missing():

@@ -146,7 +146,7 @@ def test_hybrid_pipeline_does_not_backfill_plan_for_other_subject():
     out = pipe.run(
         user,
         prechecked=True,
-        route_metadata={"primary_intent": "advise", "query_subject": "other"},
+        route_metadata={"primary_intent": "advise", "query_subject": "non_self"},
     )
 
     clinical_planner.plan.assert_not_called()
@@ -154,7 +154,7 @@ def test_hybrid_pipeline_does_not_backfill_plan_for_other_subject():
     assert "back" in retriever.retrieve.call_args.args[0]
 
 
-def test_llm_only_pipeline_soft_scope_calls_llm_for_out_of_scope():
+def test_llm_only_pipeline_refuses_explicit_out_of_scope_without_llm():
     llm = MagicMock()
     llm.model = "mock"
     mock_out = AdviseOutput(
@@ -172,6 +172,7 @@ def test_llm_only_pipeline_soft_scope_calls_llm_for_out_of_scope():
     user = UserInput(description="giải phương trình bậc hai", mode="llm_only")
     out = pipe.run(user)
 
-    llm.generate_json.assert_called_once()
+    llm.generate_json.assert_not_called()
     assert out.mode == "llm_only"
-    assert out.model_name == "mock"
+    assert out.confidence == 0.0
+    assert "ngoài phạm vi" in out.disclaimer.lower()

@@ -11,8 +11,6 @@ from .llm.ollama_backend import OllamaBackend
 from .llm.prompt_builder import PromptBuilder
 from .llm.clinical_planner import ClinicalQueryPlanner
 from .guardrails.runner import GuardrailRunner
-from .pipeline.llm_only import LLMOnlyPipeline
-from .pipeline.hybrid import HybridPipeline
 from .rag.embedder import Embedder
 from .rag.vectorstore import ChromaStore
 from .rag.sparse import BM25Index
@@ -35,7 +33,6 @@ class Container:
         prompt: PromptBuilder,
         clinical_planner: ClinicalQueryPlanner,
         guardrails: GuardrailRunner,
-        llm_only: LLMOnlyPipeline,
         vision: MockVision,
         session_store: JsonlSessionStore,
         audit_store: AuditStore,
@@ -44,14 +41,12 @@ class Container:
         bm25: Optional[BM25Index] = None,
         retriever: Optional[HybridRetriever] = None,
         reranker: Optional[Reranker] = None,
-        hybrid: Optional[HybridPipeline] = None,
     ) -> None:
         self.settings         = settings
         self.llm              = llm
         self.prompt           = prompt
         self.clinical_planner = clinical_planner
         self.guardrails       = guardrails
-        self.llm_only         = llm_only
         self.vision           = vision
         self.session_store    = session_store
         self.audit_store      = audit_store
@@ -60,7 +55,6 @@ class Container:
         self.bm25             = bm25
         self.retriever        = retriever
         self.reranker         = reranker
-        self.hybrid           = hybrid
 
     @property
     def rag_ready(self) -> bool:
@@ -161,12 +155,6 @@ def build_container(settings) -> Container:
         ood_threshold=getattr(settings, "guardrails_ood_threshold", 0.25),
         scope_mode=getattr(settings, "guardrails_scope_mode", "soft"),
     )
-    llm_only = LLMOnlyPipeline(
-        llm,
-        prompt,
-        guardrails,
-        clinical_planner=clinical_planner,
-    )
     logger.info(f"LLM: {settings.llm_model} @ {settings.ollama_url}")
 
     # -- RAG (chi load neu KB da build) ---------------------------------------
@@ -176,7 +164,7 @@ def build_container(settings) -> Container:
     chroma_ready = chroma_dir.exists() and any(chroma_dir.iterdir())
     bm25_ready   = bm25_path.exists()
 
-    embedder = store = bm25 = retriever = reranker = hybrid = None
+    embedder = store = bm25 = retriever = reranker = None
 
     if chroma_ready and bm25_ready:
         logger.info("KB detected -- loading RAG components...")
@@ -231,20 +219,7 @@ def build_container(settings) -> Container:
                 logger.warning(f"Reranker load failed, using raw retrieval: {e}")
                 reranker = None
 
-            hybrid = HybridPipeline(
-                retriever=retriever,
-                reranker=reranker,
-                llm=llm,
-                prompt=prompt,
-                guardrails=guardrails,
-                retrieve_top_k=settings.retrieve_top_k,
-                rerank_top_k=settings.rerank_top_k,
-                english_input_notice=settings.english_input_notice,
-                clinical_planner=clinical_planner,
-                use_mmr_prefilter=getattr(settings, "use_mmr_prefilter", True),
-                mmr_lambda=getattr(settings, "mmr_lambda", 0.6),
-            )
-            logger.success("RAG ready -- hybrid pipeline enabled")
+            logger.success("RAG ready -- shared chat orchestrator enabled")
     else:
         missing = []
         if not chroma_ready:
@@ -263,7 +238,6 @@ def build_container(settings) -> Container:
         prompt=prompt,
         clinical_planner=clinical_planner,
         guardrails=guardrails,
-        llm_only=llm_only,
         vision=MockVision(),
         session_store=session_store,
         audit_store=audit_store,
@@ -272,5 +246,4 @@ def build_container(settings) -> Container:
         bm25=bm25,
         retriever=retriever,
         reranker=reranker,
-        hybrid=hybrid,
     )

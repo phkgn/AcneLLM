@@ -104,18 +104,10 @@ def _route_guidance(route_metadata: dict | None) -> str:
     flags = route_metadata.get("route_flags") or []
     query_subject = route_metadata.get("query_subject", "self")
     guidance: list[str] = []
-    if query_subject == "other":
-        guidance.append("Người dùng đang hỏi về tình trạng của người khác; không xem đây là hồ sơ cá nhân của user.")
-    elif query_subject == "general":
-        guidance.append("Đây là câu hỏi kiến thức chung; không suy ra tình trạng cá nhân của user.")
-    if "repeated_question" in flags:
-        guidance.append("Người dùng đang hỏi lặp; chỉ bổ sung điểm mới, không lặp lại câu trước.")
-    if "emotional_distress" in flags:
-        guidance.append("Mở đầu bằng đồng cảm ngắn, sau đó hỗ trợ acne cụ thể.")
+    if query_subject == "non_self":
+        guidance.append("Không xem nội dung này là hồ sơ cá nhân của user.")
     if "crisis_signal" in flags:
         guidance.append("Ưu tiên phản hồi an toàn, khuyến khích tìm hỗ trợ khẩn cấp.")
-    if "progress_followup" in flags:
-        guidance.append("Đây là follow-up tiến triển; không hỏi lại toàn bộ intake.")
     if "multi_condition" in flags:
         guidance.append("Tránh khẳng định chắc khi có bệnh da không thuần acne; cân nhắc khuyên khám.")
     if "product_safety_check" in flags:
@@ -286,54 +278,68 @@ class PromptBuilder:
         Dùng để inject rõ vào prompt dưới dạng 'Thông tin đã biết' —
         giúp LLM không hỏi lại những gì đã có.
         """
-        parts: list[str] = []
         ctx = user.context
         cl = user.clinical
 
-        if ctx.age is not None:
-            parts.append(f"tuổi: {ctx.age}")
-        if ctx.sex:
-            parts.append(f"giới tính: {'nam' if ctx.sex == 'male' else 'nữ' if ctx.sex == 'female' else ctx.sex}")
-        if ctx.skin_type:
-            parts.append(f"loại da: {self._vi(self._SKIN_TYPE_VI, ctx.skin_type)}")
-        if ctx.duration_weeks is not None:
-            parts.append(f"thời gian bị: ~{ctx.duration_weeks} tuần")
-        if ctx.is_pregnant:
-            parts.append("đang mang thai: CÓ")
-        if ctx.is_breastfeeding:
-            parts.append("đang cho con bú: CÓ")
-        if ctx.medications:
-            parts.append("thuốc đang dùng: " + ", ".join(ctx.medications))
-        if ctx.current_products:
-            parts.append("sản phẩm đang dùng: " + ", ".join(ctx.current_products))
-        if ctx.allergies:
-            parts.append("dị ứng: " + ", ".join(ctx.allergies))
+        # Tách provenance: 'stated' = user nêu rõ (số/cụm tường minh, khó suy sai);
+        # 'inferred' = nhãn lâm sàng do rule/regex suy ra (có thể sai). Không gộp
+        # chung để tránh biến fact suy luận thành "đã xác nhận" authoritative.
+        stated: list[str] = []
+        inferred: list[str] = []
 
+        if ctx.age is not None:
+            stated.append(f"tuổi: {ctx.age}")
+        if ctx.sex:
+            stated.append(f"giới tính: {'nam' if ctx.sex == 'male' else 'nữ' if ctx.sex == 'female' else ctx.sex}")
+        if ctx.duration_weeks is not None:
+            stated.append(f"thời gian bị: ~{ctx.duration_weeks} tuần")
+        if ctx.is_pregnant:
+            stated.append("đang mang thai: CÓ")
+        if ctx.is_breastfeeding:
+            stated.append("đang cho con bú: CÓ")
+        if ctx.medications:
+            stated.append("thuốc đang dùng: " + ", ".join(ctx.medications))
+        if ctx.current_products:
+            stated.append("sản phẩm đang dùng: " + ", ".join(ctx.current_products))
+        if ctx.allergies:
+            stated.append("dị ứng: " + ", ".join(ctx.allergies))
+
+        # loại da + nhãn lâm sàng là suy luận từ pattern → nhóm 'cần xác nhận'.
+        if ctx.skin_type:
+            inferred.append(f"loại da: {self._vi(self._SKIN_TYPE_VI, ctx.skin_type)}")
         if cl:
             if cl.lesion_types:
                 vi_lesions = [self._vi(self._LESION_VI, x) for x in cl.lesion_types]
-                parts.append("loại mụn: " + ", ".join(vi_lesions))
+                inferred.append("loại mụn: " + ", ".join(vi_lesions))
             if cl.lesion_distribution:
                 vi_locs = [self._vi(self._LOCATION_VI, x) for x in cl.lesion_distribution]
-                parts.append("vị trí mụn: " + ", ".join(vi_locs))
+                inferred.append("vị trí mụn: " + ", ".join(vi_locs))
             if cl.inflammation_level and cl.inflammation_level not in ("unknown", "none"):
-                parts.append("mức viêm: " + self._vi(self._INFLAMMATION_VI, cl.inflammation_level))
+                inferred.append("mức viêm: " + self._vi(self._INFLAMMATION_VI, cl.inflammation_level))
             if cl.hormonal_factors:
                 vi_horm = [self._vi(self._HORMONAL_VI, x) for x in cl.hormonal_factors]
-                parts.append("yếu tố khởi phát: " + ", ".join(vi_horm))
+                inferred.append("yếu tố khởi phát: " + ", ".join(vi_horm))
             if cl.canonical_ingredients:
-                parts.append("hoạt chất chuẩn hóa: " + ", ".join(cl.canonical_ingredients))
+                inferred.append("hoạt chất chuẩn hóa: " + ", ".join(cl.canonical_ingredients))
             if cl.usage_frequencies:
-                parts.append("tần suất dùng: " + ", ".join(cl.usage_frequencies))
+                inferred.append("tần suất dùng: " + ", ".join(cl.usage_frequencies))
             if cl.concentrations:
                 conc = ", ".join(f"{float(x):.8g}" for x in cl.concentrations)
-                parts.append("nồng độ: " + conc)
+                inferred.append("nồng độ: " + conc)
             if cl.red_flags_input:
-                parts.append("dấu hiệu cần chú ý: " + ", ".join(cl.red_flags_input))
+                inferred.append("dấu hiệu cần chú ý: " + ", ".join(cl.red_flags_input))
             if cl.treatment_goals:
-                parts.append("mong muốn: " + ", ".join(cl.treatment_goals))
+                inferred.append("mong muốn: " + ", ".join(cl.treatment_goals))
 
-        return "; ".join(parts) if parts else ""
+        segments: list[str] = []
+        if stated:
+            segments.append("[user đã nêu] " + "; ".join(stated))
+        if inferred:
+            segments.append(
+                "[hệ thống suy luận, hãy xác nhận nếu mâu thuẫn với lời user] "
+                + "; ".join(inferred)
+            )
+        return " | ".join(segments)
 
     def _clinical_summary(self, user: UserInput) -> str:
         c = user.clinical
@@ -427,14 +433,16 @@ class PromptBuilder:
         except Exception:
             return self.system()
 
-    def _extended_rules(self) -> str:
+    def _extended_rules(self, require_citations: bool = True) -> str:
         """Render extended rules (citation, confidence, conflict resolution).
 
         Chỉ inject vào user_message khi hybrid mode + có KB chunks,
         để tránh nhồi system prompt cho model 7B.
         """
         try:
-            return self.env.get_template("system_extended.j2").render()
+            return self.env.get_template("system_extended.j2").render(
+                require_citations=require_citations,
+            )
         except Exception:
             return ""
 
@@ -451,6 +459,8 @@ class PromptBuilder:
         route_metadata: dict | None = None,
         system_override: str | None = None,
         completeness_hint: str | None = None,
+        confirmed_profile: dict | None = None,
+        require_citations: bool = True,
     ) -> tuple[str, str]:
         stream_templates = {"stream_user.j2", "knowledge_user.j2", "clarify_user.j2"}
         sys_p = (
@@ -460,30 +470,40 @@ class PromptBuilder:
         )
         # Extended rules chỉ inject khi hybrid và thực sự có KB chunks
         has_kb = retrieval is not None and bool(retrieval.chunks)
-        extended = self._extended_rules() if has_kb else ""
+        extended = self._extended_rules(require_citations) if has_kb else ""
         safe_description = _escape_jinja(_sanitize_user_description(user.description))
         safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
         safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
         safe_qv = _escape_jinja(query_vi)
         safe_context = _escape_jinja(self._context_block(retrieval, max_chars=max_context_chars))
-        # Knowledge intent: bỏ anchor turn-đầu + giới hạn lượt gần nhất để history
-        # không "đè" câu hỏi hiện tại (model nhỏ hay parrot chủ đề cũ). Luồng clinical
-        # (advise/stream) giữ anchor để duy trì ngữ cảnh ca bệnh.
-        _is_knowledge = template == "knowledge_user.j2"
         safe_history = _escape_jinja(format_history_block(
             sanitize_history_turns(history or []),
-            keep_anchor=not _is_knowledge,
-            max_turns=2 if _is_knowledge else None,
+            keep_anchor=False,
+            max_turns=2,
         ))
-        safe_known_facts = _escape_jinja(self._known_facts_summary(user))
-        safe_clinical_plan = _escape_jinja(self._clinical_plan_summary(clinical_plan))
+        profile = confirmed_profile or {}
+        safety_facts: list[str] = []
+        if profile.get("is_pregnant"):
+            safety_facts.append("đang mang thai")
+        if profile.get("is_breastfeeding"):
+            safety_facts.append("đang cho con bú")
+        if profile.get("allergies"):
+            safety_facts.append("dị ứng: " + ", ".join(profile["allergies"]))
+        if profile.get("medications"):
+            safety_facts.append("thuốc đã xác nhận: " + ", ".join(profile["medications"]))
+        safe_confirmed_safety = _escape_jinja("; ".join(safety_facts))
+        lowered_description = user.description.lower()
+        pediatric_safety = any(term in lowered_description for term in (
+            "trẻ sơ sinh", "tre so sinh", "bé mới sinh", "be moi sinh", "newborn",
+        ))
         # Route guidance: chỉ truyền những instruction ngắn, không dump metadata nội bộ
         safe_route_guidance = _escape_jinja(_route_guidance(route_metadata))
         query_subject = str((route_metadata or {}).get("query_subject") or "self")
         safe_extended = _escape_jinja(extended)
         # Completeness hint: hướng dẫn LLM hỏi thêm thay vì gate cứng
         safe_completeness_hint = _escape_jinja(completeness_hint or "")
+        safe_known_facts = _escape_jinja(self._known_facts_summary(user))
 
         user_p = self.env.get_template(template).render(
             description=safe_description,
@@ -499,7 +519,7 @@ class PromptBuilder:
             detected_language=detected_language,
             query_vi=safe_qv,
             known_facts=safe_known_facts,
-            normalized_case_plan=safe_clinical_plan,
+            normalized_case_plan="",
             retrieved_context=safe_context,
             history_block=safe_history,
             route_metadata=safe_route_guidance,  # backward-compat: templates dùng biến này
@@ -507,5 +527,8 @@ class PromptBuilder:
             extended_rules=safe_extended,
             completeness_hint=safe_completeness_hint,
             has_retrieved_context=has_kb,
+            confirmed_safety_facts=safe_confirmed_safety,
+            pediatric_safety=pediatric_safety,
+            require_citations=require_citations,
         )
         return sys_p, user_p

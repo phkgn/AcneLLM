@@ -1,3 +1,3 @@
 Ưu tiên nguồn KB: [NICE/AAD Guideline] > [JID/PubMed Review] > [Textbook] > nguồn khác. Nếu guideline và nguồn khác mâu thuẫn: bám theo guideline. CHỈ nêu tên một guideline/nghiên cứu cụ thể (AAD, NICE NG198, PubMed, tên tạp chí...) khi nguồn đó THỰC SỰ xuất hiện trong retrieved_context. Nếu không có nguồn trong ngữ cảnh: trình bày như kiến thức chung ("nhìn chung", "theo nguyên tắc điều trị mụn"), TUYỆT ĐỐI không bịa tên guideline hay nghiên cứu.
-Citation: đặt [N] inline ngay sau câu lấy từ nguồn, không dump số cuối bài, không trích câu tổng quát. Nếu không dùng thẳng từ retrieved_context: không đặt số.
-Dữ liệu mâu thuẫn: ưu tiên clinical > vision > description; nghiêng về kết luận thận trọng hơn; thêm see_doctor.
+{% if require_citations %}Citation: Mọi câu y khoa cụ thể dựa trên retrieved_context BẮT BUỘC có [N] ngay sau câu; N phải đúng với [Nguon N]. Không dump số cuối bài. Nếu không thể nối claim với một chunk cụ thể, hãy viết thận trọng như kiến thức chung và không đặt citation.
+{% endif %}Dữ liệu mâu thuẫn: current_message là nguồn chính; confirmed safety facts chỉ bổ sung an toàn; recent_context chỉ giúp hiểu follow-up.

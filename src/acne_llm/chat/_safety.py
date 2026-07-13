@@ -118,6 +118,36 @@ _PREGNANCY_MENTION_TERMS = (
     "pregnant", "pregnancy", "breastfeed", "lactating", "nursing",
 )
 
+# Tự thủ thuật bằng dụng cụ (dao/kim/chích/rạch/cây nặn) để lấy nhân mụn tại nhà —
+# tuyệt đối không hướng dẫn. Bắt trên TEXT sinh ra để chặn cả khi model được nhắc
+# "nếu vẫn muốn thì dùng dao...". Đây là safety net độc lập với system prompt.
+_SELF_PROCEDURE_TERMS = (
+    "dùng dao", "dung dao", "dùng kim", "dung kim",
+    "cây nặn", "cay nan", "dụng cụ nặn", "dung cu nan", "que nặn", "que nan",
+    "tự chích", "tu chich", "tự rạch", "tu rach", "tự lể", "tu le",
+    "chích mụn", "chich mun", "rạch mụn", "rach mun",
+    "lấy nhân mụn bằng", "lay nhan mun bang",
+    "kim tiêm", "kim tiem", "kim vô trùng", "kim vo trung",
+    "dao tiệt trùng", "dao tiet trung", "dao chuyên dụng", "dao chuyen dung",
+)
+
+_SELF_PROCEDURE_WARNING = (
+    "\n\n⚠️ Lưu ý an toàn: Không tự nặn, chích, rạch hay dùng dao/kim/cây nặn "
+    "(kể cả đã tiệt trùng) để lấy nhân mụn tại nhà — dễ gây nhiễm trùng, sẹo và "
+    "làm mụn lan rộng. Việc lấy nhân mụn nên do bác sĩ hoặc kỹ thuật viên da liễu "
+    "thực hiện trong điều kiện vô khuẩn."
+)
+_SELF_PROCEDURE_ANCHOR = (
+    "không tự nặn, chích", "khong tu nan, chich", "trong điều kiện vô khuẩn",
+    "trong dieu kien vo khuan",
+)
+
+
+def _advises_self_procedure(text: str) -> bool:
+    """True nếu response nhắc đến việc tự dùng dụng cụ để lấy/chích nhân mụn."""
+    lower = text.lower()
+    return any(term in lower for term in _SELF_PROCEDURE_TERMS)
+
 
 def get_safety_suffix(
     full_text: str,
@@ -246,7 +276,7 @@ def get_safety_suffix(
     # hay scarring_risk (tránh cảnh báo khẩn cấp lạm phát).
     _EMERGENCY_FLAGS = {"infection_signs", "purulent_lesions", "painful_lesions", "widespread"}
     _rf = set(getattr(user.clinical, "red_flags_input", []) or []) if user.clinical else set()
-    if "urgency_red_flag" in route_flags and (_rf & _EMERGENCY_FLAGS):
+    if "urgency_red_flag" in route_flags and ((_rf & _EMERGENCY_FLAGS) or not _rf):
         if not _already_has_warning(
             full_text,
             ("đi khám ngay", "gặp bác sĩ ngay", "cấp cứu", "khám ngay",
@@ -276,6 +306,13 @@ def get_safety_suffix(
                 "hơn vì các phác đồ có thể xung đột nhau. Bạn nên gặp bác sĩ da liễu để được "
                 "đánh giá toàn diện và có phác đồ phù hợp."
             )
+
+    # Self-procedure (dao/kim/chích/rạch) — luôn chèn cảnh báo dù model có nhắc
+    # phòng ngừa hay không, vì đây là rủi ro trực tiếp (Critical, S09).
+    if _advises_self_procedure(full_text) and not _already_has_warning(
+        full_text, _SELF_PROCEDURE_ANCHOR
+    ):
+        warnings.append(_SELF_PROCEDURE_WARNING)
 
     # Generic disclaimer: skip for knowledge/product queries
     if not skip_generic_disclaimer and not warnings:

@@ -152,18 +152,21 @@ class Settings(BaseSettings):
     chat_max_context_chars: int = 6000
     # Sigmoid score tối thiểu để chunk xuất hiện trong citation (khớp reranker threshold)
     chat_min_citation_score: float = 0.25
+    # Bật/tắt trích dẫn inline [N]. True: yêu cầu LLM đặt [1][2] và tự vá nếu thiếu.
+    # False: không yêu cầu, không vá citation.
+    chat_require_citations: bool = True
     # Pool safety pass (thai kỳ, thuốc kê đơn) — ưu tiên guideline source_types
     chat_safety_top_k: int = 5
     # OOD guard: nếu avg VÀ max sigmoid sau rerank đều < floor → bỏ chunks, trả None.
     # QUAN TRỌNG: sigmoid(0)=0.50 là mức "ngẫu nhiên" (reranker không thấy liên quan).
     # Floor PHẢI > 0.50 mới phân biệt được chunk rác (~0.50) với chunk tốt (~0.65+).
-    # 0.52 = chặn được retrieval rỗng nghĩa nhưng vẫn giữ chunk thật sự liên quan.
+    # 0.58 = chặn vùng score gần-random quan sát được trong trace thực tế (~0.52-0.54).
     # (Trước đây 0.45 < 0.50 nên guard không bao giờ kích hoạt — dead code.)
-    chat_rerank_ood_floor: float = 0.52
+    chat_rerank_ood_floor: float = 0.58
     # Ngưỡng MỀM per-chunk: thay vì drop sạch khi cả pool yếu, giữ riêng những
     # chunk vượt keep_floor (cứu chunk liên quan nhưng reranker chấm thấp, ví dụ
-    # tiếng Việt domain hẹp ~0.515), chỉ drop hết khi KHÔNG chunk nào vượt.
-    chat_rerank_keep_floor: float = 0.515
+    # tiếng Việt domain hẹp), chỉ drop hết khi KHÔNG chunk nào vượt.
+    chat_rerank_keep_floor: float = 0.58
     # ── Extraction confidence (rule-based intake) ────────────────────────────
     # Ngưỡng cho tầng confidence bọc quanh normalizer (extraction_confidence.py).
     # Heuristic khởi điểm; golden set (scripts/tune_extraction_thresholds.py) dò lại.

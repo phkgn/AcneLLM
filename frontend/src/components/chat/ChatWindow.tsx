@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import type { MouseEvent, ReactNode } from "react";
+import type { MouseEvent } from "react";
 import { CHAT_INPUT_ID, KB_TOP_K_RANGE, TEMPERATURE_RANGE } from "@/config/chatConfig";
 import { searchKB } from "@/lib/api";
 import type { KBSearchResult } from "@/lib/types";

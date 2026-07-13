@@ -40,7 +40,7 @@ def test_normalizer_extracts_core_context_from_free_text():
     assert user.context.skin_type == "oily"
     assert user.context.duration_weeks == 4
     assert user.context.is_pregnant is False
-    assert "bha" in user.context.current_products
+    assert "BHA" in user.context.current_products
     assert user.clinical is not None
     assert "papule" in user.clinical.lesion_types
     assert "chin" in user.clinical.lesion_distribution
@@ -62,8 +62,7 @@ def test_normalizer_va_alias_is_conservative():
     lower = normalize_chat_message("retinol va niacinamide dùng chung được không")
     upper = normalize_chat_message("Em đang bôi VA buổi tối")
 
-    assert lower.clinical is not None
-    assert "tretinoin" not in lower.clinical.canonical_ingredients
+    assert lower.clinical is None
     assert upper.clinical is not None
     assert "tretinoin" in upper.clinical.canonical_ingredients
 
@@ -197,6 +196,16 @@ def test_normalizer_handles_topical_irritation_from_audit():
         "Em có nên ngưng thuốc không?"
     )
 
-    assert "differin" in user.context.current_products
+    assert "adapalene" in user.context.current_products
     assert user.clinical is not None
     assert "skin_irritation" in user.clinical.red_flags_input
+
+
+def test_normalizer_extracts_informal_ada_alias_without_false_red_flag():
+    user = normalize_chat_message("toi dung ada 0.1% dc 3 tuan ma da rat")
+    assert "adapalene" in user.context.medications
+
+    source_question = normalize_chat_message(
+        "Vì sao đầu đen có màu đen, và nguồn nào nói điều đó?"
+    )
+    assert "purulent_lesions" not in (source_question.clinical.red_flags_input if source_question.clinical else [])

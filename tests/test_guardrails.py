@@ -186,7 +186,11 @@ def test_ood_detector_in_domain():
 
 def test_ood_detector_out_of_domain():
     embedder = _FakeEmbedder()
-    detector = OodDetector(embedder=embedder, ood_threshold=0.5)
+    detector = OodDetector(
+        embedder=embedder,
+        ood_threshold=0.5,
+        seed_queries=["mụn viêm", "da mụn", "retinol trị mụn"],
+    )
     # Query không liên quan: vector [0,1,0,0] → sim với centroid [1,0,0,0] = 0
     assert detector.is_out_of_domain("giải phương trình toán học")
 
@@ -262,12 +266,33 @@ def test_guardrail_scope_check_passes_ood_in_domain():
     assert result is None
 
 
-def test_guardrail_scope_check_soft_allows_ood_out_of_domain():
-    """scope_check soft mode: OOD ngoài domain vẫn pass tới LLM."""
+def test_guardrail_scope_check_soft_refuses_explicit_out_of_domain():
+    """Explicit math intent is a hard boundary even in semantic soft mode."""
     g = GuardrailRunner(str(CFG), embedder=_FakeEmbedder(), ood_threshold=0.5)
     user = UserInput(description="giải phương trình bậc hai x^2 + 3x + 2 = 0")
     result = g.scope_check(user)
-    assert result is None
+    assert result is not None
+
+
+def test_guardrail_refuses_math_with_polite_words_between_verb_and_subject():
+    g = GuardrailRunner(str(CFG), enable_ood=False)
+    user = UserInput(description="Giải giúp tôi phương trình x bình phương cộng 3x")
+    assert g.scope_check(user) is not None
+
+
+def test_medication_safety_refusal_blocks_pregnancy_and_interaction():
+    g = GuardrailRunner(str(CFG), enable_ood=False)
+    user = UserInput(
+        description="Tôi có thể dùng hai thuốc này không?",
+        context=UserContext(is_pregnant=True, medications=["minocycline"]),
+    )
+
+    result = g.medication_safety_refusal(user, ["minocycline", "isotretinoin"])
+
+    assert result is not None
+    assert result.model_name == "deterministic-safety"
+    assert "Không sử dụng" in result.disclaimer
+    assert "thai kỳ" in result.disclaimer
 
 
 def test_guardrail_scope_check_hard_refuses_ood_out_of_domain():

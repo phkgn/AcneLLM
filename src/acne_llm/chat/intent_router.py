@@ -12,8 +12,6 @@ import re
 from typing import Literal
 import unicodedata
 
-from loguru import logger
-
 from ..schemas import AcneClinicalInput, UserInput
 from .session import ConversationTurn
 from ..llm.language import detect_language_heuristic
@@ -22,7 +20,7 @@ from ._terms import QUESTION_TERMS, contains_any as _shared_contains_any
 
 PrimaryIntent = Literal["advise", "knowledge", "clarify", "reject"]
 IntentSource = Literal["rule", "hybrid"]
-QuerySubject = Literal["self", "other", "general"]
+QuerySubject = Literal["self", "non_self"]
 
 
 @dataclass
@@ -263,6 +261,16 @@ def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     return _shared_contains_any(text, terms)
 
 
+def _contains_product_safety_term(text: str) -> bool:
+    """Match short ingredient aliases as tokens, never as substrings."""
+    short_aliases = {"aha", "bha", "bpo"}
+    return any(
+        re.search(rf"(?<!\w){re.escape(term)}(?!\w)", text) is not None
+        if term in short_aliases else term in text
+        for term in _SAFETY_PRODUCT_TERMS
+    )
+
+
 def _strip_accents(text: str) -> str:
     normalized = unicodedata.normalize("NFD", text)
     without_marks = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
@@ -294,12 +302,12 @@ def _query_subject_for_intent(
     has_self_subject: bool,
 ) -> QuerySubject:
     if has_other_subject:
-        return "other"
+        return "non_self"
     if has_self_subject:
         return "self"
     if primary_intent == "advise":
         return "self"
-    return "general"
+    return "non_self"
 
 
 def _clinical_has_case_signal(clinical: AcneClinicalInput | None) -> bool:
@@ -376,7 +384,7 @@ def _rule_decision(
         flags.append("emotional_distress")
     if _contains_any(lowered, _CRISIS_TERMS):
         flags.append("crisis_signal")
-    if _contains_any(lowered, _SAFETY_PRODUCT_TERMS):
+    if _contains_product_safety_term(lowered):
         flags.append("product_safety_check")
     if _contains_any(lowered, _URGENCY_TERMS) or (user.clinical and user.clinical.red_flags_input):
         flags.append("urgency_red_flag")
@@ -495,13 +503,16 @@ def _rule_decision(
     # Priority 2b: So sánh / đánh giá tổng quát không có personal pronoun rõ ràng.
     # Ví dụ: "da dầu có dễ bị mụn hơn da khô không", "có phải da dầu nhiều mụn hơn không"
     # → có "bị mụn" hoặc "mụn" nhưng không có "tôi/mình" → đây là câu hỏi kiến thức.
-    _COMPARISON_MARKERS = ("hơn", "hon ", " hon", "so với", "so voi", "có phải", "co phai",
-                           "có đúng", "co dung", "dễ bị", "de bi", "hay hơn", "hay hon")
+    _COMPARISON_MARKERS = (
+        "hơn", "hon ", " hon", "so với", "so voi", "có phải", "co phai",
+        "có đúng", "co dung", "dễ bị", "de bi", "hay hơn", "hay hon",
+        "khác với", "khac voi", "khác nhau", "khac nhau", "khác gì", "khac gi",
+        "phân biệt", "phan biet", "so sánh", "so sanh",
+        "khác ", "khac ", "như thế nào", "nhu the nao",
+    )
     is_general_comparison = (
         _contains_any(lowered, _COMPARISON_MARKERS)
-        and ("không" in lowered or "khong" in lowered or "?" in message)
         and not has_personal_terms
-        and not has_case_signal
     )
     if is_general_comparison:
         return _decision(

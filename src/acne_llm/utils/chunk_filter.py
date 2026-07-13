@@ -49,41 +49,6 @@ def _has_concrete_query_marker(query: str) -> bool:
     return any(marker in lowered for marker in _CONCRETE_QUERY_MARKERS)
 
 
-# Marker "on-topic acne" — rộng hơn _CONCRETE_QUERY_MARKERS (vốn chỉ là tên sản phẩm).
-# Dùng riêng cho vague-detection: một câu hỏi kiến thức rõ ràng về mụn (nhắc tới
-# mụn / vị trí / cơ chế / nguyên nhân) KHÔNG nên bị coi là "vague" chỉ vì không
-# nhắc tên sản phẩm cụ thể.
-_ACNE_TOPIC_MARKERS = (
-    # tổn thương / từ khoá mụn
-    "mụn", "mun", "trứng cá", "trung ca", "acne", "comedone", "comedo",
-    "sẩn", "san", "nang", "viêm", "viem", "thâm", "tham", "sẹo", "seo",
-    "đầu đen", "dau den", "đầu trắng", "dau trang", "nhân mụn", "nhan mun",
-    "papule", "pustule", "nodule", "cyst", "blackhead", "whitehead",
-    "lỗ chân lông", "lo chan long", "bã nhờn", "ba nhon", "tuyến bã", "tuyen ba",
-    # vị trí cơ thể
-    "mặt", "mat", "trán", "tran", "má", "cằm", "cam", "mũi", "mui",
-    "lưng", "lung", "ngực", "nguc", "vai", "cổ", "hàm", "ham",
-    # khái niệm / nguyên nhân / cơ chế (câu hỏi knowledge)
-    "nguyên nhân", "nguyen nhan", "cơ chế", "co che", "vì sao", "vi sao",
-    "tại sao", "tai sao", "nội tiết", "noi tiet", "hormone", "hormonal",
-    "vi khuẩn", "vi khuan", "dầu", "dau", "khác biệt", "khac biet",
-    "so sánh", "so sanh", "phân biệt", "phan biet", "loại mụn", "loai mun",
-    "điều trị", "dieu tri", "trị mụn", "tri mun", "phòng ngừa", "phong ngua",
-)
-
-
-def _is_acne_concrete_query(query: str) -> bool:
-    """True khi query là câu hỏi/mô tả on-topic về mụn (không mơ hồ).
-
-    Rộng hơn _has_concrete_query_marker: chấp nhận cả thuật ngữ mụn, vị trí cơ thể,
-    và từ khái niệm/nguyên nhân — để câu hỏi knowledge rõ ràng không bị gắn "vague".
-    """
-    lowered = query.lower()
-    if _has_concrete_query_marker(query):
-        return True
-    return any(marker in lowered for marker in _ACNE_TOPIC_MARKERS)
-
-
 def is_noisy_chunk(chunk: RetrievedChunk) -> bool:
     """Return True when a chunk is likely a Wikipedia meta-page or edit artefact."""
     meta = chunk.metadata or {}
@@ -173,3 +138,76 @@ def drop_query_mismatched_chunks(
         num_chunks=len(kept),
         avg_score=avg,
     )
+
+
+_FACE_REGION_TERMS = (
+    "mặt", "trán", "má", "cằm", "mũi", "quai hàm", "face", "forehead", "cheek", "chin",
+)
+_NON_FACE_REGION_TERMS = (
+    "mông", "vùng mông", "buttock", "lưng", "back acne", "ngực", "chest acne",
+)
+
+
+def drop_body_region_mismatched_chunks(
+    retrieval: RetrievalOutput | None,
+    query: str,
+) -> RetrievalOutput | None:
+    """Drop chunks that are explicitly about a conflicting body region.
+
+    This is intentionally conservative: it only activates when the query has a
+    face-region marker and the chunk has a non-face marker without any face marker.
+    """
+    if retrieval is None or not retrieval.chunks:
+        return retrieval
+    lowered_query = query.lower()
+    if not any(term in lowered_query for term in _FACE_REGION_TERMS):
+        return retrieval
+    kept: list[RetrievedChunk] = []
+    for chunk in retrieval.chunks:
+        meta = chunk.metadata or {}
+        haystack = " ".join((
+            str(meta.get("title") or ""),
+            str(meta.get("url") or ""),
+            chunk.text,
+        )).lower()
+        conflicting = any(term in haystack for term in _NON_FACE_REGION_TERMS)
+        has_face = any(term in haystack for term in _FACE_REGION_TERMS)
+        if not (conflicting and not has_face):
+            kept.append(chunk)
+    if len(kept) == len(retrieval.chunks):
+        return retrieval
+    avg = sum(chunk.score for chunk in kept) / len(kept) if kept else 0.0
+    return retrieval.model_copy(update={
+        "chunks": kept,
+        "num_chunks": len(kept),
+        "avg_score": avg,
+    })
+
+
+def drop_acne_boils_mismatched_chunks(
+    retrieval: RetrievalOutput | None,
+    query: str,
+) -> RetrievalOutput | None:
+    """Do not use boil/furuncle-only documents as evidence for acne nodules."""
+    if retrieval is None or not retrieval.chunks:
+        return retrieval
+    lowered_query = query.lower()
+    asks_acne_nodule = any(term in lowered_query for term in ("mụn bọc", "mun boc"))
+    explicitly_asks_boil = any(term in lowered_query for term in ("mụn nhọt", "mun nhot", "boil", "furuncle"))
+    if not asks_acne_nodule or explicitly_asks_boil:
+        return retrieval
+    acne_nodule_terms = ("mụn bọc", "mun boc", "nodular acne", "cystic acne", "acne nodule")
+    boil_terms = ("mụn nhọt", "mun nhot", "boil", "furuncle", "furunculosis", "skin abscess")
+    kept: list[RetrievedChunk] = []
+    for chunk in retrieval.chunks:
+        meta = chunk.metadata or {}
+        haystack = " ".join((str(meta.get("title") or ""), chunk.text)).lower()
+        boil_only = any(term in haystack for term in boil_terms) and not any(
+            term in haystack for term in acne_nodule_terms
+        )
+        if not boil_only:
+            kept.append(chunk)
+    if len(kept) == len(retrieval.chunks):
+        return retrieval
+    avg = sum(chunk.score for chunk in kept) / len(kept) if kept else 0.0
+    return retrieval.model_copy(update={"chunks": kept, "num_chunks": len(kept), "avg_score": avg})

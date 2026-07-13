@@ -7,7 +7,12 @@ from loguru import logger
 
 from ..schemas import RetrievedChunk, RetrievalOutput, UserInput
 from ..schemas.clinical import ClinicalQueryPlan
-from ..utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks, _has_concrete_query_marker, _is_acne_concrete_query
+from ..utils.chunk_filter import (
+    drop_acne_boils_mismatched_chunks,
+    drop_body_region_mismatched_chunks,
+    drop_noisy_chunks,
+    drop_query_mismatched_chunks,
+)
 from ..cache import cached_retrieve
 
 if TYPE_CHECKING:
@@ -139,84 +144,19 @@ def retrieve_for_chat(
     route_flags = route_flags or []
     safety_terms = list(dict.fromkeys(safety_terms or []))
 
-    queries = []
-    if clinical_plan is not None:
-        queries = [
-            q.strip()
-            for q in [clinical_plan.rag_queries.query_vi]
-            if q and q.strip()
-        ]
-    if not queries:
-        queries = [normalized_query.strip() if normalized_query else build_query_from_user(user)]
-
-    # M3: Product safety check — khi user hoi ve ket hop hoat chat (retinol+BHA, AHA+BPO...)
-    # Inject ingredient interaction terms vao safety_terms de trigger safety pass retrieve
-    # guideline chunks ve contraindication / safe combination.
-    if "product_safety_check" in route_flags:
-        _ingredient_safety_terms = [
-            "ingredient interaction", "active combination", "contraindication skincare",
-            "retinol aha bha", "benzoyl peroxide retinoid", "safe combination actives",
-            "ket hop hoat chat", "ket hop retinol aha", "chong chi dinh ket hop",
-        ]
-        existing = set((clinical_plan.safety_terms if clinical_plan is not None else []) + safety_terms)
-        added = [t for t in _ingredient_safety_terms if t not in existing]
-        if added:
-            if clinical_plan is not None:
-                clinical_plan.safety_terms = list(clinical_plan.safety_terms) + added
-            else:
-                safety_terms = list(safety_terms) + added
-            logger.debug("[retrieval] product_safety_check — injected {} ingredient safety terms", len(added))
-
-    # Cache key: bao gom clinical context sau fold de tranh share cache
-    # giua cac turn co session facts khac nhau (vi du: turn 2 co lesion, turn 1 khong)
-    _ctx = user.context
-    _cl = user.clinical
-    _clinical_fingerprint = (
-        _ctx.age,
-        _ctx.sex,
-        _ctx.skin_type,
-        _ctx.duration_weeks,
-        _ctx.is_pregnant,
-        _ctx.is_breastfeeding,
-        tuple(sorted(_cl.lesion_types)) if _cl else (),
-        tuple(sorted(_cl.lesion_distribution)) if _cl else (),
-        (_cl.inflammation_level or "") if _cl else "",
-        tuple(sorted(_cl.hormonal_factors)) if _cl else (),
-        tuple(sorted(_ctx.medications or [])),
-        tuple(sorted(_ctx.current_products or [])),
-    )
-    _cache_safety_terms = tuple(sorted(
-        [*(clinical_plan.safety_terms if clinical_plan is not None else []), *safety_terms]
-    ))
+    # Production retrieval is current-turn-first. The planner remains available
+    # to debug analytics but cannot rewrite this query.
+    query = normalized_query.strip() if normalized_query else user.description.strip()
+    _cache_safety_terms = tuple(sorted(safety_terms))
     _cache_key = (
-        tuple(queries),
+        "chat-query-v2",
+        query,
         top_k,
         getattr(settings, "chat_rerank_top_k", 3),
         min_score,
-        _clinical_fingerprint,
         _cache_safety_terms,
     )
-
-    # FIX 1: Khi plan=False và query không có concrete acne signal,
-    # dùng fallback query để tránh kéo chunk không liên quan (e.g. "người sống
-    # thực vật có thể bị mụn không" → text message reminder chunks).
-    has_plan = clinical_plan is not None
-    # Chỉ coi là "vague" khi query KHÔNG hề on-topic về mụn (không nhắc mụn/vị trí/
-    # nguyên nhân/cơ chế...). Câu hỏi knowledge rõ ràng như "khác biệt nguyên nhân
-    # mụn mặt vs lưng" có topic marker → KHÔNG inject fallback (tránh làm loãng retrieval).
-    if not has_plan and len(queries) == 1 and not _is_acne_concrete_query(queries[0]):
-        logger.debug(
-            "[retrieval] vague query detected (plan=False, off-topic / no acne marker) "
-            "— injecting fallback query alongside original"
-        )
-        queries = [queries[0], _VAGUE_QUERY_FALLBACK]
-
-    # FIX 4: Dùng top_k lớn hơn khi có clinical_plan đầy đủ để LLM có đủ context.
-    effective_rerank_top_k = (
-        getattr(settings, "chat_rerank_top_k_clinical", 5)
-        if has_plan
-        else getattr(settings, "chat_rerank_top_k", 3)
-    )
+    effective_rerank_top_k = getattr(settings, "chat_rerank_top_k", 3)
 
     def _do_retrieve_and_rerank() -> RetrievalOutput | None:
         def _noise_filter(output: RetrievalOutput) -> RetrievalOutput:
@@ -240,35 +180,16 @@ def retrieve_for_chat(
                 )
             return filtered if filtered is not None and filtered.chunks else after_noise
 
-        retrieve_query: str
-        rerank_query: str
-        if len(queries) == 1:
-            retrieve_query = queries[0]
-            ret = c.retriever.retrieve(retrieve_query, top_k=top_k, mode="hybrid")
-        else:
-            outputs = [
-                c.retriever.retrieve(q, top_k=top_k, mode="hybrid") for q in queries
-            ]
-            retrieve_query = "\n".join(queries)
-            ret = merge_retrieval_outputs(outputs, combined_query=retrieve_query)
-
-        # Dùng rerank_query dạng câu tự nhiên cho cross-encoder nếu có.
-        # Tránh mismatch format giữa query structured và chunk text tự nhiên.
-        _plan_rerank_q = (
-            clinical_plan.rag_queries.rerank_query
-            if clinical_plan is not None and clinical_plan.rag_queries.rerank_query
-            else ""
-        )
-        rerank_query = _plan_rerank_q or retrieve_query
-        if _plan_rerank_q:
-            logger.debug("[retrieval] rerank_query (natural): {:.80}", rerank_query)
+        retrieve_query = query
+        rerank_query = query
+        ret = c.retriever.retrieve(retrieve_query, top_k=top_k, mode="hybrid")
 
         # FIX: Safety pass chi chay khi co medical safety term thuc su
         # (pregnancy, isotretinoin, khang sinh...) — khong chay voi generic
         # ingredient terms tu product_safety_check de tranh extra embed +
         # Chroma query khong can thiet (~50-100ms/request).
         all_safety_terms = list(dict.fromkeys(
-            [*(clinical_plan.safety_terms if clinical_plan is not None else []), *safety_terms]
+            safety_terms
         ))
         if (
             all_safety_terms
@@ -316,7 +237,11 @@ def retrieve_for_chat(
                     reranked = reranked.model_copy(update={"chunks": _kept, "num_chunks": len(_kept)})
             # Sau reranker: chỉ loại noisy chunks, KHÔNG dùng keyword mismatch filter
             # vì cross-encoder đã score relevance rồi — mismatch filter sẽ drop nhầm.
-            return _noise_filter(reranked)
+            semantic_filtered = drop_acne_boils_mismatched_chunks(reranked, rerank_query)
+            region_filtered = drop_body_region_mismatched_chunks(semantic_filtered, rerank_query)
+            if region_filtered is not None and not region_filtered.chunks:
+                return None
+            return _noise_filter(region_filtered or reranked)
         except Exception as e:
             logger.warning(f"Chat reranker unavailable, using raw retrieval: {e}")
             return _full_filter(ret, rerank_query)

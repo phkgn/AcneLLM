@@ -133,8 +133,11 @@ def test_missing_core_skipped_if_both_asked():
         context=UserContext(age=22),
         clinical=AcneClinicalInput(),
     )
-    result = check_completeness(user, asked_fields={"lesion_types", "distribution"})
-    # Both already asked -> no more questions -> sufficient
+    result = check_completeness(
+        user,
+        asked_fields={"lesion_types", "distribution", "inflammation"},
+    )
+    # All core fields already asked -> no more questions -> sufficient
     assert result.kind == "sufficient"
 
 

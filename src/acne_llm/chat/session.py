@@ -35,9 +35,16 @@ _GENITAL_FILTER_TERMS = (
 
 SESSION_TTL: float = 1800.0        # seconds idle before session expires
 MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
-HISTORY_CHAR_BUDGET: int = 3000    # max chars injected into prompt (0 = unlimited) — khớp config.session_history_char_budget
-FIRST_TURN_BUDGET: int = 400       # chars reserved for the first user turn (anchor)
+SESSION_SCHEMA_VERSION: int = 2
+HISTORY_CHAR_BUDGET: int = 1200    # only the most recent relevant pair is prompt-visible
+FIRST_TURN_BUDGET: int = 0         # first-turn anchoring was removed in schema v2
 ASSISTANT_TURN_MAX: int = 200       # max chars mỗi assistant turn trong history (tránh model echo lại)
+
+_FOLLOWUP_REFERENCES = (
+    "vậy", "thế", "còn", "nó", "loại đó", "cái đó", "như trên",
+    "như mình nói", "tiếp tục", "thì sao", "được không", "dùng sao",
+    "how about", "what about", "that one", "as above",
+)
 
 
 # ── Data classes ─────────────────────────────────────────────────────────────
@@ -86,6 +93,7 @@ class Session:
     last_intent: str = ""           # intent label của turn user gần nhất
     total_clarify_count: int = 0    # số lần bot hỏi clarify trong session này
     accumulated_clinical_score: float = 0.0  # tổng score completeness tích lũy
+    schema_version: int = SESSION_SCHEMA_VERSION
 
     def is_expired(self, ttl: float = SESSION_TTL) -> bool:
         return (time.time() - self.last_active) > ttl
@@ -207,12 +215,7 @@ class SessionStore:
         session_id: str | None,
         context: dict,
     ) -> None:
-        """Merge key-value pairs into the session's accumulated user context.
-
-        Existing keys are NOT overwritten (first write wins), so early
-        user-provided data (e.g. age) is not lost on later turns.
-        No-op when session_id is falsy.
-        """
+        """Update confirmed profile with latest explicit values."""
         if not self._is_valid_sid(session_id) or not context:
             return
         sid = session_id.strip()  # type: ignore[union-attr]
@@ -221,7 +224,7 @@ class SessionStore:
             if sess is None:
                 return
             for k, v in context.items():
-                if v is not None and k not in sess.user_context:
+                if v is not None:
                     sess.user_context[k] = v
 
     def get_user_context(self, session_id: str | None) -> dict:
@@ -296,6 +299,76 @@ def get_session_store() -> SessionStore:
     return _store
 
 
+def is_contextual_followup(message: str) -> bool:
+    """True only when the current turn explicitly depends on recent context."""
+    lowered = (message or "").strip().lower()
+    return bool(lowered) and (
+        lowered.startswith("v ")
+        or any(marker in lowered for marker in _FOLLOWUP_REFERENCES)
+    )
+
+
+def select_relevant_history(
+    message: str,
+    primary_intent: str,
+    history: list[ConversationTurn],
+    route_flags: list[str] | None = None,
+) -> list[ConversationTurn]:
+    """Select at most the latest user/assistant pair for an explicit follow-up."""
+    flagged_followup = "progress_followup" in (route_flags or [])
+    if not (flagged_followup or is_contextual_followup(message)):
+        return []
+    filtered = [turn for turn in history if not _is_genital_turn(turn)]
+    if primary_intent == "knowledge":
+        previous_user = next(
+            (turn for turn in reversed(filtered) if turn.role == "user"),
+            None,
+        )
+        return [previous_user] if previous_user is not None else []
+    return filtered[-2:]
+
+
+def build_confirmed_profile(
+    existing: dict,
+    extraction_confidence: object | None,
+    clean_text: str,
+    threshold: float = 0.82,
+) -> dict:
+    """Apply only high-confidence, explicit and stable facts to a profile.
+
+    Clinical descriptors intentionally never enter this structure. Latest
+    explicit scalar wins; explicit stop phrases remove products/medications.
+    """
+    profile = dict(existing or {})
+    if extraction_confidence is None:
+        return profile
+
+    for field_name in ("age", "sex", "is_pregnant", "is_breastfeeding"):
+        result = getattr(extraction_confidence, field_name, None)
+        if result is not None and getattr(result, "value", None) is not None:
+            if float(getattr(result, "confidence", 0.0)) >= threshold:
+                profile[field_name] = result.value
+
+    for result_name, profile_name in (
+        ("allergies", "allergies"),
+        ("products", "current_products"),
+        ("medications", "medications"),
+    ):
+        result = getattr(extraction_confidence, result_name, None)
+        current = list(profile.get(profile_name) or [])
+        current = [value for value in current if not _mentions_stop(clean_text, str(value))]
+        confident = (
+            result.confident_values(threshold)
+            if result is not None and hasattr(result, "confident_values")
+            else []
+        )
+        for value in confident:
+            if not _mentions_stop(clean_text, str(value)) and value not in current:
+                current.append(value)
+        profile[profile_name] = current
+    return profile
+
+
 # ── Normalized memory helpers ────────────────────────────────────────────────
 
 def _dedupe_values(items: list[str]) -> list[str]:
@@ -313,6 +386,23 @@ def snapshot_from_user(user: UserInput, clean_text: str = "") -> NormalizedSnaps
     """Create a compact, serializable-ish snapshot from a normalized UserInput."""
     context = user.context.model_dump(exclude_none=True)
     clinical = user.clinical.model_dump() if user.clinical is not None else {}
+    context["current_products"] = [
+        value for value in context.get("current_products", [])
+        if not _mentions_stop(clean_text, value)
+    ]
+    context["medications"] = [
+        value for value in context.get("medications", [])
+        if not _mentions_stop(clean_text, value)
+    ]
+    if clinical:
+        clinical["medication_history"] = [
+            value for value in clinical.get("medication_history", [])
+            if not _mentions_stop(clean_text, value)
+        ]
+        clinical["skincare_products"] = [
+            value for value in clinical.get("skincare_products", [])
+            if not _mentions_stop(clean_text, value)
+        ]
     return NormalizedSnapshot(context=context, clinical=clinical, clean_text=clean_text)
 
 
@@ -324,15 +414,27 @@ _NEGATE_BREASTFEEDING_TERMS = (
     "không cho con bú", "khong cho con bu", "cai sữa", "cai sua",
     "ngưng cho bú", "ngung cho bu", "ngừng cho bú", "ngung cho bu",
 )
-_STOP_PRODUCT_TERMS = ("ngưng", "ngừng", "dừng", "không dùng", "khong dung", "bỏ")
+_STOP_PRODUCT_TERMS = (
+    "ngưng", "ngừng", "dừng", "không dùng", "khong dung", "bỏ",
+    "không phải", "khong phai", "nói nhầm", "noi nham",
+)
 
 
 def _mentions_stop(clean_text: str, value: str) -> bool:
     lowered = clean_text.lower()
     value_lower = value.lower()
-    if value_lower not in lowered:
+    aliases = {
+        "salicylic_acid": ("salicylic acid", "bha"),
+        "benzoyl_peroxide": ("benzoyl peroxide", "bpo"),
+        "adapalene": ("adapalene", "differin"),
+    }
+    mentioned = next(
+        (term for term in aliases.get(value_lower, (value_lower,)) if term in lowered),
+        None,
+    )
+    if mentioned is None:
         return False
-    pos = lowered.find(value_lower)
+    pos = lowered.find(mentioned)
     before = lowered[max(0, pos - 40):pos]
     return any(term in before for term in _STOP_PRODUCT_TERMS)
 
@@ -398,8 +500,17 @@ def fold_history_facts(
     is_pregnant = current.context.is_pregnant
     is_breastfeeding = current.context.is_breastfeeding
     allergies = list(current.context.allergies)
-    products = list(current.context.current_products)
-    medications = list(current.context.medications)
+    # Current-turn corrections are tombstones. Normalization may still extract
+    # the corrected-away name (for example "không phải doxycycline"), so drop
+    # it before replaying prior facts and again after replay.
+    products = [
+        value for value in current.context.current_products
+        if not _mentions_stop(current.description, value)
+    ]
+    medications = [
+        value for value in current.context.medications
+        if not _mentions_stop(current.description, value)
+    ]
 
     lesion_types = list(current.clinical.lesion_types) if current.clinical else []
     distribution = list(current.clinical.lesion_distribution) if current.clinical else []
@@ -414,17 +525,24 @@ def fold_history_facts(
     goals = list(current.clinical.treatment_goals) if current.clinical else []
     red_flags = list(current.clinical.red_flags_input) if current.clinical else []
 
-    for snap in reversed(snapshots):
+    current_has_age = current.context.age is not None
+    current_has_sex = bool(current.context.sex)
+    current_has_skin_type = bool(current.context.skin_type)
+    current_has_duration = current.context.duration_weeks is not None
+
+    # Replay oldest -> newest so later corrections/tombstones dominate earlier
+    # facts. Reversed replay was the source of corrected medication resurrection.
+    for snap in snapshots:
         ctx = snap.context or {}
         clean = (snap.clean_text or "").lower()
 
-        if age is None and ctx.get("age") is not None:
+        if not current_has_age and ctx.get("age") is not None:
             age = ctx.get("age")
-        if not sex and ctx.get("sex"):
+        if not current_has_sex and ctx.get("sex"):
             sex = ctx.get("sex")
-        if not skin_type and ctx.get("skin_type"):
+        if not current_has_skin_type and ctx.get("skin_type"):
             skin_type = ctx.get("skin_type")
-        if duration_weeks is None and ctx.get("duration_weeks") is not None:
+        if not current_has_duration and ctx.get("duration_weeks") is not None:
             duration_weeks = ctx.get("duration_weeks")
 
         # Pregnancy: chỉ fold từ history khi current turn KHÔNG mention pregnancy.
@@ -443,6 +561,9 @@ def fold_history_facts(
                 is_breastfeeding = True
 
         allergies.extend(ctx.get("allergies") or [])
+        products = [value for value in products if not _mentions_stop(clean, value)]
+        medications = [value for value in medications if not _mentions_stop(clean, value)]
+        med_history = [value for value in med_history if not _mentions_stop(clean, value)]
         for value in ctx.get("current_products") or []:
             if _mentions_stop(clean, value):
                 products = [p for p in products if p.lower() != value.lower()]
@@ -455,6 +576,16 @@ def fold_history_facts(
                 medications.append(value)
 
         clinical = snap.clinical or {}
+        snapshot_topic_shift = any(marker in clean for marker in (
+            "không phải ở", "khong phai o", "câu này tôi hỏi về",
+            "cau nay toi hoi ve", "chuyển sang", "chuyen sang",
+            "nói nhầm", "noi nham",
+        ))
+        if snapshot_topic_shift:
+            if clinical.get("lesion_distribution"):
+                distribution = []
+            if clinical.get("lesion_types"):
+                lesion_types = []
         lesion_types.extend(clinical.get("lesion_types") or [])
         distribution.extend(clinical.get("lesion_distribution") or [])
         # Inflammation: lấy max severity, không downgrade (moderate → mild là sai).
@@ -469,6 +600,26 @@ def fold_history_facts(
         concentrations.extend(clinical.get("concentrations") or [])
         goals.extend(clinical.get("treatment_goals") or [])
         red_flags.extend(clinical.get("red_flags_input") or [])
+
+    # Apply current-turn tombstones last so an older snapshot cannot resurrect
+    # a product/medication that the user explicitly removed or corrected.
+    products = [value for value in products if not _mentions_stop(current.description, value)]
+    medications = [value for value in medications if not _mentions_stop(current.description, value)]
+    med_history = [value for value in med_history if not _mentions_stop(current.description, value)]
+
+    # Explicit topic shifts replace location-dependent clinical facts instead
+    # of unioning face/back or old/new lesions into one synthetic case.
+    current_lower = current.description.lower()
+    topic_shift = any(marker in current_lower for marker in (
+        "không phải ở", "khong phai o", "câu này tôi hỏi về",
+        "cau nay toi hoi ve", "chuyển sang", "chuyen sang",
+        "nói nhầm", "noi nham",
+    ))
+    if topic_shift and current.clinical is not None:
+        if current.clinical.lesion_distribution:
+            distribution = list(current.clinical.lesion_distribution)
+        if current.clinical.lesion_types:
+            lesion_types = list(current.clinical.lesion_types)
 
     merged_context = UserContext(
         age=age,
@@ -533,10 +684,10 @@ def format_history_block(
     turns: list[ConversationTurn],
     char_budget: int = HISTORY_CHAR_BUDGET,
     first_turn_budget: int = FIRST_TURN_BUDGET,
-    keep_anchor: bool = True,
+    keep_anchor: bool = False,
     max_turns: int | None = None,
 ) -> str:
-    """Render conversation history as a compact prompt block.
+    """Render only recent selected turns as a compact prompt block.
 
     Lọc các turn genital/out-of-scope trước khi inject vào prompt để tránh
     session history poisoning (LLM mention "bìu" trong câu hỏi acne tiếp theo).
@@ -572,45 +723,18 @@ def format_history_block(
         content = turn.content.strip()
         return "[" + role_label + "]: " + content
 
-    # Knowledge/general flow: history hay kéo model về chủ đề cũ (anchor turn đầu
-    # ghim chủ đề mãi mãi). Khi keep_anchor=False, bỏ anchor và chỉ giữ vài lượt
-    # gần nhất để hỗ trợ đại từ/coreference, tránh "đè" câu hỏi mới.
-    if not keep_anchor:
-        tail = filtered[-max_turns:] if max_turns else filtered
-        return "\n".join(_fmt(t) for t in tail)
-
+    # Schema v2 never anchors the first turn. Callers pre-select relevant turns;
+    # this final bound prevents accidental history expansion.
+    tail_limit = max_turns if max_turns is not None else 2
+    tail = filtered[-tail_limit:] if tail_limit else []
     if not char_budget or char_budget <= 0:
-        return "\n".join(_fmt(t) for t in filtered)
+        return "\n".join(_fmt(turn) for turn in tail)
 
-    # -- Anchor: keep first user turn as context anchor ----------
-    first_user_idx = next(
-        (i for i, t in enumerate(filtered) if t.role == "user"), None
-    )
-    anchor_line = None
-    anchor_chars = 0
-    if first_user_idx is not None and len(filtered) > 2:
-        raw_anchor = _fmt(filtered[first_user_idx])
-        anchor_line = raw_anchor[:first_turn_budget]
-        anchor_chars = len(anchor_line)
-
-    remaining_budget = char_budget - anchor_chars
-    rest_turns = filtered[first_user_idx + 1:] if anchor_line is not None else filtered
-
-    selected = []
-    total = 0
-    for turn in reversed(rest_turns):
+    per_turn = max(80, char_budget // max(1, len(tail)))
+    selected: list[str] = []
+    for turn in tail:
         line = _fmt(turn)
-        if total + len(line) > remaining_budget and selected:
-            break
+        if len(line) > per_turn:
+            line = line[:per_turn].rsplit(" ", 1)[0].strip() + "..."
         selected.append(line)
-        total += len(line)
-    selected.reverse()
-
-    if anchor_line is not None:
-        parts = [anchor_line]
-        if selected:
-            parts.append("...")
-            parts.extend(selected)
-        return "\n".join(parts)
-
     return "\n".join(selected)

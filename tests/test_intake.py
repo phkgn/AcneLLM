@@ -32,19 +32,19 @@ def _container(rag_ready=False, scope_refusal=None, session_store=None):
     )
 
 
-def test_intake_preserves_raw_description_and_reuses_clean_snapshot():
+def test_intake_preserves_raw_description_without_persisting_inferred_snapshot():
     c = _container()
 
     result = run_intake(c, "MỤN BỌC!!!!! ở cằm", mode_request="auto")
 
     assert result.user.description == "MỤN BỌC!!!!! ở cằm"
     assert result.clean_text
-    assert result.turn_snapshot.clean_text == result.clean_text
+    assert result.turn_snapshot is None
     assert result.effective_mode == "llm_only"
     assert c.clinical_planner.calls == 1
 
 
-def test_intake_folds_prior_snapshot_without_renormalizing_history_text():
+def test_intake_folds_prior_snapshot_into_current_self_turn():
     session_id = "test-intake-folds-prior"
     store = get_session_store()
     store.delete(session_id)
@@ -70,7 +70,7 @@ def test_intake_folds_prior_snapshot_without_renormalizing_history_text():
         store.delete(session_id)
 
 
-def test_intake_reads_history_from_container_session_store(tmp_path):
+def test_intake_uses_structured_memory_without_exposing_unreferenced_text_history(tmp_path):
     session_id = "test-intake-container-store"
     store = JsonlSessionStore(str(tmp_path))
     c = _container(session_store=store)
@@ -87,12 +87,12 @@ def test_intake_reads_history_from_container_session_store(tmp_path):
 
     second = run_intake(c, "mụn ở cằm", session_id=session_id)
 
-    assert len(second.history) == 1
+    assert second.history == []
     assert second.user.context.age == 22
     assert second.user.context.skin_type == "oily"
 
 
-def test_intake_soft_scope_followups_fold_history_and_build_plan(tmp_path):
+def test_intake_soft_scope_followups_select_recent_pair_and_fold_facts(tmp_path):
     session_id = "test-soft-followups"
     store = JsonlSessionStore(str(tmp_path))
     c = _container(rag_ready=True, session_store=store)
@@ -128,9 +128,7 @@ def test_intake_soft_scope_followups_fold_history_and_build_plan(tmp_path):
         assert result.clinical_plan is not None
         assert result.user.context.age == 36
         assert result.user.context.skin_type is None
-        assert result.user.clinical is not None
-        assert "pustule" in result.user.clinical.lesion_types
-        assert "other" in result.user.clinical.lesion_distribution
+        assert len(result.history) <= 2
 
     assert home.clean_text == "có phương pháp điều trị tại nhà không"
     assert cooking_oil.clean_text == "tôi dùng dầu ăn được không"
@@ -144,7 +142,7 @@ def test_intake_treats_generic_acne_case_as_soft_missing_core_hint():
     assert result.effective_mode == "llm_only"
     assert result.completeness is not None
     assert result.completeness.level == "none"
-    assert result.completeness.missing_fields == ["distribution"]
+    assert result.completeness.missing_fields == ["lesion_types"]
 
 
 def test_intake_extracts_safety_terms_without_clinical_plan_for_knowledge():
@@ -208,7 +206,8 @@ def test_intake_does_not_fold_self_history_into_general_knowledge():
         second = run_intake(c, "tại sao bị mụn bọc?", session_id=session_id)
 
         assert second.route_decision.primary_intent == "knowledge"
-        assert second.route_decision.query_subject == "general"
+        assert second.route_decision.query_subject == "non_self"
+        assert second.history == []
         assert second.user.context.age is None
         assert second.user.context.skin_type is None
         assert second.completeness is None
@@ -238,12 +237,12 @@ def test_intake_other_subject_is_current_turn_only_and_no_snapshot():
         second = run_intake(c, "bạn tôi bị mụn ở lưng nên làm gì", session_id=session_id)
 
         assert second.route_decision.primary_intent == "advise"
-        assert second.route_decision.query_subject == "other"
+        assert second.route_decision.query_subject == "non_self"
         assert second.user.context.age is None
         assert second.turn_snapshot is None
         assert second.completeness is None
         assert second.clinical_plan is None
-        assert "back" in second.normalized_query
+        assert "bạn tôi bị mụn ở lưng" in second.normalized_query
         assert "chin" not in second.normalized_query
     finally:
         store.delete(session_id)
@@ -254,8 +253,111 @@ def test_intake_greeting_has_no_normalized_snapshot():
 
     result = run_intake(c, "xin chào")
 
-    assert result.route_decision.query_subject == "general"
+    assert result.route_decision.query_subject == "non_self"
     assert result.turn_snapshot is None
+
+
+def test_current_knowledge_turn_ignores_richer_personal_turn():
+    session_id = "test-current-turn-priority"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+    try:
+        first = run_intake(
+            c,
+            "Tôi da dầu, mụn viêm ở cằm, đang dùng BHA.",
+            session_id=session_id,
+        )
+        store.append_turn(session_id, ConversationTurn(
+            role="user", content=first.raw_message, metadata=first.route_decision.metadata()
+        ))
+        store.append_turn(session_id, ConversationTurn(role="assistant", content="answer"))
+
+        second = run_intake(c, "Retinol là gì?", session_id=session_id)
+
+        assert second.route_decision.primary_intent == "knowledge"
+        assert second.route_decision.query_subject == "non_self"
+        assert second.history == []
+        assert second.normalized_query == "Retinol là gì?"
+        assert "BHA" not in second.normalized_query
+        assert "chin" not in second.normalized_query
+    finally:
+        store.delete(session_id)
+
+
+def test_knowledge_followup_uses_only_previous_user_turn():
+    session_id = "test-knowledge-followup-user-only"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+    try:
+        first = run_intake(c, "Mụn đầu đen là gì?", session_id=session_id)
+        store.append_turn(session_id, ConversationTurn(
+            role="user", content=first.raw_message, metadata=first.route_decision.metadata()
+        ))
+        store.append_turn(session_id, ConversationTurn(
+            role="assistant", content="Câu trả lời assistant không được đưa vào follow-up knowledge."
+        ))
+
+        second = run_intake(c, "Còn loại này có nguy hiểm không?", session_id=session_id)
+
+        assert second.route_decision.primary_intent == "knowledge"
+        assert [(turn.role, turn.content) for turn in second.history] == [
+            ("user", "Mụn đầu đen là gì?"),
+        ]
+        assert "Mụn đầu đen là gì?" in second.normalized_query
+        assert "Câu trả lời assistant" not in second.normalized_query
+    finally:
+        store.delete(session_id)
+
+
+def test_confirmed_product_can_be_removed_by_explicit_correction():
+    session_id = "test-confirmed-profile-remove"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+    try:
+        first = run_intake(c, "Tôi đang dùng BHA.", session_id=session_id)
+        assert "BHA" in first.confirmed_profile["current_products"]
+
+        second = run_intake(c, "Tôi ngưng BHA rồi.", session_id=session_id)
+        assert "BHA" not in second.confirmed_profile["current_products"]
+        assert "BHA" not in store.get_user_context(session_id)["current_products"]
+    finally:
+        store.delete(session_id)
+
+
+def test_medication_correction_tombstones_old_drug_in_fold_and_snapshot():
+    session_id = "test-medication-correction-tombstone"
+    store = get_session_store()
+    store.delete(session_id)
+    c = _container()
+    try:
+        first = run_intake(
+            c,
+            "Tôi đang mang thai 9 tuần và đang cầm doxycycline trị mụn.",
+            session_id=session_id,
+        )
+        store.append_turn(session_id, ConversationTurn(
+            role="user",
+            content=first.raw_message,
+            normalized_snapshot=first.turn_snapshot,
+            metadata=first.route_decision.metadata(),
+        ))
+
+        corrected = run_intake(
+            c,
+            "À không, thuốc tôi đang cầm là minocycline chứ không phải doxycycline.",
+            session_id=session_id,
+        )
+
+        assert corrected.user.context.is_pregnant is True
+        assert "minocycline" in corrected.user.context.medications
+        assert "doxycycline" not in corrected.user.context.medications
+        assert corrected.turn_snapshot is not None
+        assert "doxycycline" not in corrected.turn_snapshot.context["medications"]
+    finally:
+        store.delete(session_id)
 
 
 def test_intake_returns_hard_scope_refusal():

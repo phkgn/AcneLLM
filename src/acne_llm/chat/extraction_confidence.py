@@ -75,6 +75,21 @@ _QUESTION_RE = nz._SKIN_TYPE_QUESTION_RE  # tái dùng marker câu hỏi/so sán
 _PRONOUN_RE = re.compile(r"\b(?:tôi|toi|mình|minh|em|cháu|chau|con)\b", re.I)
 
 
+_VITAMIN_LETTER_RE = re.compile(r"vitamin\s+([a-z])\b", re.I)
+
+
+def _vitamin_letter_ok(canonical: str, text_no_accent: str) -> bool:
+    """Chặn fuzzy gộp nhầm 'vitamin k' -> 'vitamin c'.
+
+    Nếu canonical là 'vitamin <chữ cái>' thì bắt buộc đúng chữ cái đó phải
+    xuất hiện trong text; fuzzy vẫn tự do cho các term khác (lỗi chính tả thật).
+    """
+    m = _VITAMIN_LETTER_RE.fullmatch(canonical.strip())
+    if not m:
+        return True
+    return f"vitamin {m.group(1).lower()}" in text_no_accent.lower()
+
+
 def _context_adjust(text: str, span_hint: str = "") -> float:
     """Điều chỉnh confidence theo ngữ cảnh quanh match.
 
@@ -306,6 +321,7 @@ def extract_with_confidence(
         product_vals, clean_text_no_accent, PRODUCT_CANONICALS,
         accept=fuzzy_accept, review=_vocab_review,
         term_map=nz._PRODUCT_CANONICAL_MAP,
+        fuzzy_context_filter=lambda raw: _vitamin_letter_ok(raw, clean_text_no_accent),
     )
     _med_ctx_text = clean_text_no_accent.lower()
     medications = _list_vocab(

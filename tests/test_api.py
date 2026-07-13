@@ -24,6 +24,7 @@ def _build_mock_app():
     llm_mock.model = "mock"
     llm_mock.health.return_value = True
     llm_mock.list_models.return_value = ["mock"]
+    llm_mock.generate_json.return_value = out.model_dump_json()
     store_mock = MagicMock()
     store_mock.count.return_value = 42
 
@@ -36,7 +37,22 @@ def _build_mock_app():
         embedder = MagicMock(model_name="emb")
         reranker = MagicMock(model_name="rr")
         retriever = MagicMock()
-        rag_ready = True
+        rag_ready = False
+        settings = MagicMock(
+            chat_max_context_chars=4500,
+            chat_retrieve_top_k=8,
+            chat_rerank_top_k=3,
+            chat_min_citation_score=0.12,
+            extract_min_field_conf=0.60,
+        )
+        from acne_llm.llm.prompt_builder import PromptBuilder
+        prompt = PromptBuilder(str(Path(__file__).resolve().parents[1] / "config" / "prompts"))
+        guardrails = MagicMock()
+        guardrails.pre_check.return_value = None
+        guardrails.scope_check.return_value = None
+        guardrails.post_check.side_effect = lambda output, user: output
+        clinical_planner = None
+        session_store = None
 
     app.state.container = C()
     app.include_router(health.router, prefix="/api/v1")

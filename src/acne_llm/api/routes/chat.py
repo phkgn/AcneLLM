@@ -8,11 +8,11 @@ from loguru import logger
 from pydantic import BaseModel
 
 from ...schemas import UserInput, AdviseOutput
-from ...chat.intake import MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, _count_words, run_intake
+from ...chat.intake import MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, _count_words
 from ...chat.runtime import stream_chat_sse
 from ...chat.session import ConversationTurn, get_session_store
+from ...chat.orchestrator import prepare_chat_turn, generate_structured
 from ...db.audit import AuditEntry
-from ..deps import get_pipeline_for
 
 router = APIRouter(tags=["chat"])
 
@@ -29,8 +29,19 @@ async def chat(request: Request, payload: dict = Body(...)):
             detail=f"Pipeline '{inp.mode}' is not supported.",
         )
     try:
-        pipeline = get_pipeline_for(inp.mode, request)
-        return await asyncio.to_thread(pipeline.run, inp)
+        c = request.app.state.container
+        prepared = await asyncio.to_thread(
+            prepare_chat_turn,
+            c,
+            inp.description,
+            inp.mode,
+            None,
+            "structured",
+            inp,
+        )
+        if prepared.intake.scope_refusal is not None:
+            return prepared.intake.scope_refusal
+        return await asyncio.to_thread(generate_structured, c, prepared)
     except HTTPException:
         raise
     except Exception as e:
@@ -55,7 +66,15 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
     mode_request = str(payload.get("mode", "auto"))
     started = time.perf_counter()
     try:
-        intake = run_intake(c, message, session_id=session_id, mode_request=mode_request)
+        prepared = await asyncio.to_thread(
+            prepare_chat_turn,
+            c,
+            message,
+            mode_request,
+            session_id,
+            "structured",
+        )
+        intake = prepared.intake
         store = getattr(c, "session_store", None) or get_session_store()
         route_metadata = intake.route_decision.metadata() if intake.route_decision else {}
 
@@ -117,17 +136,9 @@ async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
                 )
             return out
 
-        mode = "hybrid" if intake.effective_mode == "hybrid" else "llm_only"
-        pipeline = get_pipeline_for(mode, request)
-        out = await asyncio.to_thread(
-            pipeline.run,
-            intake.user,
-            intake.clinical_plan,
-            True,
-            intake.history,
-            route_metadata,
-            safety_terms=intake.safety_terms,
-        )
+        mode = prepared.mode
+        out = await asyncio.to_thread(generate_structured, c, prepared)
+        out.latency_ms = int((time.perf_counter() - started) * 1000)
         if session_id:
             store.append_turn(
                 session_id,
@@ -228,15 +239,20 @@ async def debug_trace(
     c = request.app.state.container
     from ...chat.preprocess import prepare_user_text
     from ...chat.extraction_confidence import extract_with_confidence
-    from ...chat._retrieval import retrieve_for_chat, citation_data
+    from ...chat._retrieval import citation_data
 
     t0 = time.perf_counter()
 
     # ① Preprocess
     prepared = prepare_user_text(message)
 
-    # ②–⑥ Intake (normalize, guardrails, route, fold, completeness, plan)
-    intake = run_intake(c, message, session_id=session_id, mode_request=mode)
+    # ②–⑥ Intake (normalize, guardrails, route, fold, completeness, plan).
+    # include_analytics=True: build clinical_plan CHỈ cho trace (hot path bỏ qua).
+    prepared_turn = await asyncio.to_thread(
+        prepare_chat_turn, c, message, mode, session_id, "text",
+        include_analytics=True,
+    )
+    intake = prepared_turn.intake
     user = intake.user
     route = intake.route_decision
     route_metadata = route.metadata() if route else {}
@@ -321,6 +337,8 @@ async def debug_trace(
         "stage_6_clinical_plan": (
             {
                 "built": True,
+                "authoritative": False,
+                "role": "debug_analytics_only",
                 "query_vi": getattr(getattr(intake.clinical_plan, "rag_queries", None), "query_vi", None),
                 "detected_language": getattr(intake.clinical_plan, "detected_language", None),
             }
@@ -344,44 +362,22 @@ async def debug_trace(
         return trace
 
     # ⑦ Retrieve (chỉ khi hybrid + acne signal, GIỐNG runtime)
-    clinical_plan = intake.clinical_plan
-    rag_signal = intake.is_acne_signal or clinical_plan is not None or bool(intake.safety_terms)
-    retrieval = None
-    if intake.effective_mode == "hybrid" and rag_signal and _intent not in {"clarify", "reject"}:
-        retrieval = await asyncio.to_thread(
-            retrieve_for_chat,
-            c, user, clinical_plan,
-            route_flags=(route.route_flags if route else []),
-            normalized_query=intake.normalized_query,
-            safety_terms=intake.safety_terms,
-        )
+    retrieval = prepared_turn.retrieval
     trace["stage_7_retrieve"] = {
         "ran": retrieval is not None,
+        "query": prepared_turn.retrieval_query,
+        "selected_context": [
+            {"role": turn.role, "content": turn.content} for turn in intake.history
+        ],
+        "confirmed_profile": intake.confirmed_profile,
         "num_chunks": len(retrieval.chunks) if retrieval else 0,
         "chunks": [citation_data(ch) for ch in (retrieval.chunks if retrieval else [])],
     }
 
     # ⑧ Build prompt — TÁI DÙNG c.prompt.build y như runtime
-    if _intent == "clarify":
-        _template = "clarify_user.j2"
-    elif _intent == "knowledge":
-        _template = "knowledge_user.j2"
-    else:
-        _template = "stream_user.j2"
+    _template = prepared_turn.template
     try:
-        system, user_message = c.prompt.build(
-            user=user,
-            retrieval=retrieval,
-            template=_template,
-            detected_language=(clinical_plan.detected_language if clinical_plan else "unknown"),
-            query_vi=(clinical_plan.rag_queries.query_vi if clinical_plan else intake.normalized_query),
-            max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
-            clinical_plan=clinical_plan,
-            history=intake.history,
-            route_metadata=route_metadata,
-            system_override=c.prompt.system_stream(),
-            completeness_hint=None,
-        )
+        system, user_message = prepared_turn.system_prompt, prepared_turn.user_prompt
         trace["stage_8_prompt"] = {
             "built": True,
             "template": _template,

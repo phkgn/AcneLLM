@@ -1,8 +1,8 @@
 """Unified pre-LLM intake for chat entrypoints.
 
 This module owns the deterministic steps before generation:
-preprocess -> normalize -> fold session facts -> guardrails/scope ->
-completeness -> clinical plan -> effective mode.
+preprocess -> normalize current turn -> guardrails/scope -> route ->
+select recent context -> completeness hint -> effective mode.
 """
 from __future__ import annotations
 
@@ -18,16 +18,18 @@ from .completeness import CompletenessResult, check_completeness
 from .intent_router import RouteDecision, route_intent
 from .normalizer import normalize_chat_message
 from .extraction_confidence import extract_with_confidence, ExtractionConfidence
-from .preprocess import prepare_user_text
+from .preprocess import prepare_user_text, strip_accents
 from .session import (
     ConversationTurn,
     NormalizedSnapshot,
+    build_confirmed_profile,
     fold_history_facts,
     get_session_store,
+    select_relevant_history,
     snapshot_from_user,
 )
 from ..guardrails.ood_detector import contains_pii
-from ..utils.retrieval_query import build_retrieval_query_from_user, extracted_entities_from_user
+from ..utils.retrieval_query import build_current_turn_query, extracted_entities_from_user
 
 if TYPE_CHECKING:
     from ..di import Container
@@ -69,6 +71,7 @@ class IntakeResult:
     pii_detected: bool = False
     teencode_replaced: list[str] = field(default_factory=list)
     extraction_confidence: ExtractionConfidence | None = None
+    confirmed_profile: dict = field(default_factory=dict)
 
     @property
     def is_acne_signal(self) -> bool:
@@ -98,7 +101,7 @@ _SAFETY_SIGNAL_TERMS = (
 
 
 def _has_allowed_acne_region(message: str) -> bool:
-    return contains_any(message, _ALLOWED_ACNE_REGION_TERMS)
+    return contains_any(strip_accents(message.lower()), _ALLOWED_ACNE_REGION_TERMS)
 
 
 def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
@@ -122,6 +125,19 @@ def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
             if any(term in med for term in _SAFETY_SIGNAL_TERMS):
                 terms.append(med)
     return list(dict.fromkeys(term.strip() for term in terms if term and term.strip()))
+
+
+def _profile_safety_terms(profile: dict) -> list[str]:
+    terms: list[str] = []
+    if profile.get("is_pregnant"):
+        terms.append("pregnancy")
+    if profile.get("is_breastfeeding"):
+        terms.append("breastfeeding")
+    for medication in profile.get("medications") or []:
+        lowered = str(medication).lower()
+        if any(term in lowered for term in _SAFETY_SIGNAL_TERMS):
+            terms.append(lowered)
+    return terms
 
 
 def _is_knowledge_question(message: str) -> bool:
@@ -288,6 +304,7 @@ def run_intake(
     message: str,
     session_id: str | None = None,
     mode_request: str = "auto",
+    include_analytics: bool = False,
 ) -> IntakeResult:
     """Run the shared pre-generation intake path for POST, SSE and WS."""
     if len(message) > MAX_MESSAGE_CHARS:
@@ -322,7 +339,10 @@ def run_intake(
     # Early-exit safety_terms: dung base_user (chua fold) cho cac nhanh refuse thoat som.
     # Happy path se re-extract sau fold de bat pregnancy/medication tu session history.
     safety_terms = _extract_safety_terms(clean_text, base_user)
-    turn_snapshot = snapshot_from_user(base_user, clean_text=clean_text)
+    # The current-turn snapshot is persisted only after routing confirms this
+    # is the user's own case. It powers correction-aware structured memory;
+    # prompt-visible text history remains separately selected and bounded.
+    turn_snapshot = None
 
     _cl = base_user.clinical
     logger.info(
@@ -372,7 +392,7 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="general",
+                query_subject="non_self",
                 turn_type="reject",
                 route_flags=["pre_check_invalid"],
                 reason_code="pre_check_invalid",
@@ -418,7 +438,7 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="general",
+                query_subject="non_self",
                 turn_type="reject",
                 route_flags=["genital_scope"],
                 reason_code="genital_scope_hard_reject",
@@ -462,7 +482,7 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="general",
+                query_subject="non_self",
                 turn_type="reject",
                 route_flags=["out_of_scope"],
                 reason_code="scope_hard_reject",
@@ -503,7 +523,7 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="clarify",
                 confidence=0.95,
-                query_subject="general",
+                query_subject="non_self",
                 turn_type="clarify",
                 route_flags=[],
                 reason_code="complaint",
@@ -515,10 +535,7 @@ def run_intake(
             ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
-            normalized_query=build_retrieval_query_from_user(
-                base_user,
-                clean_text_normalized=clean_text,
-            ),
+            normalized_query=build_current_turn_query(clean_text),
             safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
@@ -587,42 +604,92 @@ def run_intake(
             teencode_replaced=prepared.teencode_replaced,
         )
 
-    should_fold_clinical = route_decision.query_subject == "self"
-    user = fold_history_facts(base_user, history) if should_fold_clinical else base_user
+    is_self_case = route_decision.query_subject == "self"
+    selected_history = select_relevant_history(
+        clean_text,
+        route_decision.primary_intent,
+        history,
+        route_decision.route_flags,
+    )
+    confirmed_profile: dict = {}
+    if is_self_case:
+        if session_id and hasattr(store, "get_or_create"):
+            store.get_or_create(session_id)
+        existing_profile = store.get_user_context(session_id)
+        confirmed_profile = build_confirmed_profile(
+            existing_profile,
+            _extraction_conf,
+            clean_text,
+            threshold=max(
+                0.82,
+                float(getattr(getattr(c, "settings", None), "extract_min_field_conf", 0.60)),
+            ),
+        )
+        if session_id and confirmed_profile != existing_profile:
+            store.merge_user_context(session_id, confirmed_profile)
+        safety_terms = list(dict.fromkeys([
+            *_extract_safety_terms(clean_text, base_user),
+            *_profile_safety_terms(confirmed_profile),
+        ]))
+    user = fold_history_facts(base_user, history) if is_self_case else base_user
     turn_snapshot = (
-        turn_snapshot
-        if should_fold_clinical and _snapshot_has_values(turn_snapshot)
+        snapshot_from_user(base_user, clean_text)
+        if session_id and is_self_case and route_decision.primary_intent == "advise"
         else None
     )
-
-    # Gap fix 1: re-extract safety_terms sau fold de bat pregnancy/medication tu
-    # session history. User khai "mang thai" o turn 1, turn 2 khong nhac lai --
-    # base_user khong co is_pregnant nhung user folded co.
-    if should_fold_clinical:
-        safety_terms = _extract_safety_terms(clean_text, user)
-
-    if session_id and should_fold_clinical:
-        ctx_dict = {
-            k: v for k, v in user.context.model_dump(exclude_none=True).items()
-            if v is not None
-        }
-        if ctx_dict:
-            store.merge_user_context(session_id, ctx_dict)
     _folded_cl = user.clinical
     logger.info(
         "[{}] SESSION FOLD: {} | history={} turns | age={} lesions={} inflam={}",
         sid_short,
-        "applied" if should_fold_clinical else "skipped",
-        len(history),
+        "structured-fold" if is_self_case else "skipped",
+        len(selected_history),
         user.context.age,
         (_folded_cl.lesion_types if _folded_cl else []),
         (_folded_cl.inflammation_level if _folded_cl else None),
     )
 
+    medication_refusal = None
+    medication_check = getattr(c.guardrails, "medication_safety_refusal", None)
+    if callable(medication_check):
+        medication_refusal = medication_check(user, safety_terms)
+    if isinstance(medication_refusal, AdviseOutput):
+        logger.warning("[{}] REFUSE (deterministic medication safety)", sid_short)
+        return IntakeResult(
+            raw_message=raw_message,
+            clean_text=clean_text,
+            user=user,
+            turn_snapshot=turn_snapshot,
+            history=selected_history,
+            effective_mode="refuse",
+            scope_decision="refuse_hard",
+            scope_refusal=medication_refusal,
+            route_decision=RouteDecision(
+                primary_intent="reject",
+                confidence=1.0,
+                query_subject="self",
+                turn_type="reject",
+                route_flags=["medication_safety_block"],
+                reason_code="medication_safety_block",
+            ),
+            session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            normalized_query=build_current_turn_query(clean_text, selected_history),
+            safety_terms=safety_terms,
+            extracted_entities=extracted_entities_from_user(base_user),
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
+            extraction_confidence=_extraction_conf,
+            confirmed_profile=confirmed_profile,
+        )
+
     # Gap fix 2: route override (clarify -> advise) phai xay ra TRUOC check_completeness.
     # Neu override xay ra SAU, completeness duoc tinh voi intent=clarify roi prompt
     # advise nhan completeness=None -- thieu hint du user chua du thong tin.
-    if route_decision.primary_intent == "clarify" and route_decision.query_subject == "self":
+    if (
+        route_decision.primary_intent == "clarify"
+        and route_decision.query_subject == "self"
+        and not ({"crisis_signal", "urgency_red_flag"} & set(route_decision.route_flags))
+    ):
         clarify_count = _session_clarify_count(store, session_id, history)
         clarify_limit = 3 if has_acne_history else 5
         too_many_clarifies = clarify_count >= clarify_limit
@@ -631,7 +698,7 @@ def run_intake(
             logger.info("[{}] ROUTE OVERRIDE: clarify -> advise (clarify loop hard stop)", sid_short)
         else:
             _quick_completeness = check_completeness(
-                user, history=history,
+                user, history=selected_history,
                 asked_fields=store.get_asked_fields(session_id),
                 confidence=_extraction_conf,
             )
@@ -641,8 +708,8 @@ def run_intake(
 
     asked_fields = store.get_asked_fields(session_id)
     completeness = (
-        check_completeness(user, history=history, asked_fields=asked_fields, confidence=_extraction_conf)
-        if should_fold_clinical and _should_check_completeness(clean_text, user, history, route_decision)
+        check_completeness(user, history=selected_history, asked_fields=asked_fields, confidence=_extraction_conf)
+        if is_self_case and _should_check_completeness(clean_text, user, selected_history, route_decision)
         else None
     )
 
@@ -658,27 +725,22 @@ def run_intake(
     if completeness is not None and completeness.level == "none":
         logger.info("[{}] SOFT HINT missing={}", sid_short, completeness.missing_fields)
 
+    # Planner is analytics-only in schema v2: never drives retrieval or prompt.
+    # Chỉ build khi include_analytics (vd /debug/trace) để không phí CPU trên hot path.
     planner = getattr(c, "clinical_planner", None)
     should_build_clinical_plan = (
         route_decision.primary_intent == "advise"
         and route_decision.query_subject == "self"
     )
-    has_current_or_history_acne = acne_signal or has_acne_history or _has_clinical_data(
-        user.clinical or AcneClinicalInput()
-    )
+    has_current_or_history_acne = acne_signal or _has_clinical_data(user.clinical or AcneClinicalInput())
     clinical_plan = (
         planner.plan(user)
-        if planner is not None and should_build_clinical_plan and has_current_or_history_acne
+        if include_analytics
+        and planner is not None and should_build_clinical_plan and has_current_or_history_acne
         else None
     )
-    query_user = user if should_fold_clinical else base_user
-    normalized_query = build_retrieval_query_from_user(
-        query_user,
-        clean_text_normalized=clean_text,
-    )
-    if clinical_plan is not None and normalized_query:
-        clinical_plan.rag_queries.query_vi = normalized_query
-    extracted_entities = extracted_entities_from_user(query_user)
+    normalized_query = build_current_turn_query(clean_text, selected_history)
+    extracted_entities = extracted_entities_from_user(base_user)
     logger.info(
         "[{}] CLINICAL PLAN: built={} lang={} query={!r:.80}",
         sid_short,
@@ -700,7 +762,7 @@ def run_intake(
         clean_text=clean_text,
         user=user,
         turn_snapshot=turn_snapshot,
-        history=history,
+        history=selected_history,
         effective_mode=effective_mode,
         scope_decision=scope_decision,
         completeness=completeness,
@@ -714,4 +776,5 @@ def run_intake(
         pii_detected=contains_pii(clean_text),
         teencode_replaced=prepared.teencode_replaced,
         extraction_confidence=_extraction_conf,
+        confirmed_profile=confirmed_profile,
     )

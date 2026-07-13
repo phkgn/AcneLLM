@@ -197,7 +197,7 @@ class TestInflammationLevel:
     def test_mild_mun_dau(self):
         r = norm("nổi vài mụn đầu đen")
         # blackheads = mild at most
-        assert sev(r) in (None, "mild")
+        assert sev(r) in (None, "none", "mild")
 
     def test_mu_vang_moderate_or_severe(self):
         r = norm("mụn mủ vàng sưng to")

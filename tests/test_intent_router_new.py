@@ -1,7 +1,7 @@
 """Unit tests for intent router -- new flags and routing logic."""
-import pytest
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
 from acne_llm.chat.intent_router import route_intent, is_repeated_question
+from acne_llm.chat.normalizer import normalize_chat_message
 from acne_llm.chat.session import ConversationTurn
 
 
@@ -46,13 +46,39 @@ def test_personal_case_routes_advise():
 def test_other_subject_routes_current_only_subject():
     r = route_intent("ban toi bi mun o cam nen lam gi", _user("ban toi bi mun"), [])
     assert r.primary_intent == "advise"
-    assert r.query_subject == "other"
+    assert r.query_subject == "non_self"
 
 
 def test_general_knowledge_subject_without_personal_signal():
     r = route_intent("tai sao bi mun boc", _user("tai sao bi mun boc"), [])
     assert r.primary_intent == "knowledge"
-    assert r.query_subject == "general"
+    assert r.query_subject == "non_self"
+
+
+def test_acne_type_comparison_routes_knowledge_despite_extracted_lesions():
+    clinical = AcneClinicalInput(lesion_types=["blackhead", "nodule"], inflammation_level="severe")
+    r = route_intent(
+        "mụn đầu đen trị khác với mụn bọc ntn",
+        _user("mụn đầu đen trị khác với mụn bọc ntn", clinical=clinical),
+        [],
+        current_clinical=clinical,
+    )
+
+    assert r.primary_intent == "knowledge"
+    assert r.query_subject == "non_self"
+    assert r.reason_code == "general_comparison_question"
+
+
+def test_blackhead_whitehead_comparison_routes_knowledge():
+    user = normalize_chat_message("Mụn đầu đen khác mụn đầu trắng như thế nào?")
+    result = route_intent(
+        user.description,
+        user,
+        [],
+        current_clinical=user.clinical,
+    )
+    assert result.primary_intent == "knowledge"
+    assert result.query_subject == "non_self"
 
 
 def test_clinical_signal_routes_advise():
@@ -86,6 +112,12 @@ def test_urgency_red_flag():
 def test_product_safety_check_flag():
     r = route_intent("dung retinol ket hop voi aha co duoc khong", _user("retinol + aha"), [])
     assert "product_safety_check" in r.route_flags
+
+
+def test_laughter_does_not_match_aha_product_alias():
+    r = route_intent("hahahaha", _user("hahahaha"), [])
+
+    assert "product_safety_check" not in r.route_flags
 
 
 def test_multi_condition_flag():

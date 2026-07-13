@@ -1,0 +1,1881 @@
+{
+  "base_url": "http://localhost:8000",
+  "queries": [
+    {
+      "name": "moderate_acne_vi",
+      "query": "mụn viêm mức độ vừa điều trị ban đầu theo guideline AAD NICE",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 9331,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_6a7d32d8cc::0003",
+              "source": "PubMed",
+              "text": "Concerning acne grade, initially, 62.5% and 12.5% of cases in the cross-linked HA and non-cross-linked HA groups, respectively, had severe grades. However, in the last session, these percentages significantly decreased to 0% for both groups (p = 0.002 and 0.005, respectively). In terms of treatment complications, none of the patients experienced any adverse effects.",
+              "score": 0.5058505663400359,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Evaluation and comparison of the efficacy and safety of cross-linked and non-cross-linked hyaluronic acid in combination with botulinum toxin type A in the treatment of atrophic acne scars: A double-blind randomized clinical trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/38174839/"
+            },
+            {
+              "chunk_id": "pubmed_f41ce1e4dc::0001",
+              "source": "PubMed",
+              "text": "In one phase 2 (NCT03170388) and two phase 3 (NCT04214652, NCT04214639) trials, participants aged greater than or equal to 9 years with moderate-to-severe acne were randomized to once-daily CAB or vehicle gel. Pooled data were analyzed for participants grouped by age: younger (9-24 years; n=515) and adult (greater than or equal to 25 years; n=142). Endpoints included the percentage of participants achieving treatment success (greater than or equal to 2-grade reduction from baseline in Evaluator'",
+              "score": 0.5043071593146351,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Clindamycin Phosphate 1.2%/Adapalene 0.15%/ Benzoyl Peroxide 3.1% Gel for Moderate-to-Severe Acne: A Pooled Analysis by Age.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/41329145/"
+            },
+            {
+              "chunk_id": "pubmed_f87c1171f0::0001",
+              "source": "PubMed",
+              "text": "Of the 251 women enrolled, 59 % had grade 1 acne at baseline; 31 %, grade 2; and 10 %, grade 3; the most commonly affected area of the body was the face (IGA grades 2 or 3: 79 %). After twelve weeks, there was significant improvement of acne on the face (IGA grades 0 or 1: 82 %), chest, and back. Median DLQI decreased from nine at baseline to five after twelve weeks. Ninety percent of physicians and patients rated the tolerability of the treatment as very good or good. Treatment with azelaic aci",
+              "score": 0.5030045038276328,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Azelaic acid 20 % cream: effects on quality of life and disease severity in adult female acne patients.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/27897372/"
+            },
+            {
+              "chunk_id": "pubmed_c4cc517cb7::0000",
+              "source": "PubMed",
+              "text": "This was a preliminary open-label, prospective, non-comparative, single-centre study carried out in a tertiary-care referral hospital. Seventy patients with grade 3 and 4 acne according to the US FDA global score were included in the study between October 2005 and December 2007. These patients were treated with a combination of low-dose isotretinoin (0.3 mg/kg/day) and pulsed oral azithromycin (500 mg/day over three consecutive days every 2 weeks). Response to treatment was assessed at monthly i",
+              "score": 0.502105295556354,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Combination of low-dose isotretinoin and pulsed oral azithromycin in the management of moderate to severe acne: a preliminary open-label, prospective, non-comparative, single-centre study.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21591819/"
+            },
+            {
+              "chunk_id": "pubmed_ab0f81cb2a::0001",
+              "source": "PubMed",
+              "text": "This was a prospective study of 19 subjects with moderate to severe. All subjects received 1064 nm Nd: YAG Quasi-longed pulse laser treatments, at 8 J/cm2 fluence and accumulated 1000-4000 kJ according to treatment area at two weeks intervals. Primary end point was reaching a minimal AGSS score of between 1 and 2. Acne severity was assessed by two independent dermatologists according to AGSS scale before each treatment session and at the follow-up visit (8 weeks following last treatment). Subjec",
+              "score": 0.5018695718790054,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Quasi long-pulsed 1064nm Nd:YAG (micro pulsed) technology for the treatment of active acne: A case series.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/33834583/"
+            },
+            {
+              "chunk_id": "pubmed_3f68b62ae1::0000",
+              "source": "PubMed",
+              "text": "The investigational regimen consisted of a foaming cleanser, an acne serum, a spot treatment, and a mask. Patients applied the treatment regimen as directed for 8 weeks. The primary efficacy measure was the percentage of patients assessed as improved, much improved, or very much improved according to the Global Aesthetic Improvement Scale (GAIS) ratings at week 8. Severity was rated using the Evaluator's Global Severity Scores (EGSS) at baseline and weeks 2, 4, and 8. Tolerability was assessed a",
+              "score": 0.501822888574504,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Single-center, open-label study of a proprietary topical 0.5% salicylic acid-based treatment regimen containing sandalwood oil in adolescents and adults with mild to moderate acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/23377508/"
+            },
+            {
+              "chunk_id": "pubmed_c0650469c1::0000",
+              "source": "PubMed",
+              "text": "Thirty patients participated in the study. On each patient, over the left side of the face, microneedling was done using topical insulin as a medium, while on the right side of the face, simple microneedling was done. Four such sessions, a month apart, were done in all the patients. They were called for follow up and the response was based on the \"Acne scar assessment scale\", in which Grade-0 referred to no improvement, Grade-1 referred to an improvement of less than 25%, Grade-2 was an improvem",
+              "score": 0.5016680441149254,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Simple Microneedling Versus Microneedling With Topical Insulin In The Treatment Of Post Acne Atrophic Scars; A Split Face Comparative Study.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/40121627/"
+            },
+            {
+              "chunk_id": "pubmed_b987f639b7::0000",
+              "source": "PubMed",
+              "text": "An 8-week, open-label, randomized controlled trial of 41 patients with mild-to-moderate acne was performed. The participants received either TAS + adapalene gel (AG) (treatment group) or AG alone (control group) for 4 weeks, followed by a 4-week maintenance phase in which AG was discontinued, and TAS was continued only in the experimental group. Lesion counts, Investigator Global Assessment (IGA), microcomedone counts, skin physiological parameters, and VISIA-CR were performed at baseline and 2,",
+              "score": 0.5015894919640227,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Efficacy and Tolerability of a Triple Acid-Containing Serum Combined With 0.1% Adapalene in Mild-to-Moderate Acne Vulgaris: A Randomized, Open-Label Controlled Trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/42156331/"
+            },
+            {
+              "chunk_id": "pubmed_caa0714383::0001",
+              "source": "PubMed",
+              "text": "A total of 27 women (age range 20-58 years, mean 37.81 ± 10.04 years) with mild-to-moderate acne used a 3-product regimen consisting of a twice-daily cleanser and topical serum (0.1% AHA-RC, 2% salicylic acid, and 10.4% l-lactic acid), with broad-spectrum SPF 50+ sunscreen as needed, over an 8-week period. Counts were made at baseline, week 4, and week 8 of total inflammatory (papules, pustules) and noninflammatory (open comedones, closed comedones) lesions. Dryness, stinging, and other secondar",
+              "score": 0.5014033980368108,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Novel retinoid ester in combination with salicylic acid for the treatment of acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26516077/"
+            },
+            {
+              "chunk_id": "pubmed_affbc7e373::0000",
+              "source": "PubMed",
+              "text": "Patients (n = 120; 73 f, 47 m) suffering from mild acne (Leeds score 0.25-1) aged ≥12 (mean 21 ± 5.8) were included in this double-blind, placebo-controlled, randomized, monocentric trial. The cream was applied once daily in the evening. No additional products were used. Cleansing was standardized by supplying the same product to all patients.",
+              "score": 0.5004108583328387,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "A 10% glycolic acid containing oil-in-water emulsion improves mild acne: a randomized double-blind placebo-controlled trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21896132/"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 7482,
+          "chunks": [
+            {
+              "chunk_id": "vnexpress-suckhoe_11a05ead8b::0004",
+              "source": "VnExpress-SucKhoe",
+              "text": "Mụn được phân loại nhẹ khi có ít hơn 20 bọc mụn, 15 tổn thương viêm hoặc ít hơn 30 mụn không viêm. Ở mức độ vừa, mụn có thể viêm hoặc không, để lại sẹo. Mụn được phân loại vừa khi có 20-100 mụn, 15-50 tổn thương viêm hoặc từ 30-125 tổng số tổn thương. Mụn trứng cá nặng thường bị viêm và để lại sẹo. Mụn trứng cá có thể ảnh hưởng đến tâm lý. Ngay cả mụn trứng cá nhẹ cũng khiến người bệnh mất tự tin. Khi bị mụn nội tiết, người bệnh nên đến khám bác sĩ chuyên khoa Da liễu - Thẩm mỹ da. Điều trị càng",
+              "score": 0.520954691961816,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Chăm sóc da mụn do thay đổi nội tiết thế nào? - Báo VnExpress",
+              "url": "https://vnexpress.net/cham-soc-da-mun-do-thay-doi-noi-tiet-the-nao-4607042.html"
+            },
+            {
+              "chunk_id": "vnexpress-suckhoe_d83c0bafe9::0000",
+              "source": "VnExpress-SucKhoe",
+              "text": "Ban đầu, mụn chỉ lác đác vùng ngực và mặt anh Văn, không đau nhiều, sau đó lan dần ra lưng, vai, cánh tay, mông và đùi. Mụn chai cứng khiến anh ngứa nhiều, nhất là khi đổ mồ hôi. BS.CKI Trần Thị Mỹ Linh, chuyên khoa Da liễu - Thẩm mỹ Da, Bệnh viện Đa khoa Tâm Anh TP HCM, ghi nhận anh Văn có nhiều tổn thương mụn viêm rải rác khắp thân mình. Vùng ngực và lưng xuất hiện dày các sẩn viêm, mụn mủ và nang, nốt dưới da, một số tổn thương thâm sạm, dày sừng do viêm kéo dài. Nhiều nốt mụn ngứa, dễ trầy x",
+              "score": 0.5167576877709387,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn viêm 10 năm khắp cơ thể - Báo VnExpress",
+              "url": "https://vnexpress.net/mun-viem-10-nam-khap-co-the-5048401.html"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0075",
+              "source": "NICE",
+              "text": "When treating acne vulgaris its severity, distribution, and the views of the affected person \nneed to be taken into account. The aim of treatment is to reduce the severity of skin \nlesions and to prevent recurrence and scarring. There is variation in how acne vulgaris is treated in clinical practice, and there is therefore \na need to standardise treatment. There is also a need when prescribing antibiotic therapy \nfor acne vulgaris to take into account the principles of antimicrobial guidance and",
+              "score": 0.5095255936656246,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "vinmec_db7b868aa4::0002",
+              "source": "Vinmec",
+              "text": "- Stress\n- Môi trường, khí hậu... 3. Chẩn đoán bệnh trứng cá\nChẩn đoán xác định: chủ yếu dựa vào lâm sàng: mụn cám, sẩn, mụn mủ, mụn bọc, nang tập trung chủ yếu ở vùng tiết nhiều chất bã như mặt, ngực, lưng. Chẩn đoán mức độ: Theo Karen McCoy (2008), bệnh trứng cá chia thành ba mức độ:\n- Mức độ nhẹ: dưới 20 tổn thương không viêm, hoặc dưới 15 tổn thương viêm hoặc tổng số lượng tổn thương dưới 30. - Mức độ vừa: có 20-100 tổn thương không viêm hoặc 15-50 tổn thương viêm, hoặc 20-125 tổng tổn thươn",
+              "score": 0.5065631617014129,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bệnh trứng cá: Nguyên nhân và cách điều trị",
+              "url": "https://www.vinmec.com/vie/bai-viet/benh-trung-ca-nguyen-nhan-va-cach-dieu-tri-vi"
+            },
+            {
+              "chunk_id": "vinmec_123214b861::0004",
+              "source": "Vinmec",
+              "text": "Nếu bạn bị viêm, ngứa hoặc rát, hãy ngừng sử dụng và tham khảo ý kiến bác sĩ. - Dầu cây trà có thể gây phát ban phồng rộp trên da. - Các đối tượng bao gồm phụ nữ mang thai, phụ nữ đang cho con bú và trẻ em dưới 12 tuổi không nên sử dụng các loại thảo mộc để điều trị mụn trứng cá trừ khi có sự hướng dẫn và giám sát của bác sĩ. - Dầu cây trà có thể gây độc khi nuốt phải. Do đó, bạn không nên sử dụng nó trên vùng da quanh miệng, nơi có thể vô tình nuốt phải. 4. Gợi ý một số phương pháp điều trị mụn",
+              "score": 0.5059867317629175,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Có thể dùng loại thảo mộc trị trứng cá được không?",
+              "url": "https://www.vinmec.com/vie/bai-viet/co-dung-loai-thao-moc-tri-trung-ca-duoc-khong-vi"
+            },
+            {
+              "chunk_id": "medlatec_53aeabc0ca::0002",
+              "source": "Medlatec",
+              "text": "-\nSự hình thành tổn thương sẽ phụ thuộc vào tình trạng viêm hay không viêm. Dựa trên những biểu hiện của mụn, số lượng, đặc điểm, diện tích vùng da nổi mụn,... mà mụn trứng cá được chia làm các mức độ nặng nhẹ khác nhau. Theo theo Karen McCoy (2008) bệnh trứng cá chia làm 3 mức độ:\n-\nMụn trứng cá nhẹ có khoảng dưới 20 tổn thương không viêm; hoặc dưới 15 tổn thương viêm; hoặc tổng số lượng tổn thương dưới 30. -\nMức độ vừa có từ 20 - 100 tổn thương không viêm; hoặc 15 - 50 tổn thương viêm; hoặc 20",
+              "score": 0.5048559047880112,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn trứng cá - nỗi lo không của riêng ai ở tuổi dậy thì",
+              "url": "https://medlatec.vn/tin-tuc/mun-trung-ca--noi-lo-khong-cua-rieng-ai-o-tuoi-day-thi-s107-n20726"
+            },
+            {
+              "chunk_id": "dalieuhanoi_514ad1fc1f::0000",
+              "source": "DaLieuHaNoi",
+              "text": "Với những vấn đề như đau nhức, sưng tấy và khó điều trị, mụn viêm không chỉ gây mất thẩm mỹ, kém tự tin mà còn để lại nhiều di chứng nghiêm trọng cho da mặt. Hãy cùng các bác sĩ da liễu tại Phòng khám Chuyên khoa Da liễu Maia&Maia tìm hiểu về nguyên nhân và cách điều trị mụn viêm an toàn, hiệu quả nhất. I. Mụn viêm là gì? Mụn viêm là tình trạng mụn trứng cá nặng, hình thành do quá trình chăm sóc và điều trị không đúng cách dẫn đến nhiễm trùng. Loại mụn này thường xuất hiện với tình trạng sưng đỏ",
+              "score": 0.5031899458516084,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn viêm có nguy hiểm không? Gợi ý cách điều trị hiệu quả",
+              "url": "https://dalieuhanoi.vn/mun-viem.html"
+            },
+            {
+              "chunk_id": "vnexpress-suckhoe_3aeb6e6fd9::0002",
+              "source": "VnExpress-SucKhoe",
+              "text": "Chỉ sau vài tuần, mụn có thể quay trở lại với mức độ nặng hơn ban đầu. Nếu đang điều trị mụn bằng thuốc đường uống hoặc retinoid, phụ nữ không được mang thai. Phụ nữ nên ngưng hoàn toàn các thuốc chống chỉ định, chờ đủ thời gian an toàn trước thụ thai hoặc tư vấn chuyên khoa tại các bệnh viện uy tín. BSCKI. Nguyễn Thị Việt Hà\nPhòng khám Đa khoa Tâm Anh Cầu Giấy",
+              "score": 0.5017918377542767,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Vì sao nên điều trị mụn dứt điểm trước khi mang thai? - Báo VnExpress",
+              "url": "https://vnexpress.net/vi-sao-nen-dieu-tri-mun-dut-diem-truoc-khi-mang-thai-5056730.html"
+            },
+            {
+              "chunk_id": "vnexpress-suckhoe_3aeb6e6fd9::0001",
+              "source": "VnExpress-SucKhoe",
+              "text": "Thông thường, phụ nữ mang thai có nổi nhiều mụn. Sự thay đổi nội tiết tố, đặc biệt là tăng hormone progesterone, kích thích tuyến bã nhờn hoạt động mạnh, làm da dầu hơn, lỗ chân lông bít tắc, vi khuẩn phát triển, khiến mụn viêm. Khi mang thai, bác sĩ phải giảm tối đa thuốc điều trị. Các liệu pháp chuyên sâu như retinoid, thuốc uống điều hòa nội tiết, peel da hóa học nồng độ cao, laser can thiệp viêm gần như không thể áp dụng. Hệ quả là mụn có thể bùng phát suốt thai kỳ. Sau sinh, da để lại sẹo r",
+              "score": 0.5009843437089929,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Vì sao nên điều trị mụn dứt điểm trước khi mang thai? - Báo VnExpress",
+              "url": "https://vnexpress.net/vi-sao-nen-dieu-tri-mun-dut-diem-truoc-khi-mang-thai-5056730.html"
+            },
+            {
+              "chunk_id": "vinmec_c844350bab::0002",
+              "source": "Vinmec",
+              "text": "Điều này khiến lỗ chân lông bị bít tắc, kết hợp với sự xâm nhập của vi khuẩn từ môi trường ngoài, làm tăng nguy cơ nổi mụn trứng cá ở tuổi teen, tuổi dậy thì. Mụn trứng cá có xu hướng giảm dần khi bạn già đi hoặc mụn sẽ giảm khi bạn duy trì thói quen chăm sóc da tốt. 2. Mụn trứng cá khi dậy thì phải làm sao? 10 phương pháp điều trị mụn trứng cá ở tuổi dậy thì\nCó rất nhiều phương pháp để điều trị mụn trứng cả ở tuổi teen. Ở mức độ nhẹ thì có thể tự điều trị, còn ở mức độ vừa và nặng thì ngoài thu",
+              "score": 0.5003174686436002,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "10 phương pháp điều trị mụn trứng cá ở tuổi teen",
+              "url": "https://www.vinmec.com/vie/bai-viet/10-phuong-phap-dieu-tri-mun-trung-ca-o-tuoi-teen-vi"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 1938,
+          "chunks": [
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0075",
+              "source": "NICE",
+              "text": "When treating acne vulgaris its severity, distribution, and the views of the affected person \nneed to be taken into account. The aim of treatment is to reduce the severity of skin \nlesions and to prevent recurrence and scarring. There is variation in how acne vulgaris is treated in clinical practice, and there is therefore \na need to standardise treatment. There is also a need when prescribing antibiotic therapy \nfor acne vulgaris to take into account the principles of antimicrobial guidance and",
+              "score": 0.5095255936656246,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0003",
+              "source": "NICE",
+              "text": "Throughout this guideline, 'acne' in recommendations refers to 'acne vulgaris' unless \notherwise stated. 1.1 Information and support for people with acne \nvulgaris \n1.1.1 Give people with acne clear information tailored to their needs and concerns. Topics to cover include: \n• the possible reasons for their acne \n• treatment options, including over the counter treatments if appropriate \n• the benefits and drawbacks associated with treatments \n• the potential impact of acne \n• the importance of ad",
+              "score": 0.5069536823495778,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0001",
+              "source": "NICE",
+              "text": "Nothing in this guideline should be interpreted in away that would be \ninconsistent with complying with those duties. Commissioners and providers have a responsibility to promote an environmentally \nsustainable health and care system and should assess and reduce the environmental \nimpact of implementing NICE recommendations wherever possible. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 2 of\n59\nContents \n Acne vulgaris: management ",
+              "score": 0.5069296346487739,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "vinmec_db7b868aa4::0002",
+              "source": "Vinmec",
+              "text": "- Stress\n- Môi trường, khí hậu... 3. Chẩn đoán bệnh trứng cá\nChẩn đoán xác định: chủ yếu dựa vào lâm sàng: mụn cám, sẩn, mụn mủ, mụn bọc, nang tập trung chủ yếu ở vùng tiết nhiều chất bã như mặt, ngực, lưng. Chẩn đoán mức độ: Theo Karen McCoy (2008), bệnh trứng cá chia thành ba mức độ:\n- Mức độ nhẹ: dưới 20 tổn thương không viêm, hoặc dưới 15 tổn thương viêm hoặc tổng số lượng tổn thương dưới 30. - Mức độ vừa: có 20-100 tổn thương không viêm hoặc 15-50 tổn thương viêm, hoặc 20-125 tổng tổn thươn",
+              "score": 0.5065631617014129,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bệnh trứng cá: Nguyên nhân và cách điều trị",
+              "url": "https://www.vinmec.com/vie/bai-viet/benh-trung-ca-nguyen-nhan-va-cach-dieu-tri-vi"
+            },
+            {
+              "chunk_id": "pubmed_6a7d32d8cc::0003",
+              "source": "PubMed",
+              "text": "Concerning acne grade, initially, 62.5% and 12.5% of cases in the cross-linked HA and non-cross-linked HA groups, respectively, had severe grades. However, in the last session, these percentages significantly decreased to 0% for both groups (p = 0.002 and 0.005, respectively). In terms of treatment complications, none of the patients experienced any adverse effects.",
+              "score": 0.5058505663400359,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Evaluation and comparison of the efficacy and safety of cross-linked and non-cross-linked hyaluronic acid in combination with botulinum toxin type A in the treatment of atrophic acne scars: A double-blind randomized clinical trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/38174839/"
+            },
+            {
+              "chunk_id": "pubmed_f41ce1e4dc::0001",
+              "source": "PubMed",
+              "text": "In one phase 2 (NCT03170388) and two phase 3 (NCT04214652, NCT04214639) trials, participants aged greater than or equal to 9 years with moderate-to-severe acne were randomized to once-daily CAB or vehicle gel. Pooled data were analyzed for participants grouped by age: younger (9-24 years; n=515) and adult (greater than or equal to 25 years; n=142). Endpoints included the percentage of participants achieving treatment success (greater than or equal to 2-grade reduction from baseline in Evaluator'",
+              "score": 0.5043071593146351,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Clindamycin Phosphate 1.2%/Adapalene 0.15%/ Benzoyl Peroxide 3.1% Gel for Moderate-to-Severe Acne: A Pooled Analysis by Age.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/41329145/"
+            },
+            {
+              "chunk_id": "dalieuhanoi_514ad1fc1f::0000",
+              "source": "DaLieuHaNoi",
+              "text": "Với những vấn đề như đau nhức, sưng tấy và khó điều trị, mụn viêm không chỉ gây mất thẩm mỹ, kém tự tin mà còn để lại nhiều di chứng nghiêm trọng cho da mặt. Hãy cùng các bác sĩ da liễu tại Phòng khám Chuyên khoa Da liễu Maia&Maia tìm hiểu về nguyên nhân và cách điều trị mụn viêm an toàn, hiệu quả nhất. I. Mụn viêm là gì? Mụn viêm là tình trạng mụn trứng cá nặng, hình thành do quá trình chăm sóc và điều trị không đúng cách dẫn đến nhiễm trùng. Loại mụn này thường xuất hiện với tình trạng sưng đỏ",
+              "score": 0.5031899458516084,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn viêm có nguy hiểm không? Gợi ý cách điều trị hiệu quả",
+              "url": "https://dalieuhanoi.vn/mun-viem.html"
+            },
+            {
+              "chunk_id": "pubmed_f87c1171f0::0001",
+              "source": "PubMed",
+              "text": "Of the 251 women enrolled, 59 % had grade 1 acne at baseline; 31 %, grade 2; and 10 %, grade 3; the most commonly affected area of the body was the face (IGA grades 2 or 3: 79 %). After twelve weeks, there was significant improvement of acne on the face (IGA grades 0 or 1: 82 %), chest, and back. Median DLQI decreased from nine at baseline to five after twelve weeks. Ninety percent of physicians and patients rated the tolerability of the treatment as very good or good. Treatment with azelaic aci",
+              "score": 0.5030045038276328,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Azelaic acid 20 % cream: effects on quality of life and disease severity in adult female acne patients.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/27897372/"
+            },
+            {
+              "chunk_id": "pubmed_ab0f81cb2a::0001",
+              "source": "PubMed",
+              "text": "This was a prospective study of 19 subjects with moderate to severe. All subjects received 1064 nm Nd: YAG Quasi-longed pulse laser treatments, at 8 J/cm2 fluence and accumulated 1000-4000 kJ according to treatment area at two weeks intervals. Primary end point was reaching a minimal AGSS score of between 1 and 2. Acne severity was assessed by two independent dermatologists according to AGSS scale before each treatment session and at the follow-up visit (8 weeks following last treatment). Subjec",
+              "score": 0.5018695718790054,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Quasi long-pulsed 1064nm Nd:YAG (micro pulsed) technology for the treatment of active acne: A case series.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/33834583/"
+            },
+            {
+              "chunk_id": "pubmed_b987f639b7::0000",
+              "source": "PubMed",
+              "text": "An 8-week, open-label, randomized controlled trial of 41 patients with mild-to-moderate acne was performed. The participants received either TAS + adapalene gel (AG) (treatment group) or AG alone (control group) for 4 weeks, followed by a 4-week maintenance phase in which AG was discontinued, and TAS was continued only in the experimental group. Lesion counts, Investigator Global Assessment (IGA), microcomedone counts, skin physiological parameters, and VISIA-CR were performed at baseline and 2,",
+              "score": 0.5015894919640227,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Efficacy and Tolerability of a Triple Acid-Containing Serum Combined With 0.1% Adapalene in Mild-to-Moderate Acne Vulgaris: A Randomized, Open-Label Controlled Trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/42156331/"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "moderate_acne_en",
+      "query": "moderate inflammatory acne initial treatment AAD NICE guideline",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 8209,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_af8c677026::0004",
+              "source": "PubMed",
+              "text": "For moderate-to-severe acne, topical treatment combinations, oral antibiotics combined with topical treatments, oral isotretinoin and photodynamic therapy (light therapy enhanced by a photosensitizing chemical) are most effective. Based on these findings, along with further clinical and cost-effectiveness considerations, National Institute for Health and Care Excellence (NICE) guidance recommends, as first-line treatments, fixed topical treatment combinations for mild-to-moderate acne and fixed ",
+              "score": 0.7174330512786457,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "A systematic review and network meta-analysis of topical pharmacological, oral pharmacological, physical and combined treatments for acne vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/35789996/"
+            },
+            {
+              "chunk_id": "pubmed_402855775f::0001",
+              "source": "PubMed",
+              "text": "After 12 weeks, the majority of patients (91.5 %) showed improvement of acne under adapalene-BPO treatment, with an initial therapeutic response noted after a median time of 14 days. Overall, 21.8 % of participants displayed complete resolution of visible acne lesions. Treatment adherence was assessed as good in 63.2 % of patients. The majority of individuals (69.5 %) experienced no or only mild local skin irritations. No serious adverse drug reactions (ADR) were reported during the course of th",
+              "score": 0.6954780726012655,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Efficacy of adapalene/benzoyl peroxide combination in moderate inflammatory acne and its impact on patient adherence.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26018369/"
+            },
+            {
+              "chunk_id": "pubmed_d731ad6996::0000",
+              "source": "PubMed",
+              "text": "Randomized, controlled trial involving 46 patients with moderate inflammatory facial acne, 23 patients received two sessions of PDT separated by 2 weeks (ALA 20% incubated 1.5 hours before red light irradiation with 37 J/cm2 fluence) and 23 patients received doxycycline 100 mg/d plus adapalene gel 0.1%. In both groups, from the sixth week, we started adapalene gel 0.1% as maintenance therapy until 12 weeks of follow-up. Primary end point was the reduction of acne lesions at the 6-week follow-up,",
+              "score": 0.6870757131323616,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Comparison of efficacy of aminolaevulinic acid photodynamic therapy vs. adapalene gel plus oral doxycycline for treatment of moderate acne vulgaris-A simple, blind, randomized, and controlled trial.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/29993146/"
+            },
+            {
+              "chunk_id": "pubmed_482eb40feb::0000",
+              "source": "PubMed",
+              "text": "Acne is a common inflammatory skin disorder affecting the pilosebaceous unit. Patients with mild-to-moderate acne can be treated with a combination of topical, systemic, and physical therapeutic approaches, with different results depending on patient, disease, and treatment characteristics. Herein we describe and discuss the common and alternative treatment options used for mild-to-moderate acne, by comparing three widely distributed guidelines (American Academy of Dermatology, European Academy ",
+              "score": 0.6379690830301937,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "An overview of treatment options for mild-to-moderate acne based on American Academy of Dermatology, European Academy of Dermatology and Venereology, and Italian Society of Dermatology and Venereology guidelines.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/32385933/"
+            },
+            {
+              "chunk_id": "pubmed_58c990d605::0000",
+              "source": "PubMed",
+              "text": "This was a multicenter, randomized, double-blind, parallel-group study. Randomization was stratified by acne severity (50 % moderate and 50 % severe). Subjects received 0.3 % A/BPO, 0.1 % A/BPO (benchmark), or vehicle (comparator) once daily for 12 weeks. Co-primary efficacy endpoints were success rate at week 12 (the percentage of subjects rated 'clear' or 'almost clear' with at least a 2-grade improvement on Investigator's Global Assessment [IGA]) and change in inflammatory (IN) and noninflamm",
+              "score": 0.6151169886769001,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Moderate and Severe Inflammatory Acne Vulgaris Effectively Treated with Single-Agent Therapy by a New Fixed-Dose Combination Adapalene 0.3 %/Benzoyl Peroxide 2.5 % Gel: A Randomized, Double-Blind, Parallel-Group, Controlled Study.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26945741/"
+            },
+            {
+              "chunk_id": "pubmed_bc2e823260::0000",
+              "source": "PubMed",
+              "text": "A randomized, placebo-controlled, double-blind, parallel-group, proof-of-concept study was conducted on patients with moderate to severe acne. Patients received CJM112 300 mg, 75 mg, or placebo subcutaneously during Treatment Period 1 (0-12 weeks). Patients receiving placebo were re-randomized to receive CJM112 300 mg or 75 mg during Treatment Period 2 (12-24 weeks). The primary endpoint was the number of inflammatory facial lesions at Week 12. Anti-IL-17A therapy was not significantly different",
+              "score": 0.6078923576247122,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Anti-IL-17A blockade did not significantly reduce inflammatory lesions in a placebo-controlled pilot study in adult patients with moderate to severe acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/36305633/"
+            },
+            {
+              "chunk_id": "pubmed_c3745d421f::0001",
+              "source": "PubMed",
+              "text": "At that time, 86% of participants achieved a 40% decrease in ILC and 75% achieved a 60% decrease in ILC. Mean Investigator's Global Assessment (IGA) Scale scores decreased by 41.6% from 2.4 at day 0 to 1.4 at month 12. The percentage of participants with clear or almost clear skin increased from 7% at day 0 to 59% at month 12. Acne therapy with topically applied gold microparticles followed by 1064 nm laser irradiation is an effective treatment for moderate to moderately severe acne. The treatme",
+              "score": 0.597760655978803,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "A Prospective, Multicenter, Study of Laser-Activated Gold Microparticles for Treating Patients Using Concomitant Topical Retinoids for Mild-to-Moderate Inflammatory Acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/37943275/"
+            },
+            {
+              "chunk_id": "pubmed_bffeb083cc::0000",
+              "source": "PubMed",
+              "text": "We randomized 180 patients with mild to moderate comedonal and inflammatory acne into three groups: Group A - 60 patients treated with vacuum and IPL, Group V - 60 patients treated with IPL, and Group 0 (control group) - 60 patients who received topical treatment with Sebium H2O Micellaire Solution. We evaluated the results using the Leeds revised acne-grading system and Cardiff Acne Disability Index.",
+              "score": 0.5767994068200941,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Investigator-blind, placebo-controlled, randomized comparative study on combined vacuum and intense pulsed light versus intense pulsed light devices in both comedonal and papulopustular acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/23789838/"
+            },
+            {
+              "chunk_id": "pubmed_21f92999f6::0000",
+              "source": "PubMed",
+              "text": "As outcomes, separate simple algorithms are presented for the treatment of predominant comedonal, predominant papulopustular and nodular/conglobate acne. Patients with predominant comedonal acne should initially be treated with a topical retinoid, azelaic acid or salicylic acid. Fixed combination topicals are recommended for patients with predominant papulopustular acne with treatment tailored according to the severity of disease. Treatment recommendations for nodular/conglobate acne include ora",
+              "score": 0.5445163378211598,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "A consensus-based practical and daily guide for the treatment of acne patients.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/27177989/"
+            },
+            {
+              "chunk_id": "pubmed_7c3e5d6b26::0000",
+              "source": "PubMed",
+              "text": "A double-blind, randomized, vehicle-controlled multicentre trial in 153 patients (aged 12-35 years) with severe facial acne [Investigator's Global Assessment (IGA) score 4; 25-75 inflammatory lesions with ≤ 3 nodules; 20-100 noninflammatory lesions]. Treatment (four treatments 2 weeks apart) involved incubation with MAL (n = 100) or vehicle cream (n = 53) for 1·5 h under occlusion, then illumination (635-nm red light, total dose 37 J cm(-2) ). IGA assessment and standardized lesion counts were p",
+              "score": 0.5414684642067826,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Photodynamic therapy with methyl aminolaevulinate 80 mg g(-1) for severe facial acne vulgaris: a randomized vehicle-controlled study.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26663215/"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 9448,
+          "chunks": [
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0016",
+              "source": "NICE",
+              "text": "1.5.13 Only continue a treatment option that includes an antibiotic (topical or oral) for \nmore than 6 months in exceptional circumstances. Review at 3-monthly intervals, \nAcne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 17 of\n59\nand stop the antibiotic as soon as possible. 1.5.14 Be aware that the use of antibiotic treatments is associated with a risk of \nantimicrobial resistance (see the NICE guideline on antimicrobial stewardship). ",
+              "score": 0.6850811550761098,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0012",
+              "source": "NICE",
+              "text": "Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 13 of\n59\nFor a short explanation of why the committee made these recommendations and how \nthey might affect practice, see the rationale and impact section on first-line treatment \noptions. Full details of the evidence and the committee's discussion are in: \n• evidence review E1: management options for mild to moderate acne – network \nmeta-analyses \n• evidence review F1: management option",
+              "score": 0.6502524663754056,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0056",
+              "source": "NICE",
+              "text": "The committee also took into account the principles of antimicrobial guidance and policy, \nas outlined in the NICE guideline on antimicrobial stewardship, as well as the World Health \nOrganization Global action plan on antimicrobial resistance. All of these antibiotic \ntreatments increase the risk of antimicrobial resistance, and the committee noted that \nhealthcare professionals should be aware of the principles of antimicrobial stewardship \nwhen considering treatments for acne. No evidence was",
+              "score": 0.6491226801239407,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0003",
+              "source": "NICE",
+              "text": "Throughout this guideline, 'acne' in recommendations refers to 'acne vulgaris' unless \notherwise stated. 1.1 Information and support for people with acne \nvulgaris \n1.1.1 Give people with acne clear information tailored to their needs and concerns. Topics to cover include: \n• the possible reasons for their acne \n• treatment options, including over the counter treatments if appropriate \n• the benefits and drawbacks associated with treatments \n• the potential impact of acne \n• the importance of ad",
+              "score": 0.6181334114988324,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0001",
+              "source": "NICE",
+              "text": "Nothing in this guideline should be interpreted in away that would be \ninconsistent with complying with those duties. Commissioners and providers have a responsibility to promote an environmentally \nsustainable health and care system and should assess and reduce the environmental \nimpact of implementing NICE recommendations wherever possible. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 2 of\n59\nContents \n Acne vulgaris: management ",
+              "score": 0.6058914043665952,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0076",
+              "source": "NICE",
+              "text": "NICE has produced tools and resources to help you put this guideline into practice. For \ngeneral help and advice on putting our guidelines into practice, see resources to help you \nput NICE guidance into practice. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 58 of\n59\nUpdate information \nApril 2026: We amended recommendations 1.5.19 and 1.5.20 to remove the need for 2 \nindependent healthcare professionals to approve the use of iso t",
+              "score": 0.6009599141372823,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0000",
+              "source": "NICE",
+              "text": "Acne vulgaris: management \nNICE guideline \nPublished: 25 June 2021 \nLast updated: 30 April 2026 \n \n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Your responsibility \nThe recommendations in this guideline represent the view of NICE, arrived at after careful \nconsideration of the evidence available. When exercising their judgement, professionals \nand practitioners are expected to take this guideline fully into account, alongside the \nindividual needs, preferences and value",
+              "score": 0.590988118583299,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0075",
+              "source": "NICE",
+              "text": "When treating acne vulgaris its severity, distribution, and the views of the affected person \nneed to be taken into account. The aim of treatment is to reduce the severity of skin \nlesions and to prevent recurrence and scarring. There is variation in how acne vulgaris is treated in clinical practice, and there is therefore \na need to standardise treatment. There is also a need when prescribing antibiotic therapy \nfor acne vulgaris to take into account the principles of antimicrobial guidance and",
+              "score": 0.5751576537962251,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0035",
+              "source": "NICE",
+              "text": "Therefore, the committee made recommendations \nbased on their knowledge and experience. The committee listed some topics that they thought most people with acne vulgaris would \nfind useful in relation to the condition and their care. Among these topics, the committee \nnoted that there were some drawbacks of treatments and that it is important to encourage \npeople to adhere to treatment, because improvement may not be seen immediately. The \ncommittee acknowledged that general information about ad",
+              "score": 0.5556160452135324,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "pubmed_9557503757::0000",
+              "source": "PubMed",
+              "text": "Acne is a common skin condition of the pilosebaceous units that affects the young and old, ranges from moderate to severe and can be treated with an array of options. Topical retinoids are the initial treatment for acne due to their ability to treat comedones, the starting point of acne.",
+              "score": 0.554749112782326,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tazarotene foam, 0.1%, for the treatment of acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26560170/"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 884,
+          "chunks": [
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0016",
+              "source": "NICE",
+              "text": "1.5.13 Only continue a treatment option that includes an antibiotic (topical or oral) for \nmore than 6 months in exceptional circumstances. Review at 3-monthly intervals, \nAcne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 17 of\n59\nand stop the antibiotic as soon as possible. 1.5.14 Be aware that the use of antibiotic treatments is associated with a risk of \nantimicrobial resistance (see the NICE guideline on antimicrobial stewardship). ",
+              "score": 0.6850811550761098,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0012",
+              "source": "NICE",
+              "text": "Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 13 of\n59\nFor a short explanation of why the committee made these recommendations and how \nthey might affect practice, see the rationale and impact section on first-line treatment \noptions. Full details of the evidence and the committee's discussion are in: \n• evidence review E1: management options for mild to moderate acne – network \nmeta-analyses \n• evidence review F1: management option",
+              "score": 0.6502524663754056,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0056",
+              "source": "NICE",
+              "text": "The committee also took into account the principles of antimicrobial guidance and policy, \nas outlined in the NICE guideline on antimicrobial stewardship, as well as the World Health \nOrganization Global action plan on antimicrobial resistance. All of these antibiotic \ntreatments increase the risk of antimicrobial resistance, and the committee noted that \nhealthcare professionals should be aware of the principles of antimicrobial stewardship \nwhen considering treatments for acne. No evidence was",
+              "score": 0.6491226801239407,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "nice_7cf66f1582::0021",
+              "source": "NICE",
+              "text": "The committee noted that 6 months of antibiotic treatment is longer than the 12‑week course of antibiotic treatments that are currently commonly used. However, they decided that if the treatment is found to improve the acne at the 12‑week review it would be useful to continue. They also noted that recommendation 1.5.11 against antibiotic monotherapy and against combined topical antibiotic with an oral antibiotic treatment would lead to substantially lower prescribing of antibiotic treatments for",
+              "score": 0.6251947356810499,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "Rationale and impact | Acne vulgaris: management | Guidance | NICE",
+              "url": "https://www.nice.org.uk/guidance/ng198/chapter/Rationale-and-impact"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0003",
+              "source": "NICE",
+              "text": "Throughout this guideline, 'acne' in recommendations refers to 'acne vulgaris' unless \notherwise stated. 1.1 Information and support for people with acne \nvulgaris \n1.1.1 Give people with acne clear information tailored to their needs and concerns. Topics to cover include: \n• the possible reasons for their acne \n• treatment options, including over the counter treatments if appropriate \n• the benefits and drawbacks associated with treatments \n• the potential impact of acne \n• the importance of ad",
+              "score": 0.6181334114988324,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0001",
+              "source": "NICE",
+              "text": "Nothing in this guideline should be interpreted in away that would be \ninconsistent with complying with those duties. Commissioners and providers have a responsibility to promote an environmentally \nsustainable health and care system and should assess and reduce the environmental \nimpact of implementing NICE recommendations wherever possible. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 2 of\n59\nContents \n Acne vulgaris: management ",
+              "score": 0.6058914043665952,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0076",
+              "source": "NICE",
+              "text": "NICE has produced tools and resources to help you put this guideline into practice. For \ngeneral help and advice on putting our guidelines into practice, see resources to help you \nput NICE guidance into practice. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 58 of\n59\nUpdate information \nApril 2026: We amended recommendations 1.5.19 and 1.5.20 to remove the need for 2 \nindependent healthcare professionals to approve the use of iso t",
+              "score": 0.6009599141372823,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0000",
+              "source": "NICE",
+              "text": "Acne vulgaris: management \nNICE guideline \nPublished: 25 June 2021 \nLast updated: 30 April 2026 \n \n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Your responsibility \nThe recommendations in this guideline represent the view of NICE, arrived at after careful \nconsideration of the evidence available. When exercising their judgement, professionals \nand practitioners are expected to take this guideline fully into account, alongside the \nindividual needs, preferences and value",
+              "score": 0.590988118583299,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0075",
+              "source": "NICE",
+              "text": "When treating acne vulgaris its severity, distribution, and the views of the affected person \nneed to be taken into account. The aim of treatment is to reduce the severity of skin \nlesions and to prevent recurrence and scarring. There is variation in how acne vulgaris is treated in clinical practice, and there is therefore \na need to standardise treatment. There is also a need when prescribing antibiotic therapy \nfor acne vulgaris to take into account the principles of antimicrobial guidance and",
+              "score": 0.5751576537962251,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0035",
+              "source": "NICE",
+              "text": "Therefore, the committee made recommendations \nbased on their knowledge and experience. The committee listed some topics that they thought most people with acne vulgaris would \nfind useful in relation to the condition and their care. Among these topics, the committee \nnoted that there were some drawbacks of treatments and that it is important to encourage \npeople to adhere to treatment, because improvement may not be seen immediately. The \ncommittee acknowledged that general information about ad",
+              "score": 0.5556160452135324,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pregnancy_vi",
+      "query": "mang thai mụn viêm azelaic acid benzoyl peroxide an toàn tránh retinoid",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 7661,
+          "chunks": [
+            {
+              "chunk_id": "vnexpress-suckhoe_4c2352567b::0002",
+              "source": "VnExpress-SucKhoe",
+              "text": "Hãy cẩn thận khi sử dụng benzoyl peroxide vì có thể làm ố màu quần áo, tóc nhuộm. Tuy nhiên, người bị mụn trứng cá viêm nặng cần liên hệ bác sĩ da liễu để có phương pháp điều trị thích hợp, hiệu quả, an toàn. Retinoid\nNếu benzoyl peroxide không hiệu quả, bác sĩ da liễu sẽ kê toa retinoid trị mụn dạng gel hoặc kem (có thể bôi 2 lần mỗi ngày). Retinoids là dẫn xuất vitamin A giúp ngăn u nang, nốt sần, kiểm soát dầu trên da. Vitamin A sẽ làm tăng độ nhạy cảm của da với tia UV nên khi sử dụng retino",
+              "score": 0.7266021752689568,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Các phương pháp điều trị mụn - Báo VnExpress",
+              "url": "https://vnexpress.net/cac-phuong-phap-dieu-tri-mun-4601421.html"
+            },
+            {
+              "chunk_id": "hellobacsi_b7e2e466cb::0014",
+              "source": "HelloBacsi",
+              "text": "- Những loại thuốc có chứa axít salicylic được coi là an toàn trong thai kỳ và có thể dùng mà không cần đến việc kê toa. - Benzoyl peroxide cũng rất an toàn khi sử dụng điều trị mụn trứng cá trong thời gian mang thai. Da chỉ hấp thu 5% benzoyl peroxide, sau đó chuyển thành axít benzoic và được bài tiết qua nước tiểu. - Axít azelaic cũng an toàn khi sử dụng trong thai kỳ vì theo nghiên cứu, không có các dị tật bẩm sinh nào được phát hiện khi sử dụng thuốc này. - Kem có chứa resorcinol hoặc lưu hu",
+              "score": 0.710932753365087,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Biện pháp giúp giảm mụn trứng cá khi mang thai • Hello Bacsi",
+              "url": "https://hellobacsi.com/mang-thai/thai-ky/cham-soc-me-bau/bien-phap-giup-giam-mun-trung-ca-khi-mang-thai"
+            },
+            {
+              "chunk_id": "suckhoedoisong_3bce3df900::0001",
+              "source": "SucKhoeDoiSong",
+              "text": "Không nên dùng benzoyl peroxide đồng thời cùng tretinoin vì hai hoạt chất này dễ gây kích ứng da nếu không có sự kiểm soát tốt. - Axit azelaic: Là một loại axit tự nhiên giúp ngăn chặn sự sản xuất bã nhờn quá mức, đồng thời hạn chế sự phát triển của vi khuẩn. Thành phần này khá an toàn nên có thể sử dụng cho phụ nữ mang thai và đang cho con bú. - Dapsone: Gel bôi có chứa thành phần dapsone thường được chỉ định trong điều trị mụn trứng cá viêm, đặc biệt là ở phụ nữ. Điều trị mụn trứng cá tùy thuộ",
+              "score": 0.6893386902764936,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Điều trị mụn trứng cá dùng thuốc gì?",
+              "url": "https://suckhoedoisong.vn/dieu-tri-mun-trung-ca-dung-thuoc-gi-169230424144758264.htm"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0003",
+              "source": "Youmed",
+              "text": "Để tránh tình trạng đề kháng kháng sinh, có thể kết hợp thuốc kháng sinh thường cùng với benzoyl peroxide. Các phối hợp bao gồm clindamycin với benzoyl peroxide hay erythromycin với benzoyl peroxide. 4. Axit azelaic và axit salicylic\nAxit azelaic là một axit tự nhiên có đặc tính kháng khuẩn. Kem hoặc gel axit azelaic 20% dường như có hiệu quả tương đương với nhiều phương pháp điều trị mụn thông thường khi được sử dụng hai lần một ngày. Axit azelaic là một lựa chọn trong khi mang thai và cho con ",
+              "score": 0.6401554482013021,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "vnexpress-suckhoe_c4293ecac6::0001",
+              "source": "VnExpress-SucKhoe",
+              "text": "Sản phẩm có chứa 2- 5% benzoyl peroxide có thể cải thiện tình trạng mụn nang, nốt sần, mụn mủ. Nếu mụn viêm thường xuyên và lan rộng, người bệnh nên sử dụng sữa rửa mặt hoặc kem dưỡng da có chứa 10% benzoyl peroxide để kiểm soát mụn. Benzoyl peroxide là hoạt chất mạnh có thể khiến da nổi mẩn đỏ, kích ứng nên thoa một lần khi bắt đầu sử dụng, sau đó tăng lên 2 lần/ngày. Hãy cẩn thận khi sử dụng benzoyl peroxide vì có thể làm ố màu quần áo, tóc nhuộm. Tuy nhiên, người bị mụn trứng cá viêm nặng cần",
+              "score": 0.6060967224792329,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "9 cách trị mụn trứng cá ở tuổi dậy thì hiệu quả - Báo VnExpress",
+              "url": "https://vnexpress.net/9-cach-tri-mun-trung-ca-o-tuoi-day-thi-hieu-qua-4607242.html"
+            },
+            {
+              "chunk_id": "happyskin-vn_9dd84b266e::0003",
+              "source": "HappySkin-VN",
+              "text": "So với benzoyl peroxide, axit salicylic dường như có hiệu quả tốt hơn giúp chữa sạch mụn cho da. Ngăn ngừa vi khuẩn với benzoyl peroxide\nVi khuẩn Propionibacterium acne đã được chứng minh có thể kháng gần 50% các sản phẩm kháng sinh uống và bôi như minocyline, tetracycline và erythromycin. Mụn trứng cá do vi khuẩn có thể được điều trị rất hiệu quả với benzoyl peroxide. Benzoyl peroxide có nhiều nồng độ khác nhau; với nồng độ cao, benzoyl peroxide có thể gây kích ứng da, mẩn đỏ và thậm chí là lột",
+              "score": 0.5588228888667166,
+              "source_type": "blog",
+              "lang": "vi",
+              "title": "Hướng Dẫn Cách Trị Mụn Trứng Cá Dạng Nang Hiệu Quả",
+              "url": "https://www.happyskin.vn/huong-dan-cach-tri-mun-trung-ca-dang-nang-hieu-qua"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0029",
+              "source": "AAD",
+              "text": "mendeley. com/\ndatasets/z2bmdwwdf9/2). 96-98 In 1 RCT of 92 patients, 28% more patients receiving azelaic acid 20%\ncream twice daily achieved 50% to 100% reduction in total lesion count compared to vehicle at 3 months. 97\nConsiderations in topical therapies In patients who are pregnant, the risk of fetal harm from topical azelaic acid, BP , erythromycin, and c linda my c in are not expected based on limited expected systemic absorption. 174,175 Salicylic acid can be used in pregnancy if the area",
+              "score": 0.5077541008888042,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "webmd-acne_d5a5285dfd::0002",
+              "source": "WebMD-Acne",
+              "text": "Be sure to use oil-free, non-comedogenic lotions or sunscreens. Use something very simple to wash your face with, as well as low-strength benzoyl peroxide. But it would be best to see a doctor to prevent possible acne scarring. \"\nThe biggest breakthrough in acne treatment has been the development of topical retinoic acid, a form of vitamin A. New slow-release forms of this medicine greatly reduce the irritation it can cause. Other acne treatments target the various causes of acne. They're often ",
+              "score": 0.5057860646891158,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne...Again?",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/features/cm/acne-again"
+            },
+            {
+              "chunk_id": "pubmed_2e3a5aa8f1::0001",
+              "source": "PubMed",
+              "text": "We retrieved and assessed a total of 733 records; however, only six reviews (five Cochrane reviews and one non-Cochrane review) with low risk of bias met the overview inclusion criteria. The six reviews involved 40,910 people with acne from 275 trials and 1316 people with acne scars from 37 trials. The age of the participants ranged from 10 to 59 years, with an average age range from 18 to 30 years. Four reviews included original trials involving only female participants and three reviews includ",
+              "score": 0.5042224910238216,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical, light-based, and complementary interventions for acne: an overview of systematic reviews.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39440650/"
+            },
+            {
+              "chunk_id": "healthline-acne_a2dde60598::0002",
+              "source": "Healthline-Acne",
+              "text": "You can get them only with a prescription. Pregnant women shouldn’t take retinoids. The substance also weakens your skin’s natural UV protection, so people using retinoids should take care to avoid long exposure to the sun and use sunscreen. Zinc is a mineral that can also help with acne. You can take it as an oral supplement or as a topical treatment. A recent\nYou only need small amounts of zinc in your body. The\nTopical lotions that contain zinc can also help with acne. We’ve talked about how ",
+              "score": 0.5033106476064769,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "The Best Minerals and Vitamins for Acne",
+              "url": "https://www.healthline.com/health/minerals-vitamins-for-acne"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 4552,
+          "chunks": [
+            {
+              "chunk_id": "vnexpress-suckhoe_4c2352567b::0002",
+              "source": "VnExpress-SucKhoe",
+              "text": "Hãy cẩn thận khi sử dụng benzoyl peroxide vì có thể làm ố màu quần áo, tóc nhuộm. Tuy nhiên, người bị mụn trứng cá viêm nặng cần liên hệ bác sĩ da liễu để có phương pháp điều trị thích hợp, hiệu quả, an toàn. Retinoid\nNếu benzoyl peroxide không hiệu quả, bác sĩ da liễu sẽ kê toa retinoid trị mụn dạng gel hoặc kem (có thể bôi 2 lần mỗi ngày). Retinoids là dẫn xuất vitamin A giúp ngăn u nang, nốt sần, kiểm soát dầu trên da. Vitamin A sẽ làm tăng độ nhạy cảm của da với tia UV nên khi sử dụng retino",
+              "score": 0.7266021752689568,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Các phương pháp điều trị mụn - Báo VnExpress",
+              "url": "https://vnexpress.net/cac-phuong-phap-dieu-tri-mun-4601421.html"
+            },
+            {
+              "chunk_id": "hellobacsi_b7e2e466cb::0014",
+              "source": "HelloBacsi",
+              "text": "- Những loại thuốc có chứa axít salicylic được coi là an toàn trong thai kỳ và có thể dùng mà không cần đến việc kê toa. - Benzoyl peroxide cũng rất an toàn khi sử dụng điều trị mụn trứng cá trong thời gian mang thai. Da chỉ hấp thu 5% benzoyl peroxide, sau đó chuyển thành axít benzoic và được bài tiết qua nước tiểu. - Axít azelaic cũng an toàn khi sử dụng trong thai kỳ vì theo nghiên cứu, không có các dị tật bẩm sinh nào được phát hiện khi sử dụng thuốc này. - Kem có chứa resorcinol hoặc lưu hu",
+              "score": 0.710932753365087,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Biện pháp giúp giảm mụn trứng cá khi mang thai • Hello Bacsi",
+              "url": "https://hellobacsi.com/mang-thai/thai-ky/cham-soc-me-bau/bien-phap-giup-giam-mun-trung-ca-khi-mang-thai"
+            },
+            {
+              "chunk_id": "suckhoedoisong_251ce3c198::0007",
+              "source": "SucKhoeDoiSong",
+              "text": "3. Azelaic acid\nSau retinoid thì azelaic acid là thành phần trị mụn rất hiệu quả. Hoạt chất này loại bỏ mụn trứng cá thông qua cơ chế tiêu sừng, kháng viêm. Nồng độ azelaic 20% có tác dụng tương đương với tretinoin 0.05% và benzoyl peroxide 5% nhưng ít kích ứng hơn. Azelaic hiệu quả với các trường hợp mụn:\n- Mụn viêm: Azelaic acid có thể thấm sâu vào các lỗ chân lông và loại bỏ triệt để những vi khuẩn trong nang lông, giảm sưng viêm, từ đó gom cồi rất tốt và đẩy cồi mụn ra ngoài. - Mụn ẩn: Do az",
+              "score": 0.6733332021969333,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Điều trị mụn trứng cá dùng thuốc gì nhanh khỏi?",
+              "url": "https://suckhoedoisong.vn/luu-y-khi-dung-3-hoat-chat-trong-dieu-tri-mun-trung-ca-169230907101136889.htm"
+            },
+            {
+              "chunk_id": "suckhoedoisong_6b21c9220c::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Ví dụ: Kết hợp clindamycin với benzoyl peroxide hoặc erythromycin với benzoyl peroxide...\nThuốc kháng sinh đơn độc tại chỗ không được khuyến cáo. Không nên sử dụng thuốc này ở phụ nữ mang thai và cho con bú. Sử dụng các thuốc bôi trị mụn trứng cá cần tuân thủ chỉ định và hướng dẫn của bác sĩ. 3. Axit azelaic và axit salicylic\nAxit azelaic là một loại axit tự nhiên được sản xuất bởi nấm men, có đặc tính kháng khuẩn. Kem hoặc gel axit azelaic 20% được chứng minh có hiệu quả như nhiều phương pháp đ",
+              "score": 0.6644466960273094,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Các thuốc bôi trị mụn trứng cá",
+              "url": "https://suckhoedoisong.vn/cac-thuoc-boi-tri-mun-trung-ca-169230111084319279.htm"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0003",
+              "source": "Youmed",
+              "text": "Để tránh tình trạng đề kháng kháng sinh, có thể kết hợp thuốc kháng sinh thường cùng với benzoyl peroxide. Các phối hợp bao gồm clindamycin với benzoyl peroxide hay erythromycin với benzoyl peroxide. 4. Axit azelaic và axit salicylic\nAxit azelaic là một axit tự nhiên có đặc tính kháng khuẩn. Kem hoặc gel axit azelaic 20% dường như có hiệu quả tương đương với nhiều phương pháp điều trị mụn thông thường khi được sử dụng hai lần một ngày. Axit azelaic là một lựa chọn trong khi mang thai và cho con ",
+              "score": 0.6401554482013021,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "hellobacsi_2ef711e311::0005",
+              "source": "HelloBacsi",
+              "text": "Thay vào đó, bạn cần thay đổi thói quen sinh hoạt theo hướng lành mạnh hơn; thay đổi cách chăm sóc da. Bạn cũngcó thể sử dụng thuốc bôi hoặc thuốc uống do bác sĩ da liễu kê đơn để giảm mụn hiệu quả hơn. Những thông tin thuốc điều trị dưới đây cần có tham vấn của bác sĩ da liễu để đảm bảo an toàn và hiệu quả khi điều trị! - Thuốc bôi: benzoyl peroxide, axit salicylic và retinoid theo toa. - Thuốc uống:\n- Isotretinoin dùng cho mụn bọc nặng (do bác sĩ kê đơn). - Tetracycline và thuốc tránh thai có ",
+              "score": 0.6214619281299818,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn bọc ở cằm có nên nặn không? nguyên nhân & cách điều trị •",
+              "url": "https://hellobacsi.com/da-lieu/tri-mun/mun-boc-o-cam"
+            },
+            {
+              "chunk_id": "suckhoedoisong_e28c74b426::0003",
+              "source": "SucKhoeDoiSong",
+              "text": "- Thuốc kháng sinh tại chỗ như dapsone, clindamycin, clindamycin với benzoyl peroxide, erythromycin và erythromycin với benzoyl peroxide có tác dụng tiêu diệt vi khuẩn gây mụn trứng cá và giảm viêm. - Thuốc tránh thai đường uống: Một số thuốc tránh thai đường uống được Cục Quản lý thuốc và thực phẩm Hoa Kỳ (FDA) chấp thuận để điều trị mụn trứng cá dạng nang hoặc dạng nốt do hormone. - Thuốc điều trị tại chỗ kê đơn cũng có thể được dùng trong điều trị mụn trứng cá nặng, bao gồm: Kem, gel hoặc bọt",
+              "score": 0.6005893158239555,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Các thuốc điều trị mụn trứng cá",
+              "url": "https://suckhoedoisong.vn/cac-thuoc-dieu-tri-mun-trung-ca-169250106140714492.htm"
+            },
+            {
+              "chunk_id": "vinmec_31bb881faf::0005",
+              "source": "Vinmec",
+              "text": "Salicylic acid có mặt trong rất nhiều loại thuốc không cần kê đơn khác nhau. Các dấu hiệu mang thai sớm không phải chỉ mỗi trễ kinh mà còn có rất nhiều dấu hiệu khác như xuất huyết âm đạo, ngực căng tức,… Điểm xem bạn biết được bao nhiêu dấu hiệu mang thai sớm thông qua bài trắc nghiệm này nhé! 2.2. Các phương pháp điều trị mụn trứng cá tại chỗ có thể an toàn đối với phụ nữ mang thai\nMột số chuyên gia khuyến cáo sử dụng các loại thuốc cần kê đơn chứa erythromycin (Erygel) hoặc clindamycin (Cleoc",
+              "score": 0.5809754032980523,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn trứng cá khi mang thai",
+              "url": "https://www.vinmec.com/vie/bai-viet/mun-trung-ca-khi-mang-thai-vi"
+            },
+            {
+              "chunk_id": "vinmec_9dbca4ae3a::0006",
+              "source": "Vinmec",
+              "text": "Ngoài ra những loại kem dưỡng chứa benzoyl peroxide cũng đặc biệt tốt trong việc điều trị mụn trứng cá. - Mỹ phẩm: Một số mỹ phẩm có chứa acid salicylic giúp chống lại mụn trứng cá. Tuy nhiên cần lựa chọn những sản phẩm an toàn, không gây dị ứng hoặc bít tắc lỗ chân lông. 2.2. Điều trị mụn trứng cá\nHiện nay đã có nhiều phương pháp khác nhau được áp dụng để điều trị mụn trứng cá, trong đó một số phương pháp nổi bật là:\n- Sử dụng thuốc: Các loại thuốc kiểm soát sự sản xuất của các hormone như thuố",
+              "score": 0.5734765027553718,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Xử lý mụn trứng cá ở người lớn",
+              "url": "https://www.vinmec.com/vie/bai-viet/xu-ly-mun-trung-ca-o-nguoi-lon-vi"
+            },
+            {
+              "chunk_id": "youmed_09d4dad71f::0003",
+              "source": "Youmed",
+              "text": "- Vị trí mụn xuất hiện trên da của bạn. - Những phương pháp điều trị bạn đã thử. - Khi nào mụn bùng phát. - Tuổi của bạn. - Mụn có để lại vết thâm hay sẹo hay không. Mặc dù kế hoạch điều trị có thể khác nhau ở mỗi bệnh nhân, điều trị thường tuân theo các nguyên tắc này. Mụn đầu trắng, mụn đầu đen hoặc cả hai3\nNếu bạn có những nốt mụn này, bạn có thể sẽ bôi thuốc trị mụn lên da. Kế hoạch điều trị của bạn có thể bao gồm một trong những điều sau:\n- Retinoid. - Retinoid + benzoyl peroxide, axit azel",
+              "score": 0.5301190873144033,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn ở tuổi dậy thì: Cần trị như thế nào?",
+              "url": "https://youmed.vn/tin-tuc/mun-o-tuoi-day-thi"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 2147,
+          "chunks": [
+            {
+              "chunk_id": "vnexpress-suckhoe_4c2352567b::0002",
+              "source": "VnExpress-SucKhoe",
+              "text": "Hãy cẩn thận khi sử dụng benzoyl peroxide vì có thể làm ố màu quần áo, tóc nhuộm. Tuy nhiên, người bị mụn trứng cá viêm nặng cần liên hệ bác sĩ da liễu để có phương pháp điều trị thích hợp, hiệu quả, an toàn. Retinoid\nNếu benzoyl peroxide không hiệu quả, bác sĩ da liễu sẽ kê toa retinoid trị mụn dạng gel hoặc kem (có thể bôi 2 lần mỗi ngày). Retinoids là dẫn xuất vitamin A giúp ngăn u nang, nốt sần, kiểm soát dầu trên da. Vitamin A sẽ làm tăng độ nhạy cảm của da với tia UV nên khi sử dụng retino",
+              "score": 0.7266021752689568,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Các phương pháp điều trị mụn - Báo VnExpress",
+              "url": "https://vnexpress.net/cac-phuong-phap-dieu-tri-mun-4601421.html"
+            },
+            {
+              "chunk_id": "hellobacsi_b7e2e466cb::0014",
+              "source": "HelloBacsi",
+              "text": "- Những loại thuốc có chứa axít salicylic được coi là an toàn trong thai kỳ và có thể dùng mà không cần đến việc kê toa. - Benzoyl peroxide cũng rất an toàn khi sử dụng điều trị mụn trứng cá trong thời gian mang thai. Da chỉ hấp thu 5% benzoyl peroxide, sau đó chuyển thành axít benzoic và được bài tiết qua nước tiểu. - Axít azelaic cũng an toàn khi sử dụng trong thai kỳ vì theo nghiên cứu, không có các dị tật bẩm sinh nào được phát hiện khi sử dụng thuốc này. - Kem có chứa resorcinol hoặc lưu hu",
+              "score": 0.710932753365087,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Biện pháp giúp giảm mụn trứng cá khi mang thai • Hello Bacsi",
+              "url": "https://hellobacsi.com/mang-thai/thai-ky/cham-soc-me-bau/bien-phap-giup-giam-mun-trung-ca-khi-mang-thai"
+            },
+            {
+              "chunk_id": "suckhoedoisong_3bce3df900::0001",
+              "source": "SucKhoeDoiSong",
+              "text": "Không nên dùng benzoyl peroxide đồng thời cùng tretinoin vì hai hoạt chất này dễ gây kích ứng da nếu không có sự kiểm soát tốt. - Axit azelaic: Là một loại axit tự nhiên giúp ngăn chặn sự sản xuất bã nhờn quá mức, đồng thời hạn chế sự phát triển của vi khuẩn. Thành phần này khá an toàn nên có thể sử dụng cho phụ nữ mang thai và đang cho con bú. - Dapsone: Gel bôi có chứa thành phần dapsone thường được chỉ định trong điều trị mụn trứng cá viêm, đặc biệt là ở phụ nữ. Điều trị mụn trứng cá tùy thuộ",
+              "score": 0.6893386902764936,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Điều trị mụn trứng cá dùng thuốc gì?",
+              "url": "https://suckhoedoisong.vn/dieu-tri-mun-trung-ca-dung-thuoc-gi-169230424144758264.htm"
+            },
+            {
+              "chunk_id": "hellobacsi_7a6fd280f9::0001",
+              "source": "HelloBacsi",
+              "text": "Trong vài tháng đầu điều trị, bạn cần kết hợp sử dụng cả retinoid và kháng sinh: Buổi sáng sử dụng thuốc bôi kháng sinh, còn buổi tối dùng retinoid. Thuốc bôi kháng sinh thường được kết hợp với benzoyl peroxide để giảm khả năng kháng kháng sinh như:\n- Clindamycin với benzoyl peroxide\n- Erythromycin với benzoyl peroxide\nThuốc kháng sinh tại chỗ không được khuyến cáo sử dụng riêng lẻ và cần có sự hướng dẫn của bác sĩ. Axit azelaic là một loại axit tự nhiên, được tìm thấy trong các loại ngũ cốc khá",
+              "score": 0.6537876313376292,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "7 cách chữa mụn đầu đinh hiệu quả theo y khoa • Hello Bacsi",
+              "url": "https://hellobacsi.com/da-lieu/tri-mun/cach-chua-mun-dau-dinh"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0003",
+              "source": "Youmed",
+              "text": "Để tránh tình trạng đề kháng kháng sinh, có thể kết hợp thuốc kháng sinh thường cùng với benzoyl peroxide. Các phối hợp bao gồm clindamycin với benzoyl peroxide hay erythromycin với benzoyl peroxide. 4. Axit azelaic và axit salicylic\nAxit azelaic là một axit tự nhiên có đặc tính kháng khuẩn. Kem hoặc gel axit azelaic 20% dường như có hiệu quả tương đương với nhiều phương pháp điều trị mụn thông thường khi được sử dụng hai lần một ngày. Axit azelaic là một lựa chọn trong khi mang thai và cho con ",
+              "score": 0.6401554482013021,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "hellobacsi_7517bd4060::0001",
+              "source": "HelloBacsi",
+              "text": "- Adapalene: Cũng là một retinoid có hiệu quả trong việc ngăn ngừa phát triển mụn mới. Adapalene thường được sử dụng dưới dạng gel, kem hoặc lotion để điều trị mụn ẩn. - Benzoyl Peroxide: Benzoyl Peroxide có tác dụng tiêu diệt vi khuẩn gây mụn và ngăn ngừa hình thành mụn. Bạn có thể mua các sản phẩm benzoyl peroxide không kê đơn có nồng độ từ 2,5%-10%. Các nghiên cứu cho thấy sản phẩm có hàm lượng thấp hơn cũng hiệu quả tương tự. Bạn nên cân nhắc sử dụng sản phẩm gốc nước có nồng độ thấp hơn (2,",
+              "score": 0.6192033871827579,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "đặc điểm nhận biết mụn viêm đỏ không nhân và cách điều trị hiệu quả •",
+              "url": "https://hellobacsi.com/da-lieu/tri-mun/mun-viem-do-khong-nhan"
+            },
+            {
+              "chunk_id": "vnexpress-suckhoe_c4293ecac6::0001",
+              "source": "VnExpress-SucKhoe",
+              "text": "Sản phẩm có chứa 2- 5% benzoyl peroxide có thể cải thiện tình trạng mụn nang, nốt sần, mụn mủ. Nếu mụn viêm thường xuyên và lan rộng, người bệnh nên sử dụng sữa rửa mặt hoặc kem dưỡng da có chứa 10% benzoyl peroxide để kiểm soát mụn. Benzoyl peroxide là hoạt chất mạnh có thể khiến da nổi mẩn đỏ, kích ứng nên thoa một lần khi bắt đầu sử dụng, sau đó tăng lên 2 lần/ngày. Hãy cẩn thận khi sử dụng benzoyl peroxide vì có thể làm ố màu quần áo, tóc nhuộm. Tuy nhiên, người bị mụn trứng cá viêm nặng cần",
+              "score": 0.6060967224792329,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "9 cách trị mụn trứng cá ở tuổi dậy thì hiệu quả - Báo VnExpress",
+              "url": "https://vnexpress.net/9-cach-tri-mun-trung-ca-o-tuoi-day-thi-hieu-qua-4607242.html"
+            },
+            {
+              "chunk_id": "vinmec_9dbca4ae3a::0006",
+              "source": "Vinmec",
+              "text": "Ngoài ra những loại kem dưỡng chứa benzoyl peroxide cũng đặc biệt tốt trong việc điều trị mụn trứng cá. - Mỹ phẩm: Một số mỹ phẩm có chứa acid salicylic giúp chống lại mụn trứng cá. Tuy nhiên cần lựa chọn những sản phẩm an toàn, không gây dị ứng hoặc bít tắc lỗ chân lông. 2.2. Điều trị mụn trứng cá\nHiện nay đã có nhiều phương pháp khác nhau được áp dụng để điều trị mụn trứng cá, trong đó một số phương pháp nổi bật là:\n- Sử dụng thuốc: Các loại thuốc kiểm soát sự sản xuất của các hormone như thuố",
+              "score": 0.5734765027553718,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Xử lý mụn trứng cá ở người lớn",
+              "url": "https://www.vinmec.com/vie/bai-viet/xu-ly-mun-trung-ca-o-nguoi-lon-vi"
+            },
+            {
+              "chunk_id": "youmed_babb5e9b82::0005",
+              "source": "Youmed",
+              "text": "Các tác dụng phụ của axit azelaic thường nhẹ và bao gồm:\n- Da ngứa hoặc châm chích. - Khô da. - Đỏ da. Thuốc kháng sinh uống\nThuốc kháng sinh dạng viên (kháng sinh uống) thường được sử dụng kết hợp với thuốc trị mụn trứng cá bôi ngoài da để điều trị trường hợp mụn nặng. Trong hầu hết các trường hợp, bác sĩ sẽ kê một loại thuốc kháng sinh gọi là tetracycline. Trừ trường hợp khi bạn trong giai đoạn mang thai hoặc cho con bú. Phụ nữ mang thai hoặc cho con bú được khuyên dùng một loại thuốc kháng si",
+              "score": 0.5706529022185556,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Nguyên nhân và các cách điều trị mụn trứng cá bằng thuốc",
+              "url": "https://youmed.vn/tin-tuc/mun-trung-ca-nen-su-dung-loai-thuoc-nao-de-loai-bo"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0029",
+              "source": "AAD",
+              "text": "mendeley. com/\ndatasets/z2bmdwwdf9/2). 96-98 In 1 RCT of 92 patients, 28% more patients receiving azelaic acid 20%\ncream twice daily achieved 50% to 100% reduction in total lesion count compared to vehicle at 3 months. 97\nConsiderations in topical therapies In patients who are pregnant, the risk of fetal harm from topical azelaic acid, BP , erythromycin, and c linda my c in are not expected based on limited expected systemic absorption. 174,175 Salicylic acid can be used in pregnancy if the area",
+              "score": 0.5077541008888042,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pregnancy_en",
+      "query": "pregnancy inflammatory acne azelaic acid benzoyl peroxide safety avoid retinoids guideline",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 7977,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_871200eff4::0000",
+              "source": "PubMed",
+              "text": "Acne vulgaris is a common disease of the pilosebaceous unit and affects adolescents and adults. Because high-quality guidelines regarding treatment of acne in pregnancy are scarce, management of this condition can be challenging. We describe the safety profile of common therapies and outline approaches based on available evidence. Topical azelaic acid or benzoyl peroxide can be recommended as baseline therapy. A combination of topical erythromycin or clindamycin with benzoyl peroxide is recommen",
+              "score": 0.727423445967039,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Treatment of Acne in Pregnancy.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26957383/"
+            },
+            {
+              "chunk_id": "healthline-acne_a2dde60598::0002",
+              "source": "Healthline-Acne",
+              "text": "You can get them only with a prescription. Pregnant women shouldn’t take retinoids. The substance also weakens your skin’s natural UV protection, so people using retinoids should take care to avoid long exposure to the sun and use sunscreen. Zinc is a mineral that can also help with acne. You can take it as an oral supplement or as a topical treatment. A recent\nYou only need small amounts of zinc in your body. The\nTopical lotions that contain zinc can also help with acne. We’ve talked about how ",
+              "score": 0.6807179360420212,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "The Best Minerals and Vitamins for Acne",
+              "url": "https://www.healthline.com/health/minerals-vitamins-for-acne"
+            },
+            {
+              "chunk_id": "webmd-acne_4efd87e8c8::0003",
+              "source": "WebMD-Acne",
+              "text": "There haven’t been any studies on the effects of azelaic acid on children under 12, so its safety isn't clear. There also aren’t any human studies on azelaic acid during pregnancy and breastfeeding. Your body absorbs only a small amount of it, so it appears to be safe, but you’ll need to discuss it with your doctor. Azelaic acid foam can catch fire, so you need to avoid fires, flames, and smoking right after you put it on. Some foods and drinks might make your skin appear red or flushed while yo",
+              "score": 0.6798679727736189,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Azelaic Acid for Your Skin: What to Know",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/what-to-know-about-azelaic-acid-skin"
+            },
+            {
+              "chunk_id": "webmd-acne_a53c0ed594::0009",
+              "source": "WebMD-Acne",
+              "text": "Many oral antibiotics for acne should not be used during pregnancy. Retinoids or vitamin A derivatives. These drugs are available as topical or oral drugs. Topical retinoids clear up moderate-to-severe acne by affecting the way the skin grows and sheds. They can be used along with other acne products, such as benzoyl peroxide and oral antibiotics. Topical retinoids don't have the severe side effects of oral retinoids, but they aren't recommended for pregnant or nursing women. Side effects of top",
+              "score": 0.676800618847881,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne Treatments That Work",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/acne-treatments-that-work"
+            },
+            {
+              "chunk_id": "webmd-acne_33a916352c::0006",
+              "source": "WebMD-Acne",
+              "text": "Antibiotics are often used in combination with other drugs that \"unclog\" follicles. Many oral antibiotics for acne should not be used during pregnancy. Retinoids or vitamin A derivatives. These drugs are available as topical or oral drugs. Topical retinoids clear up moderate-to-severe acne by affecting the way the skin grows and sheds. They can be used in combination with other acne products, such as benzoyl peroxide and oral antibiotics. Topical retinoids don't have the severe side effects of o",
+              "score": 0.6765033329590576,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Understanding Acne Treatment",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/understanding-acne-treatment"
+            },
+            {
+              "chunk_id": "pubmed_3324120bed::0000",
+              "source": "PubMed",
+              "text": "Topical drugs have been used successfully to treat acne for decades. This review discusses the use, efficacy, and safety of options available via prescription. Topical antibiotics, dapsone, benzyl peroxide, azelaic acid, and topical retinoids are included. Topical antibiotics should not be used as monotherapy but rather be combined with other agents to avoid resistant Propionibacterium acnes strains. Benzoyl peroxide is effective in preventing bacteria resistance. Topical retinoids address prima",
+              "score": 0.6649619515874494,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical treatments for acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/28274355/"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0029",
+              "source": "AAD",
+              "text": "mendeley. com/\ndatasets/z2bmdwwdf9/2). 96-98 In 1 RCT of 92 patients, 28% more patients receiving azelaic acid 20%\ncream twice daily achieved 50% to 100% reduction in total lesion count compared to vehicle at 3 months. 97\nConsiderations in topical therapies In patients who are pregnant, the risk of fetal harm from topical azelaic acid, BP , erythromycin, and c linda my c in are not expected based on limited expected systemic absorption. 174,175 Salicylic acid can be used in pregnancy if the area",
+              "score": 0.6565090893397921,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "nice_7cf66f1582::0015",
+              "source": "NICE",
+              "text": "The committee looked at evidence related to risk of scarring, which suggests that the severity and duration of acne may be risk factors for scarring. The committee noted that there is substantial uncertainty, as the studies did not control for the influence of other factors. However, they agreed that the risk factors were consistent with their knowledge and experience, so recommended that healthcare practitioners be made aware so that they can take this into account during discussions with the p",
+              "score": 0.6558503342071523,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "Rationale and impact | Acne vulgaris: management | Guidance | NICE",
+              "url": "https://www.nice.org.uk/guidance/ng198/chapter/Rationale-and-impact"
+            },
+            {
+              "chunk_id": "healthline-acne_1c0ddb34f8::0002",
+              "source": "Healthline-Acne",
+              "text": "Since benzoyl peroxide is a strong ingredient, it can make your skin red and irritated at first. You may want to use these products once a day to start and then gradually apply up to two times daily. Also, take care around clothing and colored hair, as benzoyl peroxide is known to stain. Inflammatory acne that’s common during your teen years may also be treated with retinoids. These are types of vitamin A derivatives that unplug clogged oil ducts to prevent cysts and nodules. Retinoids may be yo",
+              "score": 0.5437459467205435,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne Treatments for Teens: Types, Benefits, Side Effects & More",
+              "url": "https://www.healthline.com/health/skin-disorders/acne-treatment-for-teens"
+            },
+            {
+              "chunk_id": "webmd-acne_d5a5285dfd::0002",
+              "source": "WebMD-Acne",
+              "text": "Be sure to use oil-free, non-comedogenic lotions or sunscreens. Use something very simple to wash your face with, as well as low-strength benzoyl peroxide. But it would be best to see a doctor to prevent possible acne scarring. \"\nThe biggest breakthrough in acne treatment has been the development of topical retinoic acid, a form of vitamin A. New slow-release forms of this medicine greatly reduce the irritation it can cause. Other acne treatments target the various causes of acne. They're often ",
+              "score": 0.5356066644918867,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne...Again?",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/features/cm/acne-again"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 6276,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_871200eff4::0000",
+              "source": "PubMed",
+              "text": "Acne vulgaris is a common disease of the pilosebaceous unit and affects adolescents and adults. Because high-quality guidelines regarding treatment of acne in pregnancy are scarce, management of this condition can be challenging. We describe the safety profile of common therapies and outline approaches based on available evidence. Topical azelaic acid or benzoyl peroxide can be recommended as baseline therapy. A combination of topical erythromycin or clindamycin with benzoyl peroxide is recommen",
+              "score": 0.727423445967039,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Treatment of Acne in Pregnancy.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26957383/"
+            },
+            {
+              "chunk_id": "pubmed_3324120bed::0000",
+              "source": "PubMed",
+              "text": "Topical drugs have been used successfully to treat acne for decades. This review discusses the use, efficacy, and safety of options available via prescription. Topical antibiotics, dapsone, benzyl peroxide, azelaic acid, and topical retinoids are included. Topical antibiotics should not be used as monotherapy but rather be combined with other agents to avoid resistant Propionibacterium acnes strains. Benzoyl peroxide is effective in preventing bacteria resistance. Topical retinoids address prima",
+              "score": 0.6649619515874494,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical treatments for acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/28274355/"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0029",
+              "source": "AAD",
+              "text": "mendeley. com/\ndatasets/z2bmdwwdf9/2). 96-98 In 1 RCT of 92 patients, 28% more patients receiving azelaic acid 20%\ncream twice daily achieved 50% to 100% reduction in total lesion count compared to vehicle at 3 months. 97\nConsiderations in topical therapies In patients who are pregnant, the risk of fetal harm from topical azelaic acid, BP , erythromycin, and c linda my c in are not expected based on limited expected systemic absorption. 174,175 Salicylic acid can be used in pregnancy if the area",
+              "score": 0.6565090893397921,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "dermnetnz_1f84ef6be3::0002",
+              "source": "DermNetNZ",
+              "text": "- Avoid applying oily cosmetics such as foundation or sunscreen. - It may take several weeks or even months to see convincing improvement. - Discontinue using a product if severe irritation results. See your doctor for advice. Suitable topical agents for mild acne that can be obtained without a prescription include:\n- Antiseptic washes with triclosan or benzoyl peroxide\n- Mild salicylic acid preparations to exfoliate and unplug the follicles\n- Benzoyl peroxide cream/lotion/gel\n- Azelaic acid cre",
+              "score": 0.6310534152953922,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne management",
+              "url": "https://dermnetnz.org/topics/acne-treatment"
+            },
+            {
+              "chunk_id": "webmd-acne_2f5bede800::0003",
+              "source": "WebMD-Acne",
+              "text": "For the same reasons, some experts also recommend against using topical treatments containing salicylic acid. This is an ingredient found in many over-the-counter products. Other Topical Acne Treatments and Pregnancy\nSome experts recommend topical prescription products containing either azelaic acid or erythromycin. Other options include over-the-counter products that contain either benzoyl peroxide or glycolic acid. Only about 5% of the active medication applied to the skin is absorbed into the",
+              "score": 0.6251593148647376,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne During Pregnancy: Causes, Home Remedies, and Treatments",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/acne-during-pregnancy-treatments-causes"
+            },
+            {
+              "chunk_id": "pubmed_00d74ac33e::0000",
+              "source": "PubMed",
+              "text": "Despite similar acne severity, SNS patients were less often prescribed azelaic acid, benzoyl peroxide/clindamycin, benzoyl peroxide/adapalene, sulfacetamide, topical dapsone, and salicylic acid than PS patients (p < 0.001). SNS patients received fewer prescriptions for oral medications including spironolactone, antibiotics, and isotretinoin (p < 0.001). Despite similar acne severity, non-White patients were less frequently prescribed topical retinoids (p = 0.003), benzoyl peroxide/clindamycin (p",
+              "score": 0.6091131399349398,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Prescribing patterns for treatment of acne vulgaris: A retrospective chart review at an urban public and private hospital.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39954091/"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0030",
+              "source": "NICE",
+              "text": "Oral lyme cyclin e or oral doxycycline \nFormulation of either: \n• 408 mg lymecycline daily \n• 100 mg doxycycline daily. Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 28 of\n59\nSynthetic detergent (syndet) \nA synthetic detergent (syndet) is a blend of synthetic sur fact ants and is formulated to \nhave neutral to slightly acidic pH similar to the skin. It is widely available in both solid and \nliquid forms as a skin cleansing product. ",
+              "score": 0.5550590810073098,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "healthline-acne_fa2407e30b::0004",
+              "source": "Healthline-Acne",
+              "text": "”\nErin Schoor, MD, a dermatologist with NYU Langone, says fungal acne is most common in people with oily skin. Though pharmacies are full of products that promise to unclog pores, over-the-counter (OTC) remedies are not always the best route. “When the acne becomes inflamed or OTC medications are not working, prescription medications are recommended,” Schoor says. “Antibiotics can be more helpful for deeper inflammation, which can lead to scarring. ”\nPrescription products and medications are mos",
+              "score": 0.5501530067348321,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "The Definitive Guide to Acne: Everything You Need to Know for Healthy, Happy Skin",
+              "url": "https://www.healthline.com/health/acne/definitive-guide-to-acne-everything-you-need-to-know"
+            },
+            {
+              "chunk_id": "healthline-acne_fa2407e30b::0008",
+              "source": "Healthline-Acne",
+              "text": "You can even do so via telemedicine or with an app. Acne that is mild, comedonal, and without scarring can sometimes be treated with OTC and natural remedies. Over-the-counter ingredients\nExperts and research suggest these are the best ingredients to try if you’re trying to treat and reduce the appearance of acne:\n- benzoyl peroxide\n- salicylic acid\n- nicotinamide\n- peptides\n- azelaic acid\n- glycolic acid\n- vitamin A\nBenzoyl peroxide\nBenzoyl peroxide can often be found in gels and lotions. OTC b",
+              "score": 0.5193882458811158,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "The Definitive Guide to Acne: Everything You Need to Know for Healthy, Happy Skin",
+              "url": "https://www.healthline.com/health/acne/definitive-guide-to-acne-everything-you-need-to-know"
+            },
+            {
+              "chunk_id": "aad_fa00b4ce61::0002",
+              "source": "AAD",
+              "text": "Azelaic acid: It fights acne and can also fade the dark spots that appear when an acne spot clears. Benzoyl peroxide: This acne-fighter is especially effective at treating mild pimples. While you’ll find products that contain up to 10% benzoyl peroxide, it’s best to start with a product that contains 2.5%. That will help you avoid side effects like dry, irritated skin or a burning sensation. Salicylic acid: Because it unclogs pores and exfoliates the skin, salicylic acid works best on whiteheads",
+              "score": 0.5020328997374258,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "Adult acne treatment dermatologists recommend",
+              "url": "https://www.aad.org/public/diseases/acne/diy/adult-acne-treatment"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 2420,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_871200eff4::0000",
+              "source": "PubMed",
+              "text": "Acne vulgaris is a common disease of the pilosebaceous unit and affects adolescents and adults. Because high-quality guidelines regarding treatment of acne in pregnancy are scarce, management of this condition can be challenging. We describe the safety profile of common therapies and outline approaches based on available evidence. Topical azelaic acid or benzoyl peroxide can be recommended as baseline therapy. A combination of topical erythromycin or clindamycin with benzoyl peroxide is recommen",
+              "score": 0.727423445967039,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Treatment of Acne in Pregnancy.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26957383/"
+            },
+            {
+              "chunk_id": "pubmed_bf687c1327::0001",
+              "source": "PubMed",
+              "text": "When the groups were compared in terms of IGA value at the end of treatment and percentage improvements in all lesion numbers, it was seen that there was more improvement in the group using azelaic acid than the others (p < 0.001 for both). When the groups were compared in terms of side effects, no difference was found (p = 0.093). When the groups were compared in terms of satisfaction levels, there were significantly more patients who were very satisfied in the azelaic acid group (p < 0.001). A",
+              "score": 0.7094044601934805,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Retrospective Analysis of Efficacy and Side Effects of Topical 4% Erythromycin Versus 1% Clindamycin Versus 20% Azelaic Acid During Pregnancy.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/40873252/"
+            },
+            {
+              "chunk_id": "pubmed_94cc469e41::0000",
+              "source": "PubMed",
+              "text": "Acne should be treated during pregnancy to prevent worsening, scarring, secondary infection or psychological impairment of the mother. Safe products must be chosen. Systemic tetracycline, doxycycline, minocycline or isotretinoin can not be used. Topical benzoyl peroxide or topical azelaic acid are safe therapeutic options. According to the guidelines, systemic corticosteroids or systemic erythromycin (the latter not in lactation) can be employed beginning in the second trimester for severe flare",
+              "score": 0.7055993130993378,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "[Acne therapy in pregnancy].",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/23430167/"
+            },
+            {
+              "chunk_id": "webmd-acne_4efd87e8c8::0003",
+              "source": "WebMD-Acne",
+              "text": "There haven’t been any studies on the effects of azelaic acid on children under 12, so its safety isn't clear. There also aren’t any human studies on azelaic acid during pregnancy and breastfeeding. Your body absorbs only a small amount of it, so it appears to be safe, but you’ll need to discuss it with your doctor. Azelaic acid foam can catch fire, so you need to avoid fires, flames, and smoking right after you put it on. Some foods and drinks might make your skin appear red or flushed while yo",
+              "score": 0.6798679727736189,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Azelaic Acid for Your Skin: What to Know",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/what-to-know-about-azelaic-acid-skin"
+            },
+            {
+              "chunk_id": "pubmed_3324120bed::0000",
+              "source": "PubMed",
+              "text": "Topical drugs have been used successfully to treat acne for decades. This review discusses the use, efficacy, and safety of options available via prescription. Topical antibiotics, dapsone, benzyl peroxide, azelaic acid, and topical retinoids are included. Topical antibiotics should not be used as monotherapy but rather be combined with other agents to avoid resistant Propionibacterium acnes strains. Benzoyl peroxide is effective in preventing bacteria resistance. Topical retinoids address prima",
+              "score": 0.6649619515874494,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical treatments for acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/28274355/"
+            },
+            {
+              "chunk_id": "aad_88a4258288::0001",
+              "source": "AAD",
+              "text": "From this, researchers have learned the following about acne medications:\nAdapalene (brand name: Differin® gel): Most experts recommend stopping this treatment during pregnancy. Antibiotics (you apply to your skin): Applying clindamycin during pregnancy is thought to be safe. Before using it while you’re pregnant, it’s best to check with your obstetrician or dermatologist. Antibiotics (you take): Cefadroxil is an antibiotic that can help clear severe acne. In giving pregnant animals large amount",
+              "score": 0.6649137730291786,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "Is any acne treatment safe to use during pregnancy?",
+              "url": "https://www.aad.org/public/diseases/acne/derm-treat/pregnancy"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0029",
+              "source": "AAD",
+              "text": "mendeley. com/\ndatasets/z2bmdwwdf9/2). 96-98 In 1 RCT of 92 patients, 28% more patients receiving azelaic acid 20%\ncream twice daily achieved 50% to 100% reduction in total lesion count compared to vehicle at 3 months. 97\nConsiderations in topical therapies In patients who are pregnant, the risk of fetal harm from topical azelaic acid, BP , erythromycin, and c linda my c in are not expected based on limited expected systemic absorption. 174,175 Salicylic acid can be used in pregnancy if the area",
+              "score": 0.6565090893397921,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "nice_7cf66f1582::0015",
+              "source": "NICE",
+              "text": "The committee looked at evidence related to risk of scarring, which suggests that the severity and duration of acne may be risk factors for scarring. The committee noted that there is substantial uncertainty, as the studies did not control for the influence of other factors. However, they agreed that the risk factors were consistent with their knowledge and experience, so recommended that healthcare practitioners be made aware so that they can take this into account during discussions with the p",
+              "score": 0.6558503342071523,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "Rationale and impact | Acne vulgaris: management | Guidance | NICE",
+              "url": "https://www.nice.org.uk/guidance/ng198/chapter/Rationale-and-impact"
+            },
+            {
+              "chunk_id": "dermnetnz_1f84ef6be3::0002",
+              "source": "DermNetNZ",
+              "text": "- Avoid applying oily cosmetics such as foundation or sunscreen. - It may take several weeks or even months to see convincing improvement. - Discontinue using a product if severe irritation results. See your doctor for advice. Suitable topical agents for mild acne that can be obtained without a prescription include:\n- Antiseptic washes with triclosan or benzoyl peroxide\n- Mild salicylic acid preparations to exfoliate and unplug the follicles\n- Benzoyl peroxide cream/lotion/gel\n- Azelaic acid cre",
+              "score": 0.6310534152953922,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne management",
+              "url": "https://dermnetnz.org/topics/acne-treatment"
+            },
+            {
+              "chunk_id": "webmd-acne_2f5bede800::0003",
+              "source": "WebMD-Acne",
+              "text": "For the same reasons, some experts also recommend against using topical treatments containing salicylic acid. This is an ingredient found in many over-the-counter products. Other Topical Acne Treatments and Pregnancy\nSome experts recommend topical prescription products containing either azelaic acid or erythromycin. Other options include over-the-counter products that contain either benzoyl peroxide or glycolic acid. Only about 5% of the active medication applied to the skin is absorbed into the",
+              "score": 0.6251593148647376,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne During Pregnancy: Causes, Home Remedies, and Treatments",
+              "url": "https://www.webmd.com/skin-problems-and-treatments/acne/acne-during-pregnancy-treatments-causes"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "topical_interaction_vi",
+      "query": "benzoyl peroxide làm giảm tác dụng tretinoin hay chỉ tăng kích ứng",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 8970,
+          "chunks": [
+            {
+              "chunk_id": "medlatec_c25d6d229b::0004",
+              "source": "Medlatec",
+              "text": "Cẩn thận không lạm dụng Benzoyl peroxide để trị mụn\nDo thuốc trị mụn chứa Benzoyl peroxyd dễ gây dị ứng nên bác sĩ khuyến cáo bệnh nhân nên thử thuốc trước khi dùng bằng việc sử dụng lượng nhỏ trên 1 vùng da nhỏ và theo dõi. Nếu trên vùng da đó xuất hiện ngứa, sưng da, mẩn đỏ thì nên ngưng dùng thuốc ngay lập tức. 2.4. Tretinoin\nTretinoin là thành phần đặc trị mụn có tác dụng mạnh, làm tiêu nhân mụn bằng cách đẩy nhân mụn ra ngoài, mở nang kín và giải phóng chất bã thừa gây mụn. Thuốc trị mụn tr",
+              "score": 0.7187486578263922,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Nổi mẩn đỏ sau khi dùng thuốc trị mụn có nguy hiểm không?",
+              "url": "https://medlatec.vn/tin-tuc/noi-man-do-sau-khi-dung-thuoc-tri-mun-co-nguy-hiem-khong-s107-n25336"
+            },
+            {
+              "chunk_id": "suckhoedoisong_39953095b4::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Những tổn thương da này cần phải được điều trị với các thuốc khác, tránh để lại sẹo. Thời gian dùng benzoyl peroxide trị mụn phụ thuộc vào tình trạng da được cải thiện nhanh hay chậm. Thường sau khi điều trị với benzoyl peroxide, sẽ bắt đầu có tác dụng trong vòng 4 tuần, nhưng khi tình trạng mụn đã được kiểm soát, người dùng có thể tiếp tục dùng để ngăn ngừa mụn tái phát. Benzoyl peroxide có thể gây kích ứng da (mẩn đỏ, ngứa, khô, bong tróc, cảm giác châm chích…), đặc biệt là khi thoa quá nhiều.",
+              "score": 0.7132958897318598,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn đầu đen, trị thế nào?",
+              "url": "https://suckhoedoisong.vn/mun-dau-den-tri-the-nao-169230112152150857.htm"
+            },
+            {
+              "chunk_id": "happyskin-vn_97c650155a::0001",
+              "source": "HappySkin-VN",
+              "text": "Benzoyl Peroxide là một loại peroxide có tính kháng khuẩn, tiêu sừng, tiêu mụn và chống viêm. Benzoyl Peroxide sẽ phân hủy oxy và giải phóng các gốc oxygen giết chết vi khuẩn kỵ khí Propionibacterium Acnes. Benzoyl Peroxide có thể làm tăng tốc độ luân chuyển của tế bào biểu mô, khiến da bị bong tróc, nhưng từ đó lại tạo điều kiện cho vết mụn biến mất nhanh hơn. Benzoyl Peroxide được sử dụng để điều trị mụn trứng cá. Lưu ý, không sử dụng các sản phẩm có thành phần Benzoyl Peroxide trên vùng da hở",
+              "score": 0.6515800381653878,
+              "source_type": "blog",
+              "lang": "vi",
+              "title": "Thuốc trị mụn: Mua dễ nhưng dùng phải có bí quyết riêng!",
+              "url": "https://www.happyskin.vn/thuoc-tri-mun-mua-de-nhung-dung-phai-co-bi-quyet-rieng"
+            },
+            {
+              "chunk_id": "vinmec_cb0e24836b::0006",
+              "source": "Vinmec",
+              "text": "Benzoyl peroxide được khuyến cáo sử dụng tối đa chỉ có thể hai lần mỗi ngày vào buổi sáng và buổi tối. Sau khi làm sạch với sữa rửa mặt, rồi đến dùng nước toner, thoa sản phẩm thành một lớp mỏng xung quanh toàn bộ vùng da bị ảnh hưởng. Để sản phẩm khô trong vài giây trước khi thoa kem dưỡng ẩm. Nếu bạn chưa quen với benzoyl peroxide, hãy bắt đầu sử dụng chỉ một lần mỗi ngày, sau đó có thể tăng lên sử dụng 2 lần mỗi ngày vào buổi sáng và buổi tối. Trong trường hợp bạn sử dụng kết hợp với các sản ",
+              "score": 0.5880904161831024,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Axit salicylic và Benzoyl peroxide: Cái nào chữa mụn tốt hơn?",
+              "url": "https://www.vinmec.com/vie/bai-viet/axit-salicylic-va-benzoyl-peroxide-cai-nao-chua-mun-tot-hon-vi"
+            },
+            {
+              "chunk_id": "youmed_9a093e5ae5::0004",
+              "source": "Youmed",
+              "text": "Mẫn cảm do tiếp xúc cũng có khi xảy ra. - Cơ thể có mùi khác thường khi bôi thuốc. - Hiếm gặp hiện tượng ngứa dữ dội, tấy đỏ, nóng rát, sưng phù và phản ứng dị ứng. Hướng dẫn cách xử trí\nCần xác định xem người bệnh có mẫn cảm với benzoyl peroxide hay không, bằng cách trước hết bôi thử trên một vùng nhỏ. Nếu có kích ứng hoặc khô da thì nên giảm số lần dùng. Nếu bị ngứa nhiều, đỏ, nóng bừng, sưng phồng hoặc kích ứng thì tạm thời ngừng thuốc và hỏi ý kiến bác sĩ. Tương tác thuốc khi dùng Benzoyl pe",
+              "score": 0.5752603009669209,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Thuốc benzoyl peroxid: tác dụng điều trị mụn và lưu ý khi sử dụng",
+              "url": "https://youmed.vn/tin-tuc/thuoc-benzoyl-peroxid"
+            },
+            {
+              "chunk_id": "pubmed_235a795a4a::0000",
+              "source": "PubMed",
+              "text": "In two 12-week, phase 3, randomized, vehicle-controlled clinical trials, tretinoin 0.1%-benzoyl peroxide 3% cream significantly reduced inflammatory and noninflammatory facial acne lesions and significantly improved Investigator Global Assessment (IGA) rating to clear or almost clear. The cream has a suitable safety profile, with application site pain and dryness as the most common adverse events. Tretinoin-BPO had similar IGA success compared to other topical retinoid and retinoid-BPO treatment",
+              "score": 0.5360852461525611,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tretinoin 0.1% and Benzoyl Peroxide 3% Cream for the Treatment of Facial Acne Vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/36639853/"
+            },
+            {
+              "chunk_id": "pubmed_2e3a5aa8f1::0002",
+              "source": "PubMed",
+              "text": "Two trials including 1073 participants (time point: 10 and 12 weeks) suggested benzoyl peroxide may have little to no effect in improving participants' global self-assessment compared to placebo (long-term treatment), but the evidence is very uncertain (risk ratio (RR) 1.44, 95% CI 0.94 to 2.22; very low-certainty evidence). Very low-certainty evidence suggested that benzoyl peroxide may improve investigators' global assessment (RR 1.77, 95% CI 1.37 to 2.28; 6 trials, 4110 participants, long-ter",
+              "score": 0.52832980804937,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical, light-based, and complementary interventions for acne: an overview of systematic reviews.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39440650/"
+            },
+            {
+              "chunk_id": "pubmed_6d645eda3b::0000",
+              "source": "PubMed",
+              "text": "Benzoyl peroxide is one of the most widely used topical agents for acne. It has potent antibacterial and mild anti-inflammatory and comedolytic effects. To treat mild to moderate acne, it can be used alone or in combination with topical antibiotics and topical retinoids. The combination of benzoyl peroxide with either erythromycin or clindamycin is synergistic and well-tolerated. In more severe acne, when oral antibiotics are required, benzoyl peroxide can contribute to suppressing the emergence",
+              "score": 0.5142779507094425,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Benzoyl peroxide: enhancing antibiotic efficacy in acne management.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21076800/"
+            },
+            {
+              "chunk_id": "pubmed_2e3a5aa8f1::0003",
+              "source": "PubMed",
+              "text": "Benzoyl peroxide versus topical antibiotics: When compared to clindamycin, benzoyl peroxide may have little to no effect on the following outcomes (long-term treatment): total lesion counts (MD -3.50, 95% CI -7.54 to 0.54; 1 trial, 641 participants, 12 weeks; very low-certainty evidence), inflammatory lesion counts (MD -1.20, 95% CI -2.99 to 0.59; 1 trial, 641 participants, 12 weeks; very low-certainty evidence), non-inflammatory lesion counts (MD -2.4, 95% CI -5.3 to 0.5; 1 trial, 641 participa",
+              "score": 0.514058762205499,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical, light-based, and complementary interventions for acne: an overview of systematic reviews.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39440650/"
+            },
+            {
+              "chunk_id": "pubmed_491c883af6::0000",
+              "source": "PubMed",
+              "text": "Determined efficacies of benzoyl peroxide may be affected by study design, implementation, and vehicle effects. We sought to elucidate areas that may allow improvement in determining accurate treatment efficacies by determining rates of active treatment and vehicle responders in randomized controlled trials assessing the efficacy of topical benzoyl peroxide to treat acne. We conducted a systematic review of randomized vehicle-controlled trials evaluating the efficacy of topical benzoyl peroxide ",
+              "score": 0.5088605581766689,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Evaluating clinical trial design: systematic review of randomized vehicle-controlled trials for determining efficacy of benzoyl peroxide topical therapy for acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/26048131/"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 6078,
+          "chunks": [
+            {
+              "chunk_id": "suckhoedoisong_39953095b4::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Những tổn thương da này cần phải được điều trị với các thuốc khác, tránh để lại sẹo. Thời gian dùng benzoyl peroxide trị mụn phụ thuộc vào tình trạng da được cải thiện nhanh hay chậm. Thường sau khi điều trị với benzoyl peroxide, sẽ bắt đầu có tác dụng trong vòng 4 tuần, nhưng khi tình trạng mụn đã được kiểm soát, người dùng có thể tiếp tục dùng để ngăn ngừa mụn tái phát. Benzoyl peroxide có thể gây kích ứng da (mẩn đỏ, ngứa, khô, bong tróc, cảm giác châm chích…), đặc biệt là khi thoa quá nhiều.",
+              "score": 0.7132958897318598,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn đầu đen, trị thế nào?",
+              "url": "https://suckhoedoisong.vn/mun-dau-den-tri-the-nao-169230112152150857.htm"
+            },
+            {
+              "chunk_id": "suckhoedoisong_251ce3c198::0004",
+              "source": "SucKhoeDoiSong",
+              "text": "Do đó sau khi thoa thuốc, nếu thấy hiện tượng đỏ rát thì nên ngừng thuốc và thực hiện các bước dưỡng ẩm phục hồi da. Sau đó nếu muốn sử dụng tiếp thì cần test và nghe ngóng tình trạng da có đáp ứng tốt với điều trị hay không. - Adapalene 0.1%: Nếu dùng dạng kem sẽ gây bí da nhẹ. Thuốc có tác dụng giảm dày sừng tốt nhưng dễ đẩy viêm. Nếu dùng dạng gel sẽ thoáng nhẹ da hơn, đẩy mụn tốt. Một số tác dụng phụ khi dùng retinoid như: Kích ứng, đỏ da, khô da, bong da, viêm da… Đặc biệt là tretinoin tình",
+              "score": 0.7084342331229926,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Điều trị mụn trứng cá dùng thuốc gì nhanh khỏi?",
+              "url": "https://suckhoedoisong.vn/luu-y-khi-dung-3-hoat-chat-trong-dieu-tri-mun-trung-ca-169230907101136889.htm"
+            },
+            {
+              "chunk_id": "youmed_9bffc96227::0006",
+              "source": "Youmed",
+              "text": "Vì vậy bạn phải tuân theo hướng dẫn sử dụng của nhà sản xuất. Dưới đây là những thành phần phổ biến mà bạn sẽ tìm thấy trong các loại thuốc điều trị mụn:\nBenzoyl peroxide. Benzoyl peroxide hoạt động tốt nhất trên mụn viêm – như mụn nang và mụn đỏ – vì nó tiêu diệt vi khuẩn gây mụn. 5\nVì benzoyl peroxide là một thành phần mạnh, nên ban đầu nó có thể khiến da bạn mẩn đỏ và kích ứng. Bạn có thể bắt đầu sử dụng các sản phẩm này mỗi ngày một lần, sau đó dần dần lên đến hai lần mỗi ngày. Axit salicyli",
+              "score": 0.7011309105256474,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Có nên nặn mụn không? Bí quyết sở hữu làn da mịn màng",
+              "url": "https://youmed.vn/tin-tuc/co-nen-nan-mun-khong-bi-quyet-so-huu-lan-da-min-mang"
+            },
+            {
+              "chunk_id": "suckhoedoisong_3bce3df900::0000",
+              "source": "SucKhoeDoiSong",
+              "text": "Theo BS. Hà Thị An Diên (BS chuyên khoa da liễu thẩm mỹ ở Hà Nội), cách điều trị mụn trứng cá sẽ tùy thuộc theo mức độ nghiêm trọng và dai dẳng của các nốt mụn. 1. Điều trị mụn trứng cá ở tình trạng nhẹ\nMụn trứng cá ở mức độ nhẹ có thể được điều trị bằng các loại thuốc bôi ngoài da không kê đơn như:\n- Retinoid và các loại thuốc có công dụng tương tự retinoid: Thuốc có chứa axit retinoic hoặc tretinoin... có thể ở dạng kem, gel hoặc lỏng. Trong thời gian đầu sử dụng, nên dùng với tần suất cách ng",
+              "score": 0.6940078768725445,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Điều trị mụn trứng cá dùng thuốc gì?",
+              "url": "https://suckhoedoisong.vn/dieu-tri-mun-trung-ca-dung-thuoc-gi-169230424144758264.htm"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0001",
+              "source": "Youmed",
+              "text": "Sử dụng theo hướng dẫn, thoa lên nốt mụn từ 1 đến 2 lần trong ngày. Không nên thoa quá nhiều sẽ làm kích ứng da. Ngoài ra, lưu ý che chắn đầy đủ và thoa kem chống nắng mỗi ngày vì benzoyl peroxide sẽ làm da bạn nhạy cảm hơn dưới tác động của ánh sáng mặt trời. Tránh để chất này dính vào tóc hoặc quần áo của bạn vì benzoyl peroxide còn có tác dụng tẩy trắng. Các tác dụng phụ thường gặp của benzoyl peroxide bao gồm:\n- Da khô căng và bong tróc da. - Cảm giác nóng, ngứa hoặc châm chích. - Có thể nổi",
+              "score": 0.6659004538038549,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "suckhoedoisong_6195ddef95::0003",
+              "source": "SucKhoeDoiSong",
+              "text": "+ Cách bôi thuốc: Chỉ bôi một lượng nhỏ benzoyl peroxide trực tiếp lên nốt mụn có mủ. Tránh bôi ra vùng da xung quanh vì có thể làm khô và kích ứng da. Chỉ bôi một lớp mỏng, nếu bôi quá dày với hy vọng mụn sẽ xẹp nhanh hơn sẽ không hiệu quả mà còn làm tăng nguy cơ kích ứng, đỏ rát và bong tróc da. Lưu ý: Khi mới bắt đầu dùng benzoyl peroxide, có thể cảm thấy da hơi châm chích, khô, đỏ nhẹ. Đây là phản ứng bình thường. Tuy nhiên, nếu da bị đỏ rát, sưng tấy nghiêm trọng, hãy ngừng sử dụng và liên ",
+              "score": 0.6136865679569501,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Cách chăm sóc và dùng thuốc điều trị mụn viêm mủ",
+              "url": "https://suckhoedoisong.vn/cach-cham-soc-va-dung-thuoc-dieu-tri-mun-viem-mu-169250916090330975.htm"
+            },
+            {
+              "chunk_id": "hellobacsi_2ef711e311::0009",
+              "source": "HelloBacsi",
+              "text": "Tìm hiểu ngay top 4 thuốc trị mụn ẩn phổ biến trên thị trường hiện nay qua bài viết dưới đây! - Tretinoin (Retin-A): Tretinoin thuộc loại Retinoids được sử dụng để điều trị mụn ẩn ở dạng thuốc bôi. Retinoids có tác dụng loại bỏ tế bào chết, bã nhờn, làm thông thoáng lỗ chân lông, từ đó giúp giảm mụn trứng cá. - Adapalene: Cũng là một retinoid có hiệu quả trong việc ngăn ngừa phát triển mụn mới. Adapalene thường được sử dụng dưới dạng gel, kem hoặc lotion để điều trị mụn ẩn. - Benzoyl Peroxide: B",
+              "score": 0.5998126999816885,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn bọc ở cằm có nên nặn không? nguyên nhân & cách điều trị •",
+              "url": "https://hellobacsi.com/da-lieu/tri-mun/mun-boc-o-cam"
+            },
+            {
+              "chunk_id": "medlatec_8fa5727686::0004",
+              "source": "Medlatec",
+              "text": "Cụ thể như:\n- Benzoyl peroxide: Hoạt chất benzoyl peroxide là thành phần quen thuộc trong nhiều sản phẩm trị mụn, chăm sóc da toàn thân. Các loại thuốc bôi chứa hoạt chất này có thể giúp kiểm soát nốt mụn sưng, giảm triệu chứng đau nhức. - Salicylic acid: Đây là một hoạt chất tan trong dầu, giúp loại bỏ bã nhờn, bụi bẩn tích tụ trong lỗ chân lông. Ngoài ra, salicylic acid còn giúp loại bỏ mụn nhân. - Retinoids: Gồm Tretinoin (Retin-A) và Adapalene (Differin). - Tretinoin (Retin-A): Giúp loại bỏ ",
+              "score": 0.5981800963168129,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Cách làm xẹp mụn sưng đỏ sau 1 đêm: Tính hiệu quả và lưu ý khi áp dụng",
+              "url": "https://medlatec.vn/tin-tuc/cach-lam-xep-mun-sung-do-sau-1-dem-tinh-hieu-qua-va-luu-y-khi-ap-dung"
+            },
+            {
+              "chunk_id": "happyskin-vn_6ba5fab40e::0002",
+              "source": "HappySkin-VN",
+              "text": "Chỉ sau khi sử dụng Benzoyl Peroxide trong khoảng một tháng, bạn có thể tăng số lần dùng lên hai lần/ngày nếu da có thể chịu được. - Nồng độ của thuốc dao động từ 2,5% đến 10%. Hầu hết mọi người sẽ phù hợp với 2,5% vì chi phí rẻ hơn và ít gây ra kích ứng. Bạn chỉ nên chọn những sản phẩm mạnh hơn khi nó chưa mang lại kết quả như mong muốn. Những lưu ý khi sử dụng Benzoyl Peroxide liều lượng cao\n- Hãy sử dụng những loại sữa rửa mặt nhẹ nhàng vì Benzoyl Peroxide có thể gây kích ứng\n- Không dùng xà ",
+              "score": 0.5885476909414807,
+              "source_type": "blog",
+              "lang": "vi",
+              "title": "Lợi và hại khi dùng Benzoyl Peroxide trị mụn",
+              "url": "https://www.happyskin.vn/dung-benzoyl-peroxide-tri-mun"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0002",
+              "source": "Youmed",
+              "text": "2. Retinoids và các loại thuốc giống retinoid\nThuốc có chứa axit retinoic hoặc tretinoin thường hữu ích cho mụn trứng cá mức độ vừa. Bao gồm các dạng tretinoin, adapalene và tazarotene. Thoa thuốc vào buổi tối, bắt đầu với ba lần một tuần, sau đó hàng ngày khi da của bạn quen với nó. Retinoids giúp ngăn chặn sự kết dính của các nang lông. Lưu ý không bôi cùng lúc với benzoyl peroxide. Khô da, mẫn đỏ, tăng nhạy cảm với ánh sáng mặt trời là tác dụng phụ thường gặp. Trong các dẫn chất, Adapalene đư",
+              "score": 0.5774533129510111,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 6295,
+          "chunks": [
+            {
+              "chunk_id": "suckhoedoisong_39953095b4::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Những tổn thương da này cần phải được điều trị với các thuốc khác, tránh để lại sẹo. Thời gian dùng benzoyl peroxide trị mụn phụ thuộc vào tình trạng da được cải thiện nhanh hay chậm. Thường sau khi điều trị với benzoyl peroxide, sẽ bắt đầu có tác dụng trong vòng 4 tuần, nhưng khi tình trạng mụn đã được kiểm soát, người dùng có thể tiếp tục dùng để ngăn ngừa mụn tái phát. Benzoyl peroxide có thể gây kích ứng da (mẩn đỏ, ngứa, khô, bong tróc, cảm giác châm chích…), đặc biệt là khi thoa quá nhiều.",
+              "score": 0.7132958897318598,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn đầu đen, trị thế nào?",
+              "url": "https://suckhoedoisong.vn/mun-dau-den-tri-the-nao-169230112152150857.htm"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0001",
+              "source": "Youmed",
+              "text": "Sử dụng theo hướng dẫn, thoa lên nốt mụn từ 1 đến 2 lần trong ngày. Không nên thoa quá nhiều sẽ làm kích ứng da. Ngoài ra, lưu ý che chắn đầy đủ và thoa kem chống nắng mỗi ngày vì benzoyl peroxide sẽ làm da bạn nhạy cảm hơn dưới tác động của ánh sáng mặt trời. Tránh để chất này dính vào tóc hoặc quần áo của bạn vì benzoyl peroxide còn có tác dụng tẩy trắng. Các tác dụng phụ thường gặp của benzoyl peroxide bao gồm:\n- Da khô căng và bong tróc da. - Cảm giác nóng, ngứa hoặc châm chích. - Có thể nổi",
+              "score": 0.6659004538038549,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "suckhoedoisong_73806875f9::0001",
+              "source": "SucKhoeDoiSong",
+              "text": "Tốt nhất là dùng nồng độ nào thì cũng nên theo lời khuyên của bác sĩ cũng như lựa chọn hãng sản xuất. Kem tự mua trên mạng có thể khó kiểm soát về chất lượng, độ tinh khiết và các hoạt chất khác. Mặc dù retinol được coi là tiêu chuẩn vàng trong điều trị mụn, nám da, nhưng dùng không đúng chỉ dẫn bệnh nhân có thể bị kích ứng da, khô da, bong vảy, sưng phồng và tăng nhạy cảm với ánh sáng. Cách giảm nhẹ:\n- Khi mới bôi, chỉ nên thoa một lớp kem mỏng. Có thể trộn retinol cùng kem dưỡng da hoặc kem cấ",
+              "score": 0.6381235020365921,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Tác dụng phụ của thuốc điều trị mụn và cách xử lý",
+              "url": "https://suckhoedoisong.vn/tac-dung-phu-cua-thuoc-dieu-tri-mun-va-cach-xu-ly-169230331203209732.htm"
+            },
+            {
+              "chunk_id": "medlatec_3918e8ae77::0004",
+              "source": "Medlatec",
+              "text": "Loại thuốc này có thể gây ra một số tác dụng phụ như đổi màu da, cảm giác châm chích, kích ứng nhẹ. - Benzoyl peroxide: Có tác dụng loại bỏ vi khuẩn gây mụn, loại bỏ da chết, dầu thừa, từ đó giảm nguy cơ tắc nghẽn lỗ chân lông. Các sản phẩm thuốc benzoyl peroxide nồng độ từ 2,5% – 10% có thể không cần kê đơn. Một số tác dụng phụ của thuốc có thể kể đến như khô da, nóng rát,... Để hạn chế nguy cơ tác dụng phụ, bạn nên dùng dạng nước và có nồng độ thấp hơn 2,5%. - Retinoids: Công dụng của loại thu",
+              "score": 0.6330950907157482,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Gợi ý các loại thuốc trị mụn trứng cá và cách dùng hiệu quả",
+              "url": "https://medlatec.vn/tin-tuc/goi-y-cac-loai-thuoc-tri-mun-trung-ca-va-cach-dung-hieu-qua"
+            },
+            {
+              "chunk_id": "suckhoedoisong_6195ddef95::0003",
+              "source": "SucKhoeDoiSong",
+              "text": "+ Cách bôi thuốc: Chỉ bôi một lượng nhỏ benzoyl peroxide trực tiếp lên nốt mụn có mủ. Tránh bôi ra vùng da xung quanh vì có thể làm khô và kích ứng da. Chỉ bôi một lớp mỏng, nếu bôi quá dày với hy vọng mụn sẽ xẹp nhanh hơn sẽ không hiệu quả mà còn làm tăng nguy cơ kích ứng, đỏ rát và bong tróc da. Lưu ý: Khi mới bắt đầu dùng benzoyl peroxide, có thể cảm thấy da hơi châm chích, khô, đỏ nhẹ. Đây là phản ứng bình thường. Tuy nhiên, nếu da bị đỏ rát, sưng tấy nghiêm trọng, hãy ngừng sử dụng và liên ",
+              "score": 0.6136865679569501,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Cách chăm sóc và dùng thuốc điều trị mụn viêm mủ",
+              "url": "https://suckhoedoisong.vn/cach-cham-soc-va-dung-thuoc-dieu-tri-mun-viem-mu-169250916090330975.htm"
+            },
+            {
+              "chunk_id": "vinmec_cb0e24836b::0006",
+              "source": "Vinmec",
+              "text": "Benzoyl peroxide được khuyến cáo sử dụng tối đa chỉ có thể hai lần mỗi ngày vào buổi sáng và buổi tối. Sau khi làm sạch với sữa rửa mặt, rồi đến dùng nước toner, thoa sản phẩm thành một lớp mỏng xung quanh toàn bộ vùng da bị ảnh hưởng. Để sản phẩm khô trong vài giây trước khi thoa kem dưỡng ẩm. Nếu bạn chưa quen với benzoyl peroxide, hãy bắt đầu sử dụng chỉ một lần mỗi ngày, sau đó có thể tăng lên sử dụng 2 lần mỗi ngày vào buổi sáng và buổi tối. Trong trường hợp bạn sử dụng kết hợp với các sản ",
+              "score": 0.5880904161831024,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Axit salicylic và Benzoyl peroxide: Cái nào chữa mụn tốt hơn?",
+              "url": "https://www.vinmec.com/vie/bai-viet/axit-salicylic-va-benzoyl-peroxide-cai-nao-chua-mun-tot-hon-vi"
+            },
+            {
+              "chunk_id": "youmed_fd82dc30ca::0004",
+              "source": "Youmed",
+              "text": "Loại bỏ tất cả các yếu tố này có thể khiến da bạn bị khô và dễ bị kích ứng. Khi bị kích ứng, các tuyến bã nhờn tiết ra nhiều dầu hơn dẫn đến nhiều mụn đầu đen hơn. Đừng lãng phí thời gian với benzoyl peroxide\nKhi nói đến các phương pháp điều trị mụn không kê đơn (OTC), bạn có thể thấy rằng nhiều sản phẩm có chứa benzoyl peroxide. Vấn đề là benzoyl peroxide không có tác dụng với tất cả các loại mụn. Benzoyl peroxide hoạt động bằng cách giảm sưng, một biểu hiệu của mụn viêm. Nó cũng có thể loại bỏ",
+              "score": 0.5551541290640409,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bạn đã biết 9 cách loại bỏ mụn đầu đen này chưa?",
+              "url": "https://youmed.vn/tin-tuc/ban-da-biet-9-cach-loai-bo-mun-dau-den-nay-chua"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0107",
+              "source": "AAD",
+              "text": "S. multicenter trials. J Am Acad Dermatol . 1997;36:S126-S134 . 163. Krishna nG. Comparison of two concentrations of tretinoin solution in the topical treatment of acne vulgaris. Practitioner. 1976;216:106-109 . 164. Cu nl if feW J, Dod man B, E adR. Benzoyl peroxide in acne. Practitioner. 1978;220:479-482 . 165. Fulton JE Jr, Farzad-Baksh and eh A, BradleyS. Studies on the mechanism of action to topical benzoyl peroxide and vitamin A acid in acne vulgaris. J Cutan Pathol . 1974;1:191-200 . 166.",
+              "score": 0.5499520019019306,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "pubmed_2e3a5aa8f1::0002",
+              "source": "PubMed",
+              "text": "Two trials including 1073 participants (time point: 10 and 12 weeks) suggested benzoyl peroxide may have little to no effect in improving participants' global self-assessment compared to placebo (long-term treatment), but the evidence is very uncertain (risk ratio (RR) 1.44, 95% CI 0.94 to 2.22; very low-certainty evidence). Very low-certainty evidence suggested that benzoyl peroxide may improve investigators' global assessment (RR 1.77, 95% CI 1.37 to 2.28; 6 trials, 4110 participants, long-ter",
+              "score": 0.52832980804937,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Topical, light-based, and complementary interventions for acne: an overview of systematic reviews.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39440650/"
+            },
+            {
+              "chunk_id": "aad_02f221d871::0002",
+              "source": "AAD",
+              "text": "A retinoid and benzoyl peroxide: This means buying two different products, but this combination works well in skin of color. The retinoid helps to unclog pores and reduce inflammation. It can clear pimples, blackheads, and whiteheads. A retinoid can also prevent new breakouts. Benzoyl peroxoide can remove the bacteria that cause acne. If you're worried about it causing light spots on your skin, don't be. That’s a myth. It won't. However, it will bleach clothing, sheets, pillow cases, and towels.",
+              "score": 0.5028339125363686,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "10 tips for clearing acne in darker skin tones",
+              "url": "https://www.aad.org/public/diseases/acne/diy/skin-color"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "topical_interaction_en",
+      "query": "benzoyl peroxide tretinoin degradation stability irritation interaction",
+      "modes": {
+        "dense": {
+          "wall_time_ms": 3897,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_12fb0909ed::0000",
+              "source": "PubMed",
+              "text": "Tretinoin is widely used in the treatment of acne. Despite significant advances in formulation development, irritation and dryness can be particularly bothersome, especially during the first 3-4 weeks, impacting adherence. Dose titration and adjunct use of moisturizers have been commonly employed. Co-prescribing with benzoyl peroxide (BPO) or a BPO/antibiotic combination is also common practice. The tretinoin molecule is unstable and can be degraded by BPO, further complicating treatment regimen",
+              "score": 0.7045374433936598,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Safety and efficacy of micronized tretinoin gel (0.05%) in treating adolescent acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21637905/"
+            },
+            {
+              "chunk_id": "pubmed_048f88da7c::0000",
+              "source": "PubMed",
+              "text": "Benzoyl peroxide (BPO) is a commonly used and highly effective topical treatment for acne that is available in concentrations from 2.5-10%. The compound is not associated with bacterial resistance, and published acne treatment guidelines recommend BPO in conjunction with the long-term use of both topical and systemic antibiotics. A number of combination products containing antibiotics, BPO and/or retinoids are available and useful for tailoring treatment to the needs of each patient over the cou",
+              "score": 0.5963529518219307,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Benzoyl peroxide development, pharmacology, formulation and clinical uses in topical fixed-combinations.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/20480791/"
+            },
+            {
+              "chunk_id": "suckhoedoisong_39953095b4::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Những tổn thương da này cần phải được điều trị với các thuốc khác, tránh để lại sẹo. Thời gian dùng benzoyl peroxide trị mụn phụ thuộc vào tình trạng da được cải thiện nhanh hay chậm. Thường sau khi điều trị với benzoyl peroxide, sẽ bắt đầu có tác dụng trong vòng 4 tuần, nhưng khi tình trạng mụn đã được kiểm soát, người dùng có thể tiếp tục dùng để ngăn ngừa mụn tái phát. Benzoyl peroxide có thể gây kích ứng da (mẩn đỏ, ngứa, khô, bong tróc, cảm giác châm chích…), đặc biệt là khi thoa quá nhiều.",
+              "score": 0.5601713167265959,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn đầu đen, trị thế nào?",
+              "url": "https://suckhoedoisong.vn/mun-dau-den-tri-the-nao-169230112152150857.htm"
+            },
+            {
+              "chunk_id": "medlatec_c25d6d229b::0004",
+              "source": "Medlatec",
+              "text": "Cẩn thận không lạm dụng Benzoyl peroxide để trị mụn\nDo thuốc trị mụn chứa Benzoyl peroxyd dễ gây dị ứng nên bác sĩ khuyến cáo bệnh nhân nên thử thuốc trước khi dùng bằng việc sử dụng lượng nhỏ trên 1 vùng da nhỏ và theo dõi. Nếu trên vùng da đó xuất hiện ngứa, sưng da, mẩn đỏ thì nên ngưng dùng thuốc ngay lập tức. 2.4. Tretinoin\nTretinoin là thành phần đặc trị mụn có tác dụng mạnh, làm tiêu nhân mụn bằng cách đẩy nhân mụn ra ngoài, mở nang kín và giải phóng chất bã thừa gây mụn. Thuốc trị mụn tr",
+              "score": 0.5542006700877006,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Nổi mẩn đỏ sau khi dùng thuốc trị mụn có nguy hiểm không?",
+              "url": "https://medlatec.vn/tin-tuc/noi-man-do-sau-khi-dung-thuoc-tri-mun-co-nguy-hiem-khong-s107-n25336"
+            },
+            {
+              "chunk_id": "pubmed_235a795a4a::0000",
+              "source": "PubMed",
+              "text": "In two 12-week, phase 3, randomized, vehicle-controlled clinical trials, tretinoin 0.1%-benzoyl peroxide 3% cream significantly reduced inflammatory and noninflammatory facial acne lesions and significantly improved Investigator Global Assessment (IGA) rating to clear or almost clear. The cream has a suitable safety profile, with application site pain and dryness as the most common adverse events. Tretinoin-BPO had similar IGA success compared to other topical retinoid and retinoid-BPO treatment",
+              "score": 0.5110661855827405,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tretinoin 0.1% and Benzoyl Peroxide 3% Cream for the Treatment of Facial Acne Vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/36639853/"
+            }
+          ]
+        },
+        "sparse": {
+          "wall_time_ms": 8487,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_12fb0909ed::0000",
+              "source": "PubMed",
+              "text": "Tretinoin is widely used in the treatment of acne. Despite significant advances in formulation development, irritation and dryness can be particularly bothersome, especially during the first 3-4 weeks, impacting adherence. Dose titration and adjunct use of moisturizers have been commonly employed. Co-prescribing with benzoyl peroxide (BPO) or a BPO/antibiotic combination is also common practice. The tretinoin molecule is unstable and can be degraded by BPO, further complicating treatment regimen",
+              "score": 0.7045374433936598,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Safety and efficacy of micronized tretinoin gel (0.05%) in treating adolescent acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21637905/"
+            },
+            {
+              "chunk_id": "pubmed_0273182c7d::0000",
+              "source": "PubMed",
+              "text": "Topical tretinoin and benzoyl peroxide (BPO) are often prescribed in combination for the treatment of acne vulgaris; however, these products have not traditionally been administered simultaneously because of the potential for tretinoin degradation by BPO as well as the instability of tretinoin in daylight. The primary objective of this randomized, investigator-blinded, 12-week, phase 4 trial was to determine non-inferiority of a once-daily morning combination regimen of 5% BPO wash + tretinoin g",
+              "score": 0.6896614987288995,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tretinoin gel microsphere pump 0.04% plus 5% benzoyl peroxide wash for treatment of acne vulgaris: morning/morning regimen is as effective and safe as morning/evening regimen.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/20677537/"
+            },
+            {
+              "chunk_id": "pubmed_4941b968fd::0000",
+              "source": "PubMed",
+              "text": "The multiple etiologic factors involved in acne vulgaris make the use of several medications necessary to treat the condition. Use of a fixed combination of clindamycin phosphate 1.2% and tretinoin 0.025% in conjunction with a benzoyl peroxide (BPO) wash 4% targets several pathologic factors simultaneously and mitigates the potential for clindamycin-induced Propionibacterium acnes-resistant strains. New formulations may allow such regimens to be effectively used without overly reduced tolerabili",
+              "score": 0.6522270853591882,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Randomized tolerability analysis of clindamycin phosphate 1.2%-tretinoin 0.025% gel used with benzoyl peroxide wash 4% for acne vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21284283/"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0009",
+              "source": "NICE",
+              "text": "Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 10 of\n59\nTable 1: Treatment choices for mild to moderate and moderate to severe acne vulgaris \nAcne severity Treatment Advantages Disadvantages \nAny \nseverity \nFixed \ncombination \nof topical \nadapalene \nwith topical \nbenzoyl \nperoxide, \napplied once \ndaily in the \nevening \n• Topical \n• Does not contain antibiotics \n• Not for use during \npregnancy \n• Use with caution \nduring breastfeeding",
+              "score": 0.5416001324125149,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "dermnetnz_1f84ef6be3::0002",
+              "source": "DermNetNZ",
+              "text": "- Avoid applying oily cosmetics such as foundation or sunscreen. - It may take several weeks or even months to see convincing improvement. - Discontinue using a product if severe irritation results. See your doctor for advice. Suitable topical agents for mild acne that can be obtained without a prescription include:\n- Antiseptic washes with triclosan or benzoyl peroxide\n- Mild salicylic acid preparations to exfoliate and unplug the follicles\n- Benzoyl peroxide cream/lotion/gel\n- Azelaic acid cre",
+              "score": 0.5141166817062254,
+              "source_type": "en_medical_site",
+              "lang": "en",
+              "title": "Acne management",
+              "url": "https://dermnetnz.org/topics/acne-treatment"
+            },
+            {
+              "chunk_id": "pubmed_e0e288e2c9::0000",
+              "source": "PubMed",
+              "text": "Acne vulgaris is one of the most common dermatological diseases and has a complex etiology. Despite the wide range of available therapeutic options, modern and effective solutions are still being sought, particularly in the area of topical therapy. The aim of this study was to develop hydrogel formulations that provide stability for the antibiotics they contain-tetracycline or chlortetracycline enriched with azeloglycine-the latter an ingredient supporting acne-prone skin care. The physicochemic",
+              "score": 0.5089070667776608,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Synergy of Tetracyclines and Potassium Azeloyl Diglycinate (Azeloglycine) in Hydrogels: Evaluation of Stability, Antimicrobial Activity, and Physicochemical Properties.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/40508050/"
+            },
+            {
+              "chunk_id": "pubmed_d84ec04ce0::0000",
+              "source": "PubMed",
+              "text": "The investigated formulations were prepared using an Eprus U500 pharmaceutical mixer and the pH was determined using an ERH-11S electrode designed for dense substances and a CPC-505 Elmetron pH-meter. The formulations were analyzed for tetracycline stability in the presence of additional active ingredients and varying pH over a period of 35 days using high-performance liquid chromatography (HPLC). In addition, the effects of azeloglycine and azelaic acid on the viscosity of the prepared formulat",
+              "score": 0.5051039612243591,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Anti-acne preparations containing tetracycline, azelaic acid and azeloglycine: Optimization of stability and physicochemical properties.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/39625134/"
+            },
+            {
+              "chunk_id": "youmed_9d659428dc::0002",
+              "source": "Youmed",
+              "text": "2. Retinoids và các loại thuốc giống retinoid\nThuốc có chứa axit retinoic hoặc tretinoin thường hữu ích cho mụn trứng cá mức độ vừa. Bao gồm các dạng tretinoin, adapalene và tazarotene. Thoa thuốc vào buổi tối, bắt đầu với ba lần một tuần, sau đó hàng ngày khi da của bạn quen với nó. Retinoids giúp ngăn chặn sự kết dính của các nang lông. Lưu ý không bôi cùng lúc với benzoyl peroxide. Khô da, mẫn đỏ, tăng nhạy cảm với ánh sáng mặt trời là tác dụng phụ thường gặp. Trong các dẫn chất, Adapalene đư",
+              "score": 0.5034178924612313,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Bị mụn nhọt dùng thuốc gì? Câu trả lời của bác sĩ",
+              "url": "https://youmed.vn/tin-tuc/bi-mun-nhot-uong-thuoc-gi"
+            },
+            {
+              "chunk_id": "pubmed_a16fd3b583::0001",
+              "source": "PubMed",
+              "text": "Subsequent 100 ns molecular dynamics (MD) simulations confirmed the stability of the gentamicin-protein complexes, as evidenced by favorable RMSD, RMSF, and energy profiles. Interaction energy decomposition revealed strong contributions from electrostatic and van der Waals forces. These findings highlight the potential of gentamicin, and possibly structurally related natural compounds, as modulators of host inflammatory pathways implicated in acne. The study further underscores the utility of in",
+              "score": 0.5028398371870284,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Gentamicin and Citronella-Derived Compounds as Dual Modulators of Inflammation-Associated Targets in Acne Vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/41226663/"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0028",
+              "source": "NICE",
+              "text": "Fixed combination of topical adapalene with topical benzoyl \nperoxide \nFormulation with either of these 2 concentrations: \n• 0.1% adapalene with 2.5% benzoyl peroxide \n• 0.3% adapalene with 2.5% benzoyl peroxide. Fixed combination of topical benzoyl peroxide with topical \nclindamycin \nFormulation with either of these 2 concentrations: \n• 3% benzoyl peroxide with 1% clindamycin \n• 5% benzoyl peroxide with 1% clindamycin. Fixed combination of topical tretinoin with topical clindamycin \nFormulation",
+              "score": 0.5003588458896567,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            }
+          ]
+        },
+        "hybrid": {
+          "wall_time_ms": 1396,
+          "chunks": [
+            {
+              "chunk_id": "pubmed_12fb0909ed::0000",
+              "source": "PubMed",
+              "text": "Tretinoin is widely used in the treatment of acne. Despite significant advances in formulation development, irritation and dryness can be particularly bothersome, especially during the first 3-4 weeks, impacting adherence. Dose titration and adjunct use of moisturizers have been commonly employed. Co-prescribing with benzoyl peroxide (BPO) or a BPO/antibiotic combination is also common practice. The tretinoin molecule is unstable and can be degraded by BPO, further complicating treatment regimen",
+              "score": 0.7045374433936598,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Safety and efficacy of micronized tretinoin gel (0.05%) in treating adolescent acne.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/21637905/"
+            },
+            {
+              "chunk_id": "pubmed_0273182c7d::0000",
+              "source": "PubMed",
+              "text": "Topical tretinoin and benzoyl peroxide (BPO) are often prescribed in combination for the treatment of acne vulgaris; however, these products have not traditionally been administered simultaneously because of the potential for tretinoin degradation by BPO as well as the instability of tretinoin in daylight. The primary objective of this randomized, investigator-blinded, 12-week, phase 4 trial was to determine non-inferiority of a once-daily morning combination regimen of 5% BPO wash + tretinoin g",
+              "score": 0.6896614987288995,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tretinoin gel microsphere pump 0.04% plus 5% benzoyl peroxide wash for treatment of acne vulgaris: morning/morning regimen is as effective and safe as morning/evening regimen.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/20677537/"
+            },
+            {
+              "chunk_id": "pubmed_048f88da7c::0000",
+              "source": "PubMed",
+              "text": "Benzoyl peroxide (BPO) is a commonly used and highly effective topical treatment for acne that is available in concentrations from 2.5-10%. The compound is not associated with bacterial resistance, and published acne treatment guidelines recommend BPO in conjunction with the long-term use of both topical and systemic antibiotics. A number of combination products containing antibiotics, BPO and/or retinoids are available and useful for tailoring treatment to the needs of each patient over the cou",
+              "score": 0.5963529518219307,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Benzoyl peroxide development, pharmacology, formulation and clinical uses in topical fixed-combinations.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/20480791/"
+            },
+            {
+              "chunk_id": "suckhoedoisong_39953095b4::0002",
+              "source": "SucKhoeDoiSong",
+              "text": "Những tổn thương da này cần phải được điều trị với các thuốc khác, tránh để lại sẹo. Thời gian dùng benzoyl peroxide trị mụn phụ thuộc vào tình trạng da được cải thiện nhanh hay chậm. Thường sau khi điều trị với benzoyl peroxide, sẽ bắt đầu có tác dụng trong vòng 4 tuần, nhưng khi tình trạng mụn đã được kiểm soát, người dùng có thể tiếp tục dùng để ngăn ngừa mụn tái phát. Benzoyl peroxide có thể gây kích ứng da (mẩn đỏ, ngứa, khô, bong tróc, cảm giác châm chích…), đặc biệt là khi thoa quá nhiều.",
+              "score": 0.5601713167265959,
+              "source_type": "vi_medical_site",
+              "lang": "vi",
+              "title": "Mụn đầu đen, trị thế nào?",
+              "url": "https://suckhoedoisong.vn/mun-dau-den-tri-the-nao-169230112152150857.htm"
+            },
+            {
+              "chunk_id": "guideline_aad_0cd631350c::0107",
+              "source": "AAD",
+              "text": "S. multicenter trials. J Am Acad Dermatol . 1997;36:S126-S134 . 163. Krishna nG. Comparison of two concentrations of tretinoin solution in the topical treatment of acne vulgaris. Practitioner. 1976;216:106-109 . 164. Cu nl if feW J, Dod man B, E adR. Benzoyl peroxide in acne. Practitioner. 1978;220:479-482 . 165. Fulton JE Jr, Farzad-Baksh and eh A, BradleyS. Studies on the mechanism of action to topical benzoyl peroxide and vitamin A acid in acne vulgaris. J Cutan Pathol . 1974;1:191-200 . 166.",
+              "score": 0.5483489245654626,
+              "source_type": "aad_guideline",
+              "lang": "en",
+              "title": "AAD Guidelines of care for the management of acne vulgaris (2024)",
+              "url": "https://www.jaad.org/article/S0190-9622(23)03389-3/fulltext"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0009",
+              "source": "NICE",
+              "text": "Acne vulgaris: management (NG198)\n© Subject to Notice of rights (https:// \nconditions#notice-of-rights). Page 10 of\n59\nTable 1: Treatment choices for mild to moderate and moderate to severe acne vulgaris \nAcne severity Treatment Advantages Disadvantages \nAny \nseverity \nFixed \ncombination \nof topical \nadapalene \nwith topical \nbenzoyl \nperoxide, \napplied once \ndaily in the \nevening \n• Topical \n• Does not contain antibiotics \n• Not for use during \npregnancy \n• Use with caution \nduring breastfeeding",
+              "score": 0.5416001324125149,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            },
+            {
+              "chunk_id": "pubmed_235a795a4a::0000",
+              "source": "PubMed",
+              "text": "In two 12-week, phase 3, randomized, vehicle-controlled clinical trials, tretinoin 0.1%-benzoyl peroxide 3% cream significantly reduced inflammatory and noninflammatory facial acne lesions and significantly improved Investigator Global Assessment (IGA) rating to clear or almost clear. The cream has a suitable safety profile, with application site pain and dryness as the most common adverse events. Tretinoin-BPO had similar IGA success compared to other topical retinoid and retinoid-BPO treatment",
+              "score": 0.5110661855827405,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Tretinoin 0.1% and Benzoyl Peroxide 3% Cream for the Treatment of Facial Acne Vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/36639853/"
+            },
+            {
+              "chunk_id": "pubmed_e0e288e2c9::0000",
+              "source": "PubMed",
+              "text": "Acne vulgaris is one of the most common dermatological diseases and has a complex etiology. Despite the wide range of available therapeutic options, modern and effective solutions are still being sought, particularly in the area of topical therapy. The aim of this study was to develop hydrogel formulations that provide stability for the antibiotics they contain-tetracycline or chlortetracycline enriched with azeloglycine-the latter an ingredient supporting acne-prone skin care. The physicochemic",
+              "score": 0.5089070667776608,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Synergy of Tetracyclines and Potassium Azeloyl Diglycinate (Azeloglycine) in Hydrogels: Evaluation of Stability, Antimicrobial Activity, and Physicochemical Properties.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/40508050/"
+            },
+            {
+              "chunk_id": "pubmed_a16fd3b583::0001",
+              "source": "PubMed",
+              "text": "Subsequent 100 ns molecular dynamics (MD) simulations confirmed the stability of the gentamicin-protein complexes, as evidenced by favorable RMSD, RMSF, and energy profiles. Interaction energy decomposition revealed strong contributions from electrostatic and van der Waals forces. These findings highlight the potential of gentamicin, and possibly structurally related natural compounds, as modulators of host inflammatory pathways implicated in acne. The study further underscores the utility of in",
+              "score": 0.5028398371870284,
+              "source_type": "pubmed_review",
+              "lang": "en",
+              "title": "Gentamicin and Citronella-Derived Compounds as Dual Modulators of Inflammation-Associated Targets in Acne Vulgaris.",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/41226663/"
+            },
+            {
+              "chunk_id": "guideline_nice_42bce72cb5::0028",
+              "source": "NICE",
+              "text": "Fixed combination of topical adapalene with topical benzoyl \nperoxide \nFormulation with either of these 2 concentrations: \n• 0.1% adapalene with 2.5% benzoyl peroxide \n• 0.3% adapalene with 2.5% benzoyl peroxide. Fixed combination of topical benzoyl peroxide with topical \nclindamycin \nFormulation with either of these 2 concentrations: \n• 3% benzoyl peroxide with 1% clindamycin \n• 5% benzoyl peroxide with 1% clindamycin. Fixed combination of topical tretinoin with topical clindamycin \nFormulation",
+              "score": 0.5003588458896567,
+              "source_type": "nice_guideline",
+              "lang": "en",
+              "title": "NICE NG198: Acne vulgaris management",
+              "url": "https://www.nice.org.uk/guidance/ng198"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
