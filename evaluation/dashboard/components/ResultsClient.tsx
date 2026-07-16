@@ -5,6 +5,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Sigma,
+  TriangleAlert,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -30,6 +31,11 @@ type JsonRecord = Record<string, unknown>;
 
 type MetaResponse = {
   reportRuns: string[];
+  judgeCalibration: {
+    available: boolean;
+    calibrated: boolean;
+    failedChecks: string[];
+  };
 };
 
 type ResultsResponse = {
@@ -102,6 +108,8 @@ export function ResultsClient() {
   const [data, setData] = useState<ResultsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [paretoSystem, setParetoSystem] = useState("s3");
+  const [judgeCalibration, setJudgeCalibration] =
+    useState<MetaResponse["judgeCalibration"] | null>(null);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -130,6 +138,7 @@ export function ResultsClient() {
           new Set(["main_2x2_t3", ...(body.reportRuns ?? [])]),
         );
         setRuns(options);
+        setJudgeCalibration(body.judgeCalibration);
       });
   }, []);
 
@@ -190,6 +199,21 @@ export function ResultsClient() {
       {error ? (
         <div className="mb-5 rounded-2xl border border-ember/20 bg-ember/10 px-4 py-3 text-sm font-bold text-ember">
           {error}
+        </div>
+      ) : null}
+
+      {judgeCalibration && !judgeCalibration.calibrated ? (
+        <div className="mb-5 flex gap-3 rounded-2xl border border-clay/30 bg-clay/10 px-4 py-3 text-sm text-ink/78">
+          <TriangleAlert className="mt-0.5 shrink-0 text-clay" size={18} />
+          <div>
+            <p className="font-black">Điểm judge chưa calibrated</p>
+            <p className="mt-1 text-xs leading-5 text-ink/52">
+              {judgeCalibration.available
+                ? `Các check chưa pass: ${judgeCalibration.failedChecks.join(", ")}.`
+                : "Chưa có evaluation/reports/judge_bias_tests.json."}{" "}
+              Judge metrics chỉ nên dùng để tham khảo.
+            </p>
+          </div>
         </div>
       ) : null}
 
