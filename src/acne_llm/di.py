@@ -18,7 +18,7 @@ from .rag.retriever import HybridRetriever
 from .rag.reranker import Reranker
 from .vision.mock import MockVision
 from .db.base import DBConnection
-from .db.jsonl_session_store import JsonlSessionStore
+from .db.session_store import SQLiteSessionStore
 from .db.audit import AuditStore
 from .cache import init_cache
 
@@ -34,7 +34,7 @@ class Container:
         clinical_planner: ClinicalQueryPlanner,
         guardrails: GuardrailRunner,
         vision: MockVision,
-        session_store: JsonlSessionStore,
+        session_store: SQLiteSessionStore,
         audit_store: AuditStore,
         embedder: Optional[Embedder] = None,
         store: Optional[ChromaStore] = None,
@@ -77,9 +77,9 @@ def build_container(settings) -> Container:
     # -- Database ----------------------------------------------------------------
     db_ttl = getattr(settings, "session_ttl", 1800.0)
     db_max_turns = getattr(settings, "session_max_history_turns", 10)
-    # Sessions: JSONL (một file per session, dễ đọc/debug)
-    sessions_dir  = getattr(settings, "sessions_dir", "./data/sessions")
-    session_store = JsonlSessionStore(sessions_dir, ttl=db_ttl, max_turns=db_max_turns)
+    # Sessions: SQLite (một file sessions.db thay cho nhiều file JSONL)
+    session_db_path = getattr(settings, "session_db_path", "./data/sessions.db")
+    session_store = SQLiteSessionStore(session_db_path, ttl=db_ttl, max_turns=db_max_turns)
     # Audit log: vẫn dùng SQLite (cần ORDER BY timestamp, COUNT, etc.)
     audit_db_path = getattr(settings, "audit_db_path", "./data/audit.db")
     try:
@@ -94,7 +94,7 @@ def build_container(settings) -> Container:
         )
         _db_conn = DBConnection(fallback_audit_db)
     audit_store   = AuditStore(_db_conn)
-    logger.info(f"Sessions JSONL: {sessions_dir} | Audit SQLite: {audit_db_path}")
+    logger.info(f"Sessions SQLite: {session_db_path} | Audit SQLite: {audit_db_path}")
 
     # -- Cache (DiskCache) --------------------------------------------------------
     cache_dir    = getattr(settings, "cache_dir", "./data/cache")

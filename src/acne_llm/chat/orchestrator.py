@@ -211,7 +211,6 @@ def prepare_chat_turn(
             clinical_plan=None,
             history=intake.history,
             route_metadata=route_metadata,
-            system_override=(c.prompt.system_stream() if response_format == "text" else None),
             completeness_hint=hint,
             confirmed_profile=intake.confirmed_profile,
             require_citations=getattr(c.settings, "chat_require_citations", True),

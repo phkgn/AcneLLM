@@ -1,3 +1,4 @@
+{# Chỉ gửi DỮ LIỆU + hợp đồng định dạng JSON. Luật hành vi ở Modelfile SYSTEM. #}
 {% if confirmed_safety_facts %}<confirmed_safety_facts>{{ confirmed_safety_facts }}</confirmed_safety_facts>
 {% endif %}
 {% if history_block %}<recent_context>
@@ -6,6 +7,5 @@
 {% endif %}
 <current_message>{{ description }}</current_message>
 <task>
-Trả về duy nhất JSON đúng schema `AdviseOutput`. Chỉ giải quyết current_message; recent_context chỉ giúp hiểu follow-up. Không biến dữ kiện suy đoán thành khẳng định về user.
-Không có KB: dùng kiến thức y khoa phổ quát, confidence thấp, không bịa nguồn. Không khuyến nghị trực tiếp thuốc kê đơn. Causes ≤4; recommendations ≤4; used_chunks=[]; source_chunk_id=null.
+Trả JSON đúng schema AdviseOutput. Không có tài liệu tham khảo trong lượt này: confidence thấp (≤0.4), used_chunks=[], source_chunk_id=null; causes ≤4; recommendations ≤4.
 </task>

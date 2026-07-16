@@ -1,3 +1,5 @@
+{# Chỉ gửi DỮ LIỆU + hợp đồng định dạng JSON. Mọi luật hành vi/an toàn/grounding
+   nằm ở Modelfile SYSTEM, không lặp lại ở đây. #}
 {% if confirmed_safety_facts %}<confirmed_safety_facts>{{ confirmed_safety_facts }}</confirmed_safety_facts>
 {% endif %}
 {% if history_block %}<recent_context>
@@ -9,11 +11,7 @@
 </retrieved_context>
 <current_message>{{ description }}</current_message>
 <task>
-{% if extended_rules %}{{ extended_rules }}
----
-{% endif %}
-Trả về duy nhất JSON đúng schema `AdviseOutput`. Chỉ giải quyết current_message; recent_context chỉ giúp hiểu follow-up. Không biến dữ kiện suy đoán thành khẳng định về user.
-{% if not has_retrieved_context %}Không có KB phù hợp: đặt confidence thấp và không bịa nguồn.
-{% endif %}
-Citation: source_chunk_id chỉ lấy từ chunk_ref trong retrieved_context. Causes ≤4; recommendations ≤5; disclaimer 1-2 câu.
-</task>
+Trả JSON đúng schema AdviseOutput. source_chunk_id chỉ lấy từ chunk_ref trong retrieved_context; causes ≤4; recommendations ≤5; disclaimer 1-2 câu. Confidence: 0.7–0.9 khi tài liệu tốt, 0.4–0.6 khi yếu, 0.0–0.3 khi thiếu nhiều; không dùng 1.0.
+{% if not has_retrieved_context %}Không có tài liệu tham khảo phù hợp trong lượt này: hạ confidence, used_chunks=[].
+{% endif %}{% if has_retrieved_context and require_citations %}Đặt [N] ngay sau mỗi claim y khoa lấy từ [Nguon N].
+{% endif %}</task>

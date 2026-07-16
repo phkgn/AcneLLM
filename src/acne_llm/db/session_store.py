@@ -1,127 +1,191 @@
-"""SQLite-backed SessionStore — drop-in replacement cho in-memory SessionStore.
+"""SQLite-backed SessionStore — một file sessions.db thay cho nhiều file JSONL.
 
-Interface giữ nguyên hoàn toàn với chat/session.py để runtime.py không cần sửa.
+Session store duy nhất của hệ thống: một file sessions.db, giao tiếp qua
+interface ổn định cho di.py/runtime.py. Tự quản schema riêng (bảng sessions + turns)
+trong file DB độc lập, không phụ thuộc audit schema ở db/base.py.
+
+Ngữ nghĩa:
+- TTL: session idle > ttl bị coi là hết hạn, xoá lazy khi truy cập.
+- schema_version lệch → reset session.
+- Lịch sử append-only; get_history trả max_turns turn mới nhất (0 = toàn bộ).
+- user_context: last-write-wins theo từng key.
 """
 from __future__ import annotations
 
 import json
-import time
+import sqlite3
 import threading
-from typing import TYPE_CHECKING
+import time
+from pathlib import Path
 
 from loguru import logger
 
-from .base import DBConnection
 from ..chat.session import (
     ConversationTurn,
     NormalizedSnapshot,
     Session,
     SESSION_TTL,
-    MAX_HISTORY_TURNS,
+    SESSION_SCHEMA_VERSION,
 )
 
-if TYPE_CHECKING:
-    pass
+_SCHEMA = """
+PRAGMA journal_mode=WAL;
+PRAGMA foreign_keys=ON;
+
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id                  TEXT    PRIMARY KEY,
+    created_at                  REAL    NOT NULL,
+    last_active                 REAL    NOT NULL,
+    user_context                TEXT    NOT NULL DEFAULT '{}',
+    asked_fields                TEXT    NOT NULL DEFAULT '[]',
+    total_clarify_count         INTEGER NOT NULL DEFAULT 0,
+    accumulated_clinical_score  REAL    NOT NULL DEFAULT 0.0,
+    schema_version              INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS turns (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id          TEXT    NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+    role                TEXT    NOT NULL,
+    content             TEXT    NOT NULL,
+    timestamp           REAL    NOT NULL,
+    mode                TEXT    NOT NULL DEFAULT 'hybrid',
+    used_chunks         TEXT    NOT NULL DEFAULT '[]',
+    normalized_snapshot TEXT,
+    metadata            TEXT    NOT NULL DEFAULT '{}'
+);
+
+CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id, timestamp);
+"""
 
 
 class SQLiteSessionStore:
-    """Thread-safe SQLite session store.
-
-    Thay thế SessionStore (in-memory) trong chat/session.py.
-    Tất cả public method giữ nguyên signature để runtime.py không đổi.
-    """
+    """Thread-safe SQLite session store (một connection per thread)."""
 
     def __init__(
         self,
         db_path: str,
         ttl: float = SESSION_TTL,
-        max_turns: int = MAX_HISTORY_TURNS,
+        max_turns: int = 0,
     ) -> None:
-        self._db = DBConnection(db_path)
+        self._db_path = db_path
         self.ttl = ttl
         self.max_turns = max_turns
+        self._local = threading.local()
         self._lock = threading.RLock()
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(db_path) as conn:
+            conn.executescript(_SCHEMA)
         logger.info(f"[SessionStore] SQLite @ {db_path}")
 
-    # ── helpers ──────────────────────────────────────────────────────────────
+    # ── connection ────────────────────────────────────────────────────────────
+
+    def _conn(self) -> sqlite3.Connection:
+        if getattr(self._local, "conn", None) is None:
+            conn = sqlite3.connect(self._db_path, check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA foreign_keys=ON")
+            self._local.conn = conn
+        return self._local.conn
+
+    # ── helpers ───────────────────────────────────────────────────────────────
 
     def _is_valid_sid(self, session_id: str | None) -> bool:
         return bool(session_id and session_id.strip())
 
-    def _touch(self, sid: str) -> None:
-        now = time.time()
-        self._db.execute(
-            "UPDATE sessions SET last_active=? WHERE session_id=?", (now, sid)
-        )
-        self._db.commit()
-
     def _is_expired(self, last_active: float) -> bool:
-        return (time.time() - last_active) > self.ttl
+        return (time.time() - float(last_active or 0)) > self.ttl
 
-    def _ensure_session(self, sid: str) -> None:
-        """Tạo session nếu chưa có, hoặc expire nếu quá TTL."""
-        row = self._db.execute(
-            "SELECT last_active FROM sessions WHERE session_id=?", (sid,)
+    def _row(self, sid: str):
+        return self._conn().execute(
+            "SELECT * FROM sessions WHERE session_id=?", (sid,)
         ).fetchone()
-        now = time.time()
-        if row is None:
-            self._db.execute(
-                "INSERT INTO sessions(session_id, created_at, last_active, user_context)"
-                " VALUES (?,?,?,?)",
-                (sid, now, now, "{}"),
-            )
-            self._db.commit()
-        elif self._is_expired(row["last_active"]):
-            # Xoá session cũ (CASCADE sẽ xoá turns + asked_fields)
-            self._db.execute("DELETE FROM sessions WHERE session_id=?", (sid,))
-            self._db.execute(
-                "INSERT INTO sessions(session_id, created_at, last_active, user_context)"
-                " VALUES (?,?,?,?)",
-                (sid, now, now, "{}"),
-            )
-            self._db.commit()
 
-    def _row_to_turn(self, row) -> ConversationTurn:
+    def _delete(self, sid: str) -> None:
+        c = self._conn()
+        c.execute("DELETE FROM sessions WHERE session_id=?", (sid,))
+        c.commit()
+
+    def _create(self, sid: str) -> None:
+        now = time.time()
+        c = self._conn()
+        c.execute(
+            "INSERT INTO sessions(session_id, created_at, last_active, user_context,"
+            " asked_fields, total_clarify_count, accumulated_clinical_score, schema_version)"
+            " VALUES (?,?,?,?,?,?,?,?)",
+            (sid, now, now, "{}", "[]", 0, 0.0, SESSION_SCHEMA_VERSION),
+        )
+        c.commit()
+
+    def _stale(self, row) -> bool:
+        """Row cần reset: hết hạn hoặc schema_version lệch."""
+        if row is None:
+            return False
+        if self._is_expired(row["last_active"]):
+            return True
+        return int(row["schema_version"] or 0) != SESSION_SCHEMA_VERSION
+
+    def _ensure(self, sid: str):
+        """Đảm bảo có session hợp lệ (tạo mới nếu thiếu/hết hạn/lệch schema)."""
+        row = self._row(sid)
+        if row is None or self._stale(row):
+            self._delete(sid)
+            self._create(sid)
+            row = self._row(sid)
+        return row
+
+    def _touch(self, sid: str) -> None:
+        c = self._conn()
+        c.execute("UPDATE sessions SET last_active=? WHERE session_id=?", (time.time(), sid))
+        c.commit()
+
+    def _row_to_turn(self, r) -> ConversationTurn:
         snap = None
-        if row["normalized_snapshot"]:
+        if r["normalized_snapshot"]:
             try:
-                d = json.loads(row["normalized_snapshot"])
+                d = json.loads(r["normalized_snapshot"])
                 snap = NormalizedSnapshot(
                     context=d.get("context", {}),
                     clinical=d.get("clinical", {}),
                     clean_text=d.get("clean_text", ""),
                 )
-            except Exception:
+            except (ValueError, TypeError):
                 pass
+        try:
+            meta = json.loads(r["metadata"] or "{}")
+        except (ValueError, TypeError):
+            meta = {}
         return ConversationTurn(
-            role=row["role"],
-            content=row["content"],
-            timestamp=row["timestamp"],
-            mode=row["mode"],
-            used_chunks=json.loads(row["used_chunks"] or "[]"),
+            role=r["role"],
+            content=r["content"],
+            timestamp=r["timestamp"],
+            mode=r["mode"],
+            used_chunks=json.loads(r["used_chunks"] or "[]"),
             normalized_snapshot=snap,
+            metadata=meta,
         )
 
-    # ── Public API (cùng interface với SessionStore) ──────────────────────────
+    # ── Public API ────────────────────────────────────────────────────────────
 
     def get_or_create(self, session_id: str | None) -> Session | None:
         if not self._is_valid_sid(session_id):
             return None
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            self._ensure_session(sid)
+            row = self._ensure(sid)
             self._touch(sid)
-            row = self._db.execute(
-                "SELECT * FROM sessions WHERE session_id=?", (sid,)
-            ).fetchone()
-            turns = self.get_history(sid)
+            row = self._row(sid)
             return Session(
                 session_id=sid,
-                turns=turns,
+                turns=self.get_history(sid),
                 created_at=row["created_at"],
                 last_active=row["last_active"],
                 user_context=json.loads(row["user_context"] or "{}"),
-                asked_fields=set(self.get_asked_fields(sid)),
+                asked_fields=set(json.loads(row["asked_fields"] or "[]")),
+                total_clarify_count=int(row["total_clarify_count"] or 0),
+                accumulated_clinical_score=float(row["accumulated_clinical_score"] or 0.0),
+                schema_version=SESSION_SCHEMA_VERSION,
             )
 
     def get_history(self, session_id: str | None) -> list[ConversationTurn]:
@@ -129,30 +193,31 @@ class SQLiteSessionStore:
             return []
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
+            row = self._row(sid)
+            if row is None:
+                return []
+            if self._stale(row):
+                self._delete(sid)
+                return []
             if self.max_turns and self.max_turns > 0:
-                rows = self._db.execute(
-                    "SELECT * FROM turns WHERE session_id=? ORDER BY timestamp DESC LIMIT ?",
+                rows = self._conn().execute(
+                    "SELECT * FROM turns WHERE session_id=? ORDER BY timestamp DESC, id DESC LIMIT ?",
                     (sid, self.max_turns),
                 ).fetchall()
                 rows = list(reversed(rows))
             else:
-                rows = self._db.execute(
-                    "SELECT * FROM turns WHERE session_id=? ORDER BY timestamp ASC",
+                rows = self._conn().execute(
+                    "SELECT * FROM turns WHERE session_id=? ORDER BY timestamp ASC, id ASC",
                     (sid,),
                 ).fetchall()
-            turns = [self._row_to_turn(r) for r in rows]
-            return turns
+            return [self._row_to_turn(r) for r in rows]
 
-    def append_turn(
-        self,
-        session_id: str | None,
-        turn: ConversationTurn,
-    ) -> None:
+    def append_turn(self, session_id: str | None, turn: ConversationTurn) -> None:
         if not self._is_valid_sid(session_id):
             return
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            self._ensure_session(sid)
+            self._ensure(sid)
             snap_json = None
             if turn.normalized_snapshot is not None:
                 snap_json = json.dumps({
@@ -160,66 +225,59 @@ class SQLiteSessionStore:
                     "clinical": turn.normalized_snapshot.clinical,
                     "clean_text": turn.normalized_snapshot.clean_text,
                 }, ensure_ascii=False)
-            self._db.execute(
-                "INSERT INTO turns(session_id, role, content, timestamp, mode, used_chunks, normalized_snapshot)"
-                " VALUES (?,?,?,?,?,?,?)",
+            c = self._conn()
+            c.execute(
+                "INSERT INTO turns(session_id, role, content, timestamp, mode, used_chunks,"
+                " normalized_snapshot, metadata) VALUES (?,?,?,?,?,?,?,?)",
                 (
-                    sid,
-                    turn.role,
-                    turn.content,
-                    turn.timestamp,
-                    turn.mode,
+                    sid, turn.role, turn.content, turn.timestamp, turn.mode,
                     json.dumps(turn.used_chunks, ensure_ascii=False),
                     snap_json,
+                    json.dumps(turn.metadata or {}, ensure_ascii=False),
                 ),
             )
-            # Giữ chỉ max_turns mới nhất khi cấu hình explicit bound.
-            if self.max_turns and self.max_turns > 0:
-                self._db.execute(
-                    """
-                    DELETE FROM turns WHERE session_id=? AND id NOT IN (
-                        SELECT id FROM turns WHERE session_id=?
-                        ORDER BY timestamp DESC LIMIT ?
-                    )
-                    """,
-                    (sid, sid, self.max_turns),
+            if turn.role == "assistant" and turn.mode == "clarify":
+                c.execute(
+                    "UPDATE sessions SET total_clarify_count=total_clarify_count+1"
+                    " WHERE session_id=?", (sid,),
                 )
+            c.commit()
             self._touch(sid)
 
-    def merge_user_context(
-        self,
-        session_id: str | None,
-        context: dict,
-    ) -> None:
+    def merge_user_context(self, session_id: str | None, context: dict) -> None:
         if not self._is_valid_sid(session_id) or not context:
             return
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            row = self._db.execute(
-                "SELECT user_context FROM sessions WHERE session_id=?", (sid,)
-            ).fetchone()
-            if row is None:
+            row = self._row(sid)
+            if row is None or self._is_expired(row["last_active"]):
+                if row is not None:
+                    self._delete(sid)
                 return
             existing = json.loads(row["user_context"] or "{}")
-            # First write wins — không overwrite key đã có
+            updated = False
             for k, v in context.items():
-                if v is not None and k not in existing:
+                if v is not None and existing.get(k) != v:
                     existing[k] = v
-            self._db.execute(
-                "UPDATE sessions SET user_context=? WHERE session_id=?",
-                (json.dumps(existing, ensure_ascii=False), sid),
-            )
-            self._db.commit()
+                    updated = True
+            if updated:
+                c = self._conn()
+                c.execute(
+                    "UPDATE sessions SET user_context=? WHERE session_id=?",
+                    (json.dumps(existing, ensure_ascii=False), sid),
+                )
+                c.commit()
 
     def get_user_context(self, session_id: str | None) -> dict:
         if not self._is_valid_sid(session_id):
             return {}
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            row = self._db.execute(
-                "SELECT user_context FROM sessions WHERE session_id=?", (sid,)
-            ).fetchone()
+            row = self._row(sid)
             if row is None:
+                return {}
+            if self._is_expired(row["last_active"]):
+                self._delete(sid)
                 return {}
             return json.loads(row["user_context"] or "{}")
 
@@ -228,36 +286,66 @@ class SQLiteSessionStore:
             return set()
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            rows = self._db.execute(
-                "SELECT field FROM asked_fields WHERE session_id=?", (sid,)
-            ).fetchall()
-            return {r["field"] for r in rows}
+            row = self._row(sid)
+            if row is None:
+                return set()
+            if self._is_expired(row["last_active"]):
+                self._delete(sid)
+                return set()
+            return set(json.loads(row["asked_fields"] or "[]"))
 
     def mark_fields_asked(self, session_id: str | None, fields: list[str]) -> None:
         if not self._is_valid_sid(session_id) or not fields:
             return
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            self._db.executemany(
-                "INSERT OR IGNORE INTO asked_fields(session_id, field) VALUES (?,?)",
-                [(sid, f) for f in fields],
-            )
-            self._db.commit()
+            row = self._row(sid)
+            if row is None or self._is_expired(row["last_active"]):
+                if row is not None:
+                    self._delete(sid)
+                return
+            existing = set(json.loads(row["asked_fields"] or "[]"))
+            new = existing.union(fields)
+            if new != existing:
+                c = self._conn()
+                c.execute(
+                    "UPDATE sessions SET asked_fields=? WHERE session_id=?",
+                    (json.dumps(sorted(new), ensure_ascii=False), sid),
+                )
+                c.commit()
 
-    def delete(self, session_id: str | None) -> None:
+    def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
         if not self._is_valid_sid(session_id):
             return
         sid = session_id.strip()  # type: ignore[union-attr]
         with self._lock:
-            self._db.execute("DELETE FROM sessions WHERE session_id=?", (sid,))
-            self._db.commit()
+            row = self._row(sid)
+            if row is None or self._is_expired(row["last_active"]):
+                if row is not None:
+                    self._delete(sid)
+                return
+            c = self._conn()
+            c.execute(
+                "UPDATE sessions SET accumulated_clinical_score=accumulated_clinical_score+?"
+                " WHERE session_id=?", (float(amount), sid),
+            )
+            c.commit()
+
+    def delete(self, session_id: str | None) -> None:
+        if not self._is_valid_sid(session_id):
+            return
+        with self._lock:
+            self._delete(session_id.strip())  # type: ignore[union-attr]
 
     def active_count(self) -> int:
         cutoff = time.time() - self.ttl
-        row = self._db.execute(
-            "SELECT COUNT(*) as cnt FROM sessions WHERE last_active > ?", (cutoff,)
+        row = self._conn().execute(
+            "SELECT COUNT(*) AS cnt FROM sessions WHERE last_active > ?", (cutoff,)
         ).fetchone()
-        return row["cnt"] if row else 0
+        return int(row["cnt"]) if row else 0
 
     def close(self) -> None:
-        self._db.close()
+        conn = getattr(self._local, "conn", None)
+        if conn is not None:
+            conn.close()
+            self._local.conn = None

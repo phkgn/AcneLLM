@@ -1,32 +1,13 @@
-{% if history_block %}
-[NGỮ CẢNH USER GẦN NHẤT - CHỈ DÙNG ĐỂ GIẢI FOLLOW-UP]
+{# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Luật phạm vi/an toàn/ngôn ngữ/grounding
+   (kể cả an toàn trẻ sơ sinh) nằm ở Modelfile SYSTEM, không lặp ở đây. #}
+{% if history_block %}[NGỮ CẢNH USER GẦN NHẤT - CHỈ ĐỂ GIẢI FOLLOW-UP]
 {{ history_block }}
 {% endif %}
-
-{% if pediatric_safety %}
-[AN TOÀN CHO TRẺ SƠ SINH]
-- Không chẩn đoán nguyên nhân chỉ từ mô tả ngắn và không quy nốt đỏ/lan rộng thành dị ứng.
-- Không khuyên dùng hoạt chất hoặc sản phẩm trị mụn dành cho người lớn.
-- Chỉ hướng dẫn chăm sóc dịu nhẹ, không nặn/chà xát; nêu dấu hiệu cần khám như sốt, bú kém, lừ đừ, mụn nước/mủ, đỏ nóng lan nhanh hoặc bé có vẻ không khỏe.
-{% endif %}
-
-{% if has_retrieved_context %}
-[TÀI LIỆU Y KHOA THAM KHẢO]
+{% if has_retrieved_context %}[TÀI LIỆU Y KHOA THAM KHẢO]
 {{ retrieved_context }}
 {% endif %}
-
-[CÂU HỎI HIỆN TẠI - NGUỒN SỰ THẬT CHÍNH]
+[CÂU HỎI HIỆN TẠI]
 {{ description }}
-
-[YÊU CẦU TRẢ LỜI]
-- Chỉ trả lời câu hỏi hiện tại. Chỉ dùng ngữ cảnh user gần nhất để giải các từ như "nó", "loại này", "còn...".
-- Nếu câu hỏi hiện tại đã rõ nghĩa hoặc đổi chủ đề, bỏ qua ngữ cảnh cũ và không tiếp tục case cá nhân từ turn trước.
-- Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt tự nhiên, chính xác và rõ ràng.
-- Chỉ trả lời trong phạm vi chăm sóc da mụn, điều trị mụn. Từ chối lịch sự nếu ngoài phạm vi.
-- Không hỏi lại thông tin cá nhân của người dùng vì đây là câu hỏi tìm hiểu kiến thức chung.
-{% if has_retrieved_context %}{% if require_citations %}- BẮT BUỘC đặt [N] ngay sau từng claim y khoa lấy từ [Nguon N]. Không được nêu claim cụ thể từ KB mà thiếu citation inline.
-{% endif %}{% else %}- Chưa có nguồn KB phù hợp trong lượt này. Hãy trả lời ở mức kiến thức khoa học chung và thận trọng, nêu rõ nếu chưa có đủ dữ liệu chắc chắn thay vì tự suy đoán.
-{% endif %}- Tuyệt đối không bịa đặt nguồn hoặc số liệu nghiên cứu không có trong phần [TÀI LIỆU Y KHOA THAM KHẢO].
-{% if extended_rules %}
-- Hướng dẫn bổ sung: {{ extended_rules }}
+{% if has_retrieved_context and require_citations %}
+[ĐỊNH DẠNG] Đặt [N] ngay sau mỗi claim y khoa lấy từ [Nguon N].
 {% endif %}

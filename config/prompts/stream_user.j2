@@ -1,38 +1,25 @@
+{# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Mọi luật an toàn/ngôn ngữ/phong cách/grounding
+   nằm ở Modelfile SYSTEM, không lặp ở đây. Chỉ giữ 1 dòng định dạng citation khi có KB. #}
 {% if confirmed_safety_facts %}[DỮ KIỆN AN TOÀN ĐÃ XÁC NHẬN]
 {{ confirmed_safety_facts }}
 {% endif %}
 {% if known_facts %}[DỮ KIỆN NGƯỜI DÙNG ĐÃ XÁC NHẬN]
 {{ known_facts }}
-- Không được thay đổi, tự suy diễn hoặc hỏi lại các dữ kiện này.
 {% endif %}
-{% if route_metadata %}
-- Chỉ dẫn an toàn: {{ route_metadata }}
+{% if route_metadata %}[CHỈ DẪN NGỮ CẢNH]
+{{ route_metadata }}
 {% endif %}
-{% if completeness_hint %}
-[GỢI Ý BỔ SUNG]
+{% if completeness_hint %}[GỢI Ý BỔ SUNG]
 {{ completeness_hint }}
 {% endif %}
-
-{% if history_block %}
-[NGỮ CẢNH GẦN NHẤT - CHỈ DÙNG ĐỂ HIỂU FOLLOW-UP]
+{% if history_block %}[NGỮ CẢNH GẦN NHẤT - CHỈ ĐỂ HIỂU FOLLOW-UP]
 {{ history_block }}
 {% endif %}
-
-{% if has_retrieved_context %}
-[TÀI LIỆU Y KHOA THAM KHẢO]
+{% if has_retrieved_context %}[TÀI LIỆU Y KHOA THAM KHẢO]
 {{ retrieved_context }}
 {% endif %}
-
-[CÂU HỎI HIỆN TẠI - NGUỒN SỰ THẬT CHÍNH]
+[CÂU HỎI HIỆN TẠI]
 {{ description }}
-
-[YÊU CẦU TRẢ LỜI]
-- Chỉ giải quyết câu hỏi hiện tại. Chỉ dùng ngữ cảnh gần nhất để hiểu đại từ/follow-up; bỏ qua chủ đề cũ khi câu hiện tại độc lập.
-- Không biến dữ kiện suy đoán/trích xuất thành khẳng định về người dùng.
-- Trả lời bằng tiếng Việt tự nhiên, thân thiện, ngắn gọn và cô đọng (tránh dài dòng lan man).
-{% if has_retrieved_context %}{% if require_citations %}- BẮT BUỘC đặt [N] ngay sau từng claim y khoa lấy từ [Nguon N]. Không được nêu claim cụ thể từ KB mà thiếu citation inline.
-{% endif %}{% else %}- Hiện tại chưa tìm thấy tài liệu tham khảo chính xác phù hợp. Hãy trả lời thận trọng dựa trên dữ kiện đã biết của người dùng, nêu rõ khi thiếu căn cứ và tuyệt đối không tự bịa đặt thông tin.
-{% endif %}- Chỉ thêm disclaimer y khoa ("Thông tin trên chỉ mang tính chất tham khảo...") tối đa một lần ở cuối câu trả lời nếu thực sự cần thiết (bỏ qua nếu cuộc trò chuyện trước đó đã có disclaimer).
-{% if extended_rules %}
-- Hướng dẫn bổ sung: {{ extended_rules }}
+{% if has_retrieved_context and require_citations %}
+[ĐỊNH DẠNG] Đặt [N] ngay sau mỗi claim y khoa lấy từ [Nguon N].
 {% endif %}

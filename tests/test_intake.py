@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from acne_llm.chat.intake import _force_advise_route, run_intake
 from acne_llm.chat.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn, get_session_store
-from acne_llm.db.jsonl_session_store import JsonlSessionStore
+from acne_llm.db.session_store import SQLiteSessionStore
 from acne_llm.schemas import AdviseOutput
 
 
@@ -72,7 +72,7 @@ def test_intake_folds_prior_snapshot_into_current_self_turn():
 
 def test_intake_uses_structured_memory_without_exposing_unreferenced_text_history(tmp_path):
     session_id = "test-intake-container-store"
-    store = JsonlSessionStore(str(tmp_path))
+    store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     c = _container(session_store=store)
 
     first = run_intake(c, "tôi 22 tuổi da dầu", session_id=session_id)
@@ -94,7 +94,7 @@ def test_intake_uses_structured_memory_without_exposing_unreferenced_text_histor
 
 def test_intake_soft_scope_followups_select_recent_pair_and_fold_facts(tmp_path):
     session_id = "test-soft-followups"
-    store = JsonlSessionStore(str(tmp_path))
+    store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     c = _container(rag_ready=True, session_store=store)
 
     first = run_intake(

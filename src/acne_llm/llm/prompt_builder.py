@@ -413,39 +413,6 @@ class PromptBuilder:
             parts.append("thông tin còn thiếu: " + ", ".join(plan.missing_info))
         return "; ".join(parts) if parts else "không có dữ liệu cấu trúc"
 
-    def system(self) -> str:
-        """Render core system prompt (ngắn gọn, luôn inject).
-
-        Dùng system_core.j2 nếu tồn tại (tier mới), fallback về system.j2 cũ.
-        """
-        try:
-            return self.env.get_template("system_core.j2").render()
-        except Exception:
-            return self.env.get_template("system.j2").render()
-
-    def system_stream(self) -> str:
-        """Render system prompt dành riêng cho /chat/stream (plain text, không JSON).
-
-        Dùng system_stream.j2 nếu tồn tại, fallback về system_core.j2 bỏ luật JSON.
-        """
-        try:
-            return self.env.get_template("system_stream.j2").render()
-        except Exception:
-            return self.system()
-
-    def _extended_rules(self, require_citations: bool = True) -> str:
-        """Render extended rules (citation, confidence, conflict resolution).
-
-        Chỉ inject vào user_message khi hybrid mode + có KB chunks,
-        để tránh nhồi system prompt cho model 7B.
-        """
-        try:
-            return self.env.get_template("system_extended.j2").render(
-                require_citations=require_citations,
-            )
-        except Exception:
-            return ""
-
     def build(
         self,
         user: UserInput,
@@ -457,20 +424,15 @@ class PromptBuilder:
         clinical_plan: ClinicalQueryPlan | None = None,
         history: list[ConversationTurn] | None = None,
         route_metadata: dict | None = None,
-        system_override: str | None = None,
         completeness_hint: str | None = None,
         confirmed_profile: dict | None = None,
         require_citations: bool = True,
     ) -> tuple[str, str]:
-        stream_templates = {"stream_user.j2", "knowledge_user.j2", "clarify_user.j2"}
-        sys_p = (
-            system_override
-            if system_override is not None
-            else self.system_stream() if template in stream_templates else self.system()
-        )
-        # Extended rules chỉ inject khi hybrid và thực sự có KB chunks
+        # Modelfile SYSTEM là nguồn sự thật DUY NHẤT cho hành vi model
+        # (use_modelfile_system=True → backend bỏ system message). Repo không gửi
+        # system prompt; user template chỉ mang dữ liệu + format contract theo endpoint.
+        sys_p = ""
         has_kb = retrieval is not None and bool(retrieval.chunks)
-        extended = self._extended_rules(require_citations) if has_kb else ""
         safe_description = _escape_jinja(_sanitize_user_description(user.description))
         safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
         safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
@@ -493,14 +455,9 @@ class PromptBuilder:
         if profile.get("medications"):
             safety_facts.append("thuốc đã xác nhận: " + ", ".join(profile["medications"]))
         safe_confirmed_safety = _escape_jinja("; ".join(safety_facts))
-        lowered_description = user.description.lower()
-        pediatric_safety = any(term in lowered_description for term in (
-            "trẻ sơ sinh", "tre so sinh", "bé mới sinh", "be moi sinh", "newborn",
-        ))
-        # Route guidance: chỉ truyền những instruction ngắn, không dump metadata nội bộ
+        # Route guidance: chỉ truyền những chỉ dẫn ngữ cảnh ngắn, không dump metadata nội bộ
         safe_route_guidance = _escape_jinja(_route_guidance(route_metadata))
         query_subject = str((route_metadata or {}).get("query_subject") or "self")
-        safe_extended = _escape_jinja(extended)
         # Completeness hint: hướng dẫn LLM hỏi thêm thay vì gate cứng
         safe_completeness_hint = _escape_jinja(completeness_hint or "")
         safe_known_facts = _escape_jinja(self._known_facts_summary(user))
@@ -524,11 +481,9 @@ class PromptBuilder:
             history_block=safe_history,
             route_metadata=safe_route_guidance,  # backward-compat: templates dùng biến này
             query_subject=query_subject,
-            extended_rules=safe_extended,
             completeness_hint=safe_completeness_hint,
             has_retrieved_context=has_kb,
             confirmed_safety_facts=safe_confirmed_safety,
-            pediatric_safety=pediatric_safety,
             require_citations=require_citations,
         )
         return sys_p, user_p

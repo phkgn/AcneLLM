@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from acne_llm.api.routes import chat
 from acne_llm.chat.session import ConversationTurn, get_session_store
-from acne_llm.db.jsonl_session_store import JsonlSessionStore
+from acne_llm.db.session_store import SQLiteSessionStore
 from acne_llm.llm.clinical_planner import ClinicalQueryPlanner
 from acne_llm.schemas import AdviseOutput, RetrievedChunk, RetrievalOutput
 from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
@@ -305,7 +305,7 @@ def test_stream_endpoint_merges_session_context_before_completeness(tmp_path):
     """Context-only prior turn should enrich a short acne follow-up."""
     session_id = "test-session-context-before-completeness"
     container = _MockContainer()
-    container.session_store = JsonlSessionStore(str(tmp_path))
+    container.session_store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     c = TestClient(_app(container))
 
     try:
@@ -361,7 +361,7 @@ def test_stream_followup_soft_scope_uses_rag_from_session_history(tmp_path):
     container.rag_ready = True
     container.retriever = _MockRetriever()
     container.clinical_planner = ClinicalQueryPlanner()
-    container.session_store = JsonlSessionStore(str(tmp_path))
+    container.session_store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     c = TestClient(_app(container))
 
     first = c.get(
@@ -534,7 +534,7 @@ def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planne
 def test_debug_trace_knowledge_followup_matches_user_only_context(tmp_path):
     session_id = "test-debug-knowledge-followup"
     container = _MockContainer()
-    container.session_store = JsonlSessionStore(str(tmp_path))
+    container.session_store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     container.session_store.append_turn(
         session_id,
         ConversationTurn(role="user", content="Mụn đầu đen là gì?"),

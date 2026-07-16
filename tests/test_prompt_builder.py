@@ -47,14 +47,14 @@ def test_prompt_builder_sanitizes_history_injection_markers():
     assert "nội dung đã lọc" in usr_p
 
 
-def test_stream_template_defaults_to_plain_text_system():
+def test_system_prompt_empty_modelfile_authoritative():
     pb = PromptBuilder(PROMPTS)
     user = UserInput(description="mụn mủ là gì")
 
     sys_p, _ = pb.build(user, None, "knowledge_user.j2")
 
-    assert "Không trả JSON" in sys_p
-    assert "Chỉ trả JSON" not in sys_p
+    # Modelfile SYSTEM là nguồn sự thật DUY NHẤT cho hành vi; repo không gửi system prompt.
+    assert sys_p == ""
 
 
 def test_knowledge_prompt_renders_previous_user_without_assistant_turn():
@@ -69,15 +69,17 @@ def test_knowledge_prompt_renders_previous_user_without_assistant_turn():
     assert usr_p.index("Mụn đầu đen là gì?") < usr_p.index("Còn loại này có nguy hiểm không?")
 
 
-def test_newborn_knowledge_prompt_adds_pediatric_safety_without_adult_actives():
+def test_newborn_knowledge_prompt_delivers_message_without_injected_rules():
     pb = PromptBuilder(PROMPTS)
     user = UserInput(description="trẻ sơ sinh có bị mụn không")
 
-    _, usr_p = pb.build(user, None, "knowledge_user.j2")
+    sys_p, usr_p = pb.build(user, None, "knowledge_user.j2")
 
-    assert "[AN TOÀN CHO TRẺ SƠ SINH]" in usr_p
-    assert "Không khuyên dùng hoạt chất" in usr_p
-    assert "sốt, bú kém" in usr_p
+    # Câu hỏi vẫn được gửi nguyên vẹn...
+    assert "trẻ sơ sinh có bị mụn không" in usr_p
+    # ...nhưng luật an toàn trẻ sơ sinh giờ nằm ở Modelfile SYSTEM, không nhồi vào user prompt.
+    assert "[AN TOÀN CHO TRẺ SƠ SINH]" not in usr_p
+    assert sys_p == ""
 
 
 def test_prompt_builder_xml_tags():
@@ -163,8 +165,8 @@ def test_prompt_builder_hybrid():
         query_vi="mụn viêm ở cằm",
         confirmed_profile={"is_pregnant": True},
     )
-    assert "AcneLLM" in sys_p
-    assert "mang thai" in sys_p.lower() or "mang thai" in usr_p.lower() or "CÓ" in usr_p
+    assert sys_p == ""
+    assert "mang thai" in usr_p.lower() or "CÓ" in usr_p
     assert "c1" in usr_p
     assert "mụn ở cằm" in usr_p.lower() or "mụn" in usr_p.lower()
     assert "current_message" in usr_p
@@ -193,13 +195,15 @@ def test_prompt_builder_does_not_inject_unconfirmed_skin_type():
     assert "da dầu" not in usr_p
 
 
-def test_stream_prompt_mentions_missing_kb_context():
+def test_knowledge_prompt_omits_kb_block_when_no_context():
     pb = PromptBuilder(PROMPTS)
     user = UserInput(description="mụn mủ là gì")
 
     _, usr_p = pb.build(user, None, "knowledge_user.j2")
 
-    assert "Chưa có nguồn KB phù hợp" in usr_p
+    # Không còn nhồi chỉ dẫn "chưa có KB"; sự vắng mặt của block tài liệu đã đủ tín hiệu.
+    assert "[TÀI LIỆU Y KHOA THAM KHẢO]" not in usr_p
+    assert "mụn mủ là gì" in usr_p
 
 
 def test_prompt_builder_excludes_analytics_only_clinical_plan():

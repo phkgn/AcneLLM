@@ -193,9 +193,7 @@ class Settings(BaseSettings):
     # Dung luong toi da (GB). 0 = tat cache hoan toan.
     cache_size_gb: float = 2.0
 
-    # ── Session store (JSONL) ────────────────────────────────────────────────
-    # Thư mục chứa session files (một .jsonl per session_id, dễ đọc/debug).
-    sessions_dir: str = "./data/sessions"
+    # ── Session store (SQLite) ───────────────────────────────────────────────
     # Thời gian idle tối đa (giây) trước khi session bị xoá.
     session_ttl: float = 1800.0
     # Giới hạn lịch sử hội thoại inject vào prompt (ký tự). 0 = không giới hạn.
@@ -207,7 +205,7 @@ class Settings(BaseSettings):
     # ── Audit log (SQLite) ───────────────────────────────────────────────────
     # SQLite file chỉ dùng cho audit log (tạo tự động nếu chưa có).
     audit_db_path: str = "./data/audit.db"
-    # Backward-compat alias — không dùng nữa nhưng giữ để .env cũ không vỡ
+    # File SQLite chứa session (một file thay cho nhiều .jsonl).
     session_db_path: str = "./data/sessions.db"
 
     # ── Logging ──────────────────────────────────────────────────────────────
