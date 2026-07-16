@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { REPO_ROOT } from "@/lib/paths";
+import { summarizeOllamaModels } from "@/lib/status";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ async function exists(relativePath: string): Promise<boolean> {
 export async function GET() {
   let ollamaReachable = false;
   let tags = new Set<string>();
+  let modelCount = 0;
   try {
     const response = await fetch("http://localhost:11434/api/tags", {
       signal: AbortSignal.timeout(4_000),
@@ -34,10 +36,9 @@ export async function GET() {
       const body = (await response.json()) as {
         models?: Array<{ name?: string }>;
       };
-      const raw = (body.models ?? [])
-        .map((model) => model.name)
-        .filter((name): name is string => Boolean(name));
-      tags = new Set(raw.flatMap((name) => [name, name.split(":")[0]]));
+      const summary = summarizeOllamaModels(body.models ?? []);
+      modelCount = summary.modelCount;
+      tags = summary.lookupNames;
     }
   } catch {
     ollamaReachable = false;
@@ -57,7 +58,7 @@ export async function GET() {
       label: "Ollama API",
       ok: ollamaReachable,
       detail: ollamaReachable
-        ? `${tags.size} model tags được phát hiện`
+        ? `${modelCount} model tags được phát hiện`
         : "Không phản hồi tại localhost:11434",
       fix: "ollama serve",
     },
