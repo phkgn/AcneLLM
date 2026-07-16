@@ -289,6 +289,7 @@ def run(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             context.dataset_path,
             runtime_snapshot.get("prompt_hashes") or {},
             runtime_snapshot.get("system_config_hashes") or {},
+            active_systems=set(context.records),
         ),
         check_session_isolation(context.records, context.dataset_rows, context.tier),
     ])

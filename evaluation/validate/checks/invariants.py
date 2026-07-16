@@ -569,6 +569,7 @@ def check_versioning(
     dataset_path: Path,
     expected_prompt_hashes: dict[str, Any],
     expected_system_config_hashes: dict[str, str],
+    active_systems: set[str] | None = None,
 ) -> CheckResult:
     violations: list[dict[str, Any]] = []
     actual_dataset_hash = sha256_file(dataset_path)
@@ -594,16 +595,87 @@ def check_versioning(
                 "actual": run_meta.get("dataset_manifest_sha256"),
                 "file": "run_meta.json",
             })
-    if run_meta.get("prompt_hashes") != expected_prompt_hashes:
-        violations.append({
+    recorded_prompt_hashes = run_meta.get("prompt_hashes")
+    recorded_system_config_hashes = run_meta.get("system_config_hashes")
+    if active_systems is None:
+        prompt_hashes_match = recorded_prompt_hashes == expected_prompt_hashes
+        system_config_hashes_match = (
+            recorded_system_config_hashes == expected_system_config_hashes
+        )
+        prompt_mismatches: dict[str, Any] = {}
+        config_mismatches: dict[str, Any] = {}
+    else:
+        active = sorted(active_systems)
+        recorded_prompts = (
+            recorded_prompt_hashes
+            if isinstance(recorded_prompt_hashes, dict)
+            else {}
+        )
+        expected_shared = {
+            key: value
+            for key, value in expected_prompt_hashes.items()
+            if key != "system_prompts"
+        }
+        recorded_shared = {
+            key: value
+            for key, value in recorded_prompts.items()
+            if key != "system_prompts"
+        }
+        expected_system_prompts = expected_prompt_hashes.get("system_prompts") or {}
+        recorded_system_prompts = recorded_prompts.get("system_prompts") or {}
+        prompt_mismatches = {
+            sid: {
+                "expected": expected_system_prompts.get(sid),
+                "actual": recorded_system_prompts.get(sid),
+            }
+            for sid in active
+            if expected_system_prompts.get(sid) != recorded_system_prompts.get(sid)
+        }
+        prompt_hashes_match = (
+            isinstance(recorded_prompt_hashes, dict)
+            and recorded_shared == expected_shared
+            and not prompt_mismatches
+        )
+
+        recorded_configs = (
+            recorded_system_config_hashes
+            if isinstance(recorded_system_config_hashes, dict)
+            else {}
+        )
+        config_mismatches = {
+            sid: {
+                "expected": expected_system_config_hashes.get(sid),
+                "actual": recorded_configs.get(sid),
+            }
+            for sid in active
+            if (
+                sid not in expected_system_config_hashes
+                or sid not in recorded_configs
+                or expected_system_config_hashes.get(sid) != recorded_configs.get(sid)
+            )
+        }
+        system_config_hashes_match = (
+            isinstance(recorded_system_config_hashes, dict)
+            and not config_mismatches
+        )
+    if not prompt_hashes_match:
+        evidence: dict[str, Any] = {
             "message": "Prompt hashes are missing or differ from current files.",
             "file": "run_meta.json",
-        })
-    if run_meta.get("system_config_hashes") != expected_system_config_hashes:
-        violations.append({
+        }
+        if active_systems is not None:
+            evidence["active_systems"] = sorted(active_systems)
+            evidence["system_mismatches"] = prompt_mismatches
+        violations.append(evidence)
+    if not system_config_hashes_match:
+        evidence = {
             "message": "System config hashes are missing or differ from current files.",
             "file": "run_meta.json",
-        })
+        }
+        if active_systems is not None:
+            evidence["active_systems"] = sorted(active_systems)
+            evidence["system_mismatches"] = config_mismatches
+        violations.append(evidence)
     for key in ("bm25_sha256", "chroma_fingerprint"):
         if not run_meta.get(key):
             violations.append({

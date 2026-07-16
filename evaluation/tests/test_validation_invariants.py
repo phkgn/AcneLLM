@@ -228,6 +228,57 @@ def test_versioning_requires_dataset_manifest_prompt_and_config_hashes(tmp_path)
     ).status == "FAIL"
 
 
+def test_versioning_scopes_system_hashes_to_completed_partial_run(tmp_path):
+    dataset = tmp_path / "d.jsonl"
+    dataset.write_text(json.dumps(_sample("a"), ensure_ascii=False) + "\n", encoding="utf-8")
+    manifest = tmp_path / "MANIFEST.json"
+    manifest.write_text(
+        json.dumps({"files": {"d.jsonl": sha256_file(dataset)}}),
+        encoding="utf-8",
+    )
+    expected_prompt_hashes = {
+        "templates": {"x": "1"},
+        "judge_prompts": {"judge": "2"},
+        "system_prompts": {"s0": "s0-current", "s1": "s1-current"},
+    }
+    expected_config_hashes = {"s0": "s0-current", "s1": "s1-current"}
+    run_meta = {
+        "dataset_sha256": sha256_file(dataset),
+        "dataset_manifest_sha256": sha256_file(manifest),
+        "prompt_hashes": {
+            "templates": {"x": "1"},
+            "judge_prompts": {"judge": "2"},
+            "system_prompts": {"s1": "s1-current", "s0": "stale-killed-attempt"},
+        },
+        "system_config_hashes": {
+            "s1": "s1-current",
+            "s0": "stale-killed-attempt",
+        },
+        "bm25_sha256": "bm25",
+        "chroma_fingerprint": "chroma",
+    }
+    assert check_versioning(
+        run_meta,
+        dataset,
+        expected_prompt_hashes,
+        expected_config_hashes,
+        active_systems={"s1"},
+    ).status == "PASS"
+
+    run_meta["system_config_hashes"]["s1"] = "stale-completed-system"
+    result = check_versioning(
+        run_meta,
+        dataset,
+        expected_prompt_hashes,
+        expected_config_hashes,
+        active_systems={"s1"},
+    )
+    assert result.status == "FAIL"
+    assert result.evidence[-1]["system_mismatches"]["s1"]["actual"] == (
+        "stale-completed-system"
+    )
+
+
 def test_reproducibility_requires_zero_deterministic_diff_and_bounded_judge():
     samples = {"a": _sample("a")}
     original = {"s0": [_record("a")]}
