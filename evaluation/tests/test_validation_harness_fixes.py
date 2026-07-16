@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from evaluation.adapters.sse_api import SseApiAdapter
@@ -11,6 +13,7 @@ from evaluation.analysis.check_gate import (
     _select_primary_retrieval_summary,
 )
 from evaluation import run_all
+from evaluation.runners.run_experiment import merge_run_meta, validate_output_state
 from evaluation.validate.checks.invariants import POINTWISE_AXES
 
 
@@ -234,3 +237,73 @@ def test_run_all_executes_gate_step(tmp_path, monkeypatch):
     gate_calls = [command for step, command in calls if step == "gate"]
     assert len(gate_calls) == 1
     assert gate_calls[0][-2:] == ["--run-dir", str(run_dir)]
+
+
+def _resume_state(system_hash: str = "hash-s1") -> dict:
+    return {
+        "dataset": "evaluation/datasets/v1/d2_test.jsonl",
+        "dataset_sha256": "dataset-hash",
+        "experiment_config_sha256": "experiment-hash",
+        "system_config_hashes": {"s1": system_hash},
+    }
+
+
+def test_run_experiment_rejects_existing_results_without_resume(tmp_path):
+    (tmp_path / "s1.results.jsonl").write_text("{}\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="already contains results"):
+        validate_output_state(tmp_path, False, _resume_state())
+
+
+def test_run_experiment_rejects_resume_metadata_mismatch(tmp_path):
+    (tmp_path / "s1.results.jsonl").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "run_meta.json").write_text(
+        json.dumps({**_resume_state(), "dataset_sha256": "old-dataset"}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="dataset_sha256"):
+        validate_output_state(tmp_path, True, _resume_state())
+
+
+def test_run_experiment_allows_compatible_new_system_and_merges_metadata(tmp_path):
+    existing = {
+        **_resume_state(),
+        "systems": ["s1"],
+        "model_digests": {"fine": "digest-1"},
+        "prompt_hashes": {
+            "templates": {"shared": "template-hash"},
+            "judge_prompts": {},
+            "system_prompts": {"s1": "prompt-1"},
+        },
+    }
+    (tmp_path / "s1.results.jsonl").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "run_meta.json").write_text(
+        json.dumps(existing),
+        encoding="utf-8",
+    )
+    expected_s0 = {
+        **_resume_state(),
+        "system_config_hashes": {"s0": "hash-s0"},
+    }
+    loaded = validate_output_state(tmp_path, True, expected_s0)
+    merged = merge_run_meta(
+        loaded,
+        {
+            **expected_s0,
+            "systems": ["s0"],
+            "model_digests": {"base": "digest-0"},
+            "prompt_hashes": {
+                "templates": {"shared": "template-hash"},
+                "judge_prompts": {},
+                "system_prompts": {"s0": "prompt-0"},
+            },
+        },
+    )
+    assert merged["systems"] == ["s0", "s1"]
+    assert merged["system_config_hashes"] == {
+        "s0": "hash-s0",
+        "s1": "hash-s1",
+    }
+    assert merged["prompt_hashes"]["system_prompts"] == {
+        "s0": "prompt-0",
+        "s1": "prompt-1",
+    }

@@ -11,17 +11,102 @@ Resume: sample_id đã có trong results.jsonl sẽ bỏ qua.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from evaluation.common import (  # noqa: E402
-    REPORTS_DIR, ROOT, append_jsonl, build_run_meta, load_yaml, read_jsonl, utcnow,
+    REPORTS_DIR, ROOT, append_jsonl, build_run_meta, load_yaml, read_jsonl,
+    sha256_file, utcnow,
 )
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.adapters.base import build_adapter  # noqa: E402
-from evaluation.validate.checks.runtime import capture_versioning_snapshot  # noqa: E402
+from evaluation.validate.checks.runtime import (  # noqa: E402
+    capture_versioning_snapshot, system_config_hashes,
+)
+
+
+def validate_output_state(
+    out_dir: Path,
+    resume: bool,
+    expected: dict,
+) -> dict | None:
+    result_paths = list(out_dir.glob("*.results.jsonl"))
+    if result_paths and not resume:
+        raise ValueError(
+            "Output directory already contains results; choose a new --out-dir "
+            "or pass --resume."
+        )
+
+    meta_path = out_dir / "run_meta.json"
+    if not resume or (not result_paths and not meta_path.exists()):
+        return None
+    if not meta_path.exists():
+        raise ValueError(
+            "Cannot resume because run_meta.json is missing; choose a new --out-dir."
+        )
+    try:
+        existing = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Cannot resume from invalid run_meta.json: {exc}") from exc
+
+    mismatches = []
+    for key in ("dataset", "dataset_sha256", "experiment_config_sha256"):
+        if existing.get(key) != expected.get(key):
+            mismatches.append(key)
+
+    existing_hashes = existing.get("system_config_hashes")
+    if not isinstance(existing_hashes, dict):
+        existing_hashes = {}
+    result_systems = {
+        path.name.removesuffix(".results.jsonl") for path in result_paths
+    }
+    for system_id, expected_hash in expected["system_config_hashes"].items():
+        existing_hash = existing_hashes.get(system_id)
+        if (
+            existing_hash is not None
+            and existing_hash != expected_hash
+        ) or (
+            system_id in result_systems
+            and existing_hash != expected_hash
+        ):
+            mismatches.append(f"system_config_hashes.{system_id}")
+
+    if mismatches:
+        raise ValueError(
+            "Resume metadata mismatch for "
+            + ", ".join(sorted(set(mismatches)))
+            + "; choose a new --out-dir."
+        )
+    return existing
+
+
+def merge_run_meta(existing: dict | None, current: dict) -> dict:
+    if not existing:
+        return current
+    merged = {**existing, **current}
+    merged["systems"] = sorted({
+        *map(str, existing.get("systems") or []),
+        *map(str, current.get("systems") or []),
+    })
+    for key in ("system_config_hashes", "model_digests"):
+        merged[key] = {
+            **(existing.get(key) or {}),
+            **(current.get(key) or {}),
+        }
+
+    existing_prompts = existing.get("prompt_hashes") or {}
+    current_prompts = current.get("prompt_hashes") or {}
+    merged["prompt_hashes"] = {
+        key: {
+            **(existing_prompts.get(key) or {}),
+            **(current_prompts.get(key) or {}),
+        }
+        for key in ("templates", "judge_prompts", "system_prompts")
+    }
+    return merged
 
 
 def run_system(sys_cfg: dict, samples: list[dict], experiment: dict,
@@ -91,6 +176,23 @@ def main() -> None:
         ]
     system_cfgs = [cfg for _, cfg in system_entries]
     system_paths = {cfg["id"]: path for path, cfg in system_entries}
+    if not system_cfgs:
+        ap.error("Không có system hợp lệ để chạy.")
+
+    expected_state = {
+        "dataset": experiment["dataset"],
+        "dataset_sha256": sha256_file(dataset_path),
+        "experiment_config_sha256": sha256_file(experiment_path),
+        "system_config_hashes": system_config_hashes(system_paths),
+    }
+    try:
+        existing_meta = validate_output_state(
+            out_dir,
+            args.resume,
+            expected_state,
+        )
+    except ValueError as exc:
+        ap.error(str(exc))
 
     versioning = capture_versioning_snapshot(
         dataset_path,
@@ -98,15 +200,16 @@ def main() -> None:
         system_paths,
         {cfg["id"]: cfg for cfg in system_cfgs},
     )
-    meta = build_run_meta({
+    current_meta = build_run_meta({
         "experiment": experiment,
         "n_samples": len(samples),
         "systems": [c["id"] for c in system_cfgs],
         "dataset": experiment["dataset"],
         **versioning,
     })
+    meta = merge_run_meta(existing_meta, current_meta)
     (out_dir / "run_meta.json").write_text(
-        __import__("json").dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
     tier = experiment.get("tier", "t3")
