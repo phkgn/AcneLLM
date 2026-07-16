@@ -321,7 +321,10 @@ def extract_with_confidence(
         product_vals, clean_text_no_accent, PRODUCT_CANONICALS,
         accept=fuzzy_accept, review=_vocab_review,
         term_map=nz._PRODUCT_CANONICAL_MAP,
-        fuzzy_context_filter=lambda raw: _vitamin_letter_ok(raw, clean_text_no_accent),
+        fuzzy_context_filter=lambda raw: (
+            _vitamin_letter_ok(raw, clean_text_no_accent)
+            and nz._positive_mention(re.escape(raw), clean_text_no_accent)
+        ),
     )
     _med_ctx_text = clean_text_no_accent.lower()
     medications = _list_vocab(

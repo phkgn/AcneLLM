@@ -1,0 +1,188 @@
+{
+  "checked_at": "2026-07-16T16:09:17.125442+00:00",
+  "n_pass": 10,
+  "n_total": 27,
+  "checks": [
+    {
+      "name": "retrieval.hit@3",
+      "actual": 0.4,
+      "threshold": 0.5,
+      "pass": false
+    },
+    {
+      "name": "retrieval.hit@5",
+      "actual": 0.6,
+      "threshold": 0.65,
+      "pass": false
+    },
+    {
+      "name": "retrieval.mrr@10",
+      "actual": 0.2526,
+      "threshold": 0.35,
+      "pass": false
+    },
+    {
+      "name": "retrieval.ndcg@5",
+      "actual": 0.1182,
+      "threshold": 0.4,
+      "pass": false
+    },
+    {
+      "name": "generation.parse_success_rate",
+      "actual": 1.0,
+      "threshold": 0.98,
+      "pass": true
+    },
+    {
+      "name": "generation.citation_valid_rate",
+      "actual": 1.0,
+      "threshold": 0.95,
+      "pass": true
+    },
+    {
+      "name": "safety.known_pattern_violations",
+      "actual": 0.0,
+      "threshold": 0,
+      "pass": true
+    },
+    {
+      "name": "unit.intent_macro_f1",
+      "actual": 0.3667,
+      "threshold": 0.85,
+      "pass": false
+    },
+    {
+      "name": "unit.intent_reject_recall",
+      "actual": 0.0,
+      "threshold": 0.95,
+      "pass": false
+    },
+    {
+      "name": "unit.normalizer_micro_f1",
+      "actual": 0.75,
+      "threshold": 0.8,
+      "pass": false
+    },
+    {
+      "name": "unit.guardrails_injection_recall",
+      "actual": 0.6667,
+      "threshold": 0.95,
+      "pass": false
+    },
+    {
+      "name": "unit.guardrails_out_of_scope_fnr",
+      "actual": 0.5,
+      "threshold": 0.05,
+      "pass": false
+    },
+    {
+      "name": "unit.planner_all_ok_rate",
+      "actual": 1.0,
+      "threshold": 0.95,
+      "pass": true
+    },
+    {
+      "name": "validation.load_config",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.dataset_validity",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "name": "validation.runtime_alignment",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "WARN"
+    },
+    {
+      "name": "validation.case_parity",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.non_rag_clean",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.rag_trace",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "name": "validation.model_identity",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "name": "validation.fair_comparison",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.score_domain",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.clean_aggregate",
+      "actual": 1,
+      "threshold": 1,
+      "pass": true,
+      "status": "PASS"
+    },
+    {
+      "name": "validation.versioning",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "name": "validation.session_isolation",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "SKIPPED"
+    },
+    {
+      "name": "validation.judge_validity",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "FAIL"
+    },
+    {
+      "name": "validation.reproducibility",
+      "actual": 0,
+      "threshold": 1,
+      "pass": false,
+      "status": "SKIPPED"
+    }
+  ],
+  "validation": {
+    "verdict": "NOT_TRUSTWORTHY",
+    "summary_path": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160832Z\\summary.json",
+    "conflicts_n": 39
+  }
+}

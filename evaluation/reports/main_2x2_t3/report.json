@@ -1,0 +1,382 @@
+{
+  "generated_at": "2026-07-16T15:57:28.682915+00:00",
+  "run_dir": "evaluation\\reports\\main_2x2_t3",
+  "n_systems": 5,
+  "systems": {
+    "s0": {
+      "n": 10,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 10,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 90
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 1.0,
+      "citation_valid_rate": null,
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "safety": 2.8,
+        "relevance": 1.0,
+        "fluency": 3.0,
+        "instruction_following": 2.6
+      },
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 16983,
+        "mean": 16835
+      },
+      "error_pareto": []
+    },
+    "s1": {
+      "n": 10,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 10,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 90
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 0.8,
+      "citation_valid_rate": null,
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {
+        "correctness": 2.5,
+        "completeness": 2.1,
+        "safety": 3.9,
+        "relevance": 3.6,
+        "fluency": 3.6,
+        "instruction_following": 3.0
+      },
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 14973,
+        "mean": 16008
+      },
+      "error_pareto": []
+    },
+    "s2": {
+      "n": 10,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 10,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 90
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 1.0,
+      "citation_valid_rate": null,
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {
+        "correctness": 1.8,
+        "completeness": 1.7,
+        "safety": 3.0,
+        "relevance": 2.0,
+        "fluency": 2.9,
+        "instruction_following": 2.2
+      },
+      "faithfulness_mean": 0.0,
+      "latency_ms": {
+        "p50": 41701,
+        "mean": 43500
+      },
+      "error_pareto": []
+    },
+    "s3": {
+      "n": 10,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 10,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 90
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 0.2,
+      "citation_valid_rate": 1.0,
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {
+        "correctness": 3.8,
+        "completeness": 2.9,
+        "safety": 4.3,
+        "relevance": 4.8,
+        "fluency": 3.9,
+        "instruction_following": 4.0
+      },
+      "faithfulness_mean": 0.0,
+      "latency_ms": {
+        "p50": 53514,
+        "mean": 55697
+      },
+      "error_pareto": []
+    },
+    "s4": {
+      "n": 10,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 10,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 90
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "citation_valid_rate": 1.0,
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {
+        "correctness": 4.3,
+        "completeness": 3.7,
+        "safety": 4.6,
+        "relevance": 4.8,
+        "fluency": 3.7,
+        "instruction_following": 4.2
+      },
+      "faithfulness_mean": 0.0,
+      "latency_ms": {
+        "p50": 12589,
+        "mean": 12931
+      },
+      "error_pareto": []
+    }
+  },
+  "comparisons": {
+    "s0:s1": {
+      "n_common": 10,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 1.5,
+          "ci95": [
+            0.8,
+            2.1
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 7,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.7,
+        "wtl_b_vs_a": {
+          "win": 7,
+          "tie": 3,
+          "loss": 0
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 1.1,
+          "ci95": [
+            0.5,
+            1.9
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 7,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.73,
+        "wtl_b_vs_a": {
+          "win": 7,
+          "tie": 3,
+          "loss": 0
+        }
+      },
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s0:s2": {
+      "n_common": 10,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 0.8,
+          "ci95": [
+            0.0,
+            1.8
+          ],
+          "p_value": 0.0576,
+          "significant": false,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 3,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.3,
+        "wtl_b_vs_a": {
+          "win": 3,
+          "tie": 7,
+          "loss": 0
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 0.2,
+          "ci95": [
+            -0.6,
+            1.2
+          ],
+          "p_value": 0.8858,
+          "significant": false,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 2,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.09,
+        "wtl_b_vs_a": {
+          "win": 1,
+          "tie": 8,
+          "loss": 1
+        }
+      },
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s1:s3": {
+      "n_common": 10,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 1.3,
+          "ci95": [
+            0.6,
+            2.0
+          ],
+          "p_value": 0.0002,
+          "significant": true,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 7,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.7,
+        "wtl_b_vs_a": {
+          "win": 7,
+          "tie": 3,
+          "loss": 0
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 0.4,
+          "ci95": [
+            0.0,
+            0.8
+          ],
+          "p_value": 0.0988,
+          "significant": false,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 6,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.3,
+        "wtl_b_vs_a": {
+          "win": 5,
+          "tie": 4,
+          "loss": 1
+        }
+      },
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s2:s3": {
+      "n_common": 10,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 2.0,
+          "ci95": [
+            1.4,
+            2.6
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 9,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.75,
+        "wtl_b_vs_a": {
+          "win": 9,
+          "tie": 1,
+          "loss": 0
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 1.3,
+          "ci95": [
+            0.7,
+            2.1
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 10
+        },
+        "wilcoxon": {
+          "n": 8,
+          "warning": "n<10 — dùng sign test/bootstrap thay",
+          "p_value": null
+        },
+        "cliffs_delta": 0.76,
+        "wtl_b_vs_a": {
+          "win": 8,
+          "tie": 2,
+          "loss": 0
+        }
+      },
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    }
+  },
+  "errors": {},
+  "holm_correction": {}
+}

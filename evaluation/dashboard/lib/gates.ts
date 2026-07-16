@@ -41,17 +41,24 @@ async function latestRetrievalSummary(): Promise<{
         .map(async (entry) => {
           const summaryPath = path.join(root, entry.name, "summary.json");
           const stat = await fs.stat(summaryPath).catch(() => null);
-          return stat ? { summaryPath, mtime: stat.mtimeMs } : null;
+          if (!stat) return null;
+          return {
+            summaryPath,
+            mtime: stat.mtimeMs,
+            data:
+              (await readJsonFile<Record<string, unknown>>(summaryPath)) ?? {},
+          };
         }),
     );
-    const latest = candidates
+    const sorted = candidates
       .filter((item): item is NonNullable<typeof item> => Boolean(item))
-      .sort((a, b) => b.mtime - a.mtime)[0];
+      .sort((a, b) => b.mtime - a.mtime);
+    const latest =
+      sorted.find((item) => item.data.raw_query !== true) ?? sorted[0];
     if (!latest) return null;
     return {
       path: path.relative(EVALUATION_ROOT, latest.summaryPath).replaceAll("\\", "/"),
-      data:
-        (await readJsonFile<Record<string, unknown>>(latest.summaryPath)) ?? {},
+      data: latest.data,
     };
   } catch {
     return null;
@@ -70,6 +77,13 @@ function findNumberDeep(value: unknown, keys: string[]): number | null {
     if (found !== null) return found;
   }
   return null;
+}
+
+function normalizerMicroF1(value: unknown): number | null {
+  const report = asRecord(value);
+  const multiLabel = asRecord(report.multi_label);
+  const lesionStrict = asRecord(multiLabel.lesion_strict);
+  return asNumber(lesionStrict.micro_f1);
 }
 
 function compare(
@@ -123,13 +137,17 @@ export async function evaluateGates(experiment = "main_2x2_t3") {
   const intent = await readJsonFile<Record<string, unknown>>(
     path.join(REPORTS_ROOT, "unit", "intent_router", "report.json"),
   );
-  const normalizer =
-    (await readJsonFile<Record<string, unknown>>(
-      path.join(REPORTS_ROOT, "unit", "normalizer", "summary.json"),
-    )) ??
-    (await readJsonFile<Record<string, unknown>>(
-      path.join(REPORTS_ROOT, "unit", "normalizer", "report.json"),
-    ));
+  const normalizerSummary = await readJsonFile<Record<string, unknown>>(
+    path.join(REPORTS_ROOT, "unit", "normalizer", "summary.json"),
+  );
+  const normalizerReport = await readJsonFile<Record<string, unknown>>(
+    path.join(REPORTS_ROOT, "unit", "normalizer", "report.json"),
+  );
+  const normalizerValue =
+    normalizerMicroF1(normalizerSummary) ??
+    normalizerMicroF1(normalizerReport) ??
+    findNumberDeep(normalizerSummary, ["micro_f1"]) ??
+    findNumberDeep(normalizerReport, ["micro_f1"]);
   const guardrails = await readJsonFile<Record<string, unknown>>(
     path.join(REPORTS_ROOT, "unit", "guardrails", "report.json"),
   );
@@ -203,11 +221,14 @@ export async function evaluateGates(experiment = "main_2x2_t3") {
       source: "reports/unit/intent_router/report.json",
     },
     normalizer_micro_f1: {
-      value: findNumberDeep(normalizer, ["micro_f1"]),
-      source: "reports/unit/normalizer/summary.json",
+      value: normalizerValue,
+      source:
+        normalizerMicroF1(normalizerSummary) !== null
+          ? "reports/unit/normalizer/summary.json"
+          : "reports/unit/normalizer/report.json",
     },
     guardrails_injection_recall: {
-      value: asNumber(injection.recall),
+      value: asNumber(injection.tpr) ?? asNumber(injection.recall),
       source: "reports/unit/guardrails/report.json",
     },
     guardrails_out_of_scope_fnr_max: {

@@ -1,0 +1,16 @@
+# S1 — Finetuned LLM only (QLoRA merged, Q4_K_M)
+id: s1
+name: finetuned_only
+adapter: ollama_batch
+model: acnellm-v2-q4
+retrieval: false
+template: llm_only_user.j2
+fallback_model: null
+sampling:
+  temperature: 0.35
+  top_p: 0.85
+  top_k: 40
+  repeat_penalty: 1.1
+  num_ctx: 3072
+  num_predict: 1200
+  seed: 42

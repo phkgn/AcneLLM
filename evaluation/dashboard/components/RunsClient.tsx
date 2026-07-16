@@ -32,6 +32,7 @@ import {
 type MetaResponse = {
   datasets: CatalogDataset[];
   systems: CatalogSystem[];
+  reportRuns?: string[];
 };
 
 type ProgressItem = {
@@ -44,6 +45,21 @@ type ProgressItem = {
   ok: number;
   failed: number;
   watchPath: string;
+};
+
+type ValidationWatch = {
+  name: string;
+  path: string;
+  modifiedAt: string;
+  summary: {
+    verdict?: "TRUSTWORTHY" | "PARTIAL" | "NOT_TRUSTWORTHY";
+    conflicts_n?: number;
+    per_check?: Array<{
+      name?: string;
+      status?: "PASS" | "FAIL" | "WARN" | "SKIPPED";
+    }>;
+    confidence_notes?: string[];
+  };
 };
 
 const commands: Array<{
@@ -112,6 +128,12 @@ const commands: Array<{
     tier: "Analysis",
     description: "Tổng hợp metric, paired comparisons và Pareto lỗi.",
   },
+  {
+    id: "validation_loop",
+    label: "Validation loop",
+    tier: "Trust audit",
+    description: "Audit data/runtime/invariants/judge, conflicts và reproducibility.",
+  },
 ];
 
 const retrievalModes = [
@@ -127,8 +149,15 @@ const pairOptions = ["s0:s1", "s0:s2", "s1:s3", "s2:s3"];
 function jobTone(status: JobRecord["status"]) {
   if (status === "succeeded") return "good" as const;
   if (status === "running") return "info" as const;
+  if (status === "stopping") return "warn" as const;
   if (status === "failed" || status === "killed") return "bad" as const;
   return "neutral" as const;
+}
+
+function validationTone(verdict: ValidationWatch["summary"]["verdict"]) {
+  if (verdict === "TRUSTWORTHY") return "good" as const;
+  if (verdict === "NOT_TRUSTWORTHY") return "bad" as const;
+  return "warn" as const;
 }
 
 function lineClass(line: string) {
@@ -168,6 +197,9 @@ export function RunsClient() {
   const [dataset, setDataset] = useState(
     "evaluation/datasets/v1/d1_dev_seed.jsonl",
   );
+  const [runDir, setRunDir] = useState("evaluation/reports/main_2x2_t3");
+  const [reproSubset, setReproSubset] = useState("0");
+  const [strictValidation, setStrictValidation] = useState(false);
   const [systems, setSystems] = useState<string[]>(["s0", "s1", "s2", "s3", "s4"]);
   const [modes, setModes] = useState<string[]>(retrievalModes);
   const [pairs, setPairs] = useState<string[]>(pairOptions);
@@ -176,11 +208,14 @@ export function RunsClient() {
   const [yes, setYes] = useState(false);
   const [rawQuery, setRawQuery] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [killingJobId, setKillingJobId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [log, setLog] = useState("");
   const [filter, setFilter] = useState("");
   const [autoScroll, setAutoScroll] = useState(true);
   const [progress, setProgress] = useState<ProgressItem[]>([]);
+  const [validationWatch, setValidationWatch] =
+    useState<ValidationWatch | null>(null);
   const consoleRef = useRef<HTMLDivElement>(null);
   const [, tick] = useState(0);
 
@@ -209,7 +244,7 @@ export function RunsClient() {
     ]);
     const fromUrl = new URLSearchParams(window.location.search).get("job");
     if (fromUrl) setSelectedJobId(fromUrl);
-    const poll = setInterval(() => void refreshJobs(), 2500);
+    const poll = setInterval(() => void refreshJobs(), 1000);
     const clock = setInterval(() => tick((value) => value + 1), 1000);
     return () => {
       clearInterval(poll);
@@ -220,6 +255,10 @@ export function RunsClient() {
   }, [refreshJobs]);
 
   const selectedJob = jobs.find((job) => job.jobId === selectedJobId) ?? null;
+  const validationJobId =
+    selectedJob?.commandId === "validation_loop" ? selectedJob.jobId : null;
+  const validationJobStartedAt =
+    selectedJob?.commandId === "validation_loop" ? selectedJob.startedAt : null;
 
   useEffect(() => {
     setLog("");
@@ -299,6 +338,44 @@ export function RunsClient() {
     };
   }, [selectedJob]);
 
+  useEffect(() => {
+    setValidationWatch(null);
+    if (!validationJobId || !validationJobStartedAt) return;
+    let cancelled = false;
+    let source: EventSource | null = null;
+    let watchedPath = "";
+    const query = new URLSearchParams({ after: validationJobStartedAt });
+
+    const loadValidation = async () => {
+      const response = await fetch(`/api/validation?${query}`, {
+        cache: "no-store",
+      });
+      if (!response.ok || cancelled) return;
+      const body = (await response.json()) as {
+        validation: ValidationWatch | null;
+      };
+      if (cancelled || !body.validation) return;
+      setValidationWatch(body.validation);
+      if (body.validation.path !== watchedPath) {
+        source?.close();
+        watchedPath = body.validation.path;
+        source = new EventSource(
+          `/api/files/watch?path=${encodeURIComponent(body.validation.path)}`,
+        );
+        source.addEventListener("chunk", () => void loadValidation());
+        source.addEventListener("reset", () => void loadValidation());
+      }
+    };
+
+    void loadValidation();
+    const poll = setInterval(() => void loadValidation(), 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(poll);
+      source?.close();
+    };
+  }, [validationJobId, validationJobStartedAt]);
+
   const visibleLines = useMemo(() => {
     const lines = log.split(/\r?\n/).map(stripAnsi);
     if (!filter) return { lines, error: "" };
@@ -328,7 +405,13 @@ export function RunsClient() {
     if (
       limit &&
       Number.isInteger(parsedLimit) &&
-      !["run_all", "tests", "t1_normalizer", "report"].includes(commandId)
+      ![
+        "run_all",
+        "tests",
+        "t1_normalizer",
+        "report",
+        "validation_loop",
+      ].includes(commandId)
     ) {
       args.limit = parsedLimit;
     }
@@ -348,6 +431,12 @@ export function RunsClient() {
       args.pairs = pairs;
     }
     if (commandId === "report") args.dataset = dataset;
+    if (commandId === "validation_loop") {
+      args.dataset = dataset;
+      args.runDir = runDir;
+      args.reproSubset = Number(reproSubset) || 0;
+      args.strict = strictValidation;
+    }
     return args;
   }
 
@@ -384,9 +473,47 @@ export function RunsClient() {
   }
 
   async function killSelected() {
-    if (!selectedJob) return;
-    await fetch(`/api/jobs/${selectedJob.jobId}/kill`, { method: "POST" });
-    await refreshJobs();
+    if (
+      !selectedJob ||
+      !["running", "stopping"].includes(selectedJob.status) ||
+      killingJobId
+    ) {
+      return;
+    }
+    const jobId = selectedJob.jobId;
+    setKillingJobId(jobId);
+    setError("");
+    setJobs((current) =>
+      current.map((job) =>
+        job.jobId === jobId
+          ? {
+              ...job,
+              status: "stopping",
+              signal: "KILL_REQUESTED",
+            }
+          : job,
+      ),
+    );
+    try {
+      const response = await fetch(`/api/jobs/${jobId}/kill`, {
+        method: "POST",
+      });
+      const body = (await response.json()) as {
+        job?: JobRecord;
+        error?: string;
+      };
+      if (!response.ok || !body.job) {
+        throw new Error(body.error ?? "Không thể dừng job.");
+      }
+      setJobs((current) =>
+        current.map((job) => (job.jobId === jobId ? body.job! : job)),
+      );
+    } catch (killError) {
+      setError((killError as Error).message);
+      await refreshJobs();
+    } finally {
+      setKillingJobId(null);
+    }
   }
 
   const selectedCommand = commands.find((command) => command.id === commandId)!;
@@ -443,7 +570,13 @@ export function RunsClient() {
               {selectedCommand.description}
             </p>
 
-            {!["run_all", "tests", "t1_normalizer", "report"].includes(commandId) ? (
+            {![
+              "run_all",
+              "tests",
+              "t1_normalizer",
+              "report",
+              "validation_loop",
+            ].includes(commandId) ? (
               <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
                 Limit
                 <input
@@ -457,7 +590,7 @@ export function RunsClient() {
               </label>
             ) : null}
 
-            {["run_all", "judge", "report"].includes(commandId) ? (
+            {["run_all", "judge", "report", "validation_loop"].includes(commandId) ? (
               <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
                 Dataset
                 <select
@@ -508,8 +641,8 @@ export function RunsClient() {
                         onClick={() => toggle(item, skip, setSkip)}
                         className={`rounded-lg px-2.5 py-1.5 text-xs font-black ${
                           skip.includes(item)
-                            ? "bg-ink text-white"
-                            : "border border-line bg-white text-ink/55"
+                            ? "bg-clay text-white"
+                            : "border border-line bg-[#211f1b] text-ink/55"
                         }`}
                       >
                         {item}
@@ -603,6 +736,53 @@ export function RunsClient() {
               </fieldset>
             ) : null}
 
+            {commandId === "validation_loop" ? (
+              <div className="mt-4 space-y-4">
+                <label className="block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                  Run directory
+                  <select
+                    value={runDir}
+                    onChange={(event) => setRunDir(event.target.value)}
+                    className={`${inputClass} mt-2`}
+                  >
+                    {Array.from(
+                      new Set(["main_2x2_t3", ...(meta.reportRuns ?? [])]),
+                    ).map((name) => (
+                      <option
+                        key={name}
+                        value={`evaluation/reports/${name}`}
+                      >
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                  Repro subset
+                  <input
+                    type="number"
+                    min={0}
+                    max={200}
+                    value={reproSubset}
+                    onChange={(event) => setReproSubset(event.target.value)}
+                    className={`${inputClass} mt-2`}
+                  />
+                  <span className="mt-1 block normal-case tracking-normal text-ink/40">
+                    0 = bỏ qua rerun tốn thời gian; 20 = validation đầy đủ.
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 text-sm font-bold">
+                  <input
+                    type="checkbox"
+                    checked={strictValidation}
+                    onChange={(event) => setStrictValidation(event.target.checked)}
+                    className="h-4 w-4 accent-moss"
+                  />
+                  Strict: WARN/SKIPPED cũng làm job exit non-zero
+                </label>
+              </div>
+            ) : null}
+
             <Button
               className="mt-5 w-full"
               variant={commandId === "judge" ? "secondary" : "primary"}
@@ -640,13 +820,15 @@ export function RunsClient() {
                   <span
                     className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
                       job.status === "running"
-                        ? "bg-blue-50 text-blue-600"
+                        ? "bg-[#1d2b31] text-[#83b8cf]"
+                        : job.status === "stopping"
+                          ? "bg-[#332719] text-[#e8b96d]"
                         : job.status === "succeeded"
                           ? "bg-moss/10 text-moss"
                           : "bg-ember/10 text-ember"
                     }`}
                   >
-                    {job.status === "running" ? (
+                    {["running", "stopping"].includes(job.status) ? (
                       <LoaderCircle className="animate-spin" size={16} />
                     ) : job.status === "succeeded" ? (
                       <CheckCircle2 size={16} />
@@ -704,14 +886,22 @@ export function RunsClient() {
                     <Clock3 size={14} />
                     {formatDuration(elapsedMs)}
                   </span>
-                  {selectedJob.status === "running" ? (
+                  {["running", "stopping"].includes(selectedJob.status) ? (
                     <Button
                       variant="danger"
                       className="px-3 py-2"
+                      disabled={
+                        selectedJob.status === "stopping" ||
+                        killingJobId === selectedJob.jobId
+                      }
                       onClick={() => void killSelected()}
                     >
-                      <CircleStop size={15} />
-                      Kill
+                      {selectedJob.status === "stopping" ? (
+                        <LoaderCircle className="animate-spin" size={15} />
+                      ) : (
+                        <CircleStop size={15} />
+                      )}
+                      {selectedJob.status === "stopping" ? "Stopping…" : "Kill"}
                     </Button>
                   ) : null}
                 </div>
@@ -778,6 +968,57 @@ export function RunsClient() {
             </div>
           </Card>
 
+          {selectedJob?.commandId === "validation_loop" && validationWatch ? (
+            <Card className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
+                    Validation summary
+                  </p>
+                  <h2 className="mt-1 text-xl font-black">
+                    {validationWatch.summary.verdict ?? "UNKNOWN"}
+                  </h2>
+                  <p className="mt-1 font-mono text-[11px] text-ink/42">
+                    {validationWatch.path}
+                  </p>
+                </div>
+                <Pill tone={validationTone(validationWatch.summary.verdict)}>
+                  {validationWatch.summary.conflicts_n ?? 0} conflicts
+                </Pill>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {(validationWatch.summary.per_check ?? []).map((check) => (
+                  <div
+                    key={check.name}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-canvas/45 px-3 py-2.5"
+                  >
+                    <span className="min-w-0 truncate text-xs font-black">
+                      {check.name}
+                    </span>
+                    <Pill
+                      tone={
+                        check.status === "PASS"
+                          ? "good"
+                          : check.status === "FAIL"
+                            ? "bad"
+                            : "warn"
+                      }
+                    >
+                      {check.status}
+                    </Pill>
+                  </div>
+                ))}
+              </div>
+              {(validationWatch.summary.confidence_notes ?? []).length ? (
+                <ul className="mt-4 list-disc space-y-1 pl-5 text-xs leading-5 text-ink/50">
+                  {validationWatch.summary.confidence_notes?.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </Card>
+          ) : null}
+
           {progress.length ? (
             <Card className="p-5">
               <div className="flex items-center justify-between gap-3">
@@ -807,7 +1048,7 @@ export function RunsClient() {
                         {item.completed}/{item.total || "?"}
                       </span>
                     </div>
-                    <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-ink/10">
+                    <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/10">
                       <div
                         className="h-full rounded-full bg-moss transition-all"
                         style={{ width: `${item.percent}%` }}
@@ -821,11 +1062,13 @@ export function RunsClient() {
                 ))}
               </div>
             </Card>
-          ) : selectedJob && selectedJob.status === "running" ? (
+          ) : selectedJob &&
+            ["running", "stopping"].includes(selectedJob.status) ? (
             <Card className="flex items-center gap-3 p-4 text-sm font-bold text-ink/55">
               <LoaderCircle className="animate-spin text-moss" size={18} />
-              Job đang chạy. Với T1/T2, tiến độ chi tiết được hiển thị trực tiếp trong
-              console; T3 có thêm progress bar per system.
+              {selectedJob.status === "stopping"
+                ? "Đang dừng toàn bộ process tree…"
+                : "Job đang chạy. Với T1/T2, tiến độ chi tiết được hiển thị trực tiếp trong console; T3 có thêm progress bar per system."}
             </Card>
           ) : null}
         </div>

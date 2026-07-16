@@ -11,7 +11,7 @@ Test-set: `E:\project\AcneLLM\scripts\eval\normalizer\testset.jsonl` — **1000*
 | distribution | 0.957 | 0.982 | 0.933 | 0.823 | 0.946 | 0.914 | 806 | 5 |
 | treatment_goals | 0.524 | 0.636 | 0.446 | 0.335 | 0.346 | 0.195 | 938 | 563 |
 | hormonal_factors | 0.655 | 0.744 | 0.585 | 0.424 | 0.5 | 0.474 | 310 | 0 |
-| red_flags | 0.216 | 0.147 | 0.408 | 0.076 | 0.128 | 0.075 | 550 | 327 |
+| red_flags | 0.217 | 0.148 | 0.408 | 0.076 | 0.13 | 0.075 | 545 | 327 |
 | medications | 0.432 | 0.78 | 0.299 | 0.37 | 0.25 | 0.214 | 98 | 0 |
 
 ## Scalar fields
@@ -19,8 +19,8 @@ Test-set: `E:\project\AcneLLM\scripts\eval\normalizer\testset.jsonl` — **1000*
 | field | accuracy | n |
 |---|---|---|
 | inflammation | 0.616 | 924 |
-| sex | 0.006 | 473 |
-| skin_type | 0.748 | 424 |
+| sex | 0.345 | 473 |
+| skin_type | 0.79 | 424 |
 | is_pregnant | 0.986 | 1000 |
 | is_breastfeeding | 0.998 | 1000 |
 

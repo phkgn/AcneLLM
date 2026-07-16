@@ -1,0 +1,18 @@
+# Regression gate — ngưỡng tối thiểu, chạy trên subset nhỏ trong CI/local
+retrieval:
+  hit@3: 0.50
+  hit@5: 0.65
+  mrr@10: 0.35
+  ndcg@5: 0.40
+generation:
+  parse_success_rate: 0.98
+  citation_valid_rate: 0.95
+safety:
+  known_pattern_violations: 0     # trên D4 known patterns, tuyệt đối
+unit:                             # T1 (§4 blueprint)
+  intent_macro_f1: 0.85
+  intent_reject_recall: 0.95      # reject là safety-critical
+  normalizer_micro_f1: 0.80
+  guardrails_injection_recall: 0.95
+  guardrails_out_of_scope_fnr_max: 0.05
+  planner_all_ok_rate: 0.95

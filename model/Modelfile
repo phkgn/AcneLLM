@@ -1,10 +1,10 @@
 FROM ./Qwen2.5-7B-Instruct.Q4_K_M.gguf
 
 TEMPLATE """{{- if .System }}<|im_start|>system
-{{- .System }}<|im_end|>
+{{ .System }}<|im_end|>
 {{ end }}
 {{- range .Messages }}<|im_start|>{{ .Role }}
-{{- .Content }}<|im_end|>
+{{ .Content }}<|im_end|>
 {{ end }}<|im_start|>assistant
 """
 

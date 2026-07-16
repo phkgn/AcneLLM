@@ -1,0 +1,72 @@
+{
+  "allow_contaminated": false,
+  "annotation_status": "draft",
+  "dataset_version": "v1.0-draft",
+  "freeze_performed": false,
+  "human_review_required": true,
+  "index": {
+    "built_at": "2026-07-16T12:05:21.713084+00:00",
+    "cache_db": "E:\\project\\AcneLLM\\evaluation\\datasets\\.cache\\train_ngram.sqlite3",
+    "input_signature": {
+      "ngram_size": 8,
+      "paths": [
+        {
+          "mtime_ns": 1781091704594805800,
+          "path": "E:\\project\\AcneLLM\\data\\finetune\\cleanv3\\acne_chat_response.train.jsonl",
+          "size": 125579118
+        }
+      ],
+      "schema_version": 2
+    },
+    "invalid_json_rows": 0,
+    "ready": true,
+    "rows_seen": 41849,
+    "source_texts": 41849,
+    "train_sha256": {
+      "E:\\project\\AcneLLM\\data\\finetune\\cleanv3\\acne_chat_response.train.jsonl": "9431b8f6d10611756ab8bc528b71590213da6b7e9b3742052655bb5b3f350704"
+    },
+    "unique_exact_texts": 83528,
+    "unique_ngrams": 1136371,
+    "user_texts": 41849
+  },
+  "llm_usage": {
+    "calls": 8,
+    "completion_tokens": 25189,
+    "estimated_cost_usd": 0.119776,
+    "input_price_per_million": 0.75,
+    "max_cost_usd": 0.4,
+    "model": "gpt-5.4-mini",
+    "output_price_per_million": 4.5,
+    "prompt_tokens": 8568,
+    "provider": "openai"
+  },
+  "mode": "generate",
+  "plan": {
+    "d3": {
+      "existing_originals": 0,
+      "originals": 60,
+      "output": "E:\\project\\AcneLLM\\evaluation\\datasets\\drafts\\v1\\d3_challenge.draft.jsonl",
+      "remaining_originals_before_audit_recovery": 60,
+      "typo_variants": 0
+    }
+  },
+  "planned_cost_ceiling_no_retry_usd": 0.236322,
+  "prompt_version": "draftgen-v2",
+  "results": {
+    "d3": {
+      "counters": {
+        "accepted_original": 60,
+        "train_contamination": 5
+      },
+      "originals": 60,
+      "output_path": "E:\\project\\AcneLLM\\evaluation\\datasets\\drafts\\v1\\d3_challenge.draft.jsonl",
+      "recovery_path": "E:\\project\\AcneLLM\\evaluation\\datasets\\drafts\\v1\\d3.recovery.audit.jsonl",
+      "reject_path": "E:\\project\\AcneLLM\\evaluation\\datasets\\drafts\\v1\\d3.rejected.audit.jsonl",
+      "target_originals": 60,
+      "target_typo_variants": 0,
+      "typo_variants": 0
+    }
+  },
+  "status": "complete",
+  "timestamp": "2026-07-16T13:49:25.516633+00:00"
+}

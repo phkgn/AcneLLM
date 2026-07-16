@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-07-16T14:02:53.038771+00:00",
+  "dataset": "evaluation/datasets/v1/d8_qrels_seed.jsonl",
+  "raw_query": true,
+  "n_queries": 10,
+  "needs_relabel": 10,
+  "modes": {
+    "hybrid_mmr_rerank": {
+      "hit@1": 0.1,
+      "recall@1": 0.0125,
+      "precision@1": 0.1,
+      "ndcg@1": 0.1,
+      "hit@3": 0.1,
+      "recall@3": 0.025,
+      "precision@3": 0.0667,
+      "ndcg@3": 0.0765,
+      "hit@5": 0.5,
+      "recall@5": 0.075,
+      "precision@5": 0.12,
+      "ndcg@5": 0.0911,
+      "hit@10": 0.7,
+      "recall@10": 0.1375,
+      "precision@10": 0.11,
+      "ndcg@10": 0.1152,
+      "mrr@10": 0.2228,
+      "map@10": 0.0495,
+      "irrelevant@5": 0.88,
+      "dup_rate": 0.0,
+      "latency_ms_mean": 11816
+    }
+  },
+  "run_meta": {
+    "timestamp": "2026-07-16T14:04:51.213337+00:00",
+    "git_commit": "a6a0df154fe4542961df915d6247039c6abe7cd9",
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "nt",
+    "bm25_sha256": "6b7c324ba970a8f92d62b49c459934b9255efd17d4a9416740168d33fa5067b0",
+    "chroma_fingerprint": "cde149055cd117661e0cbf3909a0a131fb819f89b2d4d563e3d6462927665c51",
+    "chroma_num_files": 6
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "started": "2026-07-16T13:58:36.911154+00:00",
+  "finished": "2026-07-16T14:41:06.018026+00:00",
+  "results": {
+    "t1.normalizer": "OK",
+    "t1.intent": "OK",
+    "t1.planner": "OK",
+    "t1.guardrails": "OK",
+    "t2.retrieval": "OK",
+    "t2.raw_query_ablation": "OK",
+    "t3.generation": "OK",
+    "judge": "OK",
+    "report": "OK"
+  }
+}

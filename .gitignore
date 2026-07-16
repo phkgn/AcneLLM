@@ -17,6 +17,8 @@ evaluation/dashboard/node_modules/
 evaluation/dashboard/.next/
 evaluation/dashboard/logs/
 evaluation/dashboard/.jobs.json
+evaluation/dashboard/.dataset-reviews.json
+evaluation/dashboard/.dataset-reviews.backup.json
 evaluation/dashboard/*.tsbuildinfo
 
 # ── Data — không push lên GitHub ────────────────────────────

@@ -310,7 +310,7 @@ export function InspectClient() {
             <button
               disabled={!list || list.page <= 1}
               onClick={() => setPage((value) => Math.max(1, value - 1))}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white disabled:opacity-30"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-[#211f1b] disabled:opacity-30"
               aria-label="Previous page"
             >
               <ChevronLeft size={16} />
@@ -321,7 +321,7 @@ export function InspectClient() {
             <button
               disabled={!list || list.page >= list.totalPages}
               onClick={() => setPage((value) => value + 1)}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white disabled:opacity-30"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-[#211f1b] disabled:opacity-30"
               aria-label="Next page"
             >
               <ChevronRight size={16} />
@@ -365,7 +365,7 @@ export function InspectClient() {
                     </div>
                   ) : null}
                 </div>
-                <div className="mt-5 rounded-2xl border border-line bg-white p-4">
+                <div className="mt-5 rounded-2xl border border-line bg-[#211f1b] p-4">
                   <p className="text-xs font-black uppercase tracking-[0.12em] text-ink/40">
                     Answer
                   </p>
@@ -420,7 +420,7 @@ export function InspectClient() {
                     {!Object.keys(trace).length ? (
                       <p className="text-sm text-ink/45">Record không có trace.</p>
                     ) : null}
-                    <details className="rounded-xl border border-line bg-white">
+                    <details className="rounded-xl border border-line bg-[#211f1b]">
                       <summary className="cursor-pointer px-3 py-2.5 text-xs font-black uppercase tracking-[0.1em]">
                         Full trace JSON
                       </summary>
@@ -438,7 +438,7 @@ export function InspectClient() {
                   </div>
                   <div className="mt-4 space-y-3">
                     <details
-                      className="rounded-xl border border-line bg-white"
+                      className="rounded-xl border border-line bg-[#211f1b]"
                       open={Boolean(structured)}
                     >
                       <summary className="cursor-pointer px-3 py-2.5 text-xs font-black uppercase tracking-[0.1em]">
@@ -449,7 +449,7 @@ export function InspectClient() {
                       </pre>
                     </details>
                     <details
-                      className="rounded-xl border border-line bg-white"
+                      className="rounded-xl border border-line bg-[#211f1b]"
                       open={Boolean(judged)}
                     >
                       <summary className="cursor-pointer px-3 py-2.5 text-xs font-black uppercase tracking-[0.1em]">
@@ -459,7 +459,7 @@ export function InspectClient() {
                         {judged ? pretty(judged) : "Chưa có judged record."}
                       </pre>
                     </details>
-                    <details className="rounded-xl border border-line bg-white">
+                    <details className="rounded-xl border border-line bg-[#211f1b]">
                       <summary className="cursor-pointer px-3 py-2.5 text-xs font-black uppercase tracking-[0.1em]">
                         Gold sample
                       </summary>
@@ -495,7 +495,7 @@ function AnswerPanel({
   ok: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-white p-4">
+    <div className="rounded-2xl border border-line bg-[#211f1b] p-4">
       <div className="flex items-center justify-between">
         <p className="font-black">{label}</p>
         <Pill tone={ok ? "good" : "bad"}>{ok ? "OK" : "FAIL / missing"}</Pill>

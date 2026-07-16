@@ -106,7 +106,8 @@ export async function listReportRuns(): Promise<string[]> {
     return (await fs.readdir(REPORTS_ROOT, { withFileTypes: true }))
       .filter(
         (entry) =>
-          entry.isDirectory() && !["unit", "retrieval"].includes(entry.name),
+          entry.isDirectory() &&
+          !["unit", "retrieval", "validation"].includes(entry.name),
       )
       .map((entry) => entry.name)
       .sort();

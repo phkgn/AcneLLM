@@ -1,0 +1,17 @@
+# S0 — Base LLM only (Qwen2.5-7B, Q4_K_M, CÙNG SYSTEM prompt với bản finetune — kiểm soát R1)
+# Build model trước: python evaluation/scripts/make_base_modelfile.py && ollama create qwen25-base-acnesys -f evaluation/modelfiles/qwen25-base-acnesys/Modelfile
+id: s0
+name: base_only
+adapter: ollama_batch          # t3 batch path; t4 dùng sse_api qua experiment config
+model: qwen25-base-acnesys
+retrieval: false
+template: llm_only_user.j2
+fallback_model: null           # BẮT BUỘC null khi eval (R4)
+sampling:
+  temperature: 0.35
+  top_p: 0.85
+  top_k: 40
+  repeat_penalty: 1.1
+  num_ctx: 3072
+  num_predict: 1200
+  seed: 42

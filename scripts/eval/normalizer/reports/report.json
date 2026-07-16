@@ -214,12 +214,12 @@
       "uncovered_gold_labels": {}
     },
     "red_flags": {
-      "scored_samples": 550,
-      "micro_precision": 0.147,
+      "scored_samples": 545,
+      "micro_precision": 0.148,
       "micro_recall": 0.408,
-      "micro_f1": 0.216,
+      "micro_f1": 0.217,
       "macro_f1": 0.076,
-      "mean_jaccard": 0.128,
+      "mean_jaccard": 0.13,
       "exact_match_rate": 0.075,
       "weakest_labels": [
         [
@@ -316,12 +316,12 @@
     },
     "sex": {
       "scored_samples": 473,
-      "accuracy": 0.006,
+      "accuracy": 0.345,
       "confusion": {
         "female": {
-          "unknown": 450,
-          "male": 9,
-          "female": 1
+          "unknown": 290,
+          "female": 161,
+          "male": 9
         },
         "male": {
           "male": 2,
@@ -331,11 +331,11 @@
     },
     "skin_type": {
       "scored_samples": 424,
-      "accuracy": 0.748,
+      "accuracy": 0.79,
       "confusion": {
         "oily": {
-          "oily": 292,
-          "unknown": 81,
+          "oily": 310,
+          "unknown": 63,
           "normal": 1,
           "sensitive": 1,
           "dry": 3

@@ -21,6 +21,14 @@ export const DASHBOARD_ROOT = path.join(EVALUATION_ROOT, "dashboard");
 export const REPORTS_ROOT = path.join(EVALUATION_ROOT, "reports");
 export const LOGS_ROOT = path.join(DASHBOARD_ROOT, "logs");
 export const JOBS_FILE = path.join(DASHBOARD_ROOT, ".jobs.json");
+export const DATASET_REVIEWS_FILE = path.join(
+  DASHBOARD_ROOT,
+  ".dataset-reviews.json",
+);
+export const DATASET_REVIEWS_BACKUP_FILE = path.join(
+  DASHBOARD_ROOT,
+  ".dataset-reviews.backup.json",
+);
 
 export function isPathInside(parent: string, candidate: string): boolean {
   const relative = path.relative(path.resolve(parent), path.resolve(candidate));

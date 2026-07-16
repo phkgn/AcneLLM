@@ -19,6 +19,7 @@ const COMMAND_IDS: CommandId[] = [
   "t3_generation",
   "judge",
   "report",
+  "validation_loop",
   "tests",
 ];
 
@@ -63,6 +64,32 @@ function optionalLimit(value: unknown): number | null {
     throw new Error("Limit phải là số nguyên từ 1 đến 100000.");
   }
   return parsed;
+}
+
+function optionalReproSubset(value: unknown): number {
+  if (value === undefined || value === null || value === "") return 0;
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0 || parsed > 200) {
+    throw new Error("Repro subset phải là số nguyên từ 0 đến 200.");
+  }
+  return parsed;
+}
+
+function reportRunDir(value: unknown): string {
+  const raw = value
+    ? assertCleanString(value, "Run directory")
+    : "evaluation/reports/main_2x2_t3";
+  const resolved = resolveEvaluationPath(raw);
+  const reportsRoot = path.join(EVALUATION_ROOT, "reports");
+  if (!fs.existsSync(resolved) || !fs.statSync(resolved).isDirectory()) {
+    throw new Error("Run directory phải là thư mục có thật trong evaluation/reports/.");
+  }
+  const realResolved = fs.realpathSync(resolved);
+  const realReportsRoot = fs.realpathSync(reportsRoot);
+  if (!isPathInside(realReportsRoot, realResolved)) {
+    throw new Error("Run directory phải nằm trong evaluation/reports/.");
+  }
+  return toRepoRelative(resolved);
 }
 
 function stringList(value: unknown, allowed: Set<string>, label: string): string[] {
@@ -255,12 +282,45 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.dataset = dataset;
       break;
     }
+    case "validation_loop": {
+      const dataset = datasetPath(
+        args.dataset,
+        "evaluation/datasets/v1/d1_dev_seed.jsonl",
+      );
+      const runDir = reportRunDir(args.runDir);
+      const reproSubset = optionalReproSubset(args.reproSubset);
+      argv.push(
+        "-m",
+        "evaluation.validate.loop",
+        "--run-dir",
+        runDir,
+        "--dataset",
+        dataset,
+        "--repro-subset",
+        String(reproSubset),
+      );
+      normalizedArgs.dataset = dataset;
+      normalizedArgs.runDir = runDir;
+      normalizedArgs.reproSubset = reproSubset;
+      if (args.strict === true) {
+        argv.push("--strict");
+        normalizedArgs.strict = true;
+      }
+      break;
+    }
     case "tests":
       argv.push("-m", "pytest", "evaluation/tests", "-q");
       break;
   }
 
-  if (limit !== null && commandId !== "run_all" && commandId !== "t1_normalizer" && commandId !== "tests" && commandId !== "report") {
+  if (
+    limit !== null &&
+    commandId !== "run_all" &&
+    commandId !== "t1_normalizer" &&
+    commandId !== "tests" &&
+    commandId !== "report" &&
+    commandId !== "validation_loop"
+  ) {
     argv.push("--limit", String(limit));
     normalizedArgs.limit = limit;
   }

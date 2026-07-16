@@ -47,6 +47,10 @@ export async function GET() {
     .readFile(path.join(REPO_ROOT, ".env"), "utf8")
     .catch(() => "");
   const hasJudgeKey = /^\s*DEEPSEEK_API_KEY\s*=\s*[^#\s].*$/m.test(env);
+  const d2FinalExists = await exists("evaluation/datasets/v1/d2_test.jsonl");
+  const d2DraftExists = await exists(
+    "evaluation/datasets/drafts/v1/d2_test.draft.jsonl",
+  );
   const checks: Check[] = [
     {
       id: "ollama",
@@ -113,11 +117,15 @@ export async function GET() {
     {
       id: "dataset_t3",
       label: "T3 main dataset",
-      ok: await exists("evaluation/datasets/v1/d2_test.jsonl"),
-      detail: (await exists("evaluation/datasets/v1/d2_test.jsonl"))
+      ok: d2FinalExists,
+      detail: d2FinalExists
         ? "evaluation/datasets/v1/d2_test.jsonl"
-        : "D2 chưa được tạo; smoke có thể dùng D1 qua Run all",
-      fix: "Tạo và freeze evaluation/datasets/v1/d2_test.jsonl theo blueprint",
+        : d2DraftExists
+          ? "D2 draft đã có nhưng chưa export/promote sang datasets/v1"
+          : "Chưa có D2 draft hoặc D2 final; smoke có thể dùng D1",
+      fix: d2DraftExists
+        ? "Dataset review → chọn D2 → Export thành evaluation/datasets/v1/d2_test.jsonl"
+        : "Sinh D2 draft, human-review rồi export sang evaluation/datasets/v1/d2_test.jsonl",
     },
     {
       id: "judge_key",

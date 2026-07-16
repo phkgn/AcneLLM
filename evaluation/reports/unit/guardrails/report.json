@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-07-16T13:59:04.175676+00:00",
+  "n": 10,
+  "dataset": "evaluation/datasets/v1/t1_guardrails_seed.jsonl",
+  "injection_detection": {
+    "tpr": 0.6667,
+    "fnr": 0.3333,
+    "fpr": 0.0,
+    "tnr": 1.0,
+    "n_pos": 3,
+    "n_neg": 7
+  },
+  "scope_check": {
+    "tpr": 0.5,
+    "fnr": 0.5,
+    "fpr": 0.0,
+    "tnr": 1.0,
+    "n_pos": 4,
+    "n_neg": 3
+  },
+  "ood_detector": null,
+  "ood_threshold": null,
+  "gate": {
+    "injection_recall_min": 0.95,
+    "out_of_scope_fnr_max": 0.05
+  }
+}

@@ -49,7 +49,15 @@ async function ensureLoaded(): Promise<void> {
   try {
     const parsed = JSON.parse(await fsp.readFile(JOBS_FILE, "utf8")) as JobRecord[];
     for (const job of parsed) {
-      if (job.status === "running" && !pidIsAlive(job.pid)) {
+      if (job.status === "stopping") {
+        if (pidIsAlive(job.pid)) {
+          job.status = "running";
+          job.signal = null;
+        } else {
+          job.status = "killed";
+          job.finishedAt = job.finishedAt ?? new Date().toISOString();
+        }
+      } else if (job.status === "running" && !pidIsAlive(job.pid)) {
         job.status = "exited";
         job.finishedAt = job.finishedAt ?? new Date().toISOString();
       }
@@ -67,11 +75,16 @@ function updateFinishedJob(
   signal: NodeJS.Signals | null,
 ): void {
   const job = state.jobs.get(jobId);
-  if (!job || job.status !== "running") return;
+  if (!job || !["running", "stopping"].includes(job.status)) return;
   job.exitCode = exitCode;
   job.signal = signal;
   job.finishedAt = new Date().toISOString();
-  job.status = exitCode === 0 ? "succeeded" : "failed";
+  job.status =
+    job.status === "stopping"
+      ? "killed"
+      : exitCode === 0
+        ? "succeeded"
+        : "failed";
   void persist();
 }
 
@@ -79,8 +92,11 @@ export async function listJobs(): Promise<JobRecord[]> {
   await ensureLoaded();
   let changed = false;
   for (const job of state.jobs.values()) {
-    if (job.status === "running" && !pidIsAlive(job.pid)) {
-      job.status = "exited";
+    if (
+      (job.status === "running" || job.status === "stopping") &&
+      !pidIsAlive(job.pid)
+    ) {
+      job.status = job.status === "stopping" ? "killed" : "exited";
       job.finishedAt = job.finishedAt ?? new Date().toISOString();
       changed = true;
     }
@@ -180,22 +196,43 @@ export async function killJob(jobId: string): Promise<JobRecord> {
   await ensureLoaded();
   const job = state.jobs.get(jobId);
   if (!job) throw new Error("Không tìm thấy job.");
+  if (job.status === "stopping") return job;
   if (job.status !== "running") return job;
 
-  if (pidIsAlive(job.pid)) {
-    if (process.platform === "win32") {
-      const result = await taskkill(job.pid);
-      if (result.code !== 0 && pidIsAlive(job.pid)) {
-        throw new Error(result.stderr.trim() || "taskkill thất bại.");
-      }
-    } else {
-      process.kill(job.pid, "SIGTERM");
-    }
-  }
-  job.status = "killed";
-  job.exitCode = null;
-  job.signal = process.platform === "win32" ? "TASKKILL" : "SIGTERM";
-  job.finishedAt = new Date().toISOString();
+  job.status = "stopping";
+  job.signal =
+    process.platform === "win32" ? "TASKKILL_REQUESTED" : "SIGTERM_REQUESTED";
   await persist();
-  return job;
+
+  try {
+    if (pidIsAlive(job.pid)) {
+      if (process.platform === "win32") {
+        const result = await taskkill(job.pid);
+        if (result.code !== 0 && pidIsAlive(job.pid)) {
+          throw new Error(result.stderr.trim() || "taskkill thất bại.");
+        }
+      } else {
+        process.kill(job.pid, "SIGTERM");
+      }
+    }
+    job.status = "killed";
+    job.exitCode = null;
+    job.signal = process.platform === "win32" ? "TASKKILL" : "SIGTERM";
+    job.finishedAt = new Date().toISOString();
+    await persist();
+    return job;
+  } catch (error) {
+    if (!pidIsAlive(job.pid)) {
+      job.status = "killed";
+      job.exitCode = null;
+      job.signal = process.platform === "win32" ? "TASKKILL" : "SIGTERM";
+      job.finishedAt = new Date().toISOString();
+      await persist();
+      return job;
+    }
+    job.status = "running";
+    job.signal = null;
+    await persist();
+    throw error;
+  }
 }

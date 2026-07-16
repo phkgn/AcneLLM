@@ -94,7 +94,7 @@ export function DashboardClient() {
 
   useEffect(() => {
     void refresh();
-    const poll = setInterval(() => void refresh(), 3000);
+    const poll = setInterval(() => void refresh(), 1500);
     const clock = setInterval(() => tick((value) => value + 1), 1000);
     return () => {
       clearInterval(poll);
@@ -129,15 +129,43 @@ export function DashboardClient() {
 
   async function kill(jobId: string) {
     setBusy(jobId);
+    setError("");
+    setJobs((current) =>
+      current.map((job) =>
+        job.jobId === jobId
+          ? {
+              ...job,
+              status: "stopping",
+              signal: "KILL_REQUESTED",
+            }
+          : job,
+      ),
+    );
     try {
-      await fetch(`/api/jobs/${jobId}/kill`, { method: "POST" });
+      const response = await fetch(`/api/jobs/${jobId}/kill`, {
+        method: "POST",
+      });
+      const body = (await response.json()) as {
+        job?: JobRecord;
+        error?: string;
+      };
+      if (!response.ok || !body.job) {
+        throw new Error(body.error ?? "Không thể dừng job.");
+      }
+      setJobs((current) =>
+        current.map((job) => (job.jobId === jobId ? body.job! : job)),
+      );
+    } catch (killError) {
+      setError((killError as Error).message);
       await refresh();
     } finally {
       setBusy(null);
     }
   }
 
-  const runningJobs = jobs.filter((job) => job.status === "running");
+  const runningJobs = jobs.filter((job) =>
+    ["running", "stopping"].includes(job.status),
+  );
   const failedChecks = status?.checks.filter((check) => !check.ok) ?? [];
 
   return (
@@ -199,7 +227,7 @@ export function DashboardClient() {
                   </p>
                 </div>
                 {!check.ok ? (
-                  <code className="max-w-md self-center overflow-x-auto rounded-lg bg-ink px-2.5 py-1.5 text-[10px] text-lime">
+                  <code className="max-w-md self-center overflow-x-auto rounded-lg bg-deep px-2.5 py-1.5 text-[10px] text-[#ef9a7d]">
                     {check.fix}
                   </code>
                 ) : null}
@@ -281,22 +309,30 @@ export function DashboardClient() {
                         {elapsed(job.startedAt)} · PID {job.pid}
                       </p>
                     </div>
-                    <span className="mt-1 h-2.5 w-2.5 shrink-0 animate-pulse-soft rounded-full bg-moss" />
+                    <span
+                      className={`mt-1 h-2.5 w-2.5 shrink-0 animate-pulse-soft rounded-full ${
+                        job.status === "stopping" ? "bg-[#d8a34f]" : "bg-moss"
+                      }`}
+                    />
                   </div>
                   <div className="mt-3 flex gap-2">
                     <Link
                       href={`/runs?job=${job.jobId}`}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-ink px-3 py-2 text-xs font-black text-white"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-deep px-3 py-2 text-xs font-black text-ink ring-1 ring-line"
                     >
                       Xem log <ArrowRight size={14} />
                     </Link>
                     <button
                       onClick={() => void kill(job.jobId)}
-                      disabled={busy === job.jobId}
+                      disabled={busy === job.jobId || job.status === "stopping"}
                       className="grid h-9 w-9 place-items-center rounded-xl bg-ember/10 text-ember hover:bg-ember hover:text-white disabled:opacity-50"
                       aria-label={`Kill ${job.commandId}`}
                     >
-                      <CircleStop size={16} />
+                      {job.status === "stopping" ? (
+                        <RefreshCw className="animate-spin" size={16} />
+                      ) : (
+                        <CircleStop size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -407,12 +443,12 @@ export function DashboardClient() {
               />
             </div>
           )}
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-3 text-xs font-bold text-ink/55">
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-[#211f1b] px-3 py-3 text-xs font-bold text-ink/55">
             <Database size={15} />
             Judge cache: {formatBytes(overview?.judgeCacheBytes ?? 0)}
           </div>
           {failedChecks.length ? (
-            <div className="mt-3 flex gap-2 rounded-xl bg-amber-50 px-3 py-3 text-xs leading-5 text-amber-800">
+            <div className="mt-3 flex gap-2 rounded-xl bg-[#332719] px-3 py-3 text-xs leading-5 text-[#e8b96d]">
               <AlertTriangle className="mt-0.5 shrink-0" size={15} />
               Full run hiện sẽ dừng ở preflight nếu các dependency bắt buộc chưa được
               xử lý.

@@ -1,0 +1,19 @@
+# Main experiment: 2x2 factorial (Finetune × RAG) + extractive floor, tier T3 (batch/JSON)
+name: main_2x2_t3
+tier: t3                      # t3 = batch pipeline (JSON AdviseOutput) | t4 = SSE API e2e
+dataset: evaluation/datasets/v1/d2_test.jsonl
+systems:
+  - evaluation/configs/systems/s0.yaml
+  - evaluation/configs/systems/s1.yaml
+  - evaluation/configs/systems/s2.yaml
+  - evaluation/configs/systems/s3.yaml
+  - evaluation/configs/systems/s4.yaml
+# Pre-registered comparisons (§9 blueprint) — Holm-Bonferroni áp trong nhóm này
+comparisons:
+  - [s0, s1]   # tác dụng finetune (không RAG)
+  - [s0, s2]   # tác dụng RAG (base)
+  - [s1, s3]   # tác dụng RAG trên nền finetune
+  - [s2, s3]   # tác dụng finetune trên nền RAG
+seed: 42
+max_retries: 1
+request_timeout_s: 180

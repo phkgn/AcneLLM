@@ -8,10 +8,12 @@ export type CommandId =
   | "t3_generation"
   | "judge"
   | "report"
+  | "validation_loop"
   | "tests";
 
 export type JobStatus =
   | "running"
+  | "stopping"
   | "succeeded"
   | "failed"
   | "killed"

@@ -1,0 +1,10 @@
+{"sample_id": "d1-0004", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0002", "pair": ["s2", "s3"], "forward": "A", "backward": "A", "verdict": "tie"}
+{"sample_id": "d1-0008", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0006", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0005", "pair": ["s2", "s3"], "forward": "B", "backward": "tie", "verdict": "tie"}
+{"sample_id": "d1-0003", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0001", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0000", "pair": ["s2", "s3"], "forward": "B", "backward": "tie", "verdict": "tie"}
+{"sample_id": "d1-0007", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}
+{"sample_id": "d1-0009", "pair": ["s2", "s3"], "forward": "B", "backward": "A", "verdict": "B"}

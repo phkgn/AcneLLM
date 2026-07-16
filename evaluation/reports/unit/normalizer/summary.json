@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-07-16T13:58:43.658017+00:00",
+  "delegated_to": "E:\\project\\AcneLLM\\scripts\\eval\\normalizer",
+  "copied": [
+    "report.json",
+    "report.md",
+    "per_sample.csv",
+    "worst_cases.jsonl"
+  ],
+  "legacy_top_level_keys": [
+    "caveats",
+    "multi_label",
+    "n_samples",
+    "scalar",
+    "testset"
+  ],
+  "extract": {}
+}

@@ -10,7 +10,7 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-[24px] border border-line bg-panel shadow-panel ${className}`}
+      className={`rounded-2xl border border-line bg-panel shadow-panel ${className}`}
       {...props}
     />
   );
@@ -21,17 +21,18 @@ export function Button({
   variant = "primary",
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "success" | "danger" | "ghost";
 }) {
   const variants = {
-    primary: "bg-ink text-white hover:bg-moss",
-    secondary: "bg-lime text-ink hover:bg-[#bdd957]",
-    danger: "bg-ember text-white hover:bg-[#923d29]",
-    ghost: "border border-line bg-panel text-ink hover:bg-canvas",
+    primary: "bg-clay text-white hover:bg-[#e18769]",
+    secondary: "bg-lime text-ink hover:bg-[#4a3028]",
+    success: "bg-[#52745a] text-white hover:bg-[#608568]",
+    danger: "bg-[#a94d3e] text-white hover:bg-[#bc5a49]",
+    ghost: "border border-line bg-panel text-ink hover:border-[#514c43] hover:bg-sand/70",
   };
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
       {...props}
     />
   );
@@ -45,15 +46,15 @@ export function Pill({
   tone?: "good" | "bad" | "warn" | "neutral" | "info";
 }) {
   const tones = {
-    good: "bg-moss/10 text-moss ring-moss/15",
-    bad: "bg-ember/10 text-ember ring-ember/15",
-    warn: "bg-amber-100 text-amber-800 ring-amber-200",
-    neutral: "bg-ink/5 text-ink/60 ring-ink/10",
-    info: "bg-blue-50 text-blue-700 ring-blue-100",
+    good: "bg-[#1e2b22] text-[#8fbc98] ring-[#304536]",
+    bad: "bg-[#321e1a] text-[#ef8e78] ring-[#523029]",
+    warn: "bg-[#332719] text-[#e8b96d] ring-[#514027]",
+    neutral: "bg-sand text-ink/65 ring-line",
+    info: "bg-[#1d2b31] text-[#83b8cf] ring-[#2d424b]",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.08em] ring-1 ring-inset ${tones[tone]}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-[0.01em] ring-1 ring-inset ${tones[tone]}`}
     >
       {children}
     </span>
@@ -72,15 +73,15 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-7 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+    <div className="mb-7 flex flex-col justify-between gap-5 border-b border-line/80 pb-6 lg:flex-row lg:items-end">
       <div className="max-w-3xl">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-moss">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-clay">
           {eyebrow}
         </p>
-        <h1 className="text-3xl font-black tracking-[-0.04em] sm:text-4xl">
+        <h1 className="font-display text-4xl font-normal leading-[1.08] tracking-[-0.035em] sm:text-[46px]">
           {title}
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/58">
+        <p className="mt-3 max-w-2xl text-[15px] leading-6 text-muted">
           {description}
         </p>
       </div>
@@ -97,9 +98,9 @@ export function EmptyState({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-canvas/50 px-6 py-10 text-center">
-      <p className="font-black">{title}</p>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-ink/50">
+    <div className="rounded-xl border border-dashed border-line bg-sand/35 px-6 py-10 text-center">
+      <p className="font-display text-xl">{title}</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted">
         {description}
       </p>
     </div>
@@ -107,7 +108,7 @@ export function EmptyState({
 }
 
 export const inputClass =
-  "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm font-semibold text-ink shadow-sm outline-none transition placeholder:text-ink/30 focus:border-moss focus:ring-4 focus:ring-moss/10";
+  "w-full rounded-[10px] border border-line bg-[#211f1b] px-3 py-2.5 text-sm font-normal text-ink shadow-sm outline-none transition placeholder:text-muted/55 hover:border-[#514c43] focus:border-clay focus:ring-4 focus:ring-clay/15";
 
 export function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined || !Number.isFinite(ms)) return "—";

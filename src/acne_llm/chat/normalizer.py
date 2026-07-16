@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Literal, cast
+from typing import Literal, cast
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 from .preprocess import prepare_user_text, strip_accents
@@ -1171,6 +1171,31 @@ def _extract_sex(text: str) -> _Sex | None:
     return None
 
 
+# ── Phủ định / ngừng dùng — dùng chung cho product + canonical ingredient ──
+# CHỈ nhận cue sát term (0-2 từ) để "không dùng X nữa" bị loại, còn
+# "không bị kích ứng khi dùng X" (đang dùng, không phủ định) vẫn giữ.
+_DISCONTINUE_CUE = (
+    r"(?:không|khong|ko|chẳng|chang|chả|chưa|chua|ngưng|ngung|ngừng|"
+    r"dừng|đừng|bỏ|bo|hết|het|thôi|thoi|tránh|tranh|stop|quit|no\s+longer)"
+)
+
+
+def _discontinued_before(before: str) -> bool:
+    """True nếu ~30 ký tự cuối của `before` có cue phủ định/ngừng dùng sát term."""
+    tail = before[-30:]
+    return re.search(
+        _DISCONTINUE_CUE + r"\s+(?:\w+\s+){0,2}$", tail, re.IGNORECASE
+    ) is not None
+
+
+def _positive_mention(pattern: str, text: str) -> bool:
+    """True nếu có ít nhất một occurrence của pattern KHÔNG bị phủ định/ngừng dùng."""
+    for m in re.finditer(pattern, text, re.IGNORECASE):
+        if not _discontinued_before(text[:m.start()]):
+            return True
+    return False
+
+
 def _has_product_use_context(lowered: str, term: str) -> bool:
     """Check if a product term appears in usage context (not just mentioned).
 
@@ -1182,6 +1207,10 @@ def _has_product_use_context(lowered: str, term: str) -> bool:
         before = lowered[max(0, start - 80):start]
         after = lowered[match.end():match.end() + 40]
         window = before + term + after
+
+        # ── Phủ định / ngừng dùng: "không dùng X nữa", "ngưng/bỏ/hết X" ──
+        if _discontinued_before(before):
+            continue
 
         # ── Loại trừ: hỏi tư vấn, nghe nói, muốn biết ──
         # "hỏi về X", "muốn biết về X", "X có tốt không"
@@ -1203,7 +1232,7 @@ def _has_product_use_context(lowered: str, term: str) -> bool:
         if _has(r"\b(?:đang|dang|đã|da|mới|moi|vừa|vua|từng|tung|hiện\s*tại|hien\s*tai)\b", before):
             return True
         # "dùng X", "bôi X", "thoa X", "xài X" - verb trước
-        if _has(r"\b(?:dùng|dung|bôi|boi|thoa|xài|xai|sử\s*dụng|su\s*dung|apply|đã\s*apply)\b", before):
+        if _has(r"\b(?:dùng|dung|bôi|boi|thoa|xài|xai|sử\s*dụng|su\s*dung|apply|đã\s*apply|chuyển\s*sang|chuyen\s*sang|đổi\s*sang|doi\s*sang)\b", before):
             return True
         # verb sau: "X dùng rồi", "X bôi sáng tối"
         if _has(r"\b(?:dùng|rồi|roi|thoa|bôi|apply)\b", after):
@@ -1319,20 +1348,30 @@ def _extract_canonical_ingredients(
     clean_text_no_accent: str,
 ) -> list[str]:
     canonical: list[str] = []
-    joined_terms = " ".join(products + medications).lower()
-    searchable = f"{joined_terms} {clean_text.lower()} {clean_text_no_accent.lower()}"
+    prod_med = " ".join(products + medications).lower()
 
-    if _has(r"(?<!\w)(?:bha|salicylic(?:\s+acid)?|acid\s+salicylic)(?!\w)", searchable):
+    def _in_use(text_pat: str, prod_med_pat: str) -> bool:
+        # Đã xác nhận qua products/medications (đã lọc usage) → chắc chắn đang dùng.
+        if _has(prod_med_pat, prod_med):
+            return True
+        # Hoặc được nhắc trong text mà KHÔNG bị phủ định/ngừng dùng.
+        return (
+            _positive_mention(text_pat, clean_text)
+            or _positive_mention(text_pat, clean_text_no_accent)
+        )
+
+    bha = r"(?<!\w)(?:bha|salicylic(?:\s+acid)?|acid\s+salicylic)(?!\w)"
+    aha = r"(?<!\w)(?:aha|glycolic(?:\s+acid)?|acid\s+glycolic)(?!\w)"
+    tret = r"(?<!\w)(?:vitamin\s+a\s+acid|tretinoin|retin-a)(?!\w)"
+
+    if _in_use(bha, r"(?<!\w)(?:bha|salicylic|acid\s+salicylic)(?!\w)"):
         canonical.append("salicylic_acid")
-    if _has(r"(?<!\w)(?:aha|glycolic(?:\s+acid)?|acid\s+glycolic)(?!\w)", searchable):
+    if _in_use(aha, r"(?<!\w)(?:aha|glycolic|acid\s+glycolic)(?!\w)"):
         canonical.append("glycolic_acid")
 
     # Conservative VA handling: uppercase VA is accepted; lowercase "va" is not,
     # because no-accent "và" also becomes "va".
-    if (
-        re.search(r"(?<!\w)VA(?!\w)", clean_text)
-        or _has(r"(?<!\w)(?:vitamin\s+a\s+acid|tretinoin|retin-a)(?!\w)", searchable)
-    ):
+    if re.search(r"(?<!\w)VA(?!\w)", clean_text) or _in_use(tret, tret):
         canonical.append("tretinoin")
 
     return _dedupe(canonical)
@@ -1856,7 +1895,7 @@ def normalize_chat_message(
     if acne_resolved:
         lesion_types = cast(
             list[_LesionType],
-            [l for l in lesion_types if l not in _ACTIVE_INFLAMMATORY_LESIONS],
+            [lt for lt in lesion_types if lt not in _ACTIVE_INFLAMMATORY_LESIONS],
         )
 
     inflammation = _strongest_inflammation(

@@ -38,6 +38,21 @@ type ResultsResponse = {
   runMeta: JsonRecord | null;
   units: Record<string, JsonRecord | null>;
   retrieval: { name: string; summary: JsonRecord } | null;
+  validation: {
+    name: string;
+    path: string;
+    modifiedAt: string;
+    summary: {
+      verdict?: "TRUSTWORTHY" | "PARTIAL" | "NOT_TRUSTWORTHY";
+      conflicts_n?: number;
+      per_check?: Array<{
+        name?: string;
+        status?: "PASS" | "FAIL" | "WARN" | "SKIPPED";
+      }>;
+      confidence_notes?: string[];
+      tier_verdicts?: Record<string, { verdict?: string; reason?: string }>;
+    };
+  } | null;
   gates: {
     checks: Array<{
       section: string;
@@ -178,6 +193,65 @@ export function ResultsClient() {
         </div>
       ) : null}
 
+      {data?.validation ? (
+        <Card className="mb-5 p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
+                Validation loop
+              </p>
+              <h2 className="mt-1 text-xl font-black">
+                {data.validation.summary.verdict ?? "UNKNOWN"}
+              </h2>
+              <p className="mt-1 font-mono text-[11px] text-ink/42">
+                {data.validation.path}
+              </p>
+            </div>
+            <Pill
+              tone={
+                data.validation.summary.verdict === "TRUSTWORTHY"
+                  ? "good"
+                  : data.validation.summary.verdict === "NOT_TRUSTWORTHY"
+                    ? "bad"
+                    : "warn"
+              }
+            >
+              {data.validation.summary.conflicts_n ?? 0} conflicts
+            </Pill>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {(data.validation.summary.per_check ?? []).map((check) => (
+              <div
+                key={check.name}
+                className="flex items-center justify-between gap-3 rounded-xl border border-line bg-canvas/45 px-3 py-2.5"
+              >
+                <span className="min-w-0 truncate text-xs font-black">
+                  {check.name}
+                </span>
+                <Pill
+                  tone={
+                    check.status === "PASS"
+                      ? "good"
+                      : check.status === "FAIL"
+                        ? "bad"
+                        : "warn"
+                  }
+                >
+                  {check.status}
+                </Pill>
+              </div>
+            ))}
+          </div>
+          {(data.validation.summary.confidence_notes ?? []).length ? (
+            <ul className="mt-4 list-disc space-y-1 pl-5 text-xs leading-5 text-ink/50">
+              {data.validation.summary.confidence_notes?.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          ) : null}
+        </Card>
+      ) : null}
+
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-6">
           <div>
@@ -277,7 +351,7 @@ export function ResultsClient() {
                       const significant = correction.significant === true;
                       const wtl = record(valueAt(comp, `${axis}.wtl_b_vs_a`));
                       return (
-                        <div key={axis} className="rounded-xl bg-white px-3 py-3">
+                        <div key={axis} className="rounded-xl bg-[#211f1b] px-3 py-3">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-xs font-black uppercase tracking-[0.1em]">
                               {axis}
@@ -322,8 +396,8 @@ export function ResultsClient() {
                   onClick={() => setParetoSystem(system)}
                   className={`rounded-lg px-2.5 py-1.5 text-xs font-black uppercase ${
                     paretoSystem === system
-                      ? "bg-ink text-white"
-                      : "border border-line bg-white text-ink/45"
+                      ? "bg-clay text-white"
+                      : "border border-line bg-[#211f1b] text-ink/45"
                   }`}
                 >
                   {system}
@@ -335,7 +409,7 @@ export function ResultsClient() {
             <div className="mt-5 h-[330px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={pareto} layout="vertical" margin={{ left: 14 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#ddd8ca" />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#37342e" />
                   <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                   <YAxis
                     type="category"
@@ -344,14 +418,16 @@ export function ResultsClient() {
                     tick={{ fontSize: 10 }}
                   />
                   <Tooltip
-                    cursor={{ fill: "rgba(205,231,108,0.12)" }}
+                    cursor={{ fill: "rgba(217,119,87,0.10)" }}
                     contentStyle={{
                       borderRadius: 12,
-                      borderColor: "#ddd8ca",
+                      borderColor: "#37342e",
+                      background: "#1c1b18",
+                      color: "#eeeae3",
                       fontSize: 12,
                     }}
                   />
-                  <Bar dataKey="count" fill="#b34f35" radius={[0, 8, 8, 0]} />
+                  <Bar dataKey="count" fill="#d97757" radius={[0, 8, 8, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -526,7 +602,7 @@ function UnitSummary({
       {headline.length ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
           {headline.map(([metric, value]) => (
-            <div key={metric} className="rounded-xl bg-white px-3 py-2">
+            <div key={metric} className="rounded-xl bg-[#211f1b] px-3 py-2">
               <p className="truncate text-[10px] font-black uppercase tracking-[0.08em] text-ink/40">
                 {metric}
               </p>

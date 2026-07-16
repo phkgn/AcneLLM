@@ -8,16 +8,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#18201d",
-        canvas: "#f4f1e9",
-        panel: "#fffdf7",
-        line: "#ddd8ca",
-        moss: "#28624a",
-        lime: "#cde76c",
-        ember: "#b34f35",
+        ink: "#eeeae3",
+        canvas: "#141310",
+        panel: "#1c1b18",
+        line: "#37342e",
+        moss: "#78a681",
+        lime: "#3b2822",
+        ember: "#e27760",
+        clay: "#d97757",
+        sand: "#25231f",
+        muted: "#a8a198",
+        deep: "#0f0f0d",
       },
       boxShadow: {
-        panel: "0 18px 60px rgba(24, 32, 29, 0.08)",
+        panel:
+          "0 1px 1px rgba(0, 0, 0, 0.35), 0 16px 42px rgba(0, 0, 0, 0.18)",
       },
     },
   },

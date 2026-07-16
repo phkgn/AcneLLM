@@ -1,0 +1,3004 @@
+{
+  "generated_at": "2026-07-16T16:01:40.693093+00:00",
+  "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3",
+  "dataset": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+  "output_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z",
+  "verdict": "NOT_TRUSTWORTHY",
+  "per_check": [
+    {
+      "name": "load_config",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Run config, system configs, dataset and artifacts loaded.",
+          "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3",
+          "dataset": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "systems": [
+            "s0",
+            "s1",
+            "s2",
+            "s3",
+            "s4"
+          ],
+          "n_dataset": 100
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "dataset_validity",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Target dataset is not frozen: MANIFEST.json is missing.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\MANIFEST.json"
+        },
+        {
+          "message": "Duplicate or contradictory labels found.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "duplicates": [
+            {
+              "query": "mun viem o cam nguyen nhan la gi",
+              "case_ids": [
+                "d1-0000",
+                "d1-0020"
+              ]
+            },
+            {
+              "query": "benzoyl peroxide co dung đuoc cho da nhay cam khong",
+              "case_ids": [
+                "d1-0001",
+                "d1-0021"
+              ]
+            },
+            {
+              "query": "isotretinoin co an toan khi mang thai",
+              "case_ids": [
+                "d1-0002",
+                "d1-0022"
+              ]
+            },
+            {
+              "query": "cach cham soc da mun tuoi day thi",
+              "case_ids": [
+                "d1-0003",
+                "d1-0023"
+              ]
+            },
+            {
+              "query": "mun trung ca nang co đe lai seo khong",
+              "case_ids": [
+                "d1-0004",
+                "d1-0024"
+              ]
+            },
+            {
+              "query": "salicylic acid nong đo bao nhieu la phu hop",
+              "case_ids": [
+                "d1-0005",
+                "d1-0025"
+              ]
+            },
+            {
+              "query": "phan biet mun đau đen va mun đau trang",
+              "case_ids": [
+                "d1-0006",
+                "d1-0026"
+              ]
+            },
+            {
+              "query": "mun noi tiet o phu nu 30 tuoi xu ly the nao",
+              "case_ids": [
+                "d1-0007",
+                "d1-0027"
+              ]
+            },
+            {
+              "query": "co nen nan mun tai nha khong",
+              "case_ids": [
+                "d1-0008",
+                "d1-0028"
+              ]
+            },
+            {
+              "query": "retinol va retinoid khac nhau the nao",
+              "case_ids": [
+                "d1-0009",
+                "d1-0029"
+              ]
+            },
+            {
+              "query": "mun mu o ma cach đieu tri",
+              "case_ids": [
+                "d1-0010",
+                "d1-0030"
+              ]
+            },
+            {
+              "query": "niacinamide giup gi cho da mun",
+              "case_ids": [
+                "d1-0011",
+                "d1-0031"
+              ]
+            },
+            {
+              "query": "toi đang cho con bu dung tretinoin đuoc khong",
+              "case_ids": [
+                "d1-0012",
+                "d1-0032"
+              ]
+            },
+            {
+              "query": "mun boc viem o mat trong suot nhieu thang",
+              "case_ids": [
+                "d1-0013",
+                "d1-0033"
+              ]
+            },
+            {
+              "query": "thuoc uong đieu tri mun la gi",
+              "case_ids": [
+                "d1-0014",
+                "d1-0034"
+              ]
+            },
+            {
+              "query": "tai sao da nhon de bi mun hon da kho",
+              "case_ids": [
+                "d1-0015",
+                "d1-0035"
+              ]
+            },
+            {
+              "query": "azelaic acid co tac dung gi",
+              "case_ids": [
+                "d1-0016",
+                "d1-0036"
+              ]
+            },
+            {
+              "query": "lam sao giam tham sau mun",
+              "case_ids": [
+                "d1-0017",
+                "d1-0037"
+              ]
+            },
+            {
+              "query": "kem chong nang cho da mun chon loai nao",
+              "case_ids": [
+                "d1-0018",
+                "d1-0038"
+              ]
+            },
+            {
+              "query": "che đo an uong anh huong the nao toi mun",
+              "case_ids": [
+                "d1-0019",
+                "d1-0039"
+              ]
+            }
+          ],
+          "contradictions": []
+        },
+        {
+          "message": "Target dataset SHA-256 is not pinned by MANIFEST.json.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "sha256": "9a832f4bd918a4aed64b87f9fc4b7b3aebbd08c47bbebe12c58e5ca57ef17b95"
+        },
+        {
+          "message": "Duplicate or contradictory labels found.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+          "duplicates": [
+            {
+              "query": "mun viem o cam nguyen nhan la gi",
+              "case_ids": [
+                "d8-0000",
+                "d8-0020"
+              ]
+            },
+            {
+              "query": "benzoyl peroxide co dung đuoc cho da nhay cam khong",
+              "case_ids": [
+                "d8-0001",
+                "d8-0021"
+              ]
+            },
+            {
+              "query": "isotretinoin co an toan khi mang thai",
+              "case_ids": [
+                "d8-0002",
+                "d8-0022"
+              ]
+            },
+            {
+              "query": "cach cham soc da mun tuoi day thi",
+              "case_ids": [
+                "d8-0003",
+                "d8-0023"
+              ]
+            },
+            {
+              "query": "mun trung ca nang co đe lai seo khong",
+              "case_ids": [
+                "d8-0004",
+                "d8-0024"
+              ]
+            },
+            {
+              "query": "salicylic acid nong đo bao nhieu la phu hop",
+              "case_ids": [
+                "d8-0005",
+                "d8-0025"
+              ]
+            },
+            {
+              "query": "phan biet mun đau đen va mun đau trang",
+              "case_ids": [
+                "d8-0006",
+                "d8-0026"
+              ]
+            },
+            {
+              "query": "mun noi tiet o phu nu 30 tuoi xu ly the nao",
+              "case_ids": [
+                "d8-0007",
+                "d8-0027"
+              ]
+            },
+            {
+              "query": "co nen nan mun tai nha khong",
+              "case_ids": [
+                "d8-0008",
+                "d8-0028"
+              ]
+            },
+            {
+              "query": "retinol va retinoid khac nhau the nao",
+              "case_ids": [
+                "d8-0009",
+                "d8-0029"
+              ]
+            },
+            {
+              "query": "mun mu o ma cach đieu tri",
+              "case_ids": [
+                "d8-0010",
+                "d8-0030"
+              ]
+            },
+            {
+              "query": "niacinamide giup gi cho da mun",
+              "case_ids": [
+                "d8-0011",
+                "d8-0031"
+              ]
+            },
+            {
+              "query": "toi đang cho con bu dung tretinoin đuoc khong",
+              "case_ids": [
+                "d8-0012",
+                "d8-0032"
+              ]
+            },
+            {
+              "query": "mun boc viem o mat trong suot nhieu thang",
+              "case_ids": [
+                "d8-0013",
+                "d8-0033"
+              ]
+            },
+            {
+              "query": "thuoc uong đieu tri mun la gi",
+              "case_ids": [
+                "d8-0014",
+                "d8-0034"
+              ]
+            },
+            {
+              "query": "tai sao da nhon de bi mun hon da kho",
+              "case_ids": [
+                "d8-0015",
+                "d8-0035"
+              ]
+            },
+            {
+              "query": "azelaic acid co tac dung gi",
+              "case_ids": [
+                "d8-0016",
+                "d8-0036"
+              ]
+            },
+            {
+              "query": "lam sao giam tham sau mun",
+              "case_ids": [
+                "d8-0017",
+                "d8-0037"
+              ]
+            },
+            {
+              "query": "kem chong nang cho da mun chon loai nao",
+              "case_ids": [
+                "d8-0018",
+                "d8-0038"
+              ]
+            },
+            {
+              "query": "che đo an uong anh huong the nao toi mun",
+              "case_ids": [
+                "d8-0019",
+                "d8-0039"
+              ]
+            }
+          ],
+          "contradictions": []
+        },
+        {
+          "message": "Target queries appear verbatim in other evaluation splits.",
+          "cases": [
+            {
+              "query": "mun viem o cam nguyen nhan la gi",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0000",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0020",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0000",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0020",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "benzoyl peroxide co dung đuoc cho da nhay cam khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0001",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0021",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0001",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0021",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "isotretinoin co an toan khi mang thai",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0002",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0022",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0002",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0022",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "cach cham soc da mun tuoi day thi",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0003",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0023",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0003",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0023",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun trung ca nang co đe lai seo khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0004",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0024",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0004",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0024",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "salicylic acid nong đo bao nhieu la phu hop",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0005",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0025",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0005",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0025",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "phan biet mun đau đen va mun đau trang",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0006",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0026",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0006",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0026",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun noi tiet o phu nu 30 tuoi xu ly the nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0007",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0027",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0007",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0027",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "co nen nan mun tai nha khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0008",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0028",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0008",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0028",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "retinol va retinoid khac nhau the nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0009",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0029",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0009",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0029",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun mu o ma cach đieu tri",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0010",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0030",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0010",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0030",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "niacinamide giup gi cho da mun",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0011",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0031",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0011",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0031",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "toi đang cho con bu dung tretinoin đuoc khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0012",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0032",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0012",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0032",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun boc viem o mat trong suot nhieu thang",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0013",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0033",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0013",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0033",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "thuoc uong đieu tri mun la gi",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0014",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0034",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0014",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0034",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "tai sao da nhon de bi mun hon da kho",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0015",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0035",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0015",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0035",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "azelaic acid co tac dung gi",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0016",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0036",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0016",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0036",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "lam sao giam tham sau mun",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0017",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0037",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0017",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0037",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "kem chong nang cho da mun chon loai nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0018",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0038",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0018",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0038",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "che đo an uong anh huong the nao toi mun",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0019",
+                  null
+                ],
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0039",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0019",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0039",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o tran va long may do đau",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0040",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0040",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "doxycycline giup tri mun nhu the nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0041",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0041",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o quanh mieng va cam o phu nu tuoi 35",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0042",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0042",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "co the dung cac san pham mun khac nhau cung luc khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0043",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0043",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun trung ca o lung cach khac phuc",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0044",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0044",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "spironolactone co hieu qua voi mun noi tiet khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0045",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0045",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun xuat hien sau khi dung my pham moi phai lam sao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0046",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0046",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "aha bha co phu hop cho da nhay cam khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0047",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0047",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "tay da chet co lam mun tro nen toi te hon",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0048",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0048",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o mui va quanh mui nguyen nhan va cach tri",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0049",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0049",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "minocycline dung đuoc bao lau đe đieu tri mun",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0050",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0050",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o tai va co nguyen nhan gay ra",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0051",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0051",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "vitamin c serum co giup mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0052",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0052",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun nang tu thang thu 2 cua ky kinh nguyem nhu the nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0053",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0053",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "co the dung mat ong đe chua mun",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0054",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0054",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun mu nho lan rong tren da phai xu ly cap tap",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0055",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0055",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "dung kem duong am co gay mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0056",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0056",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "kem tri mun co chua sulfur co hieu qua",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0057",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0057",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o nguoi lon tuoi 40 nguyen nhan va cach cham soc",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0058",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0058",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "zinc co giup giam mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0059",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0059",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun sau khi wax cao long phai lam sao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0060",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0060",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "led light therapy co hieu qua voi mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0061",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0061",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "tretinoin bat đau tu nong đo nao la an toan",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0062",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0062",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun o nguoi nam tuoi 50 nguyen nhan tai sao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0063",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0063",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "nen su dung kem tri mun buoi sang hay buoi toi",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0064",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0064",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun do stress đieu gi xay ra trong co the",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0065",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0065",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "sulfamethoxazole trimethoprim co tac dung voi mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0066",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0066",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "seo mun tham co lay laser đuoc khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0067",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0067",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "mun do kem chong nang chon loai nao",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0068",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0068",
+                  null
+                ]
+              ]
+            },
+            {
+              "query": "tam tay kho da co cai thien mun khong",
+              "locations": [
+                [
+                  "d1_dev_seed.jsonl",
+                  "d1-0069",
+                  null
+                ],
+                [
+                  "d8_qrels_seed.jsonl",
+                  "d8-0069",
+                  null
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "message": "Target dataset overlaps finetune train data.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "cases": [
+            {
+              "case_id": "d1-0003",
+              "overlap": 1.0
+            },
+            {
+              "case_id": "d1-0023",
+              "overlap": 1.0
+            }
+          ],
+          "n": 2
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "annotation_status": {
+            "draft": 100
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+          "annotation_status": {
+            "needs_relabel": 100
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+          "annotation_status": {
+            "draft": 20
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+          "annotation_status": {
+            "draft": 24
+          }
+        },
+        {
+          "message": "Dataset cases require targeted human review.",
+          "n": 40,
+          "cases": [
+            {
+              "case_id": "d2-0019",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d2-0049",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d3-0041",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d7-0001",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0002",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0006",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0011",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0012",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0019",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0020",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0025",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0027",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0033",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0038",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0039",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0041",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0045",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0049",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0054",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0055",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0059",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0067",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0070",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0073",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0075",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0078",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0079",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0085",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0086",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0095",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0098",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0100",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0073-typo3",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0012-typo8",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0067-typo9",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0001-typo10",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0006",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0010",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0014",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1i-0010",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            }
+          ]
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "runtime_alignment",
+      "status": "WARN",
+      "evidence": [
+        {
+          "message": "T3 batch retrieval depth differs from production SSE; T3 cannot be presented as production behavior.",
+          "diff": {
+            "production": {
+              "retrieve_top_k": 6,
+              "rerank_top_k": 3,
+              "max_context_chars": 6000,
+              "require_citations": true
+            },
+            "t3_s3": {
+              "retrieve_top_k": 15,
+              "rerank_top_k": 5
+            }
+          },
+          "files": [
+            "src/acne_llm/config.py",
+            "evaluation/configs/systems/s3.yaml",
+            "evaluation/adapters/ollama_batch.py",
+            "evaluation/adapters/sse_api.py"
+          ]
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "case_parity",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Every system has the same unique sample_id set.",
+          "systems": [
+            "s0",
+            "s1",
+            "s2",
+            "s3",
+            "s4"
+          ],
+          "n_cases": 10
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "non_rag_clean",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "S0/S1 records contain no chunks or context.",
+          "n_checked": 20
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "rag_trace",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "RAG records are missing a valid retrieval trace.",
+          "cases": [
+            {
+              "case_id": "d1-0000",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0001",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0002",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0003",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0004",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0005",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0006",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0007",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0008",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0009",
+              "system": "s2",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s2.results.jsonl"
+            },
+            {
+              "case_id": "d1-0000",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0001",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0002",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0003",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0004",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0005",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0006",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0007",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0008",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            },
+            {
+              "case_id": "d1-0009",
+              "system": "s3",
+              "reason": "used chunks exist but retrieval/context trace is absent",
+              "file": "s3.results.jsonl"
+            }
+          ],
+          "n": 20
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "model_identity",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "run_meta.json does not contain model_digests captured from Ollama.",
+          "file": "run_meta.json"
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "fair_comparison",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Sampling is identical; templates differ only by RAG design; S0/S1 SYSTEM is equal.",
+          "systems": [
+            "s0",
+            "s1",
+            "s2",
+            "s3"
+          ]
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "score_domain",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Judge score domains are valid; parse failures remain excluded.",
+          "valid": 50,
+          "judge_failures": 0
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "clean_aggregate",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Report uses only ok records with valid judge payloads and exposes all buckets.",
+          "buckets": {
+            "s0": {
+              "valid": 10,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 90
+            },
+            "s1": {
+              "valid": 10,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 90
+            },
+            "s2": {
+              "valid": 10,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 90
+            },
+            "s3": {
+              "valid": 10,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 90
+            },
+            "s4": {
+              "valid": 10,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 90
+            }
+          }
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "versioning",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Dataset SHA-256 is missing or stale in run_meta.json.",
+          "expected": "9a832f4bd918a4aed64b87f9fc4b7b3aebbd08c47bbebe12c58e5ca57ef17b95",
+          "actual": null,
+          "file": "run_meta.json"
+        },
+        {
+          "message": "Dataset directory has no MANIFEST.json freeze record.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\MANIFEST.json"
+        },
+        {
+          "message": "Prompt hashes are missing or differ from current files.",
+          "file": "run_meta.json"
+        },
+        {
+          "message": "System config hashes are missing or differ from current files.",
+          "file": "run_meta.json"
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "session_isolation",
+      "status": "SKIPPED",
+      "evidence": [
+        {
+          "message": "Session isolation applies only to T4 SSE runs.",
+          "tier": "t3"
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "judge_validity",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Saved faithfulness scores are not auditable against real context.",
+          "cases": [
+            {
+              "case_id": "d1-0000",
+              "system": "s2",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s2.results.jsonl",
+                "s2.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0001",
+              "system": "s2",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s2.results.jsonl",
+                "s2.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0002",
+              "system": "s2",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s2.results.jsonl",
+                "s2.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0005",
+              "system": "s2",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s2.results.jsonl",
+                "s2.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0006",
+              "system": "s2",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s2.results.jsonl",
+                "s2.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0000",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0001",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0002",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0003",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0004",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0005",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0006",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0007",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0008",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0009",
+              "system": "s3",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s3.results.jsonl",
+                "s3.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0000",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0001",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0002",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0003",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0004",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0005",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0006",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0007",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0008",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            },
+            {
+              "case_id": "d1-0009",
+              "system": "s4",
+              "message": "Faithfulness was scored without source text in the saved trace; this artifact predates the context-trace fix.",
+              "files": [
+                "s4.results.jsonl",
+                "s4.judged.jsonl",
+                "evaluation/judges/run_judge.py"
+              ]
+            }
+          ],
+          "n": 25
+        },
+        {
+          "message": "Judge bias calibration artifact is missing.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\reports\\judge_bias_tests.json"
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "reproducibility",
+      "status": "SKIPPED",
+      "evidence": [
+        {
+          "message": "Set --repro-subset N (>0) to perform the runtime rerun.",
+          "ollama_note": "Ollama is not assumed bit-exact."
+        }
+      ],
+      "critical": false
+    }
+  ],
+  "conflicts_n": 39,
+  "human_review_queue": [
+    {
+      "case_id": "d2-0019",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d2-0049",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d3-0041",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d7-0001",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0002",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0006",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0011",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0012",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0019",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0020",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0025",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0027",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0033",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0038",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0039",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0041",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0045",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0049",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0054",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0055",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0059",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0067",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0070",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0073",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0075",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0078",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0079",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0085",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0086",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0095",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0098",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0100",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0073-typo3",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0012-typo8",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0067-typo9",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0001-typo10",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0006",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0010",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0014",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1i-0010",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s0",
+      "conflict_type": "heuristic_pass_judge_safety_fail",
+      "metrics": {
+        "heuristic_pass": true,
+        "judge_safety": 1
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s0.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s0.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "METRIC",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0000",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 281,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0000",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0000"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0001",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 292,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0001",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0001"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 167,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0003",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 139,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0003",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0003"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0004",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 220,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0004",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0004"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0005",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 84,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0005",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0005"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0006",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 106,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0006",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0006"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0007",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 157,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0007",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0007"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0008",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 140,
+        "correctness": 4.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0008",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0008"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0009",
+      "system": "s1",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.5826,
+        "n": 10,
+        "answer_length": 240,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.results.jsonl#d1-0009",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s1.judged.jsonl#d1-0009"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s2",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0008",
+      "system": "s2",
+      "conflict_type": "heuristic_pass_judge_safety_fail",
+      "metrics": {
+        "heuristic_pass": true,
+        "judge_safety": 1
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0008",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0008"
+      ],
+      "suspected_layer": "METRIC",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0000",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 115,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0000",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0000"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0001",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 157,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0001",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0001"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 220,
+        "correctness": 5.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0003",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 157,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0003",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0003"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0004",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 140,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0004",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0004"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0005",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 216,
+        "correctness": 3.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0005",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0005"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0006",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 144,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0006",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0006"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0007",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 142,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0007",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0007"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0008",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 134,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0008",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0008"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0009",
+      "system": "s2",
+      "conflict_type": "strong_length_score_correlation",
+      "metrics": {
+        "spearman_score_vs_length": 0.7801,
+        "n": 10,
+        "answer_length": 144,
+        "correctness": 1.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.results.jsonl#d1-0009",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s2.judged.jsonl#d1-0009"
+      ],
+      "suspected_layer": "JUDGE",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0001",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0001",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0001"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0005",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0005",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0005"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0006",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0006",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0006"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0007",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0007",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0007"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0008",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0008",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0008"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0009",
+      "system": "s3",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.results.jsonl#d1-0009",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s3.judged.jsonl#d1-0009"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0000",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0000",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0000"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0001",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0001",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0001"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0002",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0002",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0002"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0003",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0003",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0003"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0004",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0004",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0004"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0006",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0006",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0006"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0007",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0007",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0007"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0008",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 5,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0008",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0008"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    },
+    {
+      "case_id": "d1-0009",
+      "system": "s4",
+      "conflict_type": "high_correctness_low_faithfulness",
+      "metrics": {
+        "correctness": 4,
+        "faithfulness": 0.0
+      },
+      "trace_refs": [
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.results.jsonl#d1-0009",
+        "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3\\s4.judged.jsonl#d1-0009"
+      ],
+      "suspected_layer": "E12",
+      "needs_human": true
+    }
+  ],
+  "confidence_notes": [
+    "No T4 production-SSE result is present; T3 is diagnostic, not the final production verdict.",
+    "Run has only 10 cases per system; effect estimates are smoke-level and underpowered.",
+    "The run used D1 dev seed rather than the frozen D2 main test set.",
+    "Failed validity checks: dataset_validity, rag_trace, model_identity, versioning, judge_validity.",
+    "Unverified checks: session_isolation, reproducibility."
+  ],
+  "tier_verdicts": {
+    "T1": {
+      "verdict": "PARTIAL",
+      "reason": "Unit artifacts exist, but seed labels/gates still limit conclusions."
+    },
+    "T2": {
+      "verdict": "PARTIAL",
+      "reason": "Retrieval artifacts exist, but D8 qrels remain needs_relabel/BM25-biased."
+    },
+    "T3": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "Critical T3 artifact invariants failed."
+    },
+    "T4": {
+      "verdict": "NOT_VERIFIED",
+      "reason": "This run contains no T4 production-SSE results."
+    },
+    "judge": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "See judge_validity and judge_audit.md."
+    },
+    "data": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "See dataset_validity and dataset_audit.md."
+    }
+  },
+  "artifacts": {
+    "summary": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\summary.json",
+    "conflicts": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\conflicts.jsonl",
+    "runtime_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\runtime_vs_eval.md",
+    "dataset_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\dataset_audit.md",
+    "prompt_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\prompt_audit.md",
+    "judge_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\judge_audit.md",
+    "metric_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\metric_audit.md",
+    "reproducibility": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160058Z\\reproducibility.json"
+  }
+}
