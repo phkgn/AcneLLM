@@ -114,7 +114,7 @@ const commands: Array<{
     id: "t3_generation",
     label: "Generation S0–S4",
     tier: "T3",
-    description: "Batch experiment dài, luôn bật resume.",
+    description: "Batch experiment dài, chọn output riêng và resume khi cần.",
   },
   {
     id: "judge",
@@ -198,6 +198,10 @@ export function RunsClient() {
     "evaluation/datasets/v1/d1_dev_seed.jsonl",
   );
   const [runDir, setRunDir] = useState("evaluation/reports/main_2x2_t3");
+  const [outputDir, setOutputDir] = useState(
+    "evaluation/reports/main_2x2_t3",
+  );
+  const [resumeGeneration, setResumeGeneration] = useState(true);
   const [reproSubset, setReproSubset] = useState("0");
   const [strictValidation, setStrictValidation] = useState(false);
   const [systems, setSystems] = useState<string[]>(["s0", "s1", "s2", "s3", "s4"]);
@@ -302,8 +306,16 @@ export function RunsClient() {
         : jobArgs.smoke === true
           ? 10
           : null;
+    const progressExperiment =
+      typeof jobArgs.outDir === "string"
+        ? jobArgs.outDir
+            .replace(/\\/g, "/")
+            .split("/")
+            .filter(Boolean)
+            .at(-1) ?? "main_2x2_t3"
+        : "main_2x2_t3";
     const query = new URLSearchParams({
-      experiment: "main_2x2_t3",
+      experiment: progressExperiment,
       dataset: progressDataset,
       systems: progressSystems.join(","),
     });
@@ -425,12 +437,20 @@ export function RunsClient() {
       args.modes = modes;
       args.rawQuery = rawQuery;
     }
-    if (commandId === "t3_generation") args.systems = systems;
+    if (commandId === "t3_generation") {
+      args.systems = systems;
+      args.outDir = outputDir;
+      args.resume = resumeGeneration;
+    }
     if (commandId === "judge") {
       args.dataset = dataset;
       args.pairs = pairs;
+      args.runDir = runDir;
     }
-    if (commandId === "report") args.dataset = dataset;
+    if (commandId === "report") {
+      args.dataset = dataset;
+      args.runDir = runDir;
+    }
     if (commandId === "validation_loop") {
       args.dataset = dataset;
       args.runDir = runDir;
@@ -464,6 +484,7 @@ export function RunsClient() {
       if (!response.ok || !body.job) throw new Error(body.error ?? "Không thể tạo job.");
       setJobs((current) => [body.job!, ...current]);
       setSelectedJobId(body.job.jobId);
+      if (commandId === "t3_generation") setRunDir(outputDir);
       window.history.replaceState(null, "", `/runs?job=${body.job.jobId}`);
     } catch (submitError) {
       setError((submitError as Error).message);
@@ -569,6 +590,16 @@ export function RunsClient() {
             <p className="mt-2 text-xs leading-5 text-ink/45">
               {selectedCommand.description}
             </p>
+            <datalist id="report-run-directories">
+              {Array.from(
+                new Set(["main_2x2_t3", ...(meta.reportRuns ?? [])]),
+              ).map((name) => (
+                <option
+                  key={name}
+                  value={`evaluation/reports/${name}`}
+                />
+              ))}
+            </datalist>
 
             {![
               "run_all",
@@ -689,27 +720,61 @@ export function RunsClient() {
             ) : null}
 
             {commandId === "t3_generation" ? (
-              <fieldset className="mt-4">
-                <legend className="text-xs font-black uppercase tracking-[0.12em] text-ink/50">
-                  Systems
-                </legend>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {meta.systems.map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex items-center gap-2 text-sm font-bold"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={systems.includes(item.id)}
-                        onChange={() => toggle(item.id, systems, setSystems)}
-                        className="h-4 w-4 accent-moss"
-                      />
-                      {item.id.toUpperCase()} · {item.name}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <div className="mt-4 space-y-4">
+                <fieldset>
+                  <legend className="text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                    Systems
+                  </legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {meta.systems.map((item) => (
+                      <label
+                        key={item.id}
+                        className="flex items-center gap-2 text-sm font-bold"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={systems.includes(item.id)}
+                          onChange={() => toggle(item.id, systems, setSystems)}
+                          className="h-4 w-4 accent-moss"
+                        />
+                        {item.id.toUpperCase()} · {item.name}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <label className="block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                  Output directory
+                  <input
+                    list="report-run-directories"
+                    value={outputDir}
+                    onChange={(event) => setOutputDir(event.target.value)}
+                    className={`${inputClass} mt-2`}
+                  />
+                </label>
+                <label className="flex items-center gap-2 text-sm font-bold">
+                  <input
+                    type="checkbox"
+                    checked={resumeGeneration}
+                    onChange={(event) =>
+                      setResumeGeneration(event.target.checked)
+                    }
+                    className="h-4 w-4 accent-moss"
+                  />
+                  Resume các sample hợp lệ đã có
+                </label>
+              </div>
+            ) : null}
+
+            {["judge", "report", "validation_loop"].includes(commandId) ? (
+              <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                Run directory
+                <input
+                  list="report-run-directories"
+                  value={runDir}
+                  onChange={(event) => setRunDir(event.target.value)}
+                  className={`${inputClass} mt-2`}
+                />
+              </label>
             ) : null}
 
             {commandId === "judge" ? (
@@ -738,25 +803,6 @@ export function RunsClient() {
 
             {commandId === "validation_loop" ? (
               <div className="mt-4 space-y-4">
-                <label className="block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
-                  Run directory
-                  <select
-                    value={runDir}
-                    onChange={(event) => setRunDir(event.target.value)}
-                    className={`${inputClass} mt-2`}
-                  >
-                    {Array.from(
-                      new Set(["main_2x2_t3", ...(meta.reportRuns ?? [])]),
-                    ).map((name) => (
-                      <option
-                        key={name}
-                        value={`evaluation/reports/${name}`}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
                 <label className="block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
                   Repro subset
                   <input

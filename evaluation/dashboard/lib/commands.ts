@@ -7,6 +7,7 @@ import {
   resolveEvaluationPath,
   toRepoRelative,
 } from "./paths";
+import { t3OutputFlags } from "./command-flags";
 import type { CommandId } from "./types";
 
 const COMMAND_IDS: CommandId[] = [
@@ -88,6 +89,38 @@ function reportRunDir(value: unknown): string {
   const realReportsRoot = fs.realpathSync(reportsRoot);
   if (!isPathInside(realReportsRoot, realResolved)) {
     throw new Error("Run directory phải nằm trong evaluation/reports/.");
+  }
+  return toRepoRelative(resolved);
+}
+
+function outputRunDir(value: unknown): string {
+  const raw = value
+    ? assertCleanString(value, "Output directory")
+    : "evaluation/reports/main_2x2_t3";
+  const resolved = resolveEvaluationPath(raw);
+  const reportsRoot = path.join(EVALUATION_ROOT, "reports");
+  const relativeToReports = path.relative(reportsRoot, resolved);
+  if (
+    !relativeToReports ||
+    relativeToReports.startsWith("..") ||
+    path.isAbsolute(relativeToReports)
+  ) {
+    throw new Error("Output directory phải nằm trong evaluation/reports/.");
+  }
+  if (fs.existsSync(resolved) && !fs.statSync(resolved).isDirectory()) {
+    throw new Error("Output directory phải là một thư mục.");
+  }
+
+  let existing = resolved;
+  while (!fs.existsSync(existing)) {
+    const parent = path.dirname(existing);
+    if (parent === existing) break;
+    existing = parent;
+  }
+  const realExisting = fs.realpathSync(existing);
+  const realReportsRoot = fs.realpathSync(reportsRoot);
+  if (!isPathInside(realReportsRoot, realExisting)) {
+    throw new Error("Output directory phải nằm trong evaluation/reports/.");
   }
   return toRepoRelative(resolved);
 }
@@ -242,7 +275,11 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         argv.push("--systems", systems.join(","));
         normalizedArgs.systems = systems;
       }
-      argv.push("--resume");
+      const outDir = outputRunDir(args.outDir);
+      const resume = args.resume !== false;
+      argv.push(...t3OutputFlags(outDir, resume));
+      normalizedArgs.outDir = outDir;
+      normalizedArgs.resume = resume;
       break;
     }
     case "judge": {
@@ -250,15 +287,17 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         args.dataset,
         "evaluation/datasets/v1/d1_dev_seed.jsonl",
       );
+      const runDir = reportRunDir(args.runDir);
       argv.push(
         "-m",
         "evaluation.judges.run_judge",
         "--run-dir",
-        "evaluation/reports/main_2x2_t3",
+        runDir,
         "--dataset",
         dataset,
       );
       normalizedArgs.dataset = dataset;
+      normalizedArgs.runDir = runDir;
       const pairs = pairList(args.pairs);
       if (pairs.length) {
         argv.push("--pairs", pairs.join(","));
@@ -271,15 +310,17 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         args.dataset,
         "evaluation/datasets/v1/d1_dev_seed.jsonl",
       );
+      const runDir = reportRunDir(args.runDir);
       argv.push(
         "-m",
         "evaluation.analysis.report",
         "--run-dir",
-        "evaluation/reports/main_2x2_t3",
+        runDir,
         "--dataset",
         dataset,
       );
       normalizedArgs.dataset = dataset;
+      normalizedArgs.runDir = runDir;
       break;
     }
     case "validation_loop": {
