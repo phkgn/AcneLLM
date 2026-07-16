@@ -8,6 +8,7 @@ export type CommandId =
   | "t3_generation"
   | "judge"
   | "report"
+  | "check_gate"
   | "validation_loop"
   | "tests";
 

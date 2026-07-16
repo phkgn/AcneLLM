@@ -7,22 +7,9 @@ import {
   resolveEvaluationPath,
   toRepoRelative,
 } from "./paths";
-import { t3OutputFlags } from "./command-flags";
+import { checkGateRunFlags, t3OutputFlags } from "./command-flags";
+import { COMMAND_IDS } from "./command-ids";
 import type { CommandId } from "./types";
-
-const COMMAND_IDS: CommandId[] = [
-  "run_all",
-  "t1_normalizer",
-  "t1_intent",
-  "t1_planner",
-  "t1_guardrails",
-  "t2_retrieval",
-  "t3_generation",
-  "judge",
-  "report",
-  "validation_loop",
-  "tests",
-];
 
 const FORBIDDEN = /[;&|`$><\r\n]/;
 const SYSTEM_IDS = new Set(["s0", "s1", "s2", "s3", "s4"]);
@@ -323,6 +310,16 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.runDir = runDir;
       break;
     }
+    case "check_gate": {
+      const runDir = reportRunDir(args.runDir);
+      argv.push(
+        "-m",
+        "evaluation.analysis.check_gate",
+        ...checkGateRunFlags(runDir),
+      );
+      normalizedArgs.runDir = runDir;
+      break;
+    }
     case "validation_loop": {
       const dataset = datasetPath(
         args.dataset,
@@ -360,6 +357,7 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
     commandId !== "t1_normalizer" &&
     commandId !== "tests" &&
     commandId !== "report" &&
+    commandId !== "check_gate" &&
     commandId !== "validation_loop"
   ) {
     argv.push("--limit", String(limit));

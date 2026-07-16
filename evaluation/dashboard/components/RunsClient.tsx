@@ -129,6 +129,12 @@ const commands: Array<{
     description: "Tổng hợp metric, paired comparisons và Pareto lỗi.",
   },
   {
+    id: "check_gate",
+    label: "Check regression gates",
+    tier: "Gate",
+    description: "Chạy gate.yaml qua harness và cập nhật gate_check.json.",
+  },
+  {
     id: "validation_loop",
     label: "Validation loop",
     tier: "Trust audit",
@@ -422,6 +428,7 @@ export function RunsClient() {
         "tests",
         "t1_normalizer",
         "report",
+        "check_gate",
         "validation_loop",
       ].includes(commandId)
     ) {
@@ -451,6 +458,7 @@ export function RunsClient() {
       args.dataset = dataset;
       args.runDir = runDir;
     }
+    if (commandId === "check_gate") args.runDir = runDir;
     if (commandId === "validation_loop") {
       args.dataset = dataset;
       args.runDir = runDir;
@@ -606,6 +614,7 @@ export function RunsClient() {
               "tests",
               "t1_normalizer",
               "report",
+              "check_gate",
               "validation_loop",
             ].includes(commandId) ? (
               <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
@@ -765,7 +774,9 @@ export function RunsClient() {
               </div>
             ) : null}
 
-            {["judge", "report", "validation_loop"].includes(commandId) ? (
+            {["judge", "report", "check_gate", "validation_loop"].includes(
+              commandId,
+            ) ? (
               <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
                 Run directory
                 <input
