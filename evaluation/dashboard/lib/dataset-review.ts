@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  DATASET_CONFIG,
+  DATASET_KEYS,
+  type DatasetKey,
+} from "@/lib/dataset-review-catalog";
 import { readJsonl } from "@/lib/files";
 import {
   DATASET_REVIEWS_BACKUP_FILE,
@@ -8,8 +13,8 @@ import {
   EVALUATION_ROOT,
 } from "@/lib/paths";
 
-export const DATASET_KEYS = ["d2", "d3", "d4", "d5", "d6", "d7"] as const;
-export type DatasetKey = (typeof DATASET_KEYS)[number];
+export { DATASET_CONFIG, DATASET_KEYS };
+export type { DatasetKey };
 
 export const REVIEW_STATUSES = [
   "pending",
@@ -21,53 +26,8 @@ export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
 
 type JsonRecord = Record<string, unknown>;
 
-type DatasetConfig = {
-  label: string;
-  sourceFile: string;
-  targetFile: string;
-  description: string;
-};
-
-export const DATASET_CONFIG: Record<DatasetKey, DatasetConfig> = {
-  d2: {
-    label: "D2 · Main test",
-    sourceFile: "d2_test.draft.jsonl",
-    targetFile: "d2_test.jsonl",
-    description: "Câu hỏi acne chính: advise, clarify và knowledge.",
-  },
-  d3: {
-    label: "D3 · Challenge",
-    sourceFile: "d3_challenge.draft.jsonl",
-    targetFile: "d3_challenge.jsonl",
-    description: "Hard cases để phân tích giới hạn; không dùng làm gate.",
-  },
-  d4: {
-    label: "D4 · Safety",
-    sourceFile: "d4_safety.draft.jsonl",
-    targetFile: "d4_safety.jsonl",
-    description: "Tình huống high/critical risk và hành vi triage an toàn.",
-  },
-  d5: {
-    label: "D5 · Multi-turn",
-    sourceFile: "d5_multiturn.draft.jsonl",
-    targetFile: "d5_multiturn.jsonl",
-    description: "Câu hỏi cần dùng đúng lịch sử hội thoại.",
-  },
-  d6: {
-    label: "D6 · OOD",
-    sourceFile: "d6_ood.draft.jsonl",
-    targetFile: "d6_ood.jsonl",
-    description: "Yêu cầu ngoài phạm vi AcneLLM và expected reject.",
-  },
-  d7: {
-    label: "D7 · Adversarial",
-    sourceFile: "d7_adversarial.draft.jsonl",
-    targetFile: "d7_adversarial.jsonl",
-    description: "Prompt injection, extraction và yêu cầu đối kháng.",
-  },
-};
-
 const DRAFTS_ROOT = path.join(EVALUATION_ROOT, "datasets", "drafts", "v1");
+const VERSIONED_ROOT = path.join(EVALUATION_ROOT, "datasets", "v1");
 const EDITABLE_FIELDS = [
   "user_query",
   "task_type",
@@ -298,7 +258,17 @@ export function validateReviewCandidate(
     errors.push((error as Error).message);
   }
 
-  if (datasetKey === "d2") {
+  if (datasetKey === "d1") {
+    if (
+      !["advise", "clarify", "knowledge", "safety"].includes(
+        String(row.task_type),
+      )
+    ) {
+      errors.push(
+        "D1 task_type phải là advise, clarify, knowledge hoặc safety.",
+      );
+    }
+  } else if (datasetKey === "d2") {
     if (!["advise", "clarify", "knowledge"].includes(String(row.task_type))) {
       errors.push("D2 task_type phải là advise, clarify hoặc knowledge.");
     }
@@ -385,7 +355,9 @@ async function loadDraftCorpus(): Promise<DraftEntry[]> {
   const groups = await Promise.all(
     DATASET_KEYS.map(async (datasetKey) => {
       const config = DATASET_CONFIG[datasetKey];
-      const sourcePath = path.join(DRAFTS_ROOT, config.sourceFile);
+      const sourceRoot =
+        config.sourceArea === "v1" ? VERSIONED_ROOT : DRAFTS_ROOT;
+      const sourcePath = path.join(sourceRoot, config.sourceFile);
       const rows = await readJsonl(sourcePath);
       return rows.map((row) => ({
         datasetKey,

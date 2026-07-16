@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const dataset = url.searchParams.get("dataset");
     if (!DATASET_KEYS.includes(dataset as DatasetKey)) {
-      throw new Error("Chọn đúng một dataset D2/D3/D4/D5/D6/D7 để export.");
+      throw new Error("Chọn đúng một dataset D1/D2/D3/D4/D5/D6/D7 để export.");
     }
     const version = (url.searchParams.get("version") ?? "v1.0").trim();
     if (!/^[a-zA-Z0-9._-]+$/.test(version)) {

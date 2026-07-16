@@ -20,6 +20,11 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  DATASET_CONFIG,
+  DATASET_KEYS,
+  type DatasetKey,
+} from "@/lib/dataset-review-catalog";
+import {
   Button,
   Card,
   EmptyState,
@@ -29,7 +34,6 @@ import {
 } from "./ui";
 
 type JsonRecord = Record<string, unknown>;
-type DatasetKey = "d2" | "d3" | "d4" | "d5" | "d6" | "d7";
 type DatasetFilter = DatasetKey | "all";
 type ReviewStatus = "pending" | "approved" | "needs_edit" | "rejected";
 type StatusFilter = ReviewStatus | "stale" | "all";
@@ -119,13 +123,11 @@ const DATASET_OPTIONS: Array<{
   value: DatasetFilter;
   label: string;
 }> = [
-  { value: "all", label: "Tất cả D2–D7" },
-  { value: "d2", label: "D2 · Main test" },
-  { value: "d3", label: "D3 · Challenge" },
-  { value: "d4", label: "D4 · Safety" },
-  { value: "d5", label: "D5 · Multi-turn" },
-  { value: "d6", label: "D6 · OOD" },
-  { value: "d7", label: "D7 · Adversarial" },
+  { value: "all", label: "Tất cả D1–D7" },
+  ...DATASET_KEYS.map((value) => ({
+    value,
+    label: DATASET_CONFIG[value].label,
+  })),
 ];
 
 const STATUS_OPTIONS: Array<{ value: StatusFilter; label: string }> = [
@@ -138,6 +140,11 @@ const STATUS_OPTIONS: Array<{ value: StatusFilter; label: string }> = [
 ];
 
 const REVIEW_GUIDES: Record<DatasetKey, string[]> = {
+  d1: [
+    "D1 chỉ dùng để tune prompt, threshold và judge rubric; không báo cáo metric từ split này.",
+    "Thay task_type=unlabeled bằng advise, clarify, knowledge hoặc safety và bổ sung gold expectations.",
+    "D1 hiện có các câu trùng lặp; reject hoặc viết lại bản dư, không approve cả hai bản giống hệt.",
+  ],
   d2: [
     "Câu hỏi tự nhiên, đúng phạm vi acne và không quá giống template.",
     "Intent/task/risk đúng; expected answer đủ ý nhưng không biến thành đáp án học thuộc.",
@@ -468,8 +475,8 @@ export function DatasetReviewClient() {
     <>
       <PageHeader
         eyebrow="Human dataset review"
-        title="Review và duyệt draft D2–D7"
-        description="Draft nguồn luôn read-only. Approve, edit và reject được lưu thành overlay có source hash; review cũ tự chuyển stale nếu draft bị regenerate."
+        title="Review và duyệt dataset D1–D7"
+        description="Nguồn seed/draft luôn read-only. Approve, edit và reject được lưu thành overlay có source hash; review cũ tự chuyển stale nếu nguồn bị thay đổi."
         actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={() => void loadList(selectedId)}>

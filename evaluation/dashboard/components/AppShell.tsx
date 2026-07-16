@@ -40,7 +40,7 @@ const nav = [
   {
     href: "/review",
     label: "Dataset review",
-    description: "Duyệt draft D2–D7",
+    description: "Duyệt dataset D1–D7",
     icon: ClipboardCheck,
   },
 ];

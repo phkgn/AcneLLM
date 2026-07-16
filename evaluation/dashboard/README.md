@@ -21,7 +21,7 @@ Kiến trúc:
 - File API chỉ resolve path nằm trong `evaluation/` và luôn read-only.
 - Status API chỉ trả boolean cho API key, không trả secret.
 - Results/Inspect đọc artifact JSON/JSONL hiện có, không tạo metric giả.
-- Review đọc draft D2–D7 ở chế độ read-only; approve/edit/reject được lưu riêng
+- Review đọc seed D1 và draft D2–D7 ở chế độ read-only; approve/edit/reject được lưu riêng
   trong `.dataset-reviews.json` kèm source hash để phát hiện draft bị regenerate.
 - Chỉ khi một split không còn pending/needs-edit/stale, trang Review mới cho
   download JSONL đã approved để đưa vào `evaluation/datasets/v1/`.
