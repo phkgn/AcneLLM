@@ -66,7 +66,6 @@ type ResultsResponse = {
       threshold: number;
       value: number | null;
       status: "pass" | "fail" | "missing";
-      comparison: string;
       system?: string;
     }>;
     summary: { pass: number; fail: number; missing: number };
@@ -595,7 +594,7 @@ export function ResultsClient() {
               </div>
               <p className="mt-3 break-words text-sm font-black">{gate.metric}</p>
               <p className="mt-1 text-xs text-ink/45">
-                {gate.value ?? "—"} {gate.comparison} {gate.threshold}
+                {gate.value ?? "—"} · threshold {gate.threshold}
               </p>
             </div>
           ))}

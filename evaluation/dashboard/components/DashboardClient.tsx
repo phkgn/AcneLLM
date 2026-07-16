@@ -43,7 +43,6 @@ type Gate = {
   value: number | null;
   status: "pass" | "fail" | "missing";
   source: string;
-  comparison: "min" | "max" | "equal";
   system?: string;
 };
 
@@ -391,8 +390,7 @@ export function DashboardClient() {
                 </div>
                 <p className="mt-3 break-words text-sm font-black">{gate.metric}</p>
                 <p className="mt-1 text-xs text-ink/48">
-                  value {gate.value ?? "—"} · threshold {gate.comparison}{" "}
-                  {gate.threshold}
+                  value {gate.value ?? "—"} · threshold {gate.threshold}
                 </p>
               </div>
             ))}
