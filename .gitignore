@@ -13,6 +13,12 @@ frontend/.next/
 frontend/out/
 frontend/.turbo/
 
+evaluation/dashboard/node_modules/
+evaluation/dashboard/.next/
+evaluation/dashboard/logs/
+evaluation/dashboard/.jobs.json
+evaluation/dashboard/*.tsbuildinfo
+
 # ── Data — không push lên GitHub ────────────────────────────
 data/raw/
 data/processed/
