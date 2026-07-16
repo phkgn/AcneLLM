@@ -2,6 +2,13 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 
+export class EvaluationPathAccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EvaluationPathAccessError";
+  }
+}
+
 function locateRepoRoot(): string {
   let current = path.resolve(process.cwd());
   for (let depth = 0; depth < 6; depth += 1) {
@@ -37,7 +44,7 @@ export function isPathInside(parent: string, candidate: string): boolean {
 
 export function resolveEvaluationPath(input: string): string {
   if (!input || input.includes("\0") || path.isAbsolute(input)) {
-    throw new Error("Đường dẫn không hợp lệ.");
+    throw new EvaluationPathAccessError("Đường dẫn không hợp lệ.");
   }
   const portable = input.replace(/[\\/]+/g, path.sep);
   const prefix = `evaluation${path.sep}`;
@@ -46,7 +53,9 @@ export function resolveEvaluationPath(input: string): string {
     : portable;
   const resolved = path.resolve(EVALUATION_ROOT, relative);
   if (!isPathInside(EVALUATION_ROOT, resolved)) {
-    throw new Error("Đường dẫn phải nằm bên trong evaluation/.");
+    throw new EvaluationPathAccessError(
+      "Đường dẫn phải nằm bên trong evaluation/.",
+    );
   }
   return resolved;
 }
@@ -65,12 +74,16 @@ export async function assertRealPathInsideEvaluation(
     fsp.realpath(existing),
   ]);
   if (!isPathInside(realEvaluationRoot, realExisting)) {
-    throw new Error("Đường dẫn symlink ra ngoài evaluation/ bị chặn.");
+    throw new EvaluationPathAccessError(
+      "Đường dẫn symlink ra ngoài evaluation/ bị chặn.",
+    );
   }
   if (fs.existsSync(candidate)) {
     const realCandidate = await fsp.realpath(candidate);
     if (!isPathInside(realEvaluationRoot, realCandidate)) {
-      throw new Error("Đường dẫn symlink ra ngoài evaluation/ bị chặn.");
+      throw new EvaluationPathAccessError(
+        "Đường dẫn symlink ra ngoài evaluation/ bị chặn.",
+      );
     }
     return realCandidate;
   }

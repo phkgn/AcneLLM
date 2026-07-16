@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { NextResponse } from "next/server";
 import {
+  EvaluationPathAccessError,
   assertRealPathInsideEvaluation,
   resolveEvaluationPath,
   toEvaluationRelative,
@@ -37,9 +38,15 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
+    const status =
+      error instanceof EvaluationPathAccessError
+        ? 403
+        : code === "ENOENT"
+          ? 404
+          : 400;
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: code === "ENOENT" ? 404 : 400 },
+      { status },
     );
   }
 }
