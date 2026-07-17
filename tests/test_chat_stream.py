@@ -503,6 +503,7 @@ def test_post_and_stream_share_current_turn_retrieval_query():
 
 def test_stream_repairs_missing_inline_citation_marker_without_retry():
     container = _MockContainer()
+    container.settings.inline_citation = "model"
     container.rag_ready = True
     container.retriever = _MockRetriever()
     client = TestClient(_app(container))
@@ -516,6 +517,30 @@ def test_stream_repairs_missing_inline_citation_marker_without_retry():
     assert '"citation_compliance": true' in response.text
     assert "[1]" in response.text
     assert len(container.llm.user_prompts) == 1
+
+
+def test_stream_default_off_strips_leftover_marker_but_keeps_citation_event():
+    container = _MockContainer()
+    container.rag_ready = True
+    container.retriever = _MockRetriever()
+
+    def stream_with_split_marker(system: str, user: str, temperature: float = 0.3):
+        yield "Khuyến nghị theo nguồn ["
+        yield "1"
+        yield "]."
+
+    container.llm.stream_text = stream_with_split_marker
+    client = TestClient(_app(container))
+
+    response = client.get(
+        "/api/v1/chat/stream",
+        params={"message": "mụn đầu đen là gì?", "mode": "hybrid"},
+    )
+
+    assert response.status_code == 200
+    assert "[1]" not in response.text
+    assert '"event": "citation"' in response.text
+    assert '"citation_compliance": null' in response.text
 
 
 def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planner():

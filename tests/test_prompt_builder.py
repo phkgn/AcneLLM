@@ -111,10 +111,10 @@ def test_context_block_truncation():
     retrieval = RetrievalOutput(query="q", chunks=chunks)
     block = pb._context_block(retrieval, max_chars=500)
     assert len(block) <= 550  # some tolerance for headers
-    assert "c0" in block
     # Should not contain all chunks due to truncation
     # At least one chunk should be omitted
-    assert block.count("chunk_ref=") < 5 or "..." in block
+    assert block.count("[Nguon ") < 5 or "..." in block
+    assert "chunk_ref=" not in block
 
 
 def test_context_block_infers_authority_badge_from_legacy_metadata():
@@ -167,7 +167,7 @@ def test_prompt_builder_hybrid():
     )
     assert sys_p == ""
     assert "mang thai" in usr_p.lower() or "CÓ" in usr_p
-    assert "c1" in usr_p
+    assert "chunk_ref=" not in usr_p
     assert "mụn ở cằm" in usr_p.lower() or "mụn" in usr_p.lower()
     assert "current_message" in usr_p
     assert "query_vi" not in usr_p

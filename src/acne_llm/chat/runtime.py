@@ -17,6 +17,7 @@ from loguru import logger
 
 from .session import ConversationTurn, get_session_store
 from ._retrieval import citation_data, compute_evidence_quality
+from .inline_citations import InlineCitationStripper
 from .orchestrator import prepare_chat_turn
 from ._safety import get_safety_suffix
 from ..db.audit import AuditEntry
@@ -222,6 +223,18 @@ def stream_chat_sse(
         _CJK_RE = _re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
         _cjk_total = 0
 
+        inline_citation_mode = str(getattr(c.settings, "inline_citation", "off"))
+        if inline_citation_mode not in {"off", "model"}:
+            logger.warning(
+                "[%s] Invalid inline_citation=%r; falling back to off",
+                (session_id or "")[:8],
+                inline_citation_mode,
+            )
+            inline_citation_mode = "off"
+        citation_stripper = (
+            InlineCitationStripper() if inline_citation_mode == "off" else None
+        )
+
         stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
         for token in stream_iter:
             if first_token:
@@ -237,8 +250,16 @@ def stream_chat_sse(
                 _cjk_total += len(token) - len(clean_token)
                 token = clean_token
             if token:
-                tokens.append(token)
-                yield _event("token", token)
+                emitted = citation_stripper.feed(token) if citation_stripper else token
+                if emitted:
+                    tokens.append(emitted)
+                    yield _event("token", emitted)
+
+        if citation_stripper:
+            tail = citation_stripper.finish()
+            if tail:
+                tokens.append(tail)
+                yield _event("token", tail)
 
         if _cjk_total > 0:
             logger.warning(
@@ -257,7 +278,7 @@ def stream_chat_sse(
 
         # -- 5b. Citation output gate -----------------------------------------
         citation_repair = ""
-        _require_citations = getattr(c.settings, "chat_require_citations", True)
+        _require_citations = inline_citation_mode == "model"
         if _require_citations and retrieval is not None and retrieval.chunks and not re.search(r"\[\d+\]", full_text):
             citation_repair = " [1]"
             full_text += citation_repair

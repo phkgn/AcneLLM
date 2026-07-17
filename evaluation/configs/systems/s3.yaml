@@ -5,6 +5,7 @@ adapter: ollama_batch
 model: acnellm-v2-q4
 retrieval: true
 template: hybrid_user.j2
+inline_citation: "off"
 fallback_model: null
 retrieve_top_k: 15
 rerank_top_k: 5

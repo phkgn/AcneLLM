@@ -159,7 +159,12 @@ class PromptBuilder:
         "clinical_textbook": "[Textbook]",
     }
 
-    def _context_block(self, retrieval: RetrievalOutput | None, max_chars: int = 6000) -> str:
+    def _context_block(
+        self,
+        retrieval: RetrievalOutput | None,
+        max_chars: int = 6000,
+        include_chunk_refs: bool = False,
+    ) -> str:
         if not retrieval or not retrieval.chunks:
             return "(không có ngữ cảnh từ tri thức phù hợp.)"
         blocks: list[str] = []
@@ -178,10 +183,9 @@ class PromptBuilder:
             )
             badge = self._SOURCE_BADGES.get(source_type, "")
             badge_str = f" {badge}" if badge else ""
-            header = (
-                f"[Nguon {i}]{badge_str} {title} | {source}\n"
-                f"chunk_ref={c.chunk_id}\n"
-            )
+            header = f"[Nguon {i}]{badge_str} {title} | {source}\n"
+            if include_chunk_refs:
+                header += f"chunk_ref={c.chunk_id}\n"
             # Sanitize chunk text trước khi inject vào prompt
             text = _sanitize_chunk_text(c.text)
             remaining = max_chars - used_chars
@@ -426,19 +430,30 @@ class PromptBuilder:
         route_metadata: dict | None = None,
         completeness_hint: str | None = None,
         confirmed_profile: dict | None = None,
-        require_citations: bool = True,
+        inline_citation: str = "off",
+        require_citations: bool | None = None,
     ) -> tuple[str, str]:
         # Modelfile SYSTEM là nguồn sự thật DUY NHẤT cho hành vi model
         # (use_modelfile_system=True → backend bỏ system message). Repo không gửi
         # system prompt; user template chỉ mang dữ liệu + format contract theo endpoint.
         sys_p = ""
+        # ``require_citations`` remains a call-level compatibility alias only;
+        # all production/config code uses the explicit off|model mode.
+        if require_citations is not None:
+            inline_citation = "model" if require_citations else "off"
+        if inline_citation not in {"off", "model"}:
+            raise ValueError("inline_citation must be 'off' or 'model'")
         has_kb = retrieval is not None and bool(retrieval.chunks)
         safe_description = _escape_jinja(_sanitize_user_description(user.description))
         safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
         safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
         safe_qv = _escape_jinja(query_vi)
-        safe_context = _escape_jinja(self._context_block(retrieval, max_chars=max_context_chars))
+        safe_context = _escape_jinja(self._context_block(
+            retrieval,
+            max_chars=max_context_chars,
+            include_chunk_refs=inline_citation == "model",
+        ))
         safe_history = _escape_jinja(format_history_block(
             sanitize_history_turns(history or []),
             keep_anchor=False,
@@ -484,6 +499,6 @@ class PromptBuilder:
             completeness_hint=safe_completeness_hint,
             has_retrieved_context=has_kb,
             confirmed_safety_facts=safe_confirmed_safety,
-            require_citations=require_citations,
+            inline_citation=inline_citation,
         )
         return sys_p, user_p

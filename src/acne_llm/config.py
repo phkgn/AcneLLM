@@ -11,6 +11,8 @@ Quy ước layer config (đọc kỹ trước khi thêm setting mới):
     feature flag). Đừng copy nguyên config.py vào đây.
   - config.py (file này): single source of truth cho SCHEMA + DEFAULTS.
 """
+from typing import Literal
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -152,9 +154,12 @@ class Settings(BaseSettings):
     chat_max_context_chars: int = 6000
     # Sigmoid score tối thiểu để chunk xuất hiện trong citation (khớp reranker threshold)
     chat_min_citation_score: float = 0.25
-    # Bật/tắt trích dẫn inline [N]. True: yêu cầu LLM đặt [1][2] và tự vá nếu thiếu.
-    # False: không yêu cầu, không vá citation.
-    chat_require_citations: bool = True
+    # Inline citation là compatibility mode, không còn là mặc định production.
+    # off: không đưa contract/chunk_ref vào prompt và strip marker model còn sót.
+    # model: rollback nguyên hành vi cũ (prompt [N] + deterministic [1] repair).
+    inline_citation: Literal["off", "model"] = "off"
+    # Deprecated: giữ để .env/caller cũ vẫn parse được; runtime không đọc field này.
+    chat_require_citations: bool = False
     # Pool safety pass (thai kỳ, thuốc kê đơn) — ưu tiên guideline source_types
     chat_safety_top_k: int = 5
     # OOD guard: nếu avg VÀ max sigmoid sau rerank đều < floor → bỏ chunks, trả None.

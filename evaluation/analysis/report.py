@@ -15,9 +15,10 @@ from pathlib import Path
 from statistics import mean, median
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from evaluation.common import ROOT, read_jsonl, utcnow  # noqa: E402
+from evaluation.common import ROOT, ensure_repo_importable, read_jsonl, utcnow  # noqa: E402
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.metrics.deterministic import evaluate_record  # noqa: E402
+from evaluation.metrics.grounding import GroundingScorer  # noqa: E402
 from evaluation.analysis.stats import (  # noqa: E402
     cliffs_delta, holm_bonferroni, mcnemar_exact, paired_bootstrap,
     wilcoxon_signed_rank, win_tie_loss,
@@ -30,6 +31,81 @@ from evaluation.validate.checks.invariants import (  # noqa: E402
 
 AXES = ["correctness", "completeness", "safety", "relevance", "fluency",
         "instruction_following"]
+
+ensure_repo_importable()
+
+
+def _citation_summary(det_rows: list[dict]) -> dict:
+    """Report citation correctness both conditionally and over required rows."""
+    required = [row for row in det_rows if row.get("citation_present") is not None]
+    present = [row for row in required if row.get("citation_present") is True]
+    validity = [row.get("citation_valid") for row in present
+                if row.get("citation_valid") is not None]
+    valid = sum(value is True for value in validity)
+    invalid = sum(value is False for value in validity)
+
+    def ratio(numerator: int, denominator: int) -> float | None:
+        return round(numerator / denominator, 4) if denominator else None
+
+    return {
+        "citation_present_rate": ratio(len(present), len(required)),
+        "citation_valid_rate": ratio(valid, valid + invalid),
+        "citation_coverage_valid_rate": ratio(valid, len(required)),
+        "citation_counts": {
+            "required": len(required),
+            "present": len(present),
+            "valid": valid,
+            "invalid": invalid,
+        },
+    }
+
+
+def _grounding_summary(det_rows: list[dict]) -> dict:
+    applicable = [
+        row for row in det_rows
+        if isinstance(row.get("grounded_sentence_rate"), (int, float))
+        and isinstance(row.get("grounding_eligible_sentence_count"), int)
+    ]
+    eligible = sum(row["grounding_eligible_sentence_count"] for row in applicable)
+    grounded = sum(
+        int(row.get("grounding_grounded_sentence_count") or 0)
+        for row in applicable
+    )
+    unsupported = sum(
+        len(row.get("unsupported_sentences") or []) for row in applicable
+    )
+    return {
+        "grounded_sentence_rate": (
+            round(grounded / eligible, 4) if eligible else None
+        ),
+        "grounding_counts": {
+            "records_applicable": len(applicable),
+            "eligible_sentences": eligible,
+            "grounded_sentences": grounded,
+            "unsupported_sentences": unsupported,
+        },
+    }
+
+
+def _faithfulness_score(payload: object) -> float | None:
+    """Return a claim-derived score only for an internally valid payload."""
+    if not isinstance(payload, dict) or payload.get("valid") is False:
+        return None
+    claims = payload.get("claims")
+    if not isinstance(claims, list) or not claims:
+        return None
+    allowed = {"supported", "contradicted", "not_found"}
+    if any(
+        not isinstance(claim, dict)
+        or not isinstance(claim.get("text"), str)
+        or not claim["text"].strip()
+        or claim.get("verdict") not in allowed
+        for claim in claims
+    ):
+        return None
+    if payload.get("n_claims") is not None and payload.get("n_claims") != len(claims):
+        return None
+    return round(sum(claim["verdict"] == "supported" for claim in claims) / len(claims), 4)
 
 
 def _judge_scores(run_dir: Path, system_id: str) -> dict[str, dict]:
@@ -44,6 +120,11 @@ def main() -> None:
     ap.add_argument("--run-dir", required=True)
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--comparisons", default="s0:s1,s0:s2,s1:s3,s2:s3")
+    ap.add_argument(
+        "--recompute-grounding",
+        action="store_true",
+        help="recompute old artifacts with the configured local embedder",
+    )
     args = ap.parse_args()
 
     run_dir = Path(args.run_dir)
@@ -60,27 +141,51 @@ def main() -> None:
                     "n_systems": len(systems), "systems": {}, "comparisons": {},
                     "errors": {}}
 
+    grounding_scorer = None
+    if args.recompute_grounding:
+        from acne_llm.config import settings
+        from acne_llm.rag.embedder import Embedder
+
+        grounding_scorer = GroundingScorer(embedder=Embedder(
+            model_name=settings.embedding_model,
+            device=settings.device,
+            lazy=True,
+        ))
+
     # ── Per-system summary ──────────────────────────────────────────────
     for sid, records in systems.items():
         judged = _judge_scores(run_dir, sid)
         buckets, valid_rows = aggregate_buckets(
             system_rows[sid], list(judged.values()), samples
         )
+        # Deterministic metrics are valid without a judge. Judge validity only
+        # gates judge/faithfulness aggregates and paired comparisons.
         det_rows, latencies, faiths = [], [], []
+        for rec in system_rows[sid]:
+            sample = samples.get(rec.get("sample_id"))
+            if not rec.get("ok") or sample is None:
+                continue
+            try:
+                det = evaluate_record(
+                    rec,
+                    sample,
+                    grounding_scorer=grounding_scorer,
+                )
+            except Exception:
+                continue
+            det_rows.append(det)
+            if det["latency_total_ms"]:
+                latencies.append(det["latency_total_ms"])
         axis_scores: dict[str, list[float]] = defaultdict(list)
         err_counter: Counter = Counter()
         for sample_id, bundle in valid_rows.items():
             rec = bundle["record"]
-            det = bundle["deterministic"]
-            det_rows.append(det)
-            if det["latency_total_ms"]:
-                latencies.append(det["latency_total_ms"])
             j = bundle["judge"]
             pw = j.get("pointwise") or {}
             for axis in AXES:
                 if isinstance(pw.get(axis), (int, float)):
                     axis_scores[axis].append(float(pw[axis]))
-            f = (j.get("faithfulness") or {}).get("faithfulness")
+            f = _faithfulness_score(j.get("faithfulness"))
             if f is not None:
                 faiths.append(f)
         for rec in system_rows[sid]:
@@ -96,8 +201,11 @@ def main() -> None:
             vals = [d[key] for d in det_rows if d.get(key) is not None]
             return round(sum(1 for v in vals if v) / len(vals), 4) if vals else None
 
+        citation_summary = _citation_summary(det_rows)
+        grounding_summary = _grounding_summary(det_rows)
         report["systems"][sid] = {
             "n": buckets["valid"],
+            "n_generation_valid": len(det_rows),
             "n_attempted": len(system_rows[sid]),
             "buckets": buckets,
             "ok_rate": round(mean(1.0 if r.get("ok") else 0.0
@@ -105,7 +213,9 @@ def main() -> None:
                        if system_rows[sid] else 0,
             "parse_success_rate": rate("parse_success"),
             "vacuous_answer_rate": rate("vacuous_answer"),
-            "citation_valid_rate": rate("citation_valid"),
+            **grounding_summary,
+            "legacy_citation_metrics": True,
+            **citation_summary,
             "pregnancy_safety_rate": rate("pregnancy_safety"),
             "forbidden_claim_rate": round(
                 sum(1 for d in det_rows if d["forbidden_claims_hit"]) / len(det_rows), 4
@@ -177,16 +287,31 @@ def main() -> None:
 def _write_markdown(path: Path, report: dict) -> None:
     lines = [f"# Eval report — {report['generated_at']}", ""]
     lines.append("## Per-system\n")
-    header = ["system", "n", "ok", "parse", "vacuous", "cite_valid", "preg_safety",
+    lines.append(
+        "> `empty_core_fields_rate` là rate of True: True = causes và "
+        "recommendations đều rỗng; None bị loại khỏi mẫu số. Đây không phải pass rate "
+        "và cũng không khẳng định rendered answer không có chữ.\n"
+    )
+    lines.append(
+        "> Grounding dùng mẫu số câu đủ điều kiện; câu hỏi, lời chào và disclaimer "
+        "chuẩn được loại. Citation chỉ còn là metric legacy để đọc artifact cũ.\n"
+    )
+    header = ["system", "n_judged", "n_generated", "ok", "parse",
+              "empty_core_fields_rate", "grounded_sentence_rate", "grounded/eligible",
+              "legacy_cite_valid_all_required", "preg_safety",
               "faithful", "judge_correct", "judge_safety", "p50_ms"]
     lines.append("| " + " | ".join(header) + " |")
     lines.append("|" + "---|" * len(header))
     for sid, s in report["systems"].items():
         jm = s.get("judge_means") or {}
         lines.append("| " + " | ".join(str(x) for x in [
-            sid, s["n"], s["ok_rate"], s["parse_success_rate"],
+            sid, s["n"], s.get("n_generation_valid"), s["ok_rate"],
+            s["parse_success_rate"],
             s.get("vacuous_answer_rate"),
-            s["citation_valid_rate"], s["pregnancy_safety_rate"],
+            s.get("grounded_sentence_rate"),
+            f"{(s.get('grounding_counts') or {}).get('grounded_sentences')}/"
+            f"{(s.get('grounding_counts') or {}).get('eligible_sentences')}",
+            s.get("citation_coverage_valid_rate"), s["pregnancy_safety_rate"],
             s["faithfulness_mean"], jm.get("correctness"), jm.get("safety"),
             (s["latency_ms"] or {}).get("p50"),
         ]) + " |")

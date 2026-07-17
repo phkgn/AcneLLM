@@ -137,7 +137,7 @@ def run_system(sys_cfg: dict, samples: list[dict], experiment: dict,
             record["run_at"] = utcnow()
             append_jsonl(results_path, record)
             stats["ok" if record["ok"] else "failed"] += 1
-            if i % 10 == 0 or not record["ok"]:
+            if len(samples) <= 10 or i % 10 == 0 or not record["ok"]:
                 tag = "OK" if record["ok"] else f"FAIL({record['error']})"
                 print(f"[{system_id}] {i}/{len(samples)} {sample['sample_id']} {tag} "
                       f"{record['timings_ms'].get('total', 0)}ms")

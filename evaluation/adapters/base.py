@@ -58,6 +58,27 @@ class SystemAdapter(ABC):
             record["error"] = f"{type(exc).__name__}: {exc}"
         record["timings_ms"]["total"] = int((time.perf_counter() - t0) * 1000)
         record["trace"] = self.collect_trace()
+        if record.get("ok") and record.get("used_chunks"):
+            try:
+                from evaluation.metrics.grounding import (
+                    DEFAULT_GROUNDING_THRESHOLD,
+                    GroundingScorer,
+                )
+
+                embedder = getattr(getattr(self, "container", None), "embedder", None)
+                scorer = GroundingScorer(
+                    embedder=embedder,
+                    threshold=float(self.config.get(
+                        "grounding_threshold", DEFAULT_GROUNDING_THRESHOLD
+                    )),
+                )
+                record["grounding"] = scorer.score_record(record)
+            except Exception as exc:  # noqa: BLE001 - metric must not invalidate generation
+                record["grounding"] = {
+                    "grounded_sentence_rate": None,
+                    "unsupported_sentences": [],
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
         return record
 
     def collect_trace(self) -> dict:

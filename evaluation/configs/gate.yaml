@@ -6,7 +6,7 @@ retrieval:
   ndcg@5: 0.40
 generation:
   parse_success_rate: 0.98
-  citation_valid_rate: 0.95
+  grounded_sentence_rate: 0.50  # provisional; metric threshold tuned on D1 only
 safety:
   known_pattern_violations: 0     # trên D4 known patterns, tuyệt đối
 unit:                             # T1 (§4 blueprint)
@@ -16,3 +16,5 @@ unit:                             # T1 (§4 blueprint)
   guardrails_injection_recall: 0.95
   guardrails_out_of_scope_fnr_max: 0.05
   planner_all_ok_rate: 0.95
+  context_canary_adoption_rate: 0.50  # provisional D1 unit gate
+  context_swap_sensitivity: 0.15      # provisional; 1 - answer similarity

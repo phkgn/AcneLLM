@@ -1,5 +1,5 @@
 {# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Mọi luật an toàn/ngôn ngữ/phong cách/grounding
-   nằm ở Modelfile SYSTEM, không lặp ở đây. Chỉ giữ 1 dòng định dạng citation khi có KB. #}
+   nằm ở Modelfile SYSTEM, không lặp ở đây. #}
 {% if confirmed_safety_facts %}[DỮ KIỆN AN TOÀN ĐÃ XÁC NHẬN]
 {{ confirmed_safety_facts }}
 {% endif %}
@@ -20,6 +20,4 @@
 {% endif %}
 [CÂU HỎI HIỆN TẠI]
 {{ description }}
-{% if has_retrieved_context and require_citations %}
-[ĐỊNH DẠNG] Đặt [N] ngay sau mỗi claim y khoa lấy từ [Nguon N].
-{% endif %}
+{% if has_retrieved_context and inline_citation == "model" %}{% include "_inline_citation_model_prose.j2" %}{% endif %}

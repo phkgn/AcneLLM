@@ -1,0 +1,21 @@
+# Rollback probe — same S3 model/retrieval, legacy model-authored inline citations.
+id: s3_inline_model
+name: finetuned_rag_inline_model_rollback
+adapter: ollama_batch
+model: acnellm-v2-q4
+retrieval: true
+template: hybrid_user.j2
+inline_citation: model
+fallback_model: null
+retrieve_top_k: 15
+rerank_top_k: 5
+use_mmr_prefilter: true
+mmr_lambda: 0.6
+sampling:
+  temperature: 0.35
+  top_p: 0.85
+  top_k: 40
+  repeat_penalty: 1.1
+  num_ctx: 3072
+  num_predict: 1200
+  seed: 42

@@ -137,6 +137,9 @@ def _context_text(record: dict) -> str:
     fallback citations snippet (SSE). Nếu chỉ có id không text → trả '(không có)' để
     judge KHÔNG chấm faithfulness trên placeholder (tránh not_found giả)."""
     trace = record.get("trace") or {}
+    exact_context = trace.get("faithfulness_context")
+    if isinstance(exact_context, str) and exact_context.strip():
+        return exact_context.strip()
     parts = [f"[{c['chunk_id']}] {c['text']}"
              for c in trace.get("context_chunks") or [] if c.get("text")]
     if not parts:
@@ -191,25 +194,27 @@ def judge_faithfulness(client: JudgeClient, record: dict) -> dict | None:
         return None
     extract_prompt = load_prompt("claim_extract", answer=record.get("answer") or "")
     extraction = client.judge(extract_prompt)
-    claims = (extraction or {}).get("claims") or []
-    if not isinstance(claims, list) or any(
-        not isinstance(claim, dict) or not isinstance(claim.get("text"), str)
-        for claim in claims
-    ):
+    claims = (extraction or {}).get("claims")
+    if not _valid_claim_list(claims):
         extraction = client.judge(
             extract_prompt
-            + "\n\nSCHEMA REPAIR: claims phải là mảng object, mỗi object có text là string.",
+            + "\n\nSCHEMA REPAIR: claims phải là mảng object, mỗi object có text "
+              "là string KHÔNG RỖNG.",
             use_cache=False,
         )
-        claims = (extraction or {}).get("claims") or []
+        claims = (extraction or {}).get("claims")
+    if not _valid_claim_list(claims):
+        return {
+            "n_claims": 0,
+            "faithfulness": None,
+            "contradiction_rate": None,
+            "claims": [],
+            "valid": False,
+            "error": "claim_schema_failure",
+        }
     if not claims:
         return None
-    claims = [
-        claim for claim in claims
-        if isinstance(claim, dict) and isinstance(claim.get("text"), str)
-    ]
-    if not claims:
-        return None
+    claims = [{**claim, "text": claim["text"].strip()} for claim in claims]
     verdicts = []
     for claim in claims:
         entailment_prompt = load_prompt(
@@ -226,6 +231,16 @@ def judge_faithfulness(client: JudgeClient, record: dict) -> dict | None:
                 use_cache=False,
             )
         verdicts.append({**claim, "verdict": (v or {}).get("verdict", "invalid")})
+    if any(verdict["verdict"] not in {"supported", "contradicted", "not_found"}
+           for verdict in verdicts):
+        return {
+            "n_claims": len(verdicts),
+            "faithfulness": None,
+            "contradiction_rate": None,
+            "claims": verdicts,
+            "valid": False,
+            "error": "entailment_schema_failure",
+        }
     supported = sum(1 for v in verdicts if v["verdict"] == "supported")
     contradicted = sum(1 for v in verdicts if v["verdict"] == "contradicted")
     return {
@@ -233,7 +248,17 @@ def judge_faithfulness(client: JudgeClient, record: dict) -> dict | None:
         "faithfulness": round(supported / len(verdicts), 4),
         "contradiction_rate": round(contradicted / len(verdicts), 4),
         "claims": verdicts,
+        "valid": True,
     }
+
+
+def _valid_claim_list(value: object) -> bool:
+    return isinstance(value, list) and all(
+        isinstance(claim, dict)
+        and isinstance(claim.get("text"), str)
+        and bool(claim["text"].strip())
+        for claim in value
+    )
 
 
 def judge_pair(client: JudgeClient, rec_a: dict, rec_b: dict, sample: dict,
@@ -288,7 +313,8 @@ def _judge_pointwise_row(client: JudgeClient, system_id: str, record: dict,
         row["faithfulness_judge_provider"] = faith_client.provider
         row["faithfulness_judge_model"] = faith_client.model
         claims = (row.get("faithfulness") or {}).get("claims") or []
-        if any(claim.get("verdict") == "invalid" for claim in claims):
+        if ((row.get("faithfulness") or {}).get("valid") is False
+                or any(claim.get("verdict") == "invalid" for claim in claims)):
             row["judge_status"] = "invalid"
             row["judge_error"] = "faithfulness_schema_failure"
     pw = row["pointwise"] or {}

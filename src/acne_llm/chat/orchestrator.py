@@ -213,7 +213,7 @@ def prepare_chat_turn(
             route_metadata=route_metadata,
             completeness_hint=hint,
             confirmed_profile=intake.confirmed_profile,
-            require_citations=getattr(c.settings, "chat_require_citations", True),
+            inline_citation=getattr(c.settings, "inline_citation", "off"),
         )
 
     return PreparedChatTurn(
@@ -263,6 +263,12 @@ def generate_structured(c: "Container", prepared: PreparedChatTurn) -> AdviseOut
             acne_type_primary="unknown",
             causes=["Không thể phân tích phản hồi từ LLM, vui lòng thử lại."],
             confidence=0.1,
+        )
+    if str(getattr(c.settings, "inline_citation", "off")) != "model":
+        from .inline_citations import strip_inline_citations_value
+
+        parsed = AdviseOutput.model_validate(
+            strip_inline_citations_value(parsed.model_dump(mode="python"))
         )
     parsed.used_chunks = [chunk.chunk_id for chunk in prepared.retrieval.chunks] if prepared.retrieval else []
     parsed.mode = prepared.mode

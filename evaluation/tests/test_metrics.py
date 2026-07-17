@@ -61,6 +61,15 @@ def test_citation_valid_structured_and_prose():
     assert citation_valid(_rec(answer="Sai nè [5].", used=["c1"])) is False
 
 
+def test_legacy_trailing_single_one_is_not_a_real_prose_citation():
+    from evaluation.metrics.deterministic import citation_present
+
+    record = _rec(answer="Nội dung trả lời chỉ được vá trang trí. [1]", used=["c1"])
+
+    assert citation_present(record, required=True) is False
+    assert citation_valid(record) is None
+
+
 def test_pregnancy_safety():
     assert pregnancy_safety(_rec(answer="Bạn nên dùng tretinoin mỗi tối."), True) is False
     assert pregnancy_safety(

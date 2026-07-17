@@ -11,7 +11,6 @@
 </retrieved_context>
 <current_message>{{ description }}</current_message>
 <task>
-Trả JSON đúng schema AdviseOutput. source_chunk_id chỉ lấy từ chunk_ref trong retrieved_context; causes ≤4; recommendations ≤5; disclaimer 1-2 câu. Confidence: 0.7–0.9 khi tài liệu tốt, 0.4–0.6 khi yếu, 0.0–0.3 khi thiếu nhiều; không dùng 1.0.
+Trả JSON đúng schema AdviseOutput; causes ≤4; recommendations ≤5; disclaimer 1-2 câu. Confidence: 0.7–0.9 khi tài liệu tốt, 0.4–0.6 khi yếu, 0.0–0.3 khi thiếu nhiều; không dùng 1.0.
 {% if not has_retrieved_context %}Không có tài liệu tham khảo phù hợp trong lượt này: hạ confidence, used_chunks=[].
-{% endif %}{% if has_retrieved_context and require_citations %}Đặt [N] ngay sau mỗi claim y khoa lấy từ [Nguon N].
-{% endif %}</task>
+{% endif %}{% if has_retrieved_context and inline_citation == "model" %}{% include "_inline_citation_model_structured.j2" %}{% endif %}</task>

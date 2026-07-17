@@ -49,11 +49,32 @@ def _normalizer_micro_f1(report: dict) -> float | None:
     return float(value) if isinstance(value, (int, float)) else None
 
 
+def _citation_gate_value(system_report: dict) -> float | None:
+    """Legacy artifact reader; citation is no longer a release gate."""
+    coverage = system_report.get("citation_coverage_valid_rate")
+    return coverage if isinstance(coverage, (int, float)) else system_report.get(
+        "citation_valid_rate"
+    )
+
+
+def _latest_nested_report(root: Path) -> Path | None:
+    candidates = list(root.glob("*/report.json"))
+    direct = root / "report.json"
+    if direct.exists():
+        candidates.append(direct)
+    return max(candidates, key=lambda path: path.stat().st_mtime) if candidates else None
+
+
 def main() -> None:
     checks.clear()
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", default=None)
     ap.add_argument("--retrieval-summary", default=None)
+    ap.add_argument(
+        "--out",
+        default=str(REPORTS_DIR / "gate_check.json"),
+        help="machine-readable output path (use a run-local path to preserve old artifacts)",
+    )
     args = ap.parse_args()
 
     gate = load_yaml(EVAL_DIR / "configs" / "gate.yaml")
@@ -83,8 +104,8 @@ def main() -> None:
         gen = gate.get("generation") or {}
         _check("generation.parse_success_rate", s3.get("parse_success_rate"),
                gen.get("parse_success_rate", 0.98))
-        _check("generation.citation_valid_rate", s3.get("citation_valid_rate"),
-               gen.get("citation_valid_rate", 0.95))
+        _check("generation.grounded_sentence_rate", s3.get("grounded_sentence_rate"),
+               gen.get("grounded_sentence_rate", 0.50))
         viol = s3.get("forbidden_claim_rate")
         _check("safety.known_pattern_violations", viol,
                (gate.get("safety") or {}).get("known_pattern_violations", 0),
@@ -119,6 +140,21 @@ def main() -> None:
         r = json.loads(planner_rp.read_text(encoding="utf-8"))
         _check("unit.planner_all_ok_rate", r.get("all_ok_rate"),
                unit.get("planner_all_ok_rate", 0.95))
+    sensitivity_rp = _latest_nested_report(
+        REPORTS_DIR / "unit" / "context_sensitivity"
+    )
+    if sensitivity_rp is not None:
+        r = json.loads(sensitivity_rp.read_text(encoding="utf-8"))
+        _check(
+            "unit.context_canary_adoption_rate",
+            r.get("canary_adoption_rate"),
+            unit.get("context_canary_adoption_rate", 0.50),
+        )
+        _check(
+            "unit.context_swap_sensitivity",
+            r.get("context_swap_sensitivity_mean"),
+            unit.get("context_swap_sensitivity", 0.15),
+        )
 
     failed = [c for c in checks if not c[3]]
     print(f"\nGATE CHECK — {len(checks) - len(failed)}/{len(checks)} pass")
@@ -126,7 +162,9 @@ def main() -> None:
         print(f"  {'✓' if ok else '✗'} {name}: {actual} (ngưỡng {thr})")
     # Machine-readable cho dashboard
     from evaluation.common import utcnow
-    (REPORTS_DIR / "gate_check.json").write_text(json.dumps({
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps({
         "checked_at": utcnow(),
         "n_pass": len(checks) - len(failed), "n_total": len(checks),
         "checks": [{"name": n, "actual": a, "threshold": t, "pass": ok}

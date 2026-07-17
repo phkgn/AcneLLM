@@ -1,0 +1,22 @@
+{
+  "dataset": "evaluation/datasets/v1/d1_dev_seed.jsonl",
+  "artifact": "evaluation/reports/main_2x2_t3/s3.results.jsonl",
+  "label_policy": "supported only when the retrieved D1 context entails the whole sentence; mixed claims are unsupported",
+  "labels": [
+    {"sample_id": "d1-0000", "sentence": "Mất cân bằng nội tiết tố (ví dụ PCOS, mãn kinh)", "supported": true, "note": "PCOS and menopause-related hormonal change are explicit."},
+    {"sample_id": "d1-0000", "sentence": "Vi khuẩn Cutibacterium acnes gây viêm", "supported": true, "note": "C. acnes infection/inflammation is explicit."},
+    {"sample_id": "d1-0000", "sentence": "Tắc nghẽn lỗ chân lông do mỹ phẩm hoặc mồ hôi", "supported": false, "note": "Cosmetics are present but the compound sweat claim is not established."},
+    {"sample_id": "d1-0000", "sentence": "Mụn viêm ở cằm có thể do nhiều nguyên nhân như nội tiết, vi khuẩn, tắc lỗ chân lông.", "supported": true, "note": "All three high-level causes occur across retrieved chunks."},
+    {"sample_id": "d1-0001", "sentence": "Bôi một lớp mỏng benzoyl peroxide lên vùng da bị mụn, tránh vùng mắt và môi.", "supported": true, "note": "Thin application and avoiding mucosal areas are explicit."},
+    {"sample_id": "d1-0001", "sentence": "Rửa mặt sạch trước khi bôi.", "supported": true, "note": "Clean skin before BPO is explicit."},
+    {"sample_id": "d1-0001", "sentence": "Thoa kem chống nắng SPF 30+ vào buổi sáng.", "supported": true, "note": "SPF30+ sun protection is explicit; morning is a normal paraphrase."},
+    {"sample_id": "d1-0001", "sentence": "Benzoyl peroxide có thể gây khô da.", "supported": true, "note": "Dryness is explicit."},
+    {"sample_id": "d1-0001", "sentence": "Nếu da bạn rất nhạy cảm, hãy thử một vùng nhỏ trước.", "supported": false, "note": "Sensitive-skin precautions exist but patch testing is not in the retrieved chunks."},
+    {"sample_id": "d1-0002", "sentence": "Isotretinoin có nguy cơ gây dị tật thai nhi và rối loạn phát triển trí tuệ ở trẻ.", "supported": true, "note": "Both teratogenicity and cognitive-development risk are explicit."},
+    {"sample_id": "d1-0002", "sentence": "Phụ nữ mang thai tuyệt đối không được sử dụng.", "supported": true, "note": "Absolute pregnancy contraindication is explicit."},
+    {"sample_id": "d1-0002", "sentence": "Các thuốc kháng sinh đường uống như doxycycline cũng không an toàn.", "supported": false, "note": "The retrieved chunks do not establish doxycycline specifically."},
+    {"sample_id": "d1-0002", "sentence": "Nếu bạn đang mang thai hoặc dự định mang thai, hãy báo bác sĩ ngay lập tức.", "supported": true, "note": "Medical consultation before acne medication in pregnancy is explicit."},
+    {"sample_id": "d1-0003", "sentence": "Teen acne is common due to hormonal changes.", "supported": true, "note": "Puberty-related hormonal/sebaceous change is explicit."},
+    {"sample_id": "d1-0003", "sentence": "use benzoyl peroxide or salicylic acid products", "supported": true, "note": "Both ingredient recommendations occur in retrieved context."}
+  ]
+}

@@ -5,8 +5,38 @@ legacy scripts/run_eval.py tham chiếu attr không tồn tại; adapter này th
 """
 from __future__ import annotations
 
+import re
+
 from .base import SystemAdapter
 from ._repo import build_eval_container, normalize_query
+
+
+class _PromptCapture:
+    """Delegate PromptBuilder while retaining the exact rendered user prompt."""
+
+    def __init__(self, delegate, inline_citation: str = "off"):
+        self._delegate = delegate
+        self._inline_citation = inline_citation
+        self.last_user_prompt = ""
+
+    def build(self, *args, **kwargs):
+        kwargs.setdefault("inline_citation", self._inline_citation)
+        result = self._delegate.build(*args, **kwargs)
+        if isinstance(result, tuple) and len(result) == 2:
+            self.last_user_prompt = result[1]
+        return result
+
+    def __getattr__(self, name):
+        return getattr(self._delegate, name)
+
+
+def _extract_retrieved_context(user_prompt: str) -> str:
+    match = re.search(
+        r"<retrieved_context>\s*(.*?)\s*</retrieved_context>",
+        user_prompt or "",
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    return match.group(1).strip() if match else ""
 
 
 class OllamaBatchAdapter(SystemAdapter):
@@ -38,6 +68,11 @@ class OllamaBatchAdapter(SystemAdapter):
                 guardrails=self.container.guardrails,
                 clinical_planner=self.container.clinical_planner,
             )
+        self._prompt_capture = _PromptCapture(
+            self.pipeline.prompt,
+            inline_citation=str(cfg.get("inline_citation", "off")),
+        )
+        self.pipeline.prompt = self._prompt_capture
         # Xác nhận model đúng (chống chạy nhầm checkpoint)
         assert self.container.llm.model == cfg["model"], (
             f"Model mismatch: container={self.container.llm.model} config={cfg['model']}"
@@ -55,6 +90,10 @@ class OllamaBatchAdapter(SystemAdapter):
 
         output = self.pipeline.run(user)
         dump = output.model_dump(mode="json")
+        if str(self.config.get("inline_citation", "off")) == "off":
+            from acne_llm.chat.inline_citations import strip_inline_citations_value
+
+            dump = strip_inline_citations_value(dump)
         self._trace["advise_output"] = dump
 
         if dump.get("model_name") and dump["model_name"] != self.config["model"]:
@@ -63,6 +102,18 @@ class OllamaBatchAdapter(SystemAdapter):
             )
         answer = _flatten_advise(dump)
         used = dump.get("used_chunks", [])
+        exact_context = _extract_retrieved_context(
+            getattr(self._prompt_capture, "last_user_prompt", "")
+        )
+        rendered_prompt = getattr(self._prompt_capture, "last_user_prompt", "")
+        self._trace["prompt_contains_inline_citation_instruction"] = (
+            "Đặt [N]" in rendered_prompt
+        )
+        self._trace["prompt_contains_chunk_ref"] = "chunk_ref=" in rendered_prompt
+        if used and exact_context:
+            # Source of truth for faithfulness: exact rendered context seen by
+            # the model, after sanitization and prompt-budget truncation.
+            self._trace["faithfulness_context"] = exact_context
         if used and getattr(self, "_chunk_texts", None):
             self._trace["context_chunks"] = [
                 {"chunk_id": cid, "text": self._chunk_texts.get(cid, "")[:1500]}

@@ -7,6 +7,24 @@ from .base import SystemAdapter
 from ._repo import build_eval_container, normalize_query
 
 
+def _truncate_snippet(text: str, budget: int) -> str:
+    """Prefer a complete verbatim sentence over a raw mid-sentence char cut."""
+    text = (text or "").strip()
+    if len(text) <= budget:
+        return text
+    candidate = text[:budget].rstrip()
+    sentence_cut = max(
+        candidate.rfind("."), candidate.rfind("!"), candidate.rfind("?"),
+        candidate.rfind("。"),
+    )
+    if sentence_cut >= max(40, int(budget * 0.45)):
+        return candidate[:sentence_cut + 1].strip()
+    # No complete sentence fits. Keep a word boundary and explicitly mark that
+    # the quote is incomplete instead of presenting a cut fragment as a claim.
+    word_cut = candidate.rsplit(" ", 1)[0].rstrip()
+    return (word_cut or candidate) + "…"
+
+
 class ExtractiveAdapter(SystemAdapter):
     def prepare(self) -> None:
         # model=None → container vẫn build LLM object nhưng không bao giờ gọi generate
@@ -67,8 +85,8 @@ class ExtractiveAdapter(SystemAdapter):
             for i, c in enumerate(chunks, 1):
                 meta = c.metadata or {}
                 title = meta.get("title") or c.source or c.chunk_id
-                snippet = (c.text or "")[:max_chars].rstrip()
-                blocks.append(f"[{i}] Theo \"{title}\" ({c.source}):\n{snippet}")
+                snippet = _truncate_snippet(c.text or "", max_chars)
+                blocks.append(f"Nguồn {i} — Theo \"{title}\" ({c.source}):\n{snippet}")
             blocks.append("Thông tin trích nguyên văn từ tài liệu tham khảo, "
                           "chỉ mang tính tham khảo, không thay thế bác sĩ da liễu.")
             answer = "\n\n".join(blocks)
