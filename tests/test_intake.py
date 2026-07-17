@@ -32,7 +32,7 @@ def _container(rag_ready=False, scope_refusal=None, session_store=None):
     )
 
 
-def test_intake_preserves_raw_description_without_persisting_inferred_snapshot():
+def test_intake_default_skips_analytics_planner_and_preserves_raw_description():
     c = _container()
 
     result = run_intake(c, "MỤN BỌC!!!!! ở cằm", mode_request="auto")
@@ -41,6 +41,21 @@ def test_intake_preserves_raw_description_without_persisting_inferred_snapshot()
     assert result.clean_text
     assert result.turn_snapshot is None
     assert result.effective_mode == "llm_only"
+    assert result.clinical_plan is None
+    assert c.clinical_planner.calls == 0
+
+
+def test_intake_builds_clinical_plan_only_when_analytics_is_requested():
+    c = _container()
+
+    result = run_intake(
+        c,
+        "MỤN BỌC!!!!! ở cằm",
+        mode_request="auto",
+        include_analytics=True,
+    )
+
+    assert result.clinical_plan is not None
     assert c.clinical_planner.calls == 1
 
 
@@ -125,7 +140,7 @@ def test_intake_soft_scope_followups_select_recent_pair_and_fold_facts(tmp_path)
         assert result.route_decision.primary_intent == "advise"
         assert result.route_decision.query_subject == "self"
         assert result.route_decision.reason_code == "short_followup_in_session"
-        assert result.clinical_plan is not None
+        assert result.clinical_plan is None
         assert result.user.context.age == 36
         assert result.user.context.skin_type is None
         assert len(result.history) <= 2

@@ -3,7 +3,6 @@ from pathlib import Path
 from acne_llm.chat.inline_citations import (
     InlineCitationStripper,
     strip_inline_citations,
-    strip_inline_citations_value,
 )
 from acne_llm.llm.prompt_builder import PromptBuilder
 from acne_llm.schemas import RetrievalOutput, RetrievedChunk, UserInput
@@ -38,7 +37,7 @@ def test_inline_citation_off_is_the_prompt_default() -> None:
     assert "chunk_ref=" not in rendered
 
 
-def test_inline_citation_model_restores_legacy_prompt_contract() -> None:
+def test_inline_citation_model_uses_only_the_prose_prompt_contract() -> None:
     prompt = PromptBuilder(PROMPTS)
 
     _, rendered = prompt.build(
@@ -48,7 +47,7 @@ def test_inline_citation_model_restores_legacy_prompt_contract() -> None:
     )
 
     assert "Đặt [N]" in rendered
-    assert "source_chunk_id" in rendered
+    assert "source_chunk_id" not in rendered
     assert "chunk_ref=aad_12345678::0001" in rendered
 
 
@@ -75,18 +74,6 @@ def test_streaming_stripper_flushes_non_marker_bracket_text() -> None:
     actual = stripper.feed("Theo [AA") + stripper.feed("D]") + stripper.finish()
 
     assert actual == "Theo [AAD]"
-
-
-def test_structured_cleaner_preserves_shape_and_named_tags() -> None:
-    value = {
-        "causes": ["Viêm [1]", "Theo [AAD]"],
-        "recommendations": [{"action": "Bôi 0.1% [2]"}],
-    }
-
-    assert strip_inline_citations_value(value) == {
-        "causes": ["Viêm ", "Theo [AAD]"],
-        "recommendations": [{"action": "Bôi 0.1% "}],
-    }
 
 
 def test_eval_system_inline_mode_is_a_string_not_yaml_boolean() -> None:

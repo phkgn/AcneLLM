@@ -1,4 +1,4 @@
-"""Single preparation path shared by POST, SSE, WebSocket and debug trace."""
+"""Single preparation path shared by SSE, WebSocket, evaluation, and debug trace."""
 from __future__ import annotations
 
 from dataclasses import dataclass

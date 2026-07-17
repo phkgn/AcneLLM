@@ -306,7 +306,7 @@ def run_intake(
     mode_request: str = "auto",
     include_analytics: bool = False,
 ) -> IntakeResult:
-    """Run the shared pre-generation intake path for POST, SSE and WS."""
+    """Run the shared pre-generation intake path for SSE, WS, and evaluation."""
     if len(message) > MAX_MESSAGE_CHARS:
         raise ValueError(f"message is too long (max {MAX_MESSAGE_CHARS} characters)")
     word_count = _count_words(message)

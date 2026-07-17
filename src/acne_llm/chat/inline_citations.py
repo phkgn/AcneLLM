@@ -7,7 +7,6 @@ keeps the historical prompt/output contract for rollback experiments.
 from __future__ import annotations
 
 import re
-from typing import Any
 
 
 _INLINE_CITATION_RE = re.compile(r"\[\s*\d{1,3}\s*\]")
@@ -17,21 +16,6 @@ _POSSIBLE_PREFIX_RE = re.compile(r"\[\s*\d{0,3}\s*$")
 def strip_inline_citations(text: str) -> str:
     """Remove only bracketed numeric markers; preserve numbers and named tags."""
     return _INLINE_CITATION_RE.sub("", text or "")
-
-
-def strip_inline_citations_value(value: Any) -> Any:
-    """Recursively clean structured model output without changing its shape."""
-    if isinstance(value, str):
-        return strip_inline_citations(value)
-    if isinstance(value, list):
-        return [strip_inline_citations_value(item) for item in value]
-    if isinstance(value, tuple):
-        return tuple(strip_inline_citations_value(item) for item in value)
-    if isinstance(value, dict):
-        return {
-            key: strip_inline_citations_value(item) for key, item in value.items()
-        }
-    return value
 
 
 class InlineCitationStripper:
