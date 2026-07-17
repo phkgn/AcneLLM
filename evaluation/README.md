@@ -126,7 +126,7 @@ D8** (pooled candidates).
 python -m evaluation.runners.run_experiment \
   --experiment evaluation/configs/experiments/main_2x2.yaml --systems s1 --limit 10
 
-# Main run T3 (batch/JSON) — resume được, chạy overnight
+# Main run T3 (prose batch, cùng preparation/prompt production) — resume được
 python -m evaluation.runners.run_experiment \
   --experiment evaluation/configs/experiments/main_2x2.yaml --resume
 
@@ -184,8 +184,8 @@ python -m evaluation.validate.loop \
 - `--repro-judge`: tùy chọn có chi phí API, dùng để đo variance judge trên rerun.
 - `--strict`: WARN/SKIPPED cũng làm command exit non-zero.
 
-Command luôn exit non-zero khi có invariant critical bị FAIL. T3 chỉ là batch
-diagnostic; verdict production cần T4 SSE.
+Command luôn exit non-zero khi có invariant critical bị FAIL. T3 chấm prose bằng
+non-stream batch call; verdict production đầy đủ vẫn cần T4 SSE.
 
 ## Bất biến (invariants) — vi phạm là kết quả không hợp lệ
 
@@ -205,7 +205,7 @@ evaluation/
 ├── adapters/ base.py, _repo.py (bridge repo), ollama_batch.py (T3),
 │             sse_api.py (T4), extractive.py (S4)
 ├── runners/run_experiment.py       # resume, retry, trace, run_meta
-├── metrics/ retrieval.py (graded nDCG, MAP, noise), deterministic.py (safety, citation)
+├── metrics/ retrieval.py (graded nDCG, MAP, noise), deterministic.py (grounding, safety, text)
 ├── judges/ clients.py (OpenAI default, cache, cost), run_judge.py, prompts/*.md (vi)
 ├── annotations/ export_blind.py, import_labels.py (blind human eval, calibration)
 ├── analysis/ stats.py (bootstrap/Wilcoxon/McNemar/Holm/Cliff), error_attribution.py, report.py
@@ -213,10 +213,25 @@ evaluation/
 └── tests/                          # 22 unit tests (stats, metrics, registry)
 ```
 
-## Ghi chú so với legacy
+## Contract prose và LEGACY
 
-- `scripts/run_eval.py` tham chiếu `container.hybrid`/`container.llm_only` không tồn tại
-  trong `di.py::Container` — harness này dựng pipeline trực tiếp từ components.
+- Production chỉ có `GET /api/v1/chat/stream`; T3 S0–S3 dùng cùng
+  `prepare_chat_turn`, route template và retrieval production, sau đó gọi prose
+  non-stream để chạy batch. S4 vẫn là extractive prose.
+- Record prose mới không có metric parse/empty-core/citation structured. Bộ
+  deterministic chính là sentence grounding, context sensitivity, safety text,
+  forbidden claims, language và latency.
+- `AdviseOutput` còn được giữ cho refusal/clarify/session dựng tay, không phải
+  output contract của model. Artifact JSON cũ chỉ được đọc dưới nhãn LEGACY;
+  xem `evaluation/reports/LEGACY.md`.
 - `run_eval_overnight.bat` gọi `scripts/eval_all.py` (không tồn tại); `eval_rag.py` e2e cần
   `judge.j2` (không có trong `config/prompts/`). Bộ mới không phụ thuộc các đường này.
-- Legacy giữ nguyên, không sửa; migrate dần khi bộ mới ổn định.
+- Không so trực tiếp metric structured của artifact legacy với report prose mới.
+
+| Nhóm metric prose | Áp dụng | Ghi chú mẫu số |
+|---|---|---|
+| `grounded_sentence_rate` | S2/S3/S4 có context | Tổng câu grounded / tổng câu đủ điều kiện |
+| context sensitivity + canary fact-query | D1 probe | Canary phải là fact được hỏi trực tiếp, không phải instruction trong context |
+| pregnancy safety + forbidden claims | mọi prose | Pattern check trực tiếp trên answer text |
+| Vietnamese ratio + answer length | mọi prose | QA ngôn ngữ và phát hiện output bất thường |
+| judge correctness/faithfulness | khi có judged artifact hợp lệ | Không chạy paid judge trong smoke |

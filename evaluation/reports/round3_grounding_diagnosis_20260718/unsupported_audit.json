@@ -1,0 +1,140 @@
+{
+  "source_artifact": "evaluation/reports/round2_smoke_20260717T124200Z/s3.results.jsonl",
+  "scope": "All sentences marked unsupported by the old S3 grounding metric in the three D1 smoke cases",
+  "annotator": "agent",
+  "not_human_gold": true,
+  "source_eligible_sentence_count": 25,
+  "source_metric_grounded_count": 5,
+  "source_metric_unsupported_count": 20,
+  "brief_requested_unsupported_count": 25,
+  "denominator_correction": "The source artifact contains 25 eligible sentences in total, but only 20 are marked unsupported; all 20 unsupported sentences were audited.",
+  "audited_unsupported_count": 20,
+  "metric_false_negative_count": 12,
+  "metric_false_negative_rate_among_flagged": 0.6,
+  "true_unsupported_count": 8,
+  "manual_estimated_grounded_count": 17,
+  "manual_estimated_eligible_count": 25,
+  "manual_estimated_grounding_rate": 0.68,
+  "entries": [
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Nguyên nhân: Thuốc (corticosteroid, tránh thai)",
+      "decision": "metric_false_negative",
+      "reason": "Context mentions both corticosteroid and starting or stopping contraceptive medication as acne-related factors."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Nguyên nhân: Vi khuẩn C.",
+      "decision": "metric_false_negative",
+      "reason": "The sentence splitter broke 'C. Acnes' into two units; the context explicitly mentions Cutibacteria Acnes."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Nguyên nhân: Dầu thừa và bụi bẩn",
+      "decision": "metric_false_negative",
+      "reason": "Context explicitly states that excess oil combined with dirt and dead skin blocks pores and causes acne."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Khuyến nghị: Giữ vệ sinh da mặt sạch sẽ",
+      "decision": "metric_false_negative",
+      "reason": "Context says inadequate cleansing is a main cause and describes dirt, sebum, and cosmetic residue accumulating in pores."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Khuyến nghị: Không nặn mụn viêm vì dễ để lại sẹo và nhiễm trùng",
+      "decision": "true_unsupported",
+      "reason": "Context supports not squeezing and separately describes scarring or infection, but does not fully support this combined causal recommendation as written."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Khuyến nghị: Tẩy tế bào chết nhẹ nhàng 1-2 lần/tuần",
+      "decision": "true_unsupported",
+      "reason": "No retrieved context supports the stated exfoliation frequency."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Khuyến nghị: Chọn sản phẩm không dầu, non-comedogenic",
+      "decision": "true_unsupported",
+      "reason": "The retrieved context discusses pore-clogging products but does not state this specific product-selection advice."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Khuyến nghị: Nếu có dấu hiệu bất thường, nên đi khám bác sĩ da liễu",
+      "decision": "true_unsupported",
+      "reason": "No retrieved passage supplies this referral condition."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Tuy nhiên, nguyên nhân cũng có thể do vi khuẩn hoặc bít tắc lỗ chân lông.",
+      "decision": "metric_false_negative",
+      "reason": "Context explicitly describes C. Acnes and pore blockage from dead skin and sebum."
+    },
+    {
+      "sample_id": "d1-0000",
+      "sentence": "Nếu mụn sưng đau nhiều, bạn nên đến gặp bác sĩ để được thăm khám và điều trị đúng cách.",
+      "decision": "true_unsupported",
+      "reason": "Context describes painful lesions but does not provide the stated referral rule."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Nguyên nhân: Da nhạy cảm dễ bị bong tróc",
+      "decision": "true_unsupported",
+      "reason": "Context supports irritation and peeling as possible benzoyl peroxide effects, not sensitive skin as the cause of peeling in this formulation."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Khuyến nghị: Dùng kem dưỡng ẩm phù hợp với da nhạy cảm",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved guidance recommends moisturizer to reduce benzoyl peroxide irritation and dryness."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Khuyến nghị: Tắm nước ấm ngắn, tránh tắm lâu",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved context explicitly advises short warm bathing and avoiding prolonged bathing."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Khuyến nghị: Thoa benzoyl peroxide một lớp mỏng",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved context explicitly describes applying a thin layer of benzoyl peroxide."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Khuyến nghị: Bôi vào buổi tối hoặc cách ngày",
+      "decision": "true_unsupported",
+      "reason": "The exact evening-or-alternate-day schedule is not present in the retrieved context."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Da nhạy cảm dễ bị kích ứng, nên bắt đầu với nồng độ thấp và tần suất ít.",
+      "decision": "true_unsupported",
+      "reason": "The context supports irritation risk but does not fully support both the low-concentration and low-frequency regimen."
+    },
+    {
+      "sample_id": "d1-0001",
+      "sentence": "Nếu có dấu hiệu đỏ, bong tróc kéo dài, hãy đi khám bác sĩ.",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved safety guidance advises medical contact when redness or peeling persists."
+    },
+    {
+      "sample_id": "d1-0002",
+      "sentence": "Nguyên nhân: isotretinoin gây dị tật bẩm sinh",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved context explicitly states severe birth-defect risk from isotretinoin in pregnancy."
+    },
+    {
+      "sample_id": "d1-0002",
+      "sentence": "Nguyên nhân: nguy cơ ảnh hưởng đến trí tuệ trẻ",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved context explicitly describes neurodevelopmental or cognitive risk to the fetus."
+    },
+    {
+      "sample_id": "d1-0002",
+      "sentence": "Không tự ý dùng thuốc này.",
+      "decision": "metric_false_negative",
+      "reason": "Retrieved safety context explicitly prohibits self-directed isotretinoin use during pregnancy."
+    }
+  ]
+}

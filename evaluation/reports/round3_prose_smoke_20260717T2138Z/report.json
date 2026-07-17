@@ -1,0 +1,218 @@
+{
+  "generated_at": "2026-07-17T21:50:13.470866+00:00",
+  "run_dir": "evaluation\\reports\\round3_prose_smoke_20260717T2138Z",
+  "n_systems": 5,
+  "systems": {
+    "s0": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 431,
+        "mean": 412
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 19760,
+        "mean": 21367
+      },
+      "error_pareto": []
+    },
+    "s1": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 260,
+        "mean": 299
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 15625,
+        "mean": 39064
+      },
+      "error_pareto": []
+    },
+    "s2": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.8235,
+      "grounding_counts": {
+        "records_applicable": 2,
+        "eligible_sentences": 17,
+        "grounded_sentences": 14,
+        "unsupported_sentences": 3
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 590,
+        "mean": 611
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 30910,
+        "mean": 30887
+      },
+      "error_pareto": []
+    },
+    "s3": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.4286,
+      "grounding_counts": {
+        "records_applicable": 2,
+        "eligible_sentences": 7,
+        "grounded_sentences": 3,
+        "unsupported_sentences": 4
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 252,
+        "mean": 312
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 57372,
+        "mean": 61423
+      },
+      "error_pareto": []
+    },
+    "s4": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.9577,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 71,
+        "grounded_sentences": 68,
+        "unsupported_sentences": 3
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 2296,
+        "mean": 2230
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 10864,
+        "mean": 10756
+      },
+      "error_pareto": []
+    }
+  },
+  "comparisons": {
+    "s0:s1": {
+      "n_common": 0,
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s0:s2": {
+      "n_common": 0,
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s1:s3": {
+      "n_common": 0,
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    },
+    "s2:s3": {
+      "n_common": 0,
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    }
+  },
+  "errors": {},
+  "holm_correction": {}
+}

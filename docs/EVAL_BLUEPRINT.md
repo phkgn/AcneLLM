@@ -39,14 +39,14 @@ Thiết kế là **paired evaluation 2×2 factorial (Finetune × RAG) + extracti
 | `src/acne_llm/chat/` | Pipeline intake chính: `preprocess.py` → `normalizer.py` (rule-based NLP → `UserInput`) → `intake.py` (orchestrator) → `intent_router.py` (micro-classifier `qwen2.5:0.5b`) → `runtime.py` (`stream_chat_sse`: prompt → `llm.stream_text` → safety suffix → SSE → persist → audit); `session.py`, `completeness.py`, `_retrieval.py`, `_prompt.py`, `_safety.py`, `extraction_confidence.py` | Đọc kỹ runtime.py (grep), còn lại qua context.md + header |
 | `src/acne_llm/rag/` | `retriever.py` (HybridRetriever: dense+sparse → RRF → rerank, có `retrieve_with_mmr`, `retrieve_safety_pass`), `vectorstore.py` (Chroma), `sparse.py` (BM25), `embedder.py`, `reranker.py` (cross-encoder, cache 2048, min_sigmoid 0.30), `chunker.py`, `cleaning.py` | Đọc interface qua caller |
 | `src/acne_llm/llm/` | `ollama_backend.py` (sampling: temp 0.35, top_p 0.85, top_k 40, repeat_penalty 1.1, num_ctx 3072, num_predict 1200; **hidden fallback → `qwen2.5:3b` khi runner terminated**), `prompt_builder.py` (Jinja2), `clinical_planner.py` (RULE-BASED, không gọi LLM), `qa_generator.py`, `language.py` | Đọc kỹ phần sampling + fallback |
-| `src/acne_llm/pipeline/` | `hybrid.py` (HybridPipeline: retrieve top 15 → MMR prefilter λ=0.6 → rerank top 5 → chunk filters → `hybrid_user.j2` → `generate_json` → `AdviseOutput` JSON), `llm_only.py` (LLMOnlyPipeline → `llm_only_user.j2`) — **batch/JSON path, khác chat SSE path (prose)** | Đọc toàn bộ |
+| `src/acne_llm/chat/` | Một prose orchestrator dùng chung cho SSE production và T3 batch: `prepare_chat_turn` → route/retrieval/template → `generate_prose` hoặc stream | Đọc toàn bộ hot path |
 | `src/acne_llm/guardrails/` | `runner.py` (pre_check/scope_check/post_check), `ood_detector.py` (centroid, threshold 0.25, PII), `drug_checker.py` (`drugs_acne.yaml`) | Đọc interface qua caller |
 | `src/acne_llm/eval/` | `judge.py`: format_compliance, severity_accuracy, safety_compliance (pregnancy × retinoid/cycline terms), citation_correctness, latency_summary. `metrics.py`: recall@k, mrr@k, ndcg@k | Đọc toàn bộ |
 | `src/acne_llm/schemas/` | `core.py` (`UserInput`, `UserContext`, `AdviseOutput`, `RetrievedChunk`), `clinical.py`, `extraction.py`, `kb.py` | Đọc qua usage |
 | `src/acne_llm/db/` | JSONL session store (TTL 1800s), `audit.py` (SQLite `data/audit.db`), có cả `sessions.db` | Cấu trúc |
 | `src/acne_llm/crawler/`, `datagen/` | Crawl KB + sinh data | Cấu trúc, không ảnh hưởng eval runtime |
 | `scripts/` | `eval_rag.py` (3 phần: DeepSeek query-gen / retrieval eval dùng đúng preprocessing production / e2e qua backend + DeepSeek judge), `eval_retrieval.py`, `run_eval.py` (helpers, **chính sách không-fallback khi eval**: `_try_generate` không đổi pipeline khi lỗi), `eval_from_finetune_test.py`, `eval/normalizer/evaluate.py` (P/R/F1 micro-macro, Jaccard, confusion, worst-cases), `propose_eval_labels.py`/`approve_eval_labels.py` (workflow qrels), `gen_eval_queries.py`, `gen_golden_set.py`, `build_kb.py` | Đọc header + phần chính |
-| `config/` | `prompts/` (5 templates: `stream_user.j2`, `knowledge_user.j2`, `clarify_user.j2`, `hybrid_user.j2`, `llm_only_user.j2`), `guardrails.yaml`, `drugs_acne.yaml`, `ood_centroid.json`, `settings.py` | Đọc settings + stream_user.j2 |
+| `config/` | `prompts/` prose (`stream_user.j2`, `knowledge_user.j2`, `clarify_user.j2`), `guardrails.yaml`, `drugs_acne.yaml`, `ood_centroid.json`, `settings.py` | Đọc settings + prose templates |
 | `model/` | `V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf` = **QLoRA merged + quantized (user xác nhận)** → Ollama `acnellm-v2-q4`; `V2/Q2/` bản Q2_K (dùng được cho ablation quantization); Modelfile chứa SYSTEM prompt đầy đủ (an toàn, grounding, chống jailbreak), sampling cố ý KHÔNG set trong Modelfile | Đọc Modelfile toàn bộ |
 | `data/` | `chroma_db/` (LFS), `bm25_index.pkl` (+sha256 — dùng làm corpus version), `raw/` (documents/chunks.jsonl), `finetune/` (train 54.233 / test 3.169 split trong `clean/`), `eval_labels/` (100 approved qrels + `acne_chat_response_test_gt.jsonl` 3.169), `eval_reports/`, `sample_queries.jsonl`, `audit.db`, `sessions/` | Đếm + đọc mẫu |
 | `notebooks/` | `Finetune*.ipynb` (QLoRA trên Colab/L4) | Liệt kê, **[chưa xác minh nội dung]** |
@@ -66,14 +66,19 @@ User message (SSE GET /api/v1/chat/stream)
  ⑤ fork:
     advise+self : fold_history_facts → completeness → ClinicalQueryPlanner(rule-based)
                   → retrieve_for_chat (HybridRetriever: dense∪BM25 → RRF → rerank → filters)
-                  → stream_user.j2 → llm.stream_text (PROSE + citation [N])
+                  → stream_user.j2 → llm.stream_text (PROSE)
     knowledge   : retrieve → knowledge_user.j2 → stream
     clarify     : clarify_user.j2 → stream (không retrieve)
     reject      : trả ngay, không gọi LLM
  ⑥ safety suffix → SSE events → session persist → AuditStore.log
 ```
 
-Song song tồn tại **batch path** (`pipeline/hybrid.py`, `pipeline/llm_only.py`): input `UserInput` → prompt `hybrid_user.j2`/`llm_only_user.j2` → `generate_json` → **`AdviseOutput` JSON có schema**. Hai path này khác template, khác định dạng output. **Hệ quả cho eval:** T3/T4 phải nêu rõ đánh giá path nào; đề xuất: T4 e2e = SSE API (hệ như user thấy), T1/T3 module-level = batch path (dễ chấm tự động nhờ JSON schema). Điểm `Format compliance 0%` trong report cũ (`data/eval_reports/20260423_091356/`) nhiều khả năng do chấm output prose của chat path bằng parser JSON của batch path — một minh chứng cho việc phải tách bạch.
+Từ 2026-07-18, đường model-generated JSON đã bị xóa. **T3 và T4 cùng contract prose**:
+T3 tái dùng `prepare_chat_turn` và template theo route rồi gọi non-stream batch;
+T4 đi qua SSE thật. Khác biệt chỉ là transport/session/streaming, không còn khác
+schema output. `AdviseOutput` chỉ còn cho deterministic refusal/clarify/session.
+Các report trước tag `pre-json-removal` là LEGACY và không được so metric
+parse/empty-core/citation structured với report prose mới.
 
 ### 2.3 Danh sách module đánh giá độc lập được
 
@@ -88,8 +93,8 @@ Song song tồn tại **batch path** (`pipeline/hybrid.py`, `pipeline/llm_only.p
 9. `chunk_filter` (drop_noisy, drop_query_mismatched)
 10. `PromptBuilder` + context assembly (truncation 6000 chars)
 11. Generation (`OllamaBackend` × 2 model × 2 template)
-12. `_safe_parse` (JSON robustness)
-13. Citation mapping (`[N]` prose / `source_chunk_id` JSON)
+12. Prose grounding + context sensitivity
+13. Safety/forbidden-claim checks trực tiếp trên text
 14. Session folding (`fold_history_facts`) — multi-turn consistency
 15. Safety post-check + refusal behavior
 
@@ -99,7 +104,7 @@ Song song tồn tại **batch path** (`pipeline/hybrid.py`, `pipeline/llm_only.p
 
 ### 2.5 Runtime config ảnh hưởng kết quả (phải freeze & log mỗi run)
 
-Từ `src/acne_llm/config.py`: `llm_model`, `llm_fallback_model`, `llm_num_ctx=3072`, `llm_num_predict=1200`, `llm_temperature=0.35`, `llm_top_p=0.85`, `llm_top_k=40`, `llm_repeat_penalty=1.1`, `llm_use_modelfile_system=True`, `embedding_model`, `reranker_model`, `retrieve_top_k=6`, `rerank_top_k=3`, `chat_retrieve_top_k=6`, `chat_rerank_top_k=3(clinical:5)`, `chat_max_context_chars=6000`, `chat_min_citation_score=0.25`, `chat_require_citations=True`, `retrieval_trust_boosts`, `retrieval_source_boosts`, `reranker_min_sigmoid=0.30`, `dense_max_distance=0.60`, `guardrails_ood_threshold=0.25`, `route_min_confidence=0.55`, các ngưỡng `extract_*`, `session_*`, `cache_dir`. Lưu ý: `HybridPipeline` default `retrieve_top_k=15, rerank_top_k=5` **khác** settings mặc định 6/3 — phải ghi rõ giá trị thực khi khởi tạo qua `di.py` **[giá trị inject thực tế qua di.py: chưa xác minh]**.
+Từ `src/acne_llm/config.py`: `llm_model`, `llm_fallback_model`, `llm_num_ctx=3072`, `llm_num_predict=1200`, `llm_temperature=0.35`, `llm_top_p=0.85`, `llm_top_k=40`, `llm_repeat_penalty=1.1`, `llm_use_modelfile_system=True`, `embedding_model`, `reranker_model`, `chat_retrieve_top_k=6`, `chat_rerank_top_k=3` (`clinical:5`), `chat_max_context_chars=6000`, `retrieval_*`, `guardrails_ood_threshold`, `route_min_confidence` và các ngưỡng session. T3 phải log giá trị thực sau DI giống production; không dùng default của pipeline legacy.
 
 ### 2.6 Điểm chưa xác minh / hành vi chưa kiểm chứng
 
@@ -120,7 +125,7 @@ Từ `src/acne_llm/config.py`: `llm_model`, `llm_fallback_model`, `llm_num_ctx=3
 | R4 | **Hidden fallback** `qwen2.5:3b` | `ollama_backend.py` dòng 112–132 | Khi eval: `fallback_model=None`; nếu lỗi → ghi failure, không thay model. Log `model_name` từng response và assert |
 | R5 | **Cache contamination** | `cache.py`, `cache_dir`, reranker LRU cache | Xóa/tắt response cache giữa các condition; reranker cache giữ được (deterministic) nhưng ghi rõ |
 | R6 | **Non-determinism**: temp 0.35, Ollama không đảm bảo determinism kể cả seed | `_sampling_options` không truyền seed | Truyền `seed` qua Ollama options + temp giữ nguyên 0.35 (đúng production); chạy 3 lần trên subset 50 câu để đo variance; báo cáo CI thay vì single number |
-| R7 | **Prompt mismatch giữa 2 path** (JSON vs prose) | §2.2 | Tách T3 (batch/JSON) và T4 (SSE/prose), không trộn metric |
+| R7 | **Transport mismatch T3/T4** | §2.2 | Cùng prose preparation/prompt; T4 vẫn cần để đo SSE/session/TTFT |
 | R8 | **Session state rò giữa các case** | session TTL 1800s, fold_history_facts | Mỗi eval case = session_id mới; multi-turn set điều khiển history một cách chủ động |
 | R9 | **Corpus version drift** | `bm25_index.pkl.sha256` có sẵn | Ghi sha256 của bm25 + chroma snapshot id vào metadata mỗi run |
 | R10 | **Judge bias** (position, length, self-enhancement) | e2e judge hiện single-pass DeepSeek | §7: blind, randomized order, pairwise cả 2 chiều, 2 judge, calibrate human |
@@ -138,7 +143,7 @@ Từ `src/acne_llm/config.py`: `llm_model`, `llm_fallback_model`, `llm_num_ctx=3
 | Model checkpoint | `qwen25-base-acnesys` (build mới: base Q4_K_M GGUF + SYSTEM của Modelfile V2/Q4) | `acnellm-v2-q4` | `qwen25-base-acnesys` | `acnellm-v2-q4` | — |
 | Quantization | Q4_K_M | Q4_K_M | Q4_K_M | Q4_K_M | — |
 | SYSTEM prompt | giống hệt S1/S3 (kiểm soát R1) | Modelfile | như S0 | Modelfile | — |
-| User template | `llm_only_user.j2` (T3) / `stream_user.j2` không context (T4) | như S0 | `hybrid_user.j2` (T3) / `stream_user.j2` có context (T4) | như S2 | — |
+| User template | route prose production, không context | như S0 | route prose production, có context | như S2 | extractive prose |
 | Retrieval | ✗ | ✗ | hybrid + RRF + MMR(λ=0.6) + rerank + filters (production) | như S2 | như S2, dừng sau rerank+filter |
 | retrieve/rerank top-k | — | — | giá trị production (log từ di.py) | như S2 | như S2 |
 | Output S4 | — | — | — | — | top-3 chunk: snippet + source + score, template cố định "Theo [nguồn]: …" (không sinh chữ mới) |
@@ -170,10 +175,10 @@ Từ `src/acne_llm/config.py`: `llm_model`, `llm_fallback_model`, `llm_num_ctx=3
 | Query construction | UserInput | không cần gold riêng — đo gián tiếp qua T2 ablation (raw text vs constructed query) | Δrecall@k | constructed ≥ raw | — |
 | Completeness | UserInput | nhãn "cần hỏi thêm?" trên clarify set | precision/recall của quyết định clarify | R ≥ 0.8 | — |
 | Chunk filter | retrieval output | qrels | Δprecision@k trước/sau filter, tỉ lệ đánh rơi chunk relevant | không rơi relevant > 5% | — |
-| JSON schema (`_safe_parse`, batch path) | raw LLM output | schema `AdviseOutput` | parse-success rate, field-missing rate | ≥ 98% | parse fail |
-| Citation mapping | answer + chunks | trace | citation-valid rate ([N] tồn tại / source_chunk_id ∈ used_chunks) | ≥ 95% | mismatch |
+| Prose grounding | answer + exact rendered context | nhãn entailment D1 | sentence grounding P/R/F1 + specificity | gate provisional 0.50 | mọi unsupported claim |
+| Context sensitivity/canary | correct/swapped context + fact-query canary | expected fact adoption | answer distance, canary adoption | D1 provisional | low sensitivity |
 | Session folding | chuỗi turn | kịch bản multi-turn có gold facts | fact-retention accuracy, contradiction rate | ≥ 0.9 | contradiction |
-| Drug/safety post-check | AdviseOutput + user | safety-critical set | violation catch-rate | 100% trên known patterns | mọi miss |
+| Drug/safety post-check | prose answer + user | safety-critical set | violation catch-rate | 100% trên known patterns | mọi miss |
 
 ### Tầng 2 — Retrieval evaluation (tách khỏi generation)
 
@@ -191,9 +196,15 @@ Metrics: Hit@k & Recall@k (k∈{1,3,5,10}), Precision@k, MRR@10, MAP (khi ≥ 2 
 
 Loại ảnh hưởng retrieval bằng 3 chế độ context: **oracle** (chunks grade-2 từ qrels), **production** (S2/S3 retrieval thật), **noisy** (oracle + 2 distractor grade-0) — cùng câu hỏi, so sánh chéo cho phép tách "sai vì model" / "sai vì context thiếu" / "sai vì context nhiễu".
 
-Tiêu chí (chấm bằng judge §7 + deterministic + human §8): answer correctness (đối chiếu `expected_answer_points`), faithfulness/groundedness (claim-level: tách claim → entailment với context — theo RAGAS/FActScore), citation correctness & completeness, hallucination rate (claim không được context/nguồn hỗ trợ), completeness, relevance, instruction following (đúng format, tiếng Việt 100%, không chào hỏi — đối chiếu SYSTEM), Vietnamese fluency, medical safety (rubric riêng: không kê liều, không retinoid/cycline cho thai kỳ, khuyên khám đúng lúc), triage appropriateness (over-/under-referral đếm riêng), uncertainty calibration (confidence của AdviseOutput vs đúng/sai thực tế — ECE), contradiction-với-evidence, latency + token usage.
+Tiêu chí (chấm bằng judge §7 + deterministic + human §8): answer correctness,
+faithfulness/groundedness claim-level với exact rendered context, hallucination rate,
+completeness, relevance, instruction following, Vietnamese fluency, medical safety,
+triage appropriateness, contradiction-với-evidence, latency và token usage. Inline
+citation không thuộc contract mặc định; nguồn được truyền bằng SSE citation event/panel.
 
-Phân biệt bắt buộc trong nhãn lỗi: đúng-nhưng-không-grounded (correct-but-unfaithful), an-toàn-nhưng-chung-chung (safe-but-vacuous — đếm riêng để phát hiện model "né"), hữu-ích-nhưng-có-claim-không-hỗ-trợ.
+Phân biệt bắt buộc trong nhãn lỗi: đúng-nhưng-không-grounded
+(correct-but-unfaithful), an-toàn-nhưng-chung-chung, và hữu-ích-nhưng-có-claim
+không hỗ trợ. Không dùng `empty_core_fields` structured cho prose.
 
 ### Tầng 4 — End-to-end evaluation
 
@@ -366,7 +377,7 @@ Mỗi failed sample truy về module nhờ **trace đầy đủ** (runner lưu: 
 | E18 | Poor uncertainty handling | thiếu evidence nhưng khẳng định chắc |
 | E19 | Multi-turn inconsistency | mâu thuẫn fact đã confirm trong session |
 | E20 | Language/format error | lẫn tiếng Anh, sai format, chào hỏi thừa |
-| E21 | Parse failure | `_safe_parse` fallback object (batch path) |
+| E21 | Legacy parse failure | Chỉ đọc artifact structured trước `pre-json-removal`; không áp dụng prose mới |
 | E22 | Infra/fallback | timeout, model_name ≠ expected |
 
 Error classifier (judge role 5) gán mã sơ bộ → bạn xác nhận trên failed samples của D2/D4. Báo cáo Pareto lỗi per hệ → trả lời trực tiếp "module nào kém".
@@ -410,14 +421,14 @@ evaluation/
 ├── adapters/
 │   ├── base.py              # SystemAdapter: prepare() / retrieve(sample) / generate(sample, ctx)
 │   │                        #   / run(sample) / collect_trace() / cleanup()
-│   ├── ollama_batch.py      # S0–S3 batch path (JSON, qua pipeline objects, fallback=None)
+│   ├── ollama_batch.py      # S0–S3 prose batch, cùng production preparation, fallback=None
 │   ├── sse_api.py           # S0–S3 e2e path (qua HTTP SSE, session mới mỗi case)
 │   └── extractive.py        # S4 (retriever+reranker → template chunks)
 ├── runners/
 │   └── run_experiment.py    # resume (checkpoint JSONL), retry-có-đánh-dấu, cache,
 │                            # seed, cost/latency tracking, raw trace per sample
-├── metrics/                 # deterministic: retrieval (tái dùng eval/metrics.py),
-│                            # schema/citation (tái dùng eval/judge.py), overlap, latency
+├── metrics/                 # deterministic: retrieval, grounding, context sensitivity,
+│                            # safety text, language, latency; structured chỉ đọc LEGACY
 ├── judges/
 │   ├── clients.py           # deepseek + openai, temp=0, SQLite cache, cost meter
 │   └── prompts/             # 6 vai §7, tiếng Việt, versioned
