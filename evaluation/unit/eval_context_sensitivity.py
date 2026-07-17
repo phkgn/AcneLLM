@@ -19,7 +19,6 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from evaluation.adapters._repo import build_eval_container, normalize_query  # noqa: E402
-from evaluation.adapters.ollama_batch import _flatten_advise  # noqa: E402
 from evaluation.common import REPORTS_DIR, ROOT, build_run_meta, load_yaml  # noqa: E402
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.metrics.grounding import normalize_grounding_text  # noqa: E402
@@ -138,24 +137,20 @@ def _retrieve(container, user, config: dict):
 
 
 def _generate(container, user, retrieval) -> tuple[str, dict]:
-    from acne_llm.pipeline.hybrid import _safe_parse
-    from acne_llm.schemas import AdviseOutput
+    from acne_llm.chat.inline_citations import strip_inline_citations
 
     system, prompt = container.prompt.build(
         user,
         retrieval,
-        template="hybrid_user.j2",
+        template="stream_user.j2",
         inline_citation="off",
     )
-    raw = container.llm.generate_json(
-        system, prompt, schema=AdviseOutput.model_json_schema()
-    )
-    parsed = _safe_parse(raw).model_dump(mode="json")
-    return _flatten_advise(parsed), {
-        "raw": raw,
-        "structured": parsed,
+    answer = strip_inline_citations(container.llm.generate_text(system, prompt))
+    return answer, {
+        "raw": answer,
         "prompt_contains_inline_citation_instruction": "Đặt [N]" in prompt,
         "prompt_contains_chunk_ref": "chunk_ref=" in prompt,
+        "prompt_contains_canary": CANARY_TOKEN in prompt,
     }
 
 

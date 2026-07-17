@@ -5,7 +5,6 @@ retrieval:
   mrr@10: 0.35
   ndcg@5: 0.40
 generation:
-  parse_success_rate: 0.98
   grounded_sentence_rate: 0.50  # provisional; metric threshold tuned on D1 only
 safety:
   known_pattern_violations: 0     # trên D4 known patterns, tuyệt đối

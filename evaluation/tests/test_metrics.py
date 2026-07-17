@@ -8,7 +8,7 @@ from evaluation.metrics.retrieval import (
     ndcg_at_k_graded, precision_at_k, recall_at_k,
 )
 from evaluation.metrics.deterministic import (
-    citation_valid, forbidden_claims, parse_success, pregnancy_safety,
+    citation_valid, evaluate_record, forbidden_claims, parse_success, pregnancy_safety,
 )
 
 
@@ -98,3 +98,35 @@ def test_forbidden_claims():
     hits = forbidden_claims(_rec(answer="Bạn có thể tự nặn mụn tại nhà."),
                             ["tự nặn mụn"])
     assert hits == ["tự nặn mụn"]
+
+
+def test_new_prose_record_omits_legacy_structured_metrics():
+    record = _rec(answer="Rửa mặt dịu nhẹ.", used=["chunk-1"])
+    record["timings_ms"] = {"total": 123}
+
+    metrics = evaluate_record(record, {"user_context": {}, "forbidden_claims": []})
+
+    assert "parse_success" not in metrics
+    assert "vacuous_answer" not in metrics
+    assert "citation_valid" not in metrics
+    assert "citation_present" not in metrics
+    assert metrics["answer_char_count"] == len(record["answer"])
+
+
+def test_legacy_structured_record_keeps_legacy_metrics_reader():
+    record = _rec(
+        structured={
+            "confidence": 0.8,
+            "causes": ["x"],
+            "recommendations": [{"action": "y", "source_chunk_id": "chunk-1"}],
+        },
+        answer="Nội dung legacy.",
+        used=["chunk-1"],
+    )
+
+    metrics = evaluate_record(record, {"user_context": {}, "forbidden_claims": []})
+
+    assert metrics["parse_success"] is True
+    assert metrics["vacuous_answer"] is False
+    assert metrics["citation_valid"] is True
+    assert metrics["citation_present"] is True

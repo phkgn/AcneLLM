@@ -142,10 +142,10 @@ def test_fair_comparison_checks_sampling_templates_and_system_prompt():
         "seed": 42,
     }
     configs = {
-        "s0": {"sampling": sampling, "template": "llm_only_user.j2"},
-        "s1": {"sampling": sampling, "template": "llm_only_user.j2"},
-        "s2": {"sampling": sampling, "template": "hybrid_user.j2"},
-        "s3": {"sampling": sampling, "template": "hybrid_user.j2"},
+        "s0": {"sampling": sampling, "template": "route_prose"},
+        "s1": {"sampling": sampling, "template": "route_prose"},
+        "s2": {"sampling": sampling, "template": "route_prose"},
+        "s3": {"sampling": sampling, "template": "route_prose"},
     }
     assert check_fair_comparison(
         configs, {"s0": "same system\r\n", "s1": "same system\n"}

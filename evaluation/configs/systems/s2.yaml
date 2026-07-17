@@ -4,7 +4,7 @@ name: base_rag
 adapter: ollama_batch
 model: qwen25-base-acnesys
 retrieval: true
-template: hybrid_user.j2
+template: route_prose
 inline_citation: "off"
 fallback_model: null
 retrieve_top_k: 15

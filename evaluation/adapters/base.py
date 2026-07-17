@@ -47,7 +47,7 @@ class SystemAdapter(ABC):
         }
         try:
             tr0 = time.perf_counter()
-            context = self.retrieve(sample) if self.config.get("retrieval") else None
+            context = self.retrieve(sample)
             record["timings_ms"]["retrieval"] = int((time.perf_counter() - tr0) * 1000)
             tg0 = time.perf_counter()
             gen = self.generate(sample, context)

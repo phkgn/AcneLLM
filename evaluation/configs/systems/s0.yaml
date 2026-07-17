@@ -2,10 +2,10 @@
 # Build model trước: python evaluation/scripts/make_base_modelfile.py && ollama create qwen25-base-acnesys -f evaluation/modelfiles/qwen25-base-acnesys/Modelfile
 id: s0
 name: base_only
-adapter: ollama_batch          # t3 batch path; t4 dùng sse_api qua experiment config
+adapter: ollama_batch          # T3 prose batch; T4 dùng SSE API qua experiment config
 model: qwen25-base-acnesys
 retrieval: false
-template: llm_only_user.j2
+template: route_prose
 fallback_model: null           # BẮT BUỘC null khi eval (R4)
 sampling:
   temperature: 0.35

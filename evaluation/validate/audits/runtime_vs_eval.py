@@ -30,26 +30,26 @@ def write_runtime_audit(
         ),
         (
             "| Preprocess/normalize | `prepare_user_text` + `normalize_chat_message` | "
-            "same through API | same functions through `adapters/_repo.py` | "
+            "same through API | same `prepare_chat_turn` path | "
             "T1/T3 can diagnose extraction but not API behavior. |"
         ),
         (
             "| Guardrails/routing | `pre_check` + rule router + reject/clarify forks | "
-            "same through API | bypassed by `pipeline/hybrid.py` / `llm_only.py` | "
-            "Router and guardrail conclusions require T4/T1, not T3. |"
+            "same through API | same preparation path, no HTTP/session side effects | "
+            "T3 can diagnose route/prompt; T4 remains required for transport/session behavior. |"
         ),
         (
             "| Retrieval | production chat top-k/settings | same server path when mode=hybrid | "
-            "batch config top-15 then rerank top-5 | Retrieval depth is a known T3/T4 difference. |"
+            "same `retrieve_for_chat` path | T3 and T4 now share retrieval selection. |"
         ),
         (
             "| Prompt | intent-aware prose templates, chiefly `stream_user.j2` | "
-            "same production templates | `llm_only_user.j2` / `hybrid_user.j2` JSON contract | "
-            "T3 format/content quality cannot be presented as user-visible production output. |"
+            "same production templates | same route-selected prose templates | "
+            "Prompt content is aligned; transport behavior still differs. |"
         ),
         (
             "| Generation/output | `stream_text`, prose + `[N]` | same SSE token stream | "
-            "`generate_json`, `AdviseOutput` | T4 is the primary reality check. |"
+            "non-stream `generate_text`, prose | T4 is the transport reality check. |"
         ),
         (
             "| Trace | server SSE events + debug trace when queried | adapter stores route/citation/session | "

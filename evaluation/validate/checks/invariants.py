@@ -300,10 +300,10 @@ def check_fair_comparison(
                     "actual": sampling,
                 })
     expected_templates = {
-        "s0": "llm_only_user.j2",
-        "s1": "llm_only_user.j2",
-        "s2": "hybrid_user.j2",
-        "s3": "hybrid_user.j2",
+        "s0": "route_prose",
+        "s1": "route_prose",
+        "s2": "route_prose",
+        "s3": "route_prose",
     }
     for sid, expected in expected_templates.items():
         cfg = system_configs.get(sid)

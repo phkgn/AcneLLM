@@ -201,9 +201,23 @@ def main() -> None:
             vals = [d[key] for d in det_rows if d.get(key) is not None]
             return round(sum(1 for v in vals if v) / len(vals), 4) if vals else None
 
-        citation_summary = _citation_summary(det_rows)
         grounding_summary = _grounding_summary(det_rows)
-        report["systems"][sid] = {
+        legacy_structured = any(
+            isinstance(record.get("structured"), dict)
+            for record in system_rows[sid]
+        )
+        prose_count = sum(
+            not isinstance(record.get("structured"), dict)
+            for record in system_rows[sid]
+        )
+        if legacy_structured and prose_count:
+            contract = "mixed_legacy_structured_and_prose"
+        elif legacy_structured:
+            contract = "legacy_structured_json"
+        else:
+            contract = "prose"
+        system_report = {
+            "contract": contract,
             "n": buckets["valid"],
             "n_generation_valid": len(det_rows),
             "n_attempted": len(system_rows[sid]),
@@ -211,21 +225,34 @@ def main() -> None:
             "ok_rate": round(mean(1.0 if r.get("ok") else 0.0
                                   for r in system_rows[sid]), 4)
                        if system_rows[sid] else 0,
-            "parse_success_rate": rate("parse_success"),
-            "vacuous_answer_rate": rate("vacuous_answer"),
             **grounding_summary,
-            "legacy_citation_metrics": True,
-            **citation_summary,
             "pregnancy_safety_rate": rate("pregnancy_safety"),
             "forbidden_claim_rate": round(
                 sum(1 for d in det_rows if d["forbidden_claims_hit"]) / len(det_rows), 4
             ) if det_rows else None,
+            "vietnamese_ratio_mean": round(
+                mean(d["vietnamese_ratio"] for d in det_rows), 4
+            ) if det_rows else None,
+            "answer_chars": {
+                "p50": int(median(d["answer_char_count"] for d in det_rows))
+                if det_rows else None,
+                "mean": int(mean(d["answer_char_count"] for d in det_rows))
+                if det_rows else None,
+            },
             "judge_means": {a: round(mean(v), 3) for a, v in axis_scores.items() if v},
             "faithfulness_mean": round(mean(faiths), 4) if faiths else None,
             "latency_ms": {"p50": int(median(latencies)) if latencies else None,
                            "mean": int(mean(latencies)) if latencies else None},
             "error_pareto": err_counter.most_common(10),
         }
+        if legacy_structured:
+            system_report.update({
+                "parse_success_rate": rate("parse_success"),
+                "vacuous_answer_rate": rate("vacuous_answer"),
+                "legacy_citation_metrics": True,
+                **_citation_summary(det_rows),
+            })
+        report["systems"][sid] = system_report
 
     # ── Paired comparisons (pre-registered, Holm-corrected) ─────────────
     pvals: dict[str, float] = {}
@@ -288,33 +315,50 @@ def _write_markdown(path: Path, report: dict) -> None:
     lines = [f"# Eval report — {report['generated_at']}", ""]
     lines.append("## Per-system\n")
     lines.append(
-        "> `empty_core_fields_rate` là rate of True: True = causes và "
-        "recommendations đều rỗng; None bị loại khỏi mẫu số. Đây không phải pass rate "
-        "và cũng không khẳng định rendered answer không có chữ.\n"
-    )
-    lines.append(
         "> Grounding dùng mẫu số câu đủ điều kiện; câu hỏi, lời chào và disclaimer "
-        "chuẩn được loại. Citation chỉ còn là metric legacy để đọc artifact cũ.\n"
+        "chuẩn được loại. Safety được chấm trực tiếp trên prose.\n"
     )
-    header = ["system", "n_judged", "n_generated", "ok", "parse",
-              "empty_core_fields_rate", "grounded_sentence_rate", "grounded/eligible",
-              "legacy_cite_valid_all_required", "preg_safety",
+    header = ["system", "contract", "n_judged", "n_generated", "ok",
+              "grounded_sentence_rate", "grounded/eligible", "preg_safety",
+              "forbidden_claim_rate", "vi_ratio", "answer_chars_p50",
               "faithful", "judge_correct", "judge_safety", "p50_ms"]
     lines.append("| " + " | ".join(header) + " |")
     lines.append("|" + "---|" * len(header))
     for sid, s in report["systems"].items():
         jm = s.get("judge_means") or {}
         lines.append("| " + " | ".join(str(x) for x in [
-            sid, s["n"], s.get("n_generation_valid"), s["ok_rate"],
-            s["parse_success_rate"],
-            s.get("vacuous_answer_rate"),
+            sid, s.get("contract", "unknown"), s["n"],
+            s.get("n_generation_valid"), s["ok_rate"],
             s.get("grounded_sentence_rate"),
             f"{(s.get('grounding_counts') or {}).get('grounded_sentences')}/"
             f"{(s.get('grounding_counts') or {}).get('eligible_sentences')}",
-            s.get("citation_coverage_valid_rate"), s["pregnancy_safety_rate"],
+            s["pregnancy_safety_rate"], s.get("forbidden_claim_rate"),
+            s.get("vietnamese_ratio_mean"),
+            (s.get("answer_chars") or {}).get("p50"),
             s["faithfulness_mean"], jm.get("correctness"), jm.get("safety"),
             (s["latency_ms"] or {}).get("p50"),
         ]) + " |")
+
+    legacy_systems = {
+        sid: summary for sid, summary in report["systems"].items()
+        if summary.get("legacy_citation_metrics")
+    }
+    if legacy_systems:
+        lines.append("\n## LEGACY structured metrics\n")
+        lines.append(
+            "> Chỉ dùng để đọc artifact JSON cũ; không thuộc contract hoặc gate prose mới.\n"
+        )
+        legacy_header = ["system", "parse_success", "empty_core_fields_rate",
+                         "cite_valid_all_required"]
+        lines.append("| " + " | ".join(legacy_header) + " |")
+        lines.append("|" + "---|" * len(legacy_header))
+        for sid, summary in legacy_systems.items():
+            lines.append("| " + " | ".join(str(value) for value in [
+                sid,
+                summary.get("parse_success_rate"),
+                summary.get("vacuous_answer_rate"),
+                summary.get("citation_coverage_valid_rate"),
+            ]) + " |")
 
     lines.append("\n## Pre-registered comparisons\n")
     for pair, comp in (report.get("comparisons") or {}).items():

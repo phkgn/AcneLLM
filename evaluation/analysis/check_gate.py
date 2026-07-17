@@ -102,8 +102,6 @@ def main() -> None:
         report = json.loads(rp.read_text(encoding="utf-8"))
         s3 = report.get("systems", {}).get("s3", {})
         gen = gate.get("generation") or {}
-        _check("generation.parse_success_rate", s3.get("parse_success_rate"),
-               gen.get("parse_success_rate", 0.98))
         _check("generation.grounded_sentence_rate", s3.get("grounded_sentence_rate"),
                gen.get("grounded_sentence_rate", 0.50))
         viol = s3.get("forbidden_claim_rate")

@@ -115,10 +115,11 @@ def test_gate_config_replaces_citation_threshold_with_grounding():
     generation = load_yaml(EVAL_DIR / "configs" / "gate.yaml")["generation"]
 
     assert generation["grounded_sentence_rate"] == 0.50
+    assert "parse_success_rate" not in generation
     assert "citation_valid_rate" not in generation
 
 
-def test_report_defines_vacuous_direction_and_none_denominator(tmp_path):
+def test_new_prose_report_has_no_structured_contract_columns(tmp_path):
     from evaluation.analysis.report import _write_markdown
 
     path = tmp_path / "report.md"
@@ -129,9 +130,9 @@ def test_report_defines_vacuous_direction_and_none_denominator(tmp_path):
         "holm_correction": {},
     })
     markdown = path.read_text(encoding="utf-8")
-    assert "True = causes và recommendations đều rỗng" in markdown
-    assert "None bị loại khỏi mẫu số" in markdown
-    assert "không phải pass rate" in markdown
+    assert "parse" not in markdown.casefold()
+    assert "empty_core_fields" not in markdown
+    assert "legacy_cite" not in markdown
 
 
 def test_report_excludes_invalid_faithfulness_and_recomputes_claim_ratio():

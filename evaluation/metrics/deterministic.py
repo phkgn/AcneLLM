@@ -1,8 +1,8 @@
 """Deterministic checks trên generation records (không cần judge/human).
 
-Áp dụng lên record chuẩn của adapter (§ base.py). Tách theo path:
-- structured (batch/JSON): schema, severity, safety-term, citation theo used_chunks
-- prose (SSE): citation [N], language, forbidden claims
+Record prose mới chỉ dùng metric text/grounding/safety. Các helper structured và
+citation vẫn được giữ để đọc artifact LEGACY, nhưng không được phát ra cho
+record prose mới.
 """
 from __future__ import annotations
 
@@ -195,19 +195,25 @@ def evaluate_record(
     if not isinstance(grounding, dict) and grounding_scorer is not None:
         grounding = grounding_scorer.score_record(record)
     grounding = grounding if isinstance(grounding, dict) else {}
-    return {
-        "parse_success": parse_success(record),
-        "vacuous_answer": vacuous_answer(record),
-        "citation_valid": citation_valid(record),
-        "citation_present": citation_present(record, require_citations),
+    answer = record.get("answer") or ""
+    metrics = {
         "pregnancy_safety": pregnancy_safety(
             record, bool((sample.get("user_context") or {}).get("is_pregnant"))
         ),
         "forbidden_claims_hit": forbidden_claims(record, sample.get("forbidden_claims")),
         "vietnamese_ratio": round(vietnamese_ratio(record), 4),
+        "answer_char_count": len(answer),
         "latency_total_ms": (record.get("timings_ms") or {}).get("total"),
         "grounded_sentence_rate": grounding.get("grounded_sentence_rate"),
         "unsupported_sentences": grounding.get("unsupported_sentences"),
         "grounding_eligible_sentence_count": grounding.get("eligible_sentence_count"),
         "grounding_grounded_sentence_count": grounding.get("grounded_sentence_count"),
     }
+    if isinstance(record.get("structured"), dict):
+        metrics.update({
+            "parse_success": parse_success(record),
+            "vacuous_answer": vacuous_answer(record),
+            "citation_valid": citation_valid(record),
+            "citation_present": citation_present(record, require_citations),
+        })
+    return metrics

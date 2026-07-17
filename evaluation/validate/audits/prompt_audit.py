@@ -12,9 +12,9 @@ def write_prompt_audit(
     runtime_snapshot: dict[str, Any],
 ) -> None:
     prompt_paths = [
-        ROOT / "config" / "prompts" / "llm_only_user.j2",
-        ROOT / "config" / "prompts" / "hybrid_user.j2",
         ROOT / "config" / "prompts" / "stream_user.j2",
+        ROOT / "config" / "prompts" / "knowledge_user.j2",
+        ROOT / "config" / "prompts" / "clarify_user.j2",
     ]
     texts = {
         item.name: item.read_text(encoding="utf-8") if item.exists() else ""
@@ -40,16 +40,16 @@ def write_prompt_audit(
         "| Prompt | Contract | Context | Output | Model hint |",
         "|---|---|---|---|---|",
         (
-            "| `llm_only_user.j2` | data + no-RAG constraints | current/history/safety facts | "
-            f"`AdviseOutput` JSON | `{model_hints['llm_only_user.j2'] or 'none'}` |"
-        ),
-        (
-            "| `hybrid_user.j2` | data + grounding/citation contract | retrieved chunks + current/history | "
-            f"`AdviseOutput` JSON | `{model_hints['hybrid_user.j2'] or 'none'}` |"
-        ),
-        (
             "| `stream_user.j2` | production data prompt | route/history/retrieved chunks | "
-            f"prose + `[N]` | `{model_hints['stream_user.j2'] or 'none'}` |"
+            f"prose | `{model_hints['stream_user.j2'] or 'none'}` |"
+        ),
+        (
+            "| `knowledge_user.j2` | knowledge prompt | user history/retrieved chunks | "
+            f"prose | `{model_hints['knowledge_user.j2'] or 'none'}` |"
+        ),
+        (
+            "| `clarify_user.j2` | one-question clarification | current/history | "
+            f"prose | `{model_hints['clarify_user.j2'] or 'none'}` |"
         ),
         "",
         "## SYSTEM parity (R1)",
@@ -61,11 +61,11 @@ def write_prompt_audit(
         "## Semantic findings",
         "",
         "- Safety, scope, language and anti-jailbreak rules live in the Modelfile SYSTEM; "
-        "the three user templates intentionally do not duplicate them.",
-        "- `hybrid_user.j2` alone receives retrieved evidence; this is the registered RAG IV, "
-        "not a model-specific hint.",
-        "- T3 prompts require JSON while production `stream_user.j2` requests prose. This is "
-        "a real path difference and must remain explicit in reports.",
+        "the prose user templates intentionally do not duplicate them.",
+        "- T3 and T4 share the same route-selected prose templates. Retrieval remains the "
+        "registered RAG independent variable, not a model-specific hint.",
+        "- T3 uses non-stream text generation; T4 adds the real HTTP/SSE transport and "
+        "stream-time persistence/post-processing.",
         "- No template may mention S0-S4 or a model/checkpoint name. The table above records "
         "the static scan result.",
         "",

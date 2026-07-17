@@ -4,7 +4,7 @@ name: finetuned_only
 adapter: ollama_batch
 model: acnellm-v2-q4
 retrieval: false
-template: llm_only_user.j2
+template: route_prose
 fallback_model: null
 sampling:
   temperature: 0.35

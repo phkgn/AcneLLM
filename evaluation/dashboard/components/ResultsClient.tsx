@@ -94,8 +94,10 @@ function pValue(comp: JsonRecord, axis: string) {
 
 const metricRows = [
   { label: "OK rate", path: "ok_rate", percent: true },
-  { label: "Parse success", path: "parse_success_rate", percent: true },
-  { label: "Citation valid", path: "citation_valid_rate", percent: true },
+  { label: "Grounded sentences", path: "grounded_sentence_rate", percent: true },
+  { label: "Forbidden claims", path: "forbidden_claim_rate", percent: true },
+  { label: "Vietnamese ratio", path: "vietnamese_ratio_mean", percent: true },
+  { label: "P50 answer length", path: "answer_chars.p50", percent: false, suffix: " chars" },
   { label: "Pregnancy safety", path: "pregnancy_safety_rate", percent: true },
   { label: "Faithfulness", path: "faithfulness_mean", percent: true },
   { label: "Judge correctness", path: "judge_means.correctness", percent: false },

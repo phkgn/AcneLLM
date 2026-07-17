@@ -8,15 +8,15 @@ test("gate badges normalize only the harness gate artifact", () => {
     n_total: 3,
     checks: [
       {
-        name: "generation.parse_success_rate",
-        actual: 1,
-        threshold: 0.98,
+        name: "generation.grounded_sentence_rate",
+        actual: 0.6,
+        threshold: 0.5,
         pass: true,
       },
       {
-        name: "generation.citation_valid_rate",
-        actual: null,
-        threshold: 0.95,
+        name: "safety.known_pattern_violations",
+        actual: 1,
+        threshold: 0,
         pass: false,
       },
       {
@@ -43,14 +43,14 @@ test("gate badges normalize only the harness gate artifact", () => {
     [
       {
         section: "generation",
-        metric: "parse_success_rate",
-        value: 1,
+        metric: "grounded_sentence_rate",
+        value: 0.6,
         status: "pass",
       },
       {
-        section: "generation",
-        metric: "citation_valid_rate",
-        value: null,
+        section: "safety",
+        metric: "known_pattern_violations",
+        value: 1,
         status: "fail",
       },
       {
