@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-07-16T18:55:31.283019+00:00",
+  "generation_id": "20260716T185531283019Z-300391c66c",
+  "generator": "evaluation.generate_figures",
+  "artifact_policy": "fresh_compute_no_figure_reuse",
+  "figure_inputs_used": false,
+  "sample": 8000,
+  "pdf": true,
+  "groups": [
+    {
+      "group": "kb",
+      "manifest": "kb/manifest.json",
+      "ok": 6,
+      "skipped": 1
+    },
+    {
+      "group": "finetune",
+      "manifest": "finetune/manifest.json",
+      "ok": 6,
+      "skipped": 0
+    },
+    {
+      "group": "model",
+      "manifest": "model/manifest.json",
+      "ok": 1,
+      "skipped": 1
+    },
+    {
+      "group": "usage",
+      "manifest": "usage/manifest.json",
+      "ok": 4,
+      "skipped": 0
+    },
+    {
+      "group": "eval",
+      "manifest": "eval/manifest.json",
+      "ok": 10,
+      "skipped": 1
+    }
+  ],
+  "diagrams": {
+    "group": "diagrams",
+    "rendering": "client-side Mermaid from dashboard source"
+  },
+  "input_snapshot": [
+    {
+      "path": "data/raw/chunks.jsonl",
+      "exists": true,
+      "size": 26545520,
+      "modified_at": "2026-06-14T15:20:30.821819+00:00"
+    },
+    {
+      "path": "data/chroma_db/chroma.sqlite3",
+      "exists": true,
+      "size": 176066560,
+      "modified_at": "2026-07-16T18:55:37.941094+00:00"
+    },
+    {
+      "path": "data/bm25_index.pkl",
+      "exists": true,
+      "size": 35074654,
+      "modified_at": "2026-07-11T10:10:37.073691+00:00"
+    },
+    {
+      "path": "data/finetune/clean/acne_chat_response.train.jsonl",
+      "exists": true,
+      "size": 172971326,
+      "modified_at": "2026-04-29T15:59:00.371450+00:00"
+    },
+    {
+      "path": "data/finetune/clean/acne_chat_response.val.jsonl",
+      "exists": true,
+      "size": 10078198,
+      "modified_at": "2026-04-29T15:59:00.371450+00:00"
+    },
+    {
+      "path": "data/finetune/clean/acne_chat_response.test.jsonl",
+      "exists": true,
+      "size": 9995134,
+      "modified_at": "2026-04-29T15:59:00.371450+00:00"
+    },
+    {
+      "path": "data/audit.db",
+      "exists": true,
+      "size": 2723840,
+      "modified_at": "2026-07-14T06:17:19.134183+00:00"
+    },
+    {
+      "path": "data/sessions.db",
+      "exists": true,
+      "size": 3297280,
+      "modified_at": "2026-07-14T06:17:19.131847+00:00"
+    },
+    {
+      "path": "config/ood_centroid.json",
+      "exists": true,
+      "size": 22736,
+      "modified_at": "2026-07-13T15:31:55.306571+00:00"
+    }
+  ]
+}

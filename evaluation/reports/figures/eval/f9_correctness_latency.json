@@ -1,0 +1,363 @@
+{
+  "id": "f9_correctness_latency",
+  "title": "Correctness vs latency",
+  "chart_type": "scatter",
+  "data": [
+    {
+      "sample_id": "d1-0000",
+      "system": "S0",
+      "latency_ms": 24605.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S0",
+      "latency_ms": 16714.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S0",
+      "latency_ms": 14916.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S0",
+      "latency_ms": 15859.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S0",
+      "latency_ms": 12495.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S0",
+      "latency_ms": 17253.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S0",
+      "latency_ms": 10999.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S0",
+      "latency_ms": 18499.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S0",
+      "latency_ms": 18351.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S0",
+      "latency_ms": 18660.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S1",
+      "latency_ms": 32979.0,
+      "correctness": 3.0,
+      "size": 14.05
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S1",
+      "latency_ms": 19660.0,
+      "correctness": 3.0,
+      "size": 14.6
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S1",
+      "latency_ms": 14928.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S1",
+      "latency_ms": 11705.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S1",
+      "latency_ms": 15224.0,
+      "correctness": 3.0,
+      "size": 11.0
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S1",
+      "latency_ms": 15018.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S1",
+      "latency_ms": 9645.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S1",
+      "latency_ms": 11482.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S1",
+      "latency_ms": 13682.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S1",
+      "latency_ms": 15757.0,
+      "correctness": 3.0,
+      "size": 12.0
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S2",
+      "latency_ms": 53828.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S2",
+      "latency_ms": 38949.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S2",
+      "latency_ms": 48154.0,
+      "correctness": 5.0,
+      "size": 11.0
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S2",
+      "latency_ms": 39478.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S2",
+      "latency_ms": 38550.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S2",
+      "latency_ms": 43924.0,
+      "correctness": 3.0,
+      "size": 10.8
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S2",
+      "latency_ms": 45527.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S2",
+      "latency_ms": 36918.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S2",
+      "latency_ms": 38169.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S2",
+      "latency_ms": 51504.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S3",
+      "latency_ms": 54343.0,
+      "correctness": 3.0,
+      "size": 19.4
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S3",
+      "latency_ms": 61263.0,
+      "correctness": 4.0,
+      "size": 18.5
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S3",
+      "latency_ms": 46751.0,
+      "correctness": 5.0,
+      "size": 15.6
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S3",
+      "latency_ms": 77119.0,
+      "correctness": 3.0,
+      "size": 35.75
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S3",
+      "latency_ms": 30369.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S3",
+      "latency_ms": 74729.0,
+      "correctness": 4.0,
+      "size": 17.2
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S3",
+      "latency_ms": 46913.0,
+      "correctness": 4.0,
+      "size": 19.85
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S3",
+      "latency_ms": 82354.0,
+      "correctness": 4.0,
+      "size": 40.0
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S3",
+      "latency_ms": 30444.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S3",
+      "latency_ms": 52686.0,
+      "correctness": 4.0,
+      "size": 20.1
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S4",
+      "latency_ms": 12585.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S4",
+      "latency_ms": 14810.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S4",
+      "latency_ms": 12593.0,
+      "correctness": 5.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S4",
+      "latency_ms": 9567.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S4",
+      "latency_ms": 11866.0,
+      "correctness": 5.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S4",
+      "latency_ms": 15705.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S4",
+      "latency_ms": 14340.0,
+      "correctness": 5.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S4",
+      "latency_ms": 9801.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S4",
+      "latency_ms": 11970.0,
+      "correctness": 5.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S4",
+      "latency_ms": 16080.0,
+      "correctness": 4.0,
+      "size": 80
+    }
+  ],
+  "x_data_key": "latency_ms",
+  "y_data_key": "correctness",
+  "group_key": "system",
+  "x_label": "Total latency (ms)",
+  "y_label": "Correctness",
+  "size_key": "size"
+}

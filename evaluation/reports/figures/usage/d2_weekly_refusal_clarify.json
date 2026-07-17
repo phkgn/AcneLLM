@@ -1,0 +1,78 @@
+{
+  "id": "d2_weekly_refusal_clarify",
+  "title": "Weekly refusal and clarify rate",
+  "chart_type": "line",
+  "data": [
+    {
+      "week": "2026-W20",
+      "total": 82,
+      "refusal_rate": 0.060976,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W21",
+      "total": 146,
+      "refusal_rate": 0.123288,
+      "clarify_rate": 0.10274
+    },
+    {
+      "week": "2026-W22",
+      "total": 171,
+      "refusal_rate": 0.140351,
+      "clarify_rate": 0.064327
+    },
+    {
+      "week": "2026-W23",
+      "total": 2071,
+      "refusal_rate": 0.066634,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W24",
+      "total": 265,
+      "refusal_rate": 0.10566,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W25",
+      "total": 6,
+      "refusal_rate": 0.166667,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W27",
+      "total": 4,
+      "refusal_rate": 0.0,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W28",
+      "total": 305,
+      "refusal_rate": 0.183607,
+      "clarify_rate": 0.0
+    },
+    {
+      "week": "2026-W29",
+      "total": 292,
+      "refusal_rate": 0.229452,
+      "clarify_rate": 0.0
+    }
+  ],
+  "x_key": "week",
+  "x_label": "ISO week",
+  "y_label": "Rate",
+  "domain": [
+    0,
+    1
+  ],
+  "series": [
+    {
+      "key": "refusal_rate",
+      "label": "Refusal"
+    },
+    {
+      "key": "clarify_rate",
+      "label": "Clarify"
+    }
+  ]
+}

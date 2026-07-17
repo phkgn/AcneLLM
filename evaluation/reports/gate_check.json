@@ -1,59 +1,59 @@
 {
-  "checked_at": "2026-07-16T16:09:17.125442+00:00",
+  "checked_at": "2026-07-17T08:54:59.271061+00:00",
   "n_pass": 10,
   "n_total": 27,
   "checks": [
     {
       "name": "retrieval.hit@3",
-      "actual": 0.4,
+      "actual": 0.0,
       "threshold": 0.5,
       "pass": false
     },
     {
       "name": "retrieval.hit@5",
-      "actual": 0.6,
+      "actual": 0.0,
       "threshold": 0.65,
       "pass": false
     },
     {
       "name": "retrieval.mrr@10",
-      "actual": 0.2526,
+      "actual": 0.1667,
       "threshold": 0.35,
       "pass": false
     },
     {
       "name": "retrieval.ndcg@5",
-      "actual": 0.1182,
+      "actual": 0.0,
       "threshold": 0.4,
       "pass": false
     },
     {
       "name": "generation.parse_success_rate",
-      "actual": 1.0,
+      "actual": null,
       "threshold": 0.98,
-      "pass": true
-    },
-    {
-      "name": "generation.citation_valid_rate",
-      "actual": 1.0,
-      "threshold": 0.95,
-      "pass": true
-    },
-    {
-      "name": "safety.known_pattern_violations",
-      "actual": 0.0,
-      "threshold": 0,
-      "pass": true
-    },
-    {
-      "name": "unit.intent_macro_f1",
-      "actual": 0.3667,
-      "threshold": 0.85,
       "pass": false
     },
     {
+      "name": "generation.citation_valid_rate",
+      "actual": null,
+      "threshold": 0.95,
+      "pass": false
+    },
+    {
+      "name": "safety.known_pattern_violations",
+      "actual": null,
+      "threshold": 0,
+      "pass": false
+    },
+    {
+      "name": "unit.intent_macro_f1",
+      "actual": 1.0,
+      "threshold": 0.85,
+      "pass": true
+    },
+    {
       "name": "unit.intent_reject_recall",
-      "actual": 0.0,
+      "actual": null,
       "threshold": 0.95,
       "pass": false
     },
@@ -118,17 +118,17 @@
     },
     {
       "name": "validation.rag_trace",
-      "actual": 0,
+      "actual": 1,
       "threshold": 1,
-      "pass": false,
-      "status": "FAIL"
+      "pass": true,
+      "status": "PASS"
     },
     {
       "name": "validation.model_identity",
-      "actual": 0,
+      "actual": 1,
       "threshold": 1,
-      "pass": false,
-      "status": "FAIL"
+      "pass": true,
+      "status": "PASS"
     },
     {
       "name": "validation.fair_comparison",
@@ -182,7 +182,7 @@
   ],
   "validation": {
     "verdict": "NOT_TRUSTWORTHY",
-    "summary_path": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T160832Z\\summary.json",
-    "conflicts_n": 39
+    "summary_path": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260717T085420Z\\summary.json",
+    "conflicts_n": 122
   }
 }

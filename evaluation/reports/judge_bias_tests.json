@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-07-17T08:37:45.532404+00:00",
+  "judge_provider": "openai",
+  "judge_model": "gpt-5-mini-2025-08-07",
+  "dataset": "evaluation/datasets/v1/d1_dev_seed.jsonl",
+  "requested_n": 30,
+  "targets": {
+    "position_flip_rate_max": 0.1,
+    "length_spearman_abs_max": 0.3,
+    "consistency_min": 0.85
+  },
+  "position_bias": {
+    "flip_rate": 0.2222,
+    "n": 27,
+    "pass": false
+  },
+  "length_bias": {
+    "spearman_score_vs_length": 0.2194,
+    "n": 50,
+    "pass": true
+  },
+  "consistency": {
+    "exact_agreement": 0.7333,
+    "n": 30,
+    "pass": false
+  },
+  "cost_usd": 0.046
+}

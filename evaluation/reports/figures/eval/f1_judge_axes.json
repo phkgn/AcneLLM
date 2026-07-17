@@ -1,0 +1,211 @@
+{
+  "id": "f1_judge_axes",
+  "title": "S0–S4 judge axes with bootstrap CI",
+  "chart_type": "bar",
+  "data": [
+    {
+      "system": "S0",
+      "correctness": 1.0,
+      "correctness_error": [
+        0.0,
+        0.0
+      ],
+      "completeness": 1.0,
+      "completeness_error": [
+        0.0,
+        0.0
+      ],
+      "safety": 2.8,
+      "safety_error": [
+        0.4,
+        0.2
+      ],
+      "relevance": 1.0,
+      "relevance_error": [
+        0.0,
+        0.0
+      ],
+      "fluency": 3.0,
+      "fluency_error": [
+        0.0,
+        0.0
+      ],
+      "instruction_following": 2.6,
+      "instruction_following_error": [
+        0.6,
+        0.4
+      ]
+    },
+    {
+      "system": "S1",
+      "correctness": 2.5,
+      "correctness_error": [
+        0.7,
+        0.6
+      ],
+      "completeness": 2.1,
+      "completeness_error": [
+        0.5,
+        0.5
+      ],
+      "safety": 3.9,
+      "safety_error": [
+        0.4,
+        0.4
+      ],
+      "relevance": 3.6,
+      "relevance_error": [
+        1.0,
+        0.9
+      ],
+      "fluency": 3.6,
+      "fluency_error": [
+        0.5,
+        0.5
+      ],
+      "instruction_following": 3.0,
+      "instruction_following_error": [
+        0.8,
+        0.7
+      ]
+    },
+    {
+      "system": "S2",
+      "correctness": 1.8,
+      "correctness_error": [
+        0.8,
+        1.0
+      ],
+      "completeness": 1.7,
+      "completeness_error": [
+        0.7,
+        0.9
+      ],
+      "safety": 3.0,
+      "safety_error": [
+        0.6,
+        0.6
+      ],
+      "relevance": 2.0,
+      "relevance_error": [
+        1.0,
+        1.1
+      ],
+      "fluency": 2.9,
+      "fluency_error": [
+        0.6,
+        0.7
+      ],
+      "instruction_following": 2.2,
+      "instruction_following_error": [
+        0.7,
+        0.8
+      ]
+    },
+    {
+      "system": "S3",
+      "correctness": 3.8,
+      "correctness_error": [
+        0.4,
+        0.4
+      ],
+      "completeness": 2.9,
+      "completeness_error": [
+        0.3,
+        0.3
+      ],
+      "safety": 4.3,
+      "safety_error": [
+        0.4,
+        0.4
+      ],
+      "relevance": 4.8,
+      "relevance_error": [
+        0.3,
+        0.2
+      ],
+      "fluency": 3.9,
+      "fluency_error": [
+        0.6,
+        0.5
+      ],
+      "instruction_following": 4.0,
+      "instruction_following_error": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "system": "S4",
+      "correctness": 4.3,
+      "correctness_error": [
+        0.4,
+        0.4
+      ],
+      "completeness": 3.7,
+      "completeness_error": [
+        0.7,
+        0.7
+      ],
+      "safety": 4.6,
+      "safety_error": [
+        0.4,
+        0.3
+      ],
+      "relevance": 4.8,
+      "relevance_error": [
+        0.4,
+        0.2
+      ],
+      "fluency": 3.7,
+      "fluency_error": [
+        0.5,
+        0.6
+      ],
+      "instruction_following": 4.2,
+      "instruction_following_error": [
+        0.6,
+        0.5
+      ]
+    }
+  ],
+  "x_key": "system",
+  "x_label": "System",
+  "y_label": "Judge score (1–5)",
+  "domain": [
+    0,
+    5
+  ],
+  "series": [
+    {
+      "key": "correctness",
+      "label": "Correctness",
+      "error_key": "correctness_error"
+    },
+    {
+      "key": "completeness",
+      "label": "Completeness",
+      "error_key": "completeness_error"
+    },
+    {
+      "key": "safety",
+      "label": "Safety",
+      "error_key": "safety_error"
+    },
+    {
+      "key": "relevance",
+      "label": "Relevance",
+      "error_key": "relevance_error"
+    },
+    {
+      "key": "fluency",
+      "label": "Fluency",
+      "error_key": "fluency_error"
+    },
+    {
+      "key": "instruction_following",
+      "label": "Instruction Following",
+      "error_key": "instruction_following_error"
+    }
+  ]
+}

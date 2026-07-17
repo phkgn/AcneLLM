@@ -1,0 +1,52 @@
+{
+  "id": "d1_route_distribution",
+  "title": "Production route vs eval composition",
+  "chart_type": "bar",
+  "data": [
+    {
+      "route": "advise",
+      "production_count": 962,
+      "evaluation_count": 10,
+      "production_pct": 0.58162,
+      "evaluation_pct": 0.416667
+    },
+    {
+      "route": "clarify",
+      "production_count": 26,
+      "evaluation_count": 3,
+      "production_pct": 0.015719,
+      "evaluation_pct": 0.125
+    },
+    {
+      "route": "knowledge",
+      "production_count": 623,
+      "evaluation_count": 6,
+      "production_pct": 0.376663,
+      "evaluation_pct": 0.25
+    },
+    {
+      "route": "reject",
+      "production_count": 43,
+      "evaluation_count": 5,
+      "production_pct": 0.025998,
+      "evaluation_pct": 0.208333
+    }
+  ],
+  "x_key": "route",
+  "x_label": "Intent / route",
+  "y_label": "Share",
+  "domain": [
+    0,
+    1
+  ],
+  "series": [
+    {
+      "key": "production_pct",
+      "label": "Production"
+    },
+    {
+      "key": "evaluation_pct",
+      "label": "Eval dataset"
+    }
+  ]
+}

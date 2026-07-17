@@ -1,0 +1,141 @@
+{
+  "id": "b2_dataset_composition",
+  "title": "Dataset composition by split and case type",
+  "chart_type": "bar",
+  "data": [
+    {
+      "file": "train",
+      "severe_nodular_scarring": 11154,
+      "pregnancy_breastfeeding_safety": 11006,
+      "mild_comedonal": 8683,
+      "moderate_inflammatory": 5951,
+      "skincare_irritation": 4862,
+      "antibiotic_or_isotretinoin_boundary": 3289,
+      "when_to_see_doctor": 2525,
+      "self_procedure_refusal": 976,
+      "insufficient_info": 415,
+      "prompt_injection_encoding": 409,
+      "prompt_injection_system_leak": 368,
+      "prompt_injection_indirect": 365,
+      "prompt_injection_role_swap": 337,
+      "prompt_injection_dan_jailbreak": 316,
+      "other": 3577
+    },
+    {
+      "file": "val",
+      "severe_nodular_scarring": 576,
+      "pregnancy_breastfeeding_safety": 617,
+      "mild_comedonal": 486,
+      "moderate_inflammatory": 355,
+      "skincare_irritation": 254,
+      "antibiotic_or_isotretinoin_boundary": 178,
+      "when_to_see_doctor": 129,
+      "self_procedure_refusal": 57,
+      "insufficient_info": 24,
+      "prompt_injection_encoding": 0,
+      "prompt_injection_system_leak": 0,
+      "prompt_injection_indirect": 0,
+      "prompt_injection_role_swap": 0,
+      "prompt_injection_dan_jailbreak": 0,
+      "other": 571
+    },
+    {
+      "file": "test",
+      "severe_nodular_scarring": 653,
+      "pregnancy_breastfeeding_safety": 596,
+      "mild_comedonal": 493,
+      "moderate_inflammatory": 343,
+      "skincare_irritation": 275,
+      "antibiotic_or_isotretinoin_boundary": 188,
+      "when_to_see_doctor": 160,
+      "self_procedure_refusal": 61,
+      "insufficient_info": 30,
+      "prompt_injection_encoding": 0,
+      "prompt_injection_system_leak": 0,
+      "prompt_injection_indirect": 0,
+      "prompt_injection_role_swap": 0,
+      "prompt_injection_dan_jailbreak": 0,
+      "other": 370
+    }
+  ],
+  "x_key": "file",
+  "x_label": "Split",
+  "y_label": "Examples",
+  "series": [
+    {
+      "key": "severe_nodular_scarring",
+      "label": "severe_nodular_scarring",
+      "stack": "case_type"
+    },
+    {
+      "key": "pregnancy_breastfeeding_safety",
+      "label": "pregnancy_breastfeeding_safety",
+      "stack": "case_type"
+    },
+    {
+      "key": "mild_comedonal",
+      "label": "mild_comedonal",
+      "stack": "case_type"
+    },
+    {
+      "key": "moderate_inflammatory",
+      "label": "moderate_inflammatory",
+      "stack": "case_type"
+    },
+    {
+      "key": "skincare_irritation",
+      "label": "skincare_irritation",
+      "stack": "case_type"
+    },
+    {
+      "key": "antibiotic_or_isotretinoin_boundary",
+      "label": "antibiotic_or_isotretinoin_boundary",
+      "stack": "case_type"
+    },
+    {
+      "key": "when_to_see_doctor",
+      "label": "when_to_see_doctor",
+      "stack": "case_type"
+    },
+    {
+      "key": "self_procedure_refusal",
+      "label": "self_procedure_refusal",
+      "stack": "case_type"
+    },
+    {
+      "key": "insufficient_info",
+      "label": "insufficient_info",
+      "stack": "case_type"
+    },
+    {
+      "key": "prompt_injection_encoding",
+      "label": "prompt_injection_encoding",
+      "stack": "case_type"
+    },
+    {
+      "key": "prompt_injection_system_leak",
+      "label": "prompt_injection_system_leak",
+      "stack": "case_type"
+    },
+    {
+      "key": "prompt_injection_indirect",
+      "label": "prompt_injection_indirect",
+      "stack": "case_type"
+    },
+    {
+      "key": "prompt_injection_role_swap",
+      "label": "prompt_injection_role_swap",
+      "stack": "case_type"
+    },
+    {
+      "key": "prompt_injection_dan_jailbreak",
+      "label": "prompt_injection_dan_jailbreak",
+      "stack": "case_type"
+    },
+    {
+      "key": "other",
+      "label": "other",
+      "stack": "case_type"
+    }
+  ]
+}

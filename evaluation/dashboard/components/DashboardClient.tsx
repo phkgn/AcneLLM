@@ -11,10 +11,17 @@ import {
   RefreshCw,
   TestTube2,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import type { JobRecord } from "@/lib/types";
+import {
+  PRELIMINARY_LIMIT_MAX,
+  PRELIMINARY_LIMIT_MIN,
+  isValidPreliminaryLimitInput,
+  parsePreliminaryLimit,
+} from "@/lib/preliminary";
+import type { CommandId, JobRecord } from "@/lib/types";
 import {
   Button,
   Card,
@@ -22,6 +29,7 @@ import {
   PageHeader,
   Pill,
   formatBytes,
+  inputClass,
 } from "./ui";
 
 type StatusResponse = {
@@ -75,7 +83,11 @@ export function DashboardClient() {
   const [jobs, setJobs] = useState<JobRecord[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [preliminaryLimit, setPreliminaryLimit] = useState(
+    String(PRELIMINARY_LIMIT_MAX),
+  );
   const [, tick] = useState(0);
+  const preliminaryLimitValid = isValidPreliminaryLimitInput(preliminaryLimit);
 
   const refresh = useCallback(async () => {
     const [statusRes, overviewRes, jobsRes] = await Promise.all([
@@ -102,7 +114,7 @@ export function DashboardClient() {
   }, [refresh]);
 
   async function launch(
-    commandId: string,
+    commandId: CommandId,
     args: Record<string, unknown> = {},
   ) {
     setBusy(commandId);
@@ -124,6 +136,28 @@ export function DashboardClient() {
     } finally {
       setBusy(null);
     }
+  }
+
+  function launchPreliminaryD2() {
+    if (!preliminaryLimitValid) {
+      setError(
+        `Quick Run limit phải là số nguyên từ ${PRELIMINARY_LIMIT_MIN} đến ${PRELIMINARY_LIMIT_MAX}.`,
+      );
+      return;
+    }
+    const selectedLimit = parsePreliminaryLimit(preliminaryLimit);
+    const confirmed = window.confirm(
+      [
+        `Quick preliminary D2 sẽ chạy ${selectedLimit} mẫu qua S0–S4,`,
+        "sau đó gọi OpenAI GPT-5 mini Judge và tạo report.",
+        "",
+        "Judge có thể phát sinh chi phí API.",
+        "D8 và regression gate không nằm trong run provisional này.",
+        "",
+        "Tiếp tục?",
+      ].join("\n"),
+    );
+    if (confirmed) void launch("preliminary_d2", { limit: selectedLimit });
   }
 
   async function kill(jobId: string) {
@@ -247,6 +281,50 @@ export function DashboardClient() {
             </p>
             <h2 className="mt-1 text-xl font-black">Bắt đầu một run</h2>
             <div className="mt-5 grid gap-3">
+              <div className="rounded-xl border border-[#514027] bg-[#332719]/70 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-black text-[#f0c57d]">
+                      Preliminary synthetic-only
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-ink/50">
+                      D2 × {preliminaryLimitValid ? preliminaryLimit : "—"} · S0–S4
+                      → Judge → Report · run directory mới.
+                    </p>
+                  </div>
+                  <Pill tone="warn">không gate</Pill>
+                </div>
+                <label className="mt-3 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                  Số mẫu ({PRELIMINARY_LIMIT_MIN}–{PRELIMINARY_LIMIT_MAX})
+                  <input
+                    aria-label="Quick Run sample limit"
+                    type="number"
+                    min={PRELIMINARY_LIMIT_MIN}
+                    max={PRELIMINARY_LIMIT_MAX}
+                    step={1}
+                    value={preliminaryLimit}
+                    onChange={(event) => setPreliminaryLimit(event.target.value)}
+                    className={`${inputClass} mt-2`}
+                  />
+                </label>
+                {!preliminaryLimitValid ? (
+                  <p className="mt-2 text-xs font-bold text-ember">
+                    Nhập số nguyên từ {PRELIMINARY_LIMIT_MIN} đến{" "}
+                    {PRELIMINARY_LIMIT_MAX}.
+                  </p>
+                ) : null}
+                <Button
+                  className="mt-3 w-full"
+                  variant="secondary"
+                  disabled={busy !== null || !preliminaryLimitValid}
+                  onClick={launchPreliminaryD2}
+                >
+                  <Zap size={17} />
+                  {busy === "preliminary_d2"
+                    ? "Đang tạo run…"
+                    : "Quick preliminary D2"}
+                </Button>
+              </div>
               <Button
                 variant="secondary"
                 disabled={busy !== null}
@@ -277,8 +355,8 @@ export function DashboardClient() {
               </Button>
             </div>
             <p className="mt-4 text-xs leading-5 text-ink/45">
-              Judge có thể phát sinh chi phí API; thao tác đó chỉ có trong trang Runs
-              và luôn có cảnh báo xác nhận.
+              Quick preliminary yêu cầu xác nhận một lần trước bước có phí. Artifact
+              được cô lập và gắn notice, không ghi đè run chính thức.
             </p>
           </Card>
 

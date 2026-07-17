@@ -145,7 +145,7 @@ def run_reproducibility(
     subset: int,
     *,
     run_judge: bool = False,
-    judge_provider: str = "deepseek",
+    judge_provider: str = "openai",
 ) -> tuple[CheckResult, dict[str, Any]]:
     if subset <= 0:
         summary = {

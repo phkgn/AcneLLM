@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-07-16T18:59:44.704618+00:00",
+  "generation_id": "20260716T185944704618Z-0362e3fc33",
+  "generator": "evaluation.analysis.figures_kb",
+  "artifact_policy": "fresh_compute_no_figure_reuse",
+  "group": "kb",
+  "figures": [
+    {
+      "id": "a2_chunk_length",
+      "title": "Chunk length distribution",
+      "kind": "chart",
+      "file": "a2_chunk_length.json",
+      "pdf_file": null,
+      "chart_type": "hist",
+      "caption": "Character length from chunks.jsonl, using text_len when present.",
+      "source_data": "data/raw/chunks.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "a3_kb_umap",
+      "title": "Embedding space (UMAP)",
+      "kind": "png",
+      "file": "a3_kb_umap.png",
+      "pdf_file": null,
+      "chart_type": "scatter",
+      "caption": "Seed-42 sample from Chroma, colored by source; rare sources are grouped as other.",
+      "source_data": "data/chroma_db",
+      "status": "ok",
+      "skip_reason": null,
+      "data_file": "a3_kb_umap.json"
+    },
+    {
+      "id": "a4_near_duplicate_rate",
+      "title": "Near-duplicate rate (cosine > 0.95)",
+      "kind": "chart",
+      "file": "a4_near_duplicate_rate.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Exact blockwise cosine scan on the UMAP sample; diagonal pairs are excluded.",
+      "source_data": "data/chroma_db",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "a5_coverage_matrix",
+      "title": "Corpus coverage matrix",
+      "kind": "png",
+      "file": "a5_coverage_matrix.png",
+      "pdf_file": null,
+      "chart_type": "heatmap",
+      "caption": "Keyword-matched triples derived from the existing normalizer taxonomy.",
+      "source_data": "data/raw/chunks.jsonl + scripts/eval/normalizer/taxonomy.py",
+      "status": "ok",
+      "skip_reason": null,
+      "data_file": "a5_coverage_matrix.json"
+    },
+    {
+      "id": "a6_document_age",
+      "title": "Document age distribution",
+      "kind": "chart",
+      "file": null,
+      "pdf_file": null,
+      "chart_type": "hist",
+      "caption": "Document age when metadata contains dates.",
+      "source_data": "data/raw/chunks.jsonl",
+      "status": "skipped",
+      "skip_reason": "ValueError: Chunk metadata has no parseable publication/update date."
+    },
+    {
+      "id": "a7_ood_distance",
+      "title": "Query distance to OOD centroid",
+      "kind": "chart",
+      "file": "a7_ood_distance.json",
+      "pdf_file": null,
+      "chart_type": "hist",
+      "caption": "T1 queries embedded with the production embedder; the line marks the current similarity threshold converted to distance.",
+      "source_data": "config/ood_centroid.json + evaluation/datasets/v1/t1_*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "a8_bm25_terms",
+      "title": "Top BM25 terms",
+      "kind": "chart",
+      "file": "a8_bm25_terms.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Terms ranked by IDF weighted by corpus document frequency.",
+      "source_data": "data/bm25_index.pkl",
+      "status": "ok",
+      "skip_reason": null
+    }
+  ]
+}

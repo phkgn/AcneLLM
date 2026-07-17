@@ -1,0 +1,323 @@
+AcneLLM Eval Dashboard: http://127.0.0.1:3100
+Nhấn Ctrl+C để dừng server.
+
+> acnellm-eval-dashboard@0.1.0 dev
+> next dev -H 127.0.0.1 -p 3100
+
+   ▲ Next.js 15.5.20
+   - Local:        http://127.0.0.1:3100
+   - Network:      http://127.0.0.1:3100
+
+ ✓ Starting...
+ ✓ Ready in 2.9s
+ ○ Compiling /api/jobs/[id]/logs/stream ...
+ ✓ Compiled /api/jobs/[id]/logs/stream in 613ms (313 modules)
+ GET /api/status 200 in 898ms
+ ✓ Compiled /api/progress in 191ms (316 modules)
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 270ms
+ GET /api/status 200 in 61ms
+ ○ Compiling /api/files ...
+ ✓ Compiled /api/files in 632ms (323 modules)
+ GET /api/files?path=../../.env 403 in 474ms
+ GET /api/results?experiment=qa_clean_1case 200 in 757ms
+ GET /api/files?path=%2e%2e%2f%2e%2e%2f.env 403 in 15ms
+ ✓ Compiled /api/validation in 220ms (325 modules)
+ GET /api/validation 200 in 297ms
+ GET /api/files?path=evaluation%2Freports%2Fgate_check.json 200 in 273ms
+ GET /api/status 200 in 56ms
+ GET /api/validation 200 in 18ms
+ GET /api/results?experiment=qa_clean_1case 200 in 39ms
+ ○ Compiling /api/jobs ...
+ ✓ Compiled /api/jobs in 535ms (327 modules)
+ GET /api/jobs 200 in 612ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 631ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 41369ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 30ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 37ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 36ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/results?experiment=qa_clean_1case 200 in 41ms
+ GET /api/status 200 in 51ms
+ GET /api/jobs 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 40ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59358ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 18ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 18ms
+ ✓ Compiled /api/inspect in 391ms (325 modules)
+ GET /api/inspect?experiment=qa_clean_1case&system=s1&sample=d2-0001 200 in 479ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/inspect?experiment=qa_clean_1case&system=s1&sampleId=d2-0001 200 in 25ms
+ GET /api/jobs 200 in 40ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 48ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59956ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ POST /api/jobs 201 in 35ms
+ GET /api/jobs 200 in 14ms
+ POST /api/jobs 201 in 28ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/jobs 200 in 40ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 20ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 14ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 18ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 37ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 22ms
+ GET /api/jobs 200 in 20ms
+ GET /api/jobs 200 in 26ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 18ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 13ms
+ GET /api/jobs 200 in 25ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 22ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 23ms
+ GET /api/jobs 200 in 21ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/jobs 200 in 14ms
+ GET /api/jobs 200 in 14ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 14ms
+ GET /api/jobs 200 in 28ms
+ GET /api/jobs 200 in 18ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 14ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 16ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 22ms
+ GET /api/jobs 200 in 20ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 15ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 20ms
+ GET /api/jobs 200 in 19ms
+ GET /api/jobs 200 in 18ms
+ GET /api/jobs 200 in 17ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 21ms
+ GET /api/jobs 200 in 16ms
+ GET /api/jobs 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 38ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59964ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 18ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/jobs 200 in 17ms
+ GET /api/results?experiment=qa_clean_1case 200 in 43ms
+ ✓ Compiled /api/meta in 457ms (323 modules)
+ GET /api/meta 200 in 609ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 33ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/jobs 200 in 24ms
+ GET /api/jobs 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 44ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59918ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 16ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 19ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ ○ Compiling /results ...
+ ✓ Compiled /results in 3.2s (1619 modules)
+ GET /results?experiment=qa_clean_1case 200 in 4642ms
+ ✓ Compiled /api/results in 449ms (902 modules)
+ ✓ Compiled (907 modules)
+ GET /api/results?experiment=main_2x2_t3 200 in 859ms
+ GET /api/meta 200 in 879ms
+ ✓ Compiled /api/status in 444ms (910 modules)
+ GET /api/status 200 in 595ms
+ GET /api/results?experiment=qa_clean_1case 200 in 34ms
+ GET /api/jobs 200 in 37ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 68ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59976ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 31ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/status 200 in 40ms
+ GET /api/results?experiment=qa_clean_1case 200 in 32ms
+ GET /api/jobs 200 in 20ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 37ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59904ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 17ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 36ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 32ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/jobs 200 in 32ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 50ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59966ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 23ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 29ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 41ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/jobs 200 in 31ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 49ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59930ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 30ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 31ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ GET /api/status 200 in 44ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 28ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 46ms
+ GET /api/jobs 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 41ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 59934ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 26ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 22ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 21ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 30ms
+ GET /api/jobs 200 in 31ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 57ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 52645ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 25ms
+ GET /api/jobs 200 in 18ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 628ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 24ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 60ms
+ GET /api/jobs 200 in 16ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 983ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 27ms
+ ○ Compiling /review ...
+ ✓ Compiled /review in 1701ms (1657 modules)
+ GET /api/jobs 200 in 1108ms
+ GET /api/files/watch?path=reports%2Fqa_clean_1case%2Fs1.results.jsonl 200 in 2224ms
+ GET /review 200 in 2274ms
+ GET /api/jobs 200 in 346ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 87ms
+ GET /review 200 in 117ms
+ GET /api/progress?experiment=qa_clean_1case&dataset=evaluation%2Fdatasets%2Fv1%2Fd2_test.jsonl&systems=s1&limit=1 200 in 71ms
+ GET /api/jobs/mrnrbx8z-0a260622/logs/stream 200 in 637623ms
+ ○ Compiling /api/datasets/review ...
+ ✓ Compiled /api/datasets/review in 644ms (1660 modules)
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 794ms
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 801ms
+ GET /review 200 in 330ms
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 134ms
+ GET /review 200 in 38ms
+ GET /review 200 in 34ms
+ GET /api/datasets/review?dataset=all&status=all&kind=all&query=&page=1&pageSize=50 200 in 46ms
+ GET /api/datasets/review?sampleId=d2-0001 200 in 47ms
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 50ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1424ms (1642 modules)
+ GET / 200 in 1692ms
+ GET / 200 in 45ms
+ ✓ Compiled /api/overview in 382ms (919 modules)
+ ✓ Compiled in 419ms (747 modules)
+ GET /api/jobs 200 in 1197ms
+ GET /api/jobs 200 in 1198ms
+ GET /api/overview 200 in 1254ms
+ GET /api/overview 200 in 1250ms
+ GET /api/status 200 in 1275ms
+ GET /api/status 200 in 1287ms
+ GET / 200 in 158ms
+ GET /api/jobs 200 in 70ms
+ GET /api/overview 200 in 76ms
+ GET /api/status 200 in 82ms
+ GET /api/jobs 200 in 67ms
+ GET /api/overview 200 in 80ms
+ GET /api/status 200 in 86ms
+ GET /api/jobs 200 in 60ms
+ GET /api/overview 200 in 83ms
+ GET /api/status 200 in 89ms
+ GET /api/jobs 200 in 44ms
+ GET /api/overview 200 in 52ms
+ GET /api/status 200 in 56ms
+ GET /api/jobs 200 in 47ms
+ GET /api/overview 200 in 55ms
+ GET /api/status 200 in 59ms
+ GET /api/jobs 200 in 50ms
+ GET /api/overview 200 in 59ms
+ GET /api/status 200 in 63ms
+ GET /api/jobs 200 in 53ms
+ GET /api/overview 200 in 60ms
+ GET /api/status 200 in 64ms
+ GET /review 200 in 59ms
+ ✓ Compiled /api/datasets/review in 293ms (934 modules)
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 504ms
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 532ms
+ ✓ Compiled in 2.2s (1658 modules)
+ GET /review 200 in 429ms
+ ✓ Compiled /api/datasets/review in 852ms (1685 modules)
+ GET /api/datasets/review?dataset=all&status=pending&kind=all&query=&page=1&pageSize=50 200 in 685ms
+ GET /review 200 in 313ms
+ GET /api/datasets/review?sampleId=d1-0000 200 in 79ms
+ GET /api/datasets/review?dataset=d1&status=pending&kind=all&page=1&pageSize=50 200 in 67ms
+ GET /api/datasets/review?sampleId=d1-0000 200 in 57ms
+ GET /review 200 in 312ms
+ ○ Compiling /api/datasets/review/export ...
+ ✓ Compiled /api/datasets/review/export in 884ms (1673 modules)
+ GET /api/datasets/review/export?dataset=d1&version=v1.0 409 in 1069ms

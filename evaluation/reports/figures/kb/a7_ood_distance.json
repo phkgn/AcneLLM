@@ -1,0 +1,162 @@
+{
+  "id": "a7_ood_distance",
+  "title": "Query distance to OOD centroid",
+  "chart_type": "hist",
+  "data": [
+    {
+      "bin": "0.3–0.3",
+      "bin_start": 0.302043,
+      "bin_end": 0.319981,
+      "count": 1
+    },
+    {
+      "bin": "0.3–0.3",
+      "bin_start": 0.319981,
+      "bin_end": 0.337919,
+      "count": 0
+    },
+    {
+      "bin": "0.3–0.4",
+      "bin_start": 0.337919,
+      "bin_end": 0.355856,
+      "count": 0
+    },
+    {
+      "bin": "0.4–0.4",
+      "bin_start": 0.355856,
+      "bin_end": 0.373794,
+      "count": 0
+    },
+    {
+      "bin": "0.4–0.4",
+      "bin_start": 0.373794,
+      "bin_end": 0.391731,
+      "count": 1
+    },
+    {
+      "bin": "0.4–0.4",
+      "bin_start": 0.391731,
+      "bin_end": 0.409669,
+      "count": 0
+    },
+    {
+      "bin": "0.4–0.4",
+      "bin_start": 0.409669,
+      "bin_end": 0.427607,
+      "count": 3
+    },
+    {
+      "bin": "0.4–0.4",
+      "bin_start": 0.427607,
+      "bin_end": 0.445544,
+      "count": 5
+    },
+    {
+      "bin": "0.4–0.5",
+      "bin_start": 0.445544,
+      "bin_end": 0.463482,
+      "count": 1
+    },
+    {
+      "bin": "0.5–0.5",
+      "bin_start": 0.463482,
+      "bin_end": 0.481419,
+      "count": 0
+    },
+    {
+      "bin": "0.5–0.5",
+      "bin_start": 0.481419,
+      "bin_end": 0.499357,
+      "count": 1
+    },
+    {
+      "bin": "0.5–0.5",
+      "bin_start": 0.499357,
+      "bin_end": 0.517295,
+      "count": 6
+    },
+    {
+      "bin": "0.5–0.5",
+      "bin_start": 0.517295,
+      "bin_end": 0.535232,
+      "count": 2
+    },
+    {
+      "bin": "0.5–0.6",
+      "bin_start": 0.535232,
+      "bin_end": 0.55317,
+      "count": 4
+    },
+    {
+      "bin": "0.6–0.6",
+      "bin_start": 0.55317,
+      "bin_end": 0.571108,
+      "count": 4
+    },
+    {
+      "bin": "0.6–0.6",
+      "bin_start": 0.571108,
+      "bin_end": 0.589045,
+      "count": 2
+    },
+    {
+      "bin": "0.6–0.6",
+      "bin_start": 0.589045,
+      "bin_end": 0.606983,
+      "count": 3
+    },
+    {
+      "bin": "0.6–0.6",
+      "bin_start": 0.606983,
+      "bin_end": 0.62492,
+      "count": 1
+    },
+    {
+      "bin": "0.6–0.6",
+      "bin_start": 0.62492,
+      "bin_end": 0.642858,
+      "count": 3
+    },
+    {
+      "bin": "0.6–0.7",
+      "bin_start": 0.642858,
+      "bin_end": 0.660796,
+      "count": 0
+    },
+    {
+      "bin": "0.7–0.7",
+      "bin_start": 0.660796,
+      "bin_end": 0.678733,
+      "count": 3
+    },
+    {
+      "bin": "0.7–0.7",
+      "bin_start": 0.678733,
+      "bin_end": 0.696671,
+      "count": 2
+    },
+    {
+      "bin": "0.7–0.7",
+      "bin_start": 0.696671,
+      "bin_end": 0.714608,
+      "count": 0
+    },
+    {
+      "bin": "0.7–0.7",
+      "bin_start": 0.714608,
+      "bin_end": 0.732546,
+      "count": 2
+    }
+  ],
+  "x_key": "bin",
+  "x_label": "Cosine distance (1 − similarity)",
+  "y_label": "Queries",
+  "series": [
+    {
+      "key": "count",
+      "label": "Queries"
+    }
+  ],
+  "threshold": 0.75,
+  "threshold_label": "OOD boundary (0.75)"
+}

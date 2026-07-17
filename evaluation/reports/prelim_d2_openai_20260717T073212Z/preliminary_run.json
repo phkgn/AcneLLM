@@ -1,0 +1,18 @@
+{
+  "profile": "PRELIMINARY_SYNTHETIC_ONLY",
+  "status": "succeeded",
+  "dataset": "evaluation/datasets/v1/d2_test.jsonl",
+  "systems": ["s0", "s1", "s2", "s3", "s4"],
+  "comparisons": ["s0:s1", "s0:s2", "s1:s3", "s2:s3"],
+  "limit": 140,
+  "run_dir": "evaluation/reports/prelim_d2_openai_20260717T073212Z",
+  "generation_source": "evaluation/reports/prelim_d2_20260716T190345_330Z",
+  "judge_provider": "openai",
+  "judge_model": "gpt-5-nano-2025-08-07",
+  "judge_status": "succeeded",
+  "judge_invalid_rows": 0,
+  "report_status": "succeeded",
+  "notice": "evaluation/reports/prelim_d2_openai_20260717T073212Z/PROVISIONAL_NOTICE.md",
+  "excluded": ["t1", "t2_d8", "gate", "human_judge_calibration"],
+  "message": "OpenAI rejudge hoàn tất trên đúng 700 generation rows cũ; kết quả vẫn preliminary và uncalibrated."
+}

@@ -1,51 +1,22 @@
 {
-  "generated_at": "2026-07-16T13:58:44.308336+00:00",
-  "n": 10,
+  "generated_at": "2026-07-16T17:01:31.202381+00:00",
+  "n": 1,
   "dataset": "evaluation/datasets/v1/t1_intent_seed.jsonl",
-  "intent_accuracy": 0.6,
-  "intent_macro_f1": 0.3667,
+  "intent_accuracy": 1.0,
+  "intent_macro_f1": 1.0,
   "intent_per_class": {
     "advise": {
-      "precision": 0.6667,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1": 0.8,
-      "support": 4
-    },
-    "clarify": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 2
-    },
-    "knowledge": {
-      "precision": 0.5,
-      "recall": 1.0,
-      "f1": 0.6667,
-      "support": 2
-    },
-    "reject": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "support": 2
+      "f1": 1.0,
+      "support": 1
     }
   },
-  "reject_recall": 0.0,
+  "reject_recall": null,
   "confusion": {
     "advise": {
-      "advise": 4
-    },
-    "knowledge": {
-      "knowledge": 2
-    },
-    "clarify": {
-      "knowledge": 1,
       "advise": 1
-    },
-    "reject": {
-      "advise": 1,
-      "knowledge": 1
     }
   },
-  "subject_accuracy": 0.4
+  "subject_accuracy": 1.0
 }

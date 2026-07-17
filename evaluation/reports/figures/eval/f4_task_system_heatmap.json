@@ -1,0 +1,52 @@
+{
+  "id": "f4_task_system_heatmap",
+  "title": "Correctness by task type and system",
+  "chart_type": "heatmap",
+  "rows": [
+    "unlabeled"
+  ],
+  "columns": [
+    "S0",
+    "S1",
+    "S2",
+    "S3",
+    "S4"
+  ],
+  "cells": [
+    {
+      "row": "unlabeled",
+      "column": "S0",
+      "value": 1.0,
+      "n": 10
+    },
+    {
+      "row": "unlabeled",
+      "column": "S1",
+      "value": 2.5,
+      "n": 10
+    },
+    {
+      "row": "unlabeled",
+      "column": "S2",
+      "value": 1.8,
+      "n": 10
+    },
+    {
+      "row": "unlabeled",
+      "column": "S3",
+      "value": 3.8,
+      "n": 10
+    },
+    {
+      "row": "unlabeled",
+      "column": "S4",
+      "value": 4.3,
+      "n": 10
+    }
+  ],
+  "value_label": "Mean correctness",
+  "domain": [
+    1,
+    5
+  ]
+}

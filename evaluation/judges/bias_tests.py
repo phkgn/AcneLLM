@@ -20,8 +20,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from evaluation.common import ROOT, REPORTS_DIR, read_jsonl, utcnow  # noqa: E402
 from evaluation.datasets.registry import load_dataset  # noqa: E402
-from evaluation.judges.clients import JudgeClient  # noqa: E402
-from evaluation.judges.run_judge import judge_pair, judge_pointwise  # noqa: E402
+from evaluation.judges.clients import (  # noqa: E402
+    DEFAULT_JUDGE_PROVIDER,
+    DEFAULT_OPENAI_JUDGE_MODEL,
+    JudgeClient,
+)
+from evaluation.judges.run_judge import (  # noqa: E402
+    _matches_client,
+    is_valid_pointwise_payload,
+    judge_pair,
+    judge_pointwise,
+)
 from evaluation.annotations.import_labels import spearman  # noqa: E402
 
 TARGETS = {"position_flip_rate_max": 0.10, "length_spearman_abs_max": 0.30,
@@ -32,20 +41,27 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", required=True)
     ap.add_argument("--dataset", required=True)
-    ap.add_argument("--provider", default="deepseek")
+    ap.add_argument("--provider", default=DEFAULT_JUDGE_PROVIDER,
+                    choices=["openai"])
+    ap.add_argument("--model", default=None,
+                    help=f"OpenAI default: {DEFAULT_OPENAI_JUDGE_MODEL}")
     ap.add_argument("--n", type=int, default=30)
     args = ap.parse_args()
 
     run_dir = Path(args.run_dir)
     samples = {s["sample_id"]: s for s in load_dataset(ROOT / args.dataset)}
-    client = JudgeClient(args.provider)
+    client = JudgeClient(args.provider, args.model)
     rng = random.Random(7)
 
     results = {p.stem.replace(".results", ""): {r["sample_id"]: r for r in read_jsonl(p)
                                                 if r.get("ok")}
                for p in sorted(run_dir.glob("*.results.jsonl"))}
     sys_ids = sorted(results)
-    report: dict = {"generated_at": utcnow(), "judge_model": client.model,
+    report: dict = {"generated_at": utcnow(),
+                    "judge_provider": client.provider,
+                    "judge_model": client.model,
+                    "dataset": args.dataset,
+                    "requested_n": args.n,
                     "targets": TARGETS}
 
     # 1. Position bias: flip rate giữa forward/backward trên các cặp hệ ngẫu nhiên
@@ -74,6 +90,10 @@ def main() -> None:
         if not judged_path.exists():
             continue
         for j in read_jsonl(judged_path):
+            if not _matches_client(j, client) or not is_valid_pointwise_payload(
+                j.get("pointwise")
+            ):
+                continue
             pw = j.get("pointwise") or {}
             rec = results.get(sid_sys, {}).get(j["sample_id"])
             if rec and isinstance(pw.get("correctness"), (int, float)):
@@ -86,7 +106,6 @@ def main() -> None:
     }
 
     # 3. Consistency: chấm lại KHÔNG cache, so với điểm đã lưu trong *.judged.jsonl
-    from evaluation.judges.run_judge import build_pointwise_prompt
     agree, total_c = 0, 0
     pool = [(s, sid) for s in sys_ids for sid in (set(results[s]) & set(samples))]
     rng.shuffle(pool)
@@ -94,12 +113,18 @@ def main() -> None:
         judged_path = run_dir / f"{sys_id}.judged.jsonl"
         if not judged_path.exists():
             continue
-        old = next((j for j in read_jsonl(judged_path) if j["sample_id"] == sid), None)
+        old = next((
+            j for j in read_jsonl(judged_path)
+            if j["sample_id"] == sid
+            and _matches_client(j, client)
+            and is_valid_pointwise_payload(j.get("pointwise"))
+        ), None)
         old_pw = (old or {}).get("pointwise") or {}
         if not isinstance(old_pw.get("correctness"), (int, float)):
             continue
-        prompt = build_pointwise_prompt(results[sys_id][sid], samples[sid])
-        new = client.judge(prompt, use_cache=False) or {}
+        new = judge_pointwise(
+            client, results[sys_id][sid], samples[sid], use_cache=False
+        ) or {}
         if isinstance(new.get("correctness"), (int, float)):
             total_c += 1
             agree += int(new["correctness"] == old_pw["correctness"])
@@ -109,10 +134,14 @@ def main() -> None:
     }
 
     report["cost_usd"] = round(client.total_cost_usd, 3)
+    run_out = run_dir / "judge_bias_tests.json"
+    run_out.write_text(
+        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     out = REPORTS_DIR / "judge_bias_tests.json"
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=False))
-    print(f"-> {out}")
+    print(f"-> {run_out}\n-> {out}")
 
 
 if __name__ == "__main__":

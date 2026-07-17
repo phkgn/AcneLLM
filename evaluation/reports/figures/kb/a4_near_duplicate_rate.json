@@ -1,0 +1,32 @@
+{
+  "id": "a4_near_duplicate_rate",
+  "title": "Near-duplicate rate (cosine > 0.95)",
+  "chart_type": "bar",
+  "data": [
+    {
+      "metric": "Chunks with ≥1 near duplicate",
+      "rate": 0.015,
+      "count": 120
+    },
+    {
+      "metric": "Near-duplicate vector pairs",
+      "rate": 2e-06,
+      "count": 64
+    }
+  ],
+  "x_key": "metric",
+  "x_label": "Definition",
+  "y_label": "Rate",
+  "domain": [
+    0,
+    0.015
+  ],
+  "series": [
+    {
+      "key": "rate",
+      "label": "Rate"
+    }
+  ],
+  "threshold": 0.95,
+  "sample_size": 8000
+}

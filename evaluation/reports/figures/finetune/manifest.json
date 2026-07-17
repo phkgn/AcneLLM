@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-07-16T18:59:44.704618+00:00",
+  "generation_id": "20260716T185944704618Z-0362e3fc33",
+  "generator": "evaluation.analysis.figures_kb",
+  "artifact_policy": "fresh_compute_no_figure_reuse",
+  "group": "finetune",
+  "figures": [
+    {
+      "id": "b1_prompt_response_length",
+      "title": "Train vs test prompt/response length",
+      "kind": "chart",
+      "file": "b1_prompt_response_length.json",
+      "pdf_file": null,
+      "chart_type": "hist",
+      "caption": "Overlaid character-length histograms for train and test messages.",
+      "source_data": "data/finetune/clean/*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "b2_dataset_composition",
+      "title": "Dataset composition by split and case type",
+      "kind": "chart",
+      "file": "b2_dataset_composition.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Top case types are shown explicitly; the long tail is grouped as other.",
+      "source_data": "data/finetune/clean/*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "b3_metadata_labels",
+      "title": "Finetune metadata label distribution",
+      "kind": "chart",
+      "file": "b3_metadata_labels.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Severity, pregnancy state and the 20 most frequent safety flags.",
+      "source_data": "data/finetune/clean/*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "b4_contamination_overlap",
+      "title": "Train-test contamination overlap",
+      "kind": "chart",
+      "file": "b4_contamination_overlap.json",
+      "pdf_file": null,
+      "chart_type": "hist",
+      "caption": "Histogram uses overlap values stored by check_contamination; unflagged samples are aggregated below threshold.",
+      "source_data": "evaluation/datasets/v1/d2_test.contamination.json",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "b5_source_chunk_oversampling",
+      "title": "Top source chunks used for QA generation",
+      "kind": "chart",
+      "file": "b5_source_chunk_oversampling.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Top 30 source chunks reveal concentrated QA generation and oversampling.",
+      "source_data": "data/finetune/clean/*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "b6_cleaning_before_after",
+      "title": "Cleaning before vs after",
+      "kind": "chart",
+      "file": "b6_cleaning_before_after.json",
+      "pdf_file": null,
+      "chart_type": "bar",
+      "caption": "Top case-type counts from the existing cleaning report.",
+      "source_data": "data/finetune/clean/acne_chat_response.clean_report.json",
+      "status": "ok",
+      "skip_reason": null
+    }
+  ]
+}

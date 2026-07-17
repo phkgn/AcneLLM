@@ -35,6 +35,8 @@ type MetaResponse = {
     available: boolean;
     calibrated: boolean;
     failedChecks: string[];
+    provider: string | null;
+    model: string | null;
   };
 };
 
@@ -109,6 +111,15 @@ export function ResultsClient() {
   const [paretoSystem, setParetoSystem] = useState("s3");
   const [judgeCalibration, setJudgeCalibration] =
     useState<MetaResponse["judgeCalibration"] | null>(null);
+  const runJudgeModel =
+    typeof data?.runMeta?.judge_model === "string"
+      ? data.runMeta.judge_model
+      : null;
+  const calibrationModelMismatch = Boolean(
+    runJudgeModel &&
+      judgeCalibration?.model &&
+      runJudgeModel !== judgeCalibration.model,
+  );
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -201,7 +212,8 @@ export function ResultsClient() {
         </div>
       ) : null}
 
-      {judgeCalibration && !judgeCalibration.calibrated ? (
+      {judgeCalibration &&
+      (!judgeCalibration.calibrated || calibrationModelMismatch) ? (
         <div className="mb-5 flex gap-3 rounded-2xl border border-clay/30 bg-clay/10 px-4 py-3 text-sm text-ink/78">
           <TriangleAlert className="mt-0.5 shrink-0 text-clay" size={18} />
           <div>
@@ -210,6 +222,12 @@ export function ResultsClient() {
               {judgeCalibration.available
                 ? `Các check chưa pass: ${judgeCalibration.failedChecks.join(", ")}.`
                 : "Chưa có evaluation/reports/judge_bias_tests.json."}{" "}
+              {judgeCalibration.model
+                ? `Calibration model: ${judgeCalibration.model}. `
+                : ""}
+              {calibrationModelMismatch
+                ? `Run đang dùng ${runJudgeModel}, không được kế thừa calibration của model khác. `
+                : ""}
               Judge metrics chỉ nên dùng để tham khảo.
             </p>
           </div>

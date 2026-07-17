@@ -1,0 +1,137 @@
+{
+  "id": "d4_query_terms",
+  "title": "Top anonymized production query terms",
+  "chart_type": "bar",
+  "data": [
+    {
+      "term": "đầu",
+      "count": 435
+    },
+    {
+      "term": "mặt",
+      "count": 368
+    },
+    {
+      "term": "trị",
+      "count": 360
+    },
+    {
+      "term": "nhiều",
+      "count": 319
+    },
+    {
+      "term": "lại",
+      "count": 285
+    },
+    {
+      "term": "viêm",
+      "count": 274
+    },
+    {
+      "term": "đen",
+      "count": 251
+    },
+    {
+      "term": "lưng",
+      "count": 246
+    },
+    {
+      "term": "tuổi",
+      "count": 235
+    },
+    {
+      "term": "đau",
+      "count": 218
+    },
+    {
+      "term": "dầu",
+      "count": 218
+    },
+    {
+      "term": "má",
+      "count": 206
+    },
+    {
+      "term": "điều",
+      "count": 204
+    },
+    {
+      "term": "isotretinoin",
+      "count": 189
+    },
+    {
+      "term": "tháng",
+      "count": 185
+    },
+    {
+      "term": "thai",
+      "count": 184
+    },
+    {
+      "term": "cằm",
+      "count": 178
+    },
+    {
+      "term": "thể",
+      "count": 166
+    },
+    {
+      "term": "đỏ",
+      "count": 165
+    },
+    {
+      "term": "thấy",
+      "count": 160
+    },
+    {
+      "term": "hợp",
+      "count": 160
+    },
+    {
+      "term": "tại",
+      "count": 160
+    },
+    {
+      "term": "uống",
+      "count": 158
+    },
+    {
+      "term": "hiện",
+      "count": 158
+    },
+    {
+      "term": "vậy",
+      "count": 152
+    },
+    {
+      "term": "con",
+      "count": 152
+    },
+    {
+      "term": "mà",
+      "count": 152
+    },
+    {
+      "term": "mang",
+      "count": 150
+    },
+    {
+      "term": "khác",
+      "count": 150
+    },
+    {
+      "term": "nói",
+      "count": 146
+    }
+  ],
+  "x_key": "term",
+  "x_label": "Masked, stopword-filtered term",
+  "y_label": "Occurrences",
+  "pii_masked": true,
+  "series": [
+    {
+      "key": "count",
+      "label": "Occurrences"
+    }
+  ]
+}

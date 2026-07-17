@@ -1,0 +1,991 @@
+{
+  "generated_at": "2026-07-16T16:51:42.685051+00:00",
+  "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\qa_1case",
+  "dataset": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+  "output_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z",
+  "verdict": "NOT_TRUSTWORTHY",
+  "per_check": [
+    {
+      "name": "load_config",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Run config, system configs, dataset and artifacts loaded.",
+          "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\qa_1case",
+          "dataset": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+          "systems": [
+            "s1"
+          ],
+          "n_dataset": 140
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "dataset_validity",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Target dataset is not frozen: MANIFEST.json is missing.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\MANIFEST.json"
+        },
+        {
+          "message": "Duplicate or contradictory labels found.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "duplicates": [
+            {
+              "query": "mun viem o cam nguyen nhan la gi",
+              "case_ids": [
+                "d1-0000",
+                "d1-0020"
+              ]
+            },
+            {
+              "query": "benzoyl peroxide co dung đuoc cho da nhay cam khong",
+              "case_ids": [
+                "d1-0001",
+                "d1-0021"
+              ]
+            },
+            {
+              "query": "isotretinoin co an toan khi mang thai",
+              "case_ids": [
+                "d1-0002",
+                "d1-0022"
+              ]
+            },
+            {
+              "query": "cach cham soc da mun tuoi day thi",
+              "case_ids": [
+                "d1-0003",
+                "d1-0023"
+              ]
+            },
+            {
+              "query": "mun trung ca nang co đe lai seo khong",
+              "case_ids": [
+                "d1-0004",
+                "d1-0024"
+              ]
+            },
+            {
+              "query": "salicylic acid nong đo bao nhieu la phu hop",
+              "case_ids": [
+                "d1-0005",
+                "d1-0025"
+              ]
+            },
+            {
+              "query": "phan biet mun đau đen va mun đau trang",
+              "case_ids": [
+                "d1-0006",
+                "d1-0026"
+              ]
+            },
+            {
+              "query": "mun noi tiet o phu nu 30 tuoi xu ly the nao",
+              "case_ids": [
+                "d1-0007",
+                "d1-0027"
+              ]
+            },
+            {
+              "query": "co nen nan mun tai nha khong",
+              "case_ids": [
+                "d1-0008",
+                "d1-0028"
+              ]
+            },
+            {
+              "query": "retinol va retinoid khac nhau the nao",
+              "case_ids": [
+                "d1-0009",
+                "d1-0029"
+              ]
+            },
+            {
+              "query": "mun mu o ma cach đieu tri",
+              "case_ids": [
+                "d1-0010",
+                "d1-0030"
+              ]
+            },
+            {
+              "query": "niacinamide giup gi cho da mun",
+              "case_ids": [
+                "d1-0011",
+                "d1-0031"
+              ]
+            },
+            {
+              "query": "toi đang cho con bu dung tretinoin đuoc khong",
+              "case_ids": [
+                "d1-0012",
+                "d1-0032"
+              ]
+            },
+            {
+              "query": "mun boc viem o mat trong suot nhieu thang",
+              "case_ids": [
+                "d1-0013",
+                "d1-0033"
+              ]
+            },
+            {
+              "query": "thuoc uong đieu tri mun la gi",
+              "case_ids": [
+                "d1-0014",
+                "d1-0034"
+              ]
+            },
+            {
+              "query": "tai sao da nhon de bi mun hon da kho",
+              "case_ids": [
+                "d1-0015",
+                "d1-0035"
+              ]
+            },
+            {
+              "query": "azelaic acid co tac dung gi",
+              "case_ids": [
+                "d1-0016",
+                "d1-0036"
+              ]
+            },
+            {
+              "query": "lam sao giam tham sau mun",
+              "case_ids": [
+                "d1-0017",
+                "d1-0037"
+              ]
+            },
+            {
+              "query": "kem chong nang cho da mun chon loai nao",
+              "case_ids": [
+                "d1-0018",
+                "d1-0038"
+              ]
+            },
+            {
+              "query": "che đo an uong anh huong the nao toi mun",
+              "case_ids": [
+                "d1-0019",
+                "d1-0039"
+              ]
+            }
+          ],
+          "contradictions": []
+        },
+        {
+          "message": "Target dataset SHA-256 is not pinned by MANIFEST.json.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+          "sha256": "2b7e667d0dbcb3023c3831725070423c3811b21c8241d33b56fb578f482b6225"
+        },
+        {
+          "message": "Duplicate or contradictory labels found.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+          "duplicates": [
+            {
+              "query": "mun viem o cam nguyen nhan la gi",
+              "case_ids": [
+                "d8-0000",
+                "d8-0020"
+              ]
+            },
+            {
+              "query": "benzoyl peroxide co dung đuoc cho da nhay cam khong",
+              "case_ids": [
+                "d8-0001",
+                "d8-0021"
+              ]
+            },
+            {
+              "query": "isotretinoin co an toan khi mang thai",
+              "case_ids": [
+                "d8-0002",
+                "d8-0022"
+              ]
+            },
+            {
+              "query": "cach cham soc da mun tuoi day thi",
+              "case_ids": [
+                "d8-0003",
+                "d8-0023"
+              ]
+            },
+            {
+              "query": "mun trung ca nang co đe lai seo khong",
+              "case_ids": [
+                "d8-0004",
+                "d8-0024"
+              ]
+            },
+            {
+              "query": "salicylic acid nong đo bao nhieu la phu hop",
+              "case_ids": [
+                "d8-0005",
+                "d8-0025"
+              ]
+            },
+            {
+              "query": "phan biet mun đau đen va mun đau trang",
+              "case_ids": [
+                "d8-0006",
+                "d8-0026"
+              ]
+            },
+            {
+              "query": "mun noi tiet o phu nu 30 tuoi xu ly the nao",
+              "case_ids": [
+                "d8-0007",
+                "d8-0027"
+              ]
+            },
+            {
+              "query": "co nen nan mun tai nha khong",
+              "case_ids": [
+                "d8-0008",
+                "d8-0028"
+              ]
+            },
+            {
+              "query": "retinol va retinoid khac nhau the nao",
+              "case_ids": [
+                "d8-0009",
+                "d8-0029"
+              ]
+            },
+            {
+              "query": "mun mu o ma cach đieu tri",
+              "case_ids": [
+                "d8-0010",
+                "d8-0030"
+              ]
+            },
+            {
+              "query": "niacinamide giup gi cho da mun",
+              "case_ids": [
+                "d8-0011",
+                "d8-0031"
+              ]
+            },
+            {
+              "query": "toi đang cho con bu dung tretinoin đuoc khong",
+              "case_ids": [
+                "d8-0012",
+                "d8-0032"
+              ]
+            },
+            {
+              "query": "mun boc viem o mat trong suot nhieu thang",
+              "case_ids": [
+                "d8-0013",
+                "d8-0033"
+              ]
+            },
+            {
+              "query": "thuoc uong đieu tri mun la gi",
+              "case_ids": [
+                "d8-0014",
+                "d8-0034"
+              ]
+            },
+            {
+              "query": "tai sao da nhon de bi mun hon da kho",
+              "case_ids": [
+                "d8-0015",
+                "d8-0035"
+              ]
+            },
+            {
+              "query": "azelaic acid co tac dung gi",
+              "case_ids": [
+                "d8-0016",
+                "d8-0036"
+              ]
+            },
+            {
+              "query": "lam sao giam tham sau mun",
+              "case_ids": [
+                "d8-0017",
+                "d8-0037"
+              ]
+            },
+            {
+              "query": "kem chong nang cho da mun chon loai nao",
+              "case_ids": [
+                "d8-0018",
+                "d8-0038"
+              ]
+            },
+            {
+              "query": "che đo an uong anh huong the nao toi mun",
+              "case_ids": [
+                "d8-0019",
+                "d8-0039"
+              ]
+            }
+          ],
+          "contradictions": []
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+          "annotation_status": {
+            "draft": 100
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+          "annotation_status": {
+            "needs_relabel": 100
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+          "annotation_status": {
+            "draft": 20
+          }
+        },
+        {
+          "message": "Dataset contains rows that are not human-approved.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+          "annotation_status": {
+            "draft": 24
+          }
+        },
+        {
+          "message": "Dataset cases require targeted human review.",
+          "n": 40,
+          "cases": [
+            {
+              "case_id": "d2-0019",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d2-0049",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d3-0041",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl",
+              "reason": "Missing-information query has overly specific expected points."
+            },
+            {
+              "case_id": "d7-0001",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0002",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0006",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0011",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0012",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0019",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0020",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0025",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0027",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0033",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0038",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0039",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0041",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0045",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0049",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0054",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0055",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0059",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0067",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0070",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0073",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0075",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0078",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0079",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0085",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0086",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0095",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0098",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0100",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0073-typo3",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0012-typo8",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0067-typo9",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "d7-0001-typo10",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0006",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0010",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1g-0014",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            },
+            {
+              "case_id": "t1i-0010",
+              "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+              "reason": "Router keyword bait; verify label from semantics, not trigger words."
+            }
+          ]
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "runtime_alignment",
+      "status": "WARN",
+      "evidence": [
+        {
+          "message": "T3 batch retrieval depth differs from production SSE; T3 cannot be presented as production behavior.",
+          "diff": {
+            "production": {
+              "retrieve_top_k": 6,
+              "rerank_top_k": 3,
+              "max_context_chars": 6000,
+              "require_citations": true
+            },
+            "t3_s3": {
+              "retrieve_top_k": 15,
+              "rerank_top_k": 5
+            }
+          },
+          "files": [
+            "src/acne_llm/config.py",
+            "evaluation/configs/systems/s3.yaml",
+            "evaluation/adapters/ollama_batch.py",
+            "evaluation/adapters/sse_api.py"
+          ]
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "case_parity",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Every system has the same unique sample_id set.",
+          "systems": [
+            "s1"
+          ],
+          "n_cases": 1
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "non_rag_clean",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "S0/S1 records contain no chunks or context.",
+          "n_checked": 1
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "rag_trace",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Every successful RAG record has a coherent trace.",
+          "n_checked": 0
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "model_identity",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Record model names and stored Ollama digests match configs.",
+          "models": {
+            "acnellm-v2-q4": "fd947e9524367cc8e63bbc4341a8935ec42225e008711db8fb6ddf9a9ab07110",
+            "qwen25-base-acnesys": "e9da2fd4840f4c4a8c6f283b020af36e317087f07f4800b03f61dc50d3921f31"
+          }
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "fair_comparison",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Sampling is identical; templates differ only by RAG design; S0/S1 SYSTEM is equal.",
+          "systems": [
+            "s0",
+            "s1",
+            "s2",
+            "s3"
+          ]
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "score_domain",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Judge score domains are valid; parse failures remain excluded.",
+          "valid": 1,
+          "judge_failures": 0
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "clean_aggregate",
+      "status": "PASS",
+      "evidence": [
+        {
+          "message": "Report uses only ok records with valid judge payloads and exposes all buckets.",
+          "buckets": {
+            "s1": {
+              "valid": 1,
+              "runtime_failure": 0,
+              "judge_failure": 0,
+              "metric_failure": 0,
+              "skipped": 139
+            }
+          }
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "versioning",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Dataset directory has no MANIFEST.json freeze record.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\MANIFEST.json"
+        },
+        {
+          "message": "Prompt hashes are missing or differ from current files.",
+          "file": "run_meta.json"
+        },
+        {
+          "message": "System config hashes are missing or differ from current files.",
+          "file": "run_meta.json"
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "session_isolation",
+      "status": "SKIPPED",
+      "evidence": [
+        {
+          "message": "Session isolation applies only to T4 SSE runs.",
+          "tier": "t3"
+        }
+      ],
+      "critical": false
+    },
+    {
+      "name": "judge_validity",
+      "status": "FAIL",
+      "evidence": [
+        {
+          "message": "Judge bias calibration artifact is missing.",
+          "file": "E:\\project\\AcneLLM\\evaluation\\reports\\judge_bias_tests.json"
+        }
+      ],
+      "critical": true
+    },
+    {
+      "name": "reproducibility",
+      "status": "SKIPPED",
+      "evidence": [
+        {
+          "message": "Set --repro-subset N (>0) to perform the runtime rerun.",
+          "ollama_note": "Ollama is not assumed bit-exact."
+        }
+      ],
+      "critical": false
+    }
+  ],
+  "conflicts_n": 0,
+  "human_review_queue": [
+    {
+      "case_id": "d2-0019",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d2-0049",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d3-0041",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl",
+      "reason": "Missing-information query has overly specific expected points."
+    },
+    {
+      "case_id": "d7-0001",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0002",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0006",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0011",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0012",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0019",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0020",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0025",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0027",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0033",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0038",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0039",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0041",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0045",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0049",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0054",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0055",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0059",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0067",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0070",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0073",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0075",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0078",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0079",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0085",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0086",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0095",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0098",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0100",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0073-typo3",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0012-typo8",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0067-typo9",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "d7-0001-typo10",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0006",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0010",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1g-0014",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    },
+    {
+      "case_id": "t1i-0010",
+      "file": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+      "reason": "Router keyword bait; verify label from semantics, not trigger words."
+    }
+  ],
+  "confidence_notes": [
+    "No T4 production-SSE result is present; T3 is diagnostic, not the final production verdict.",
+    "Run has only 1 cases per system; effect estimates are smoke-level and underpowered.",
+    "Failed validity checks: dataset_validity, versioning, judge_validity.",
+    "Unverified checks: session_isolation, reproducibility."
+  ],
+  "tier_verdicts": {
+    "T1": {
+      "verdict": "PARTIAL",
+      "reason": "Unit artifacts exist, but seed labels/gates still limit conclusions."
+    },
+    "T2": {
+      "verdict": "PARTIAL",
+      "reason": "Retrieval artifacts exist, but D8 qrels remain needs_relabel/BM25-biased."
+    },
+    "T3": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "Critical T3 artifact invariants failed."
+    },
+    "T4": {
+      "verdict": "NOT_VERIFIED",
+      "reason": "This run contains no T4 production-SSE results."
+    },
+    "judge": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "See judge_validity and judge_audit.md."
+    },
+    "data": {
+      "verdict": "NOT_TRUSTWORTHY",
+      "reason": "See dataset_validity and dataset_audit.md."
+    }
+  },
+  "artifacts": {
+    "summary": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\summary.json",
+    "conflicts": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\conflicts.jsonl",
+    "runtime_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\runtime_vs_eval.md",
+    "dataset_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\dataset_audit.md",
+    "prompt_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\prompt_audit.md",
+    "judge_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\judge_audit.md",
+    "metric_audit": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\metric_audit.md",
+    "reproducibility": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260716T165058Z\\reproducibility.json"
+  }
+}

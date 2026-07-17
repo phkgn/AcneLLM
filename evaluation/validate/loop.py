@@ -370,7 +370,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--judge-provider",
-        default="deepseek",
+        default="openai",
         choices=["deepseek", "openai"],
     )
     parser.add_argument("--strict", action="store_true")

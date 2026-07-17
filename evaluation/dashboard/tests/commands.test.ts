@@ -5,6 +5,7 @@ import {
   t3OutputFlags,
 } from "../lib/command-flags.ts";
 import { COMMAND_IDS } from "../lib/command-ids.ts";
+import { buildCommand } from "../lib/commands.ts";
 
 test("T3 flags honor an isolated output directory without forcing resume", () => {
   assert.deepEqual(
@@ -26,4 +27,112 @@ test("documented check_gate command remains in the dashboard whitelist", () => {
     checkGateRunFlags("evaluation/reports/qa_1case"),
     ["--run-dir", "evaluation/reports/qa_1case"],
   );
+});
+
+test("figure generators are fixed Python modules with validated flags", () => {
+  const kb = buildCommand("figures_kb", { sample: 8000, pdf: true });
+  assert.deepEqual(kb.argv, [
+    "-m",
+    "evaluation.analysis.figures_kb",
+    "--sample",
+    "8000",
+    "--pdf",
+  ]);
+  assert.equal(COMMAND_IDS.includes("figures_eval"), true);
+  assert.equal(COMMAND_IDS.includes("figures_usage"), true);
+
+  const all = buildCommand("figures_all", {
+    sample: 8000,
+    runDir: "evaluation/reports/main_2x2_t3",
+    pdf: true,
+  });
+  assert.deepEqual(all.argv, [
+    "-m",
+    "evaluation.generate_figures",
+    "--sample",
+    "8000",
+    "--run-dir",
+    "evaluation/reports/main_2x2_t3",
+    "--pdf",
+  ]);
+  assert.equal(COMMAND_IDS.includes("figures_all"), true);
+});
+
+test("preliminary D2 preset uses an isolated run and the standard pipeline wrapper", () => {
+  const command = buildCommand("preliminary_d2", {
+    outDir: "evaluation/reports/prelim_d2_test",
+  });
+  assert.deepEqual(command.argv, [
+    "evaluation/dashboard/scripts/run_preliminary_d2.py",
+    "--out-dir",
+    "evaluation/reports/prelim_d2_test",
+    "--limit",
+    "140",
+  ]);
+  assert.deepEqual(command.normalizedArgs, {
+    outDir: "evaluation/reports/prelim_d2_test",
+    dataset: "evaluation/datasets/v1/d2_test.jsonl",
+    systems: ["s0", "s1", "s2", "s3", "s4"],
+    pairs: ["s0:s1", "s0:s2", "s1:s3", "s2:s3"],
+    limit: 140,
+    provisional: true,
+    judgeProvider: "openai",
+    judgeModel: "gpt-5-mini-2025-08-07",
+    faithfulnessModel: "gpt-5-nano-2025-08-07",
+    judgeWorkers: 4,
+  });
+  assert.equal(COMMAND_IDS.includes("preliminary_d2"), true);
+});
+
+test("preliminary D2 accepts a configurable limit from 30 through 140", () => {
+  for (const limit of [30, 85, 140]) {
+    const command = buildCommand("preliminary_d2", {
+      outDir: `evaluation/reports/prelim_d2_${limit}`,
+      limit,
+    });
+    assert.equal(command.normalizedArgs.limit, limit);
+    assert.deepEqual(command.argv.slice(-2), ["--limit", String(limit)]);
+  }
+});
+
+test("preliminary D2 rejects limits outside 30 through 140", () => {
+  for (const limit of [29, 141, 30.5, "abc"]) {
+    assert.throws(
+      () => buildCommand("preliminary_d2", { limit }),
+      /Quick Run limit phải là số nguyên từ 30 đến 140/,
+    );
+  }
+});
+
+test("judge command is pinned to the OpenAI evaluation model", () => {
+  const command = buildCommand("judge", {
+    runDir: "evaluation/reports/main_2x2_t3",
+    dataset: "evaluation/datasets/v1/d2_test.jsonl",
+  });
+  assert.deepEqual(command.argv, [
+    "-m",
+    "evaluation.judges.run_judge",
+    "--run-dir",
+    "evaluation/reports/main_2x2_t3",
+    "--dataset",
+    "evaluation/datasets/v1/d2_test.jsonl",
+    "--provider",
+    "openai",
+    "--model",
+    "gpt-5-mini-2025-08-07",
+    "--faithfulness-model",
+    "gpt-5-nano-2025-08-07",
+    "--workers",
+    "4",
+  ]);
+  assert.equal(command.normalizedArgs.judgeProvider, "openai");
+  assert.equal(
+    command.normalizedArgs.judgeModel,
+    "gpt-5-mini-2025-08-07",
+  );
+  assert.equal(
+    command.normalizedArgs.faithfulnessModel,
+    "gpt-5-nano-2025-08-07",
+  );
+  assert.equal(command.normalizedArgs.judgeWorkers, 4);
 });

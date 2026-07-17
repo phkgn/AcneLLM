@@ -33,6 +33,10 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 | `freeze_datasets` | `python -m evaluation.datasets.registry freeze evaluation/datasets/v1` | |
 | `tests` | `python -m pytest evaluation/tests -q` | |
 | `validation_loop` | `python -m evaluation.validate.loop --run-dir <dir> --dataset <path> [--repro-subset N] [--strict]` | evaluation validation loop (xem docs/EVAL_VALIDATION_LOOP_PROMPT.md) — watch `evaluation/reports/validation/**/summary.json`; `--repro-subset 0` bỏ qua rerun tốn thời gian |
+| `figures_kb` | `python -m evaluation.analysis.figures_kb [--sample 8000] [--pdf]` | A: KB/corpus + B: finetune data |
+| `figures_eval` | `python -m evaluation.analysis.figures_eval [--run-dir <dir>] [--pdf]` | C: model/latency + F: eval results |
+| `figures_usage` | `python -m evaluation.analysis.figures_usage [--pdf]` | D: anonymized production usage |
+| `figures_all` | `python -m evaluation.generate_figures [--sample 8000] [--run-dir <dir>] [--pdf]` | canonical fresh A–F snapshot; không đọc/reuse figure artifacts cũ |
 
 - Output files cần theo dõi (tất cả append/ghi trong lúc chạy):
   - `evaluation/reports/<experiment>/<system_id>.results.jsonl` — mỗi dòng 1 sample
@@ -43,10 +47,15 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
   - `evaluation/reports/unit/{normalizer,intent_router,query_planner,guardrails}/report.json` + `per_sample.jsonl` + `failures.jsonl`
   - `evaluation/reports/retrieval/<timestamp>/summary.json` + `<mode>.per_query.jsonl`
   - `evaluation/reports/run_all_last.json` — kết quả orchestrator lần cuối
+  - `evaluation/reports/figures/manifest.json` + `*/manifest.json` — một fresh
+    snapshot có chung `generation_id`; generator dựng trong staging rồi thay toàn
+    bộ output, nên JSON/PNG/PDF cũ không bao giờ được dùng làm input hoặc để sót.
   - `evaluation/reports/gate_check.json` — `{n_pass, n_total, checks:[{name, actual, threshold, pass}]}` — nguồn DUY NHẤT cho gate badges (dashboard KHÔNG tự tính gate, chỉ chạy lệnh `check_gate` rồi đọc file này)
   - `evaluation/reports/judge_bias_tests.json` — `{position_bias:{flip_rate, pass}, length_bias:{spearman_score_vs_length, pass}, consistency:{exact_agreement, pass}, targets}` — hiển thị banner cảnh báo "judge chưa calibrated" trên trang /results nếu file chưa tồn tại hoặc có mục pass=false
   - `evaluation/datasets/v1/*.contamination.json` — kết quả contamination check
   - `evaluation/reports/judge_cache.sqlite` — KHÔNG đọc, chỉ hiển thị size
+  - `evaluation/reports/figures/**/manifest.json` — figure artifacts A–D/F;
+    dashboard chỉ render JSON/PNG/PDF do Python generators tạo
 - `report.json` per-system fields (bảng /results phải render đúng các cột này): `n, ok_rate, parse_success_rate, vacuous_answer_rate, citation_valid_rate, pregnancy_safety_rate, forbidden_claim_rate, judge_means{6 trục}, faithfulness_mean, latency_ms{p50,mean}, error_pareto[]`; `comparisons.<pair>.{correctness|safety}.{bootstrap:{mean_diff,ci95,significant}, wtl_b_vs_a, cliffs_delta}` + `holm_correction`.
 - Ngưỡng pass/fail: `evaluation/configs/gate.yaml` (yaml, keys: retrieval/generation/safety/unit)
 - System configs: `evaluation/configs/systems/s0..s4.yaml`; experiment: `evaluation/configs/experiments/*.yaml`

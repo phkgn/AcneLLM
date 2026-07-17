@@ -13,6 +13,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  PRELIMINARY_LIMIT_MAX,
+  PRELIMINARY_LIMIT_MIN,
+  isValidPreliminaryLimitInput,
+  parsePreliminaryLimit,
+} from "@/lib/preliminary";
 import type {
   CatalogDataset,
   CatalogSystem,
@@ -73,6 +79,13 @@ const commands: Array<{
     label: "Run all",
     tier: "T1 → report",
     description: "Orchestrator đầy đủ, có smoke/skip/dataset override.",
+  },
+  {
+    id: "preliminary_d2",
+    label: "Quick preliminary D2",
+    tier: "T3 → Judge → Report",
+    description:
+      "Preset 30–140 mẫu D2 synthetic-only, tự tạo run riêng và không chạy D8/gate.",
   },
   {
     id: "tests",
@@ -200,6 +213,9 @@ export function RunsClient() {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [commandId, setCommandId] = useState<CommandId>("t1_intent");
   const [limit, setLimit] = useState("5");
+  const [preliminaryLimit, setPreliminaryLimit] = useState(
+    String(PRELIMINARY_LIMIT_MAX),
+  );
   const [dataset, setDataset] = useState(
     "evaluation/datasets/v1/d1_dev_seed.jsonl",
   );
@@ -226,6 +242,7 @@ export function RunsClient() {
   const [progress, setProgress] = useState<ProgressItem[]>([]);
   const [validationWatch, setValidationWatch] =
     useState<ValidationWatch | null>(null);
+  const preliminaryLimitValid = isValidPreliminaryLimitInput(preliminaryLimit);
   const consoleRef = useRef<HTMLDivElement>(null);
   const [, tick] = useState(0);
 
@@ -292,7 +309,9 @@ export function RunsClient() {
     setProgress([]);
     if (
       !selectedJob ||
-      !["t3_generation", "run_all"].includes(selectedJob.commandId)
+      !["t3_generation", "run_all", "preliminary_d2"].includes(
+        selectedJob.commandId,
+      )
     ) {
       return;
     }
@@ -425,6 +444,7 @@ export function RunsClient() {
       Number.isInteger(parsedLimit) &&
       ![
         "run_all",
+        "preliminary_d2",
         "tests",
         "t1_normalizer",
         "report",
@@ -439,6 +459,9 @@ export function RunsClient() {
       args.skip = skip;
       args.dataset = dataset;
       args.yes = yes;
+    }
+    if (commandId === "preliminary_d2") {
+      args.limit = parsePreliminaryLimit(preliminaryLimit);
     }
     if (commandId === "t2_retrieval") {
       args.modes = modes;
@@ -469,10 +492,18 @@ export function RunsClient() {
   }
 
   async function submit() {
+    if (commandId === "preliminary_d2" && !preliminaryLimitValid) {
+      setError(
+        `Quick Run limit phải là số nguyên từ ${PRELIMINARY_LIMIT_MIN} đến ${PRELIMINARY_LIMIT_MAX}.`,
+      );
+      return;
+    }
     if (
-      commandId === "judge" &&
+      ["judge", "preliminary_d2"].includes(commandId) &&
       !window.confirm(
-        "LLM judge sẽ dùng API key và có thể phát sinh chi phí. Tiếp tục?",
+        commandId === "preliminary_d2"
+          ? `Preset này chạy ${parsePreliminaryLimit(preliminaryLimit)} mẫu D2 qua S0–S4 rồi gọi OpenAI GPT-5 mini Judge và tạo report. Có thể phát sinh chi phí API. Tiếp tục?`
+          : "OpenAI GPT-5 mini Judge sẽ dùng API key và có thể phát sinh chi phí. Tiếp tục?",
       )
     ) {
       return;
@@ -598,6 +629,35 @@ export function RunsClient() {
             <p className="mt-2 text-xs leading-5 text-ink/45">
               {selectedCommand.description}
             </p>
+            {commandId === "preliminary_d2" ? (
+              <>
+                <div className="mt-4 rounded-xl border border-[#514027] bg-[#332719]/70 px-3 py-3 text-xs leading-5 text-[#e8b96d]">
+                  D2 × {preliminaryLimitValid ? preliminaryLimit : "—"}, S0–S4,
+                  bốn pairwise comparisons. Artifact được ghi vào run directory mới
+                  cùng PROVISIONAL_NOTICE.md. Không chạy D8, gate hoặc judge
+                  calibration.
+                </div>
+                <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                  Số mẫu ({PRELIMINARY_LIMIT_MIN}–{PRELIMINARY_LIMIT_MAX})
+                  <input
+                    aria-label="Quick Run sample limit"
+                    type="number"
+                    min={PRELIMINARY_LIMIT_MIN}
+                    max={PRELIMINARY_LIMIT_MAX}
+                    step={1}
+                    value={preliminaryLimit}
+                    onChange={(event) => setPreliminaryLimit(event.target.value)}
+                    className={`${inputClass} mt-2`}
+                  />
+                  {!preliminaryLimitValid ? (
+                    <span className="mt-1 block normal-case tracking-normal text-ember">
+                      Nhập số nguyên từ {PRELIMINARY_LIMIT_MIN} đến{" "}
+                      {PRELIMINARY_LIMIT_MAX}.
+                    </span>
+                  ) : null}
+                </label>
+              </>
+            ) : null}
             <datalist id="report-run-directories">
               {Array.from(
                 new Set(["main_2x2_t3", ...(meta.reportRuns ?? [])]),
@@ -611,6 +671,7 @@ export function RunsClient() {
 
             {![
               "run_all",
+              "preliminary_d2",
               "tests",
               "t1_normalizer",
               "report",
@@ -843,7 +904,10 @@ export function RunsClient() {
             <Button
               className="mt-5 w-full"
               variant={commandId === "judge" ? "secondary" : "primary"}
-              disabled={submitting}
+              disabled={
+                submitting ||
+                (commandId === "preliminary_d2" && !preliminaryLimitValid)
+              }
               onClick={() => void submit()}
             >
               {submitting ? (

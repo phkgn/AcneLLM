@@ -6,12 +6,17 @@ import {
   isPathInside,
   resolveEvaluationPath,
   toRepoRelative,
-} from "./paths";
-import { checkGateRunFlags, t3OutputFlags } from "./command-flags";
-import { COMMAND_IDS } from "./command-ids";
-import type { CommandId } from "./types";
+} from "./paths.ts";
+import { checkGateRunFlags, t3OutputFlags } from "./command-flags.ts";
+import { COMMAND_IDS } from "./command-ids.ts";
+import { parsePreliminaryLimit } from "./preliminary.ts";
+import type { CommandId } from "./types.ts";
 
 const FORBIDDEN = /[;&|`$><\r\n]/;
+const JUDGE_PROVIDER = "openai";
+const JUDGE_MODEL = "gpt-5-mini-2025-08-07";
+const FAITHFULNESS_MODEL = "gpt-5-nano-2025-08-07";
+const JUDGE_WORKERS = 4;
 const SYSTEM_IDS = new Set(["s0", "s1", "s2", "s3", "s4"]);
 const RETRIEVAL_MODES = new Set([
   "sparse",
@@ -50,6 +55,15 @@ function optionalLimit(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100_000) {
     throw new Error("Limit phải là số nguyên từ 1 đến 100000.");
+  }
+  return parsed;
+}
+
+function optionalSample(value: unknown): number {
+  if (value === undefined || value === null || value === "") return 8_000;
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(parsed) || parsed < 3 || parsed > 100_000) {
+    throw new Error("Sample phải là số nguyên từ 3 đến 100000.");
   }
   return parsed;
 }
@@ -165,6 +179,16 @@ function quoteForDisplay(value: string): string {
   return /\s/.test(value) ? JSON.stringify(value) : value;
 }
 
+function preliminaryOutputDir(value: unknown): string {
+  const stamp = new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(".", "_");
+  return outputRunDir(
+    value ?? `evaluation/reports/prelim_d2_${stamp}`,
+  );
+}
+
 export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltCommand {
   if (
     typeof commandIdRaw !== "string" ||
@@ -180,7 +204,7 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
   const py = pythonExecutable();
   const argv: string[] = [];
   const normalizedArgs: Record<string, unknown> = {};
-  const limit = optionalLimit(args.limit);
+  const limit = commandId === "preliminary_d2" ? null : optionalLimit(args.limit);
 
   switch (commandId) {
     case "run_all": {
@@ -203,6 +227,31 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         argv.push("--yes");
         normalizedArgs.yes = true;
       }
+      break;
+    }
+    case "preliminary_d2": {
+      const outDir = preliminaryOutputDir(args.outDir);
+      const presetLimit = parsePreliminaryLimit(args.limit);
+      const dataset = "evaluation/datasets/v1/d2_test.jsonl";
+      const systems = ["s0", "s1", "s2", "s3", "s4"];
+      const pairs = ["s0:s1", "s0:s2", "s1:s3", "s2:s3"];
+      argv.push(
+        "evaluation/dashboard/scripts/run_preliminary_d2.py",
+        "--out-dir",
+        outDir,
+        "--limit",
+        String(presetLimit),
+      );
+      normalizedArgs.outDir = outDir;
+      normalizedArgs.dataset = dataset;
+      normalizedArgs.systems = systems;
+      normalizedArgs.pairs = pairs;
+      normalizedArgs.limit = presetLimit;
+      normalizedArgs.provisional = true;
+      normalizedArgs.judgeProvider = JUDGE_PROVIDER;
+      normalizedArgs.judgeModel = JUDGE_MODEL;
+      normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
+      normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       break;
     }
     case "t1_normalizer":
@@ -282,9 +331,21 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         runDir,
         "--dataset",
         dataset,
+        "--provider",
+        JUDGE_PROVIDER,
+        "--model",
+        JUDGE_MODEL,
+        "--faithfulness-model",
+        FAITHFULNESS_MODEL,
+        "--workers",
+        String(JUDGE_WORKERS),
       );
       normalizedArgs.dataset = dataset;
       normalizedArgs.runDir = runDir;
+      normalizedArgs.judgeProvider = JUDGE_PROVIDER;
+      normalizedArgs.judgeModel = JUDGE_MODEL;
+      normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
+      normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       const pairs = pairList(args.pairs);
       if (pairs.length) {
         argv.push("--pairs", pairs.join(","));
@@ -346,6 +407,61 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
+    case "figures_kb": {
+      const sample = optionalSample(args.sample);
+      argv.push(
+        "-m",
+        "evaluation.analysis.figures_kb",
+        "--sample",
+        String(sample),
+      );
+      normalizedArgs.sample = sample;
+      if (args.pdf === true) {
+        argv.push("--pdf");
+        normalizedArgs.pdf = true;
+      }
+      break;
+    }
+    case "figures_eval": {
+      argv.push("-m", "evaluation.analysis.figures_eval");
+      if (args.runDir) {
+        const runDir = reportRunDir(args.runDir);
+        argv.push("--run-dir", runDir);
+        normalizedArgs.runDir = runDir;
+      }
+      if (args.pdf === true) {
+        argv.push("--pdf");
+        normalizedArgs.pdf = true;
+      }
+      break;
+    }
+    case "figures_usage":
+      argv.push("-m", "evaluation.analysis.figures_usage");
+      if (args.pdf === true) {
+        argv.push("--pdf");
+        normalizedArgs.pdf = true;
+      }
+      break;
+    case "figures_all": {
+      const sample = optionalSample(args.sample);
+      argv.push(
+        "-m",
+        "evaluation.generate_figures",
+        "--sample",
+        String(sample),
+      );
+      normalizedArgs.sample = sample;
+      if (args.runDir) {
+        const runDir = reportRunDir(args.runDir);
+        argv.push("--run-dir", runDir);
+        normalizedArgs.runDir = runDir;
+      }
+      if (args.pdf === true) {
+        argv.push("--pdf");
+        normalizedArgs.pdf = true;
+      }
+      break;
+    }
     case "tests":
       argv.push("-m", "pytest", "evaluation/tests", "-q");
       break;
@@ -354,11 +470,16 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
   if (
     limit !== null &&
     commandId !== "run_all" &&
+    commandId !== "preliminary_d2" &&
     commandId !== "t1_normalizer" &&
     commandId !== "tests" &&
     commandId !== "report" &&
     commandId !== "check_gate" &&
-    commandId !== "validation_loop"
+    commandId !== "validation_loop" &&
+    commandId !== "figures_kb" &&
+    commandId !== "figures_eval" &&
+    commandId !== "figures_usage" &&
+    commandId !== "figures_all"
   ) {
     argv.push("--limit", String(limit));
     normalizedArgs.limit = limit;

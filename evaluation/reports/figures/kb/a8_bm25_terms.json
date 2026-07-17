@@ -1,0 +1,196 @@
+{
+  "id": "a8_bm25_terms",
+  "title": "Top BM25 terms",
+  "chart_type": "bar",
+  "data": [
+    {
+      "term": "thịt",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "cố gắng",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "hoạt tính",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "nhãn",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "kể cả",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "điều tiết",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "hữu ích",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "includes",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "choose",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "provides",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "stable",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "et al",
+      "score": 23.598416,
+      "document_frequency": 124,
+      "idf": 4.887507
+    },
+    {
+      "term": "hợp chất",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "tìm kiếm",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "can thiệp",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "vô tình",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "hướng",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "suggests",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "ci",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "follow",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "prevalence",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "throughout",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "appropriate",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "of dermatology",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "irritate",
+      "score": 23.598377,
+      "document_frequency": 125,
+      "idf": 4.879446
+    },
+    {
+      "term": "fda",
+      "score": 23.598324,
+      "document_frequency": 123,
+      "idf": 4.895632
+    },
+    {
+      "term": "đối tượng",
+      "score": 23.598324,
+      "document_frequency": 123,
+      "idf": 4.895632
+    },
+    {
+      "term": "quên",
+      "score": 23.598324,
+      "document_frequency": 123,
+      "idf": 4.895632
+    },
+    {
+      "term": "làm việc",
+      "score": 23.598324,
+      "document_frequency": 123,
+      "idf": 4.895632
+    },
+    {
+      "term": "xây dựng",
+      "score": 23.598324,
+      "document_frequency": 123,
+      "idf": 4.895632
+    }
+  ],
+  "x_key": "term",
+  "x_label": "Term",
+  "y_label": "IDF × log(1 + document frequency)",
+  "series": [
+    {
+      "key": "score",
+      "label": "Term weight"
+    }
+  ]
+}

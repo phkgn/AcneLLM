@@ -1,0 +1,84 @@
+{
+  "profile": "PRELIMINARY_SYNTHETIC_ONLY",
+  "started": "2026-07-16T19:03:47.697732+00:00",
+  "finished": "2026-07-17T04:21:57.332627+00:00",
+  "status": "succeeded",
+  "dataset": "evaluation/datasets/v1/d2_test.jsonl",
+  "systems": [
+    "s0",
+    "s1",
+    "s2",
+    "s3",
+    "s4"
+  ],
+  "comparisons": [
+    "s0:s1",
+    "s0:s2",
+    "s1:s3",
+    "s2:s3"
+  ],
+  "limit": 140,
+  "run_dir": "evaluation/reports/prelim_d2_20260716T190345_330Z",
+  "notice": "evaluation/reports/prelim_d2_20260716T190345_330Z/PROVISIONAL_NOTICE.md",
+  "excluded": [
+    "t1",
+    "t2_d8",
+    "gate",
+    "judge_calibration"
+  ],
+  "steps": {
+    "t3.generation": {
+      "status": "OK",
+      "started": "2026-07-16T19:03:47.697732+00:00",
+      "finished": "2026-07-17T01:45:54.590819+00:00",
+      "command": [
+        "E:\\project\\AcneLLM\\.venv\\Scripts\\python.exe",
+        "-m",
+        "evaluation.runners.run_experiment",
+        "--experiment",
+        "evaluation/configs/experiments/main_2x2.yaml",
+        "--systems",
+        "s0,s1,s2,s3,s4",
+        "--out-dir",
+        "evaluation/reports/prelim_d2_20260716T190345_330Z",
+        "--limit",
+        "140"
+      ]
+    },
+    "judge": {
+      "status": "OK",
+      "started": "2026-07-17T01:45:54.594820+00:00",
+      "finished": "2026-07-17T04:21:51.573382+00:00",
+      "command": [
+        "E:\\project\\AcneLLM\\.venv\\Scripts\\python.exe",
+        "-m",
+        "evaluation.judges.run_judge",
+        "--run-dir",
+        "evaluation/reports/prelim_d2_20260716T190345_330Z",
+        "--dataset",
+        "evaluation/datasets/v1/d2_test.jsonl",
+        "--pairs",
+        "s0:s1,s0:s2,s1:s3,s2:s3",
+        "--limit",
+        "140"
+      ]
+    },
+    "report": {
+      "status": "OK",
+      "started": "2026-07-17T04:21:51.574558+00:00",
+      "finished": "2026-07-17T04:21:57.331467+00:00",
+      "command": [
+        "E:\\project\\AcneLLM\\.venv\\Scripts\\python.exe",
+        "-m",
+        "evaluation.analysis.report",
+        "--run-dir",
+        "evaluation/reports/prelim_d2_20260716T190345_330Z",
+        "--dataset",
+        "evaluation/datasets/v1/d2_test.jsonl",
+        "--comparisons",
+        "s0:s1,s0:s2,s1:s3,s2:s3"
+      ]
+    }
+  },
+  "message": "Preliminary D2 hoàn tất. Chọn run này trong trang Results."
+}

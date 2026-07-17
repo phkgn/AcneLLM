@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-07-16T18:55:31.283019+00:00",
+  "generation_id": "20260716T185531283019Z-300391c66c",
+  "generator": "evaluation.analysis.figures_usage",
+  "artifact_policy": "fresh_compute_no_figure_reuse",
+  "group": "usage",
+  "figures": [
+    {
+      "id": "d1_route_distribution",
+      "title": "Production route vs eval composition",
+      "kind": "chart",
+      "file": "d1_route_distribution.json",
+      "pdf_file": "d1_route_distribution.pdf",
+      "chart_type": "bar",
+      "caption": "Production route share compared with labeled T1 intent composition.",
+      "source_data": "data/sessions.db + data/audit.db + evaluation/datasets/v1/t1_*.jsonl",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "d2_weekly_refusal_clarify",
+      "title": "Weekly refusal and clarify rate",
+      "kind": "chart",
+      "file": "d2_weekly_refusal_clarify.json",
+      "pdf_file": "d2_weekly_refusal_clarify.pdf",
+      "chart_type": "line",
+      "caption": "Weekly rate over available audit and session user turns.",
+      "source_data": "data/audit.db + data/sessions.db",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "d3_turns_per_session",
+      "title": "Turns per session",
+      "kind": "chart",
+      "file": "d3_turns_per_session.json",
+      "pdf_file": "d3_turns_per_session.pdf",
+      "chart_type": "hist",
+      "caption": "Distribution across 1,018 persisted sessions.",
+      "source_data": "data/sessions.db",
+      "status": "ok",
+      "skip_reason": null
+    },
+    {
+      "id": "d4_query_terms",
+      "title": "Top anonymized production query terms",
+      "kind": "chart",
+      "file": "d4_query_terms.json",
+      "pdf_file": "d4_query_terms.pdf",
+      "chart_type": "bar",
+      "caption": "All query text passed through mask_pii before token aggregation.",
+      "source_data": "data/audit.db + data/sessions.db",
+      "status": "ok",
+      "skip_reason": null
+    }
+  ]
+}

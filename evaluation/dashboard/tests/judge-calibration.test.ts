@@ -7,6 +7,8 @@ test("missing judge bias artifact is not calibrated", () => {
     available: false,
     calibrated: false,
     failedChecks: ["missing"],
+    provider: null,
+    model: null,
   });
 });
 
@@ -16,11 +18,15 @@ test("judge calibration reports failed checks", () => {
       position_bias: { pass: true },
       length_bias: { pass: false },
       consistency: { pass: true },
+      judge_provider: "openai",
+      judge_model: "gpt-5-mini-2025-08-07",
     }),
     {
       available: true,
       calibrated: false,
       failedChecks: ["length_bias"],
+      provider: "openai",
+      model: "gpt-5-mini-2025-08-07",
     },
   );
 });

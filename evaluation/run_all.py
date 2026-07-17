@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import subprocess
 import sys
 import urllib.request
@@ -19,6 +21,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from evaluation.common import ROOT, REPORTS_DIR, load_yaml, utcnow  # noqa: E402
+from evaluation.judges.clients import (  # noqa: E402
+    DEFAULT_JUDGE_PROVIDER,
+    DEFAULT_JUDGE_WORKERS,
+    DEFAULT_OPENAI_FAITHFULNESS_MODEL,
+    DEFAULT_OPENAI_JUDGE_MODEL,
+)
 
 PY = sys.executable
 EXPERIMENT = "evaluation/configs/experiments/main_2x2.yaml"
@@ -71,8 +79,11 @@ def preflight(experiment_cfg: dict, skip: set[str]) -> list[str]:
     # Judge key
     if "judge" not in skip:
         env = (ROOT / ".env").read_text(encoding="utf-8") if (ROOT / ".env").exists() else ""
-        if "DEEPSEEK_API_KEY=" not in env:
-            problems.append("Thiếu DEEPSEEK_API_KEY trong .env (hoặc --skip judge)")
+        has_openai_key = bool(os.environ.get("OPENAI_API_KEY")) or bool(
+            re.search(r"^\s*OPENAI_API_KEY\s*=\s*[^#\s].*$", env, re.MULTILINE)
+        )
+        if not has_openai_key:
+            problems.append("Thiếu OPENAI_API_KEY trong .env (hoặc --skip judge)")
     return problems
 
 
@@ -150,6 +161,10 @@ def main() -> None:
         sh("judge", [PY, "-m", "evaluation.judges.run_judge",
                      "--run-dir", str(run_dir),
                      "--dataset", experiment_cfg["dataset"],
+                     "--provider", DEFAULT_JUDGE_PROVIDER,
+                     "--model", DEFAULT_OPENAI_JUDGE_MODEL,
+                     "--faithfulness-model", DEFAULT_OPENAI_FAITHFULNESS_MODEL,
+                     "--workers", str(DEFAULT_JUDGE_WORKERS),
                      *(["--pairs", pairs] if pairs else []), *limit], results)
 
     # ── Report ──────────────────────────────────────────────────────────

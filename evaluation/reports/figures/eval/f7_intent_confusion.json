@@ -1,0 +1,19 @@
+{
+  "id": "f7_intent_confusion",
+  "title": "Intent router confusion matrix",
+  "chart_type": "heatmap",
+  "rows": [
+    "advise"
+  ],
+  "columns": [
+    "advise"
+  ],
+  "cells": [
+    {
+      "row": "advise",
+      "column": "advise",
+      "value": 1
+    }
+  ],
+  "value_label": "Cases"
+}

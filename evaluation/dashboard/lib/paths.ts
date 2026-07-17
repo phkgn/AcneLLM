@@ -36,6 +36,10 @@ export const DATASET_REVIEWS_BACKUP_FILE = path.join(
   DASHBOARD_ROOT,
   ".dataset-reviews.backup.json",
 );
+const WHITELISTED_REPO_VISUALS: Record<string, string> = {
+  "acnellm_pipeline.html": path.join(REPO_ROOT, "acnellm_pipeline.html"),
+  "pipeline_simulator.html": path.join(REPO_ROOT, "pipeline_simulator.html"),
+};
 
 export function isPathInside(parent: string, candidate: string): boolean {
   const relative = path.relative(path.resolve(parent), path.resolve(candidate));
@@ -58,6 +62,24 @@ export function resolveEvaluationPath(input: string): string {
     );
   }
   return resolved;
+}
+
+export async function resolveWhitelistedRepoVisual(
+  input: string,
+): Promise<string | null> {
+  const normalized = input.replace(/[\\/]+/g, "/");
+  const candidate = WHITELISTED_REPO_VISUALS[normalized];
+  if (!candidate) return null;
+  const [realRepoRoot, realCandidate] = await Promise.all([
+    fsp.realpath(REPO_ROOT),
+    fsp.realpath(candidate),
+  ]);
+  if (!isPathInside(realRepoRoot, realCandidate)) {
+    throw new EvaluationPathAccessError(
+      "Visual whitelist trỏ ra ngoài repository.",
+    );
+  }
+  return realCandidate;
 }
 
 export async function assertRealPathInsideEvaluation(

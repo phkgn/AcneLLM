@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  BarChart3,
   ClipboardCheck,
   FlaskConical,
   LayoutDashboard,
@@ -30,6 +31,12 @@ const nav = [
     label: "Results",
     description: "Metrics và comparisons",
     icon: Activity,
+  },
+  {
+    href: "/figures",
+    label: "Figures",
+    description: "Repo-wide visual analysis",
+    icon: BarChart3,
   },
   {
     href: "/inspect",

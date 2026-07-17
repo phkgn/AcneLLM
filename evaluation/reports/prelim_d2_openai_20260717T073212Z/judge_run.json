@@ -1,0 +1,27 @@
+{
+  "started": "2026-07-17T07:39:11.594274+00:00",
+  "finished": "2026-07-17T08:26:26.721079+00:00",
+  "status": "succeeded",
+  "provider": "openai",
+  "model": "gpt-5-nano-2025-08-07",
+  "workers": 4,
+  "calls": 4506,
+  "estimated_cost_usd": 0.518984,
+  "invalid_rows": 0,
+  "dataset": "evaluation/datasets/v1/d2_test.jsonl",
+  "limit": 140,
+  "skip_faithfulness": false,
+  "pairs": [
+    "s0:s1",
+    "s0:s2",
+    "s1:s3",
+    "s2:s3"
+  ],
+  "prompt_hashes": {
+    "evaluation/judges/prompts/claim_extract.md": "8db0e44e433f441f528335197882cec9426e1ece7dd5d40f9fa18f7697fec2ab",
+    "evaluation/judges/prompts/entailment.md": "c09ca8a87a74fb2094e850d09c566d3f0ba6d420340fd4e93a487925b86c1064",
+    "evaluation/judges/prompts/error_classify.md": "4fc159baccab8a30a790cb5fdb5ffcd325f8e647851d018b82b1db1a601d3bef",
+    "evaluation/judges/prompts/pairwise.md": "1ecfee0114a9e1aa1f08ecd04f85a85b7235dbaf47b544ff9f392d6e60fc95fb",
+    "evaluation/judges/prompts/pointwise.md": "1541398c866e94fe17ad4b029d764dbbbf1b61de1d02239e14fc278710b8d0e7"
+  }
+}

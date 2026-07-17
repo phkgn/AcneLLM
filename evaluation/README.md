@@ -38,7 +38,7 @@ dấu lẫn bỏ dấu, với train `cleanv3`; mẫu trùng bị loại và ghi 
 
 Provider mặc định là OpenAI, đọc `OPENAI_API_KEY` từ `.env`, dùng
 `gpt-5.4-mini`, `reasoning_effort=none`, Structured Outputs strict và hard
-budget guard `$2.50`. DeepSeek vẫn có thể dùng lại bằng `--provider deepseek`.
+budget guard `$2.50`.
 Khi `--resume`, generator revalidate các schema reject cũ trước khi gọi API và
 chỉ tính cost ceiling trên số original còn thiếu.
 
@@ -134,10 +134,12 @@ python -m evaluation.runners.run_experiment \
 python -m evaluation.runners.run_experiment \
   --experiment evaluation/configs/experiments/e2e_sse.yaml --resume
 
-# Judge (DeepSeek chính; --provider openai để verify chéo)
+# Judge (OpenAI mặc định; pin snapshot để các run có thể so sánh)
 python -m evaluation.judges.run_judge \
   --run-dir evaluation/reports/main_2x2_t3 \
   --dataset evaluation/datasets/v1/d2_test.jsonl \
+  --provider openai --model gpt-5-mini-2025-08-07 \
+  --faithfulness-model gpt-5-nano-2025-08-07 \
   --pairs s0:s1,s0:s2,s1:s3,s2:s3
 
 # Human annotation (blind)
@@ -204,7 +206,7 @@ evaluation/
 │             sse_api.py (T4), extractive.py (S4)
 ├── runners/run_experiment.py       # resume, retry, trace, run_meta
 ├── metrics/ retrieval.py (graded nDCG, MAP, noise), deterministic.py (safety, citation)
-├── judges/ clients.py (DeepSeek/OpenAI, cache, cost), run_judge.py, prompts/*.md (vi)
+├── judges/ clients.py (OpenAI default, cache, cost), run_judge.py, prompts/*.md (vi)
 ├── annotations/ export_blind.py, import_labels.py (blind human eval, calibration)
 ├── analysis/ stats.py (bootstrap/Wilcoxon/McNemar/Holm/Cliff), error_attribution.py, report.py
 ├── scripts/make_base_modelfile.py  # sinh Modelfile base + SYSTEM đồng bộ

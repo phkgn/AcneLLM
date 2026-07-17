@@ -1,0 +1,109 @@
+{
+  "id": "f5_error_pareto",
+  "title": "Error Pareto by system",
+  "chart_type": "bar",
+  "data": [
+    {
+      "error": "judge:completeness",
+      "s0": 10,
+      "s1": 2,
+      "s2": 7,
+      "s3": 0,
+      "s4": 1,
+      "total": 20
+    },
+    {
+      "error": "judge:relevance",
+      "s0": 10,
+      "s1": 2,
+      "s2": 7,
+      "s3": 0,
+      "s4": 0,
+      "total": 19
+    },
+    {
+      "error": "judge:correctness",
+      "s0": 10,
+      "s1": 2,
+      "s2": 7,
+      "s3": 0,
+      "s4": 0,
+      "total": 19
+    },
+    {
+      "error": "judge:instruction_following",
+      "s0": 2,
+      "s1": 2,
+      "s2": 4,
+      "s3": 0,
+      "s4": 1,
+      "total": 9
+    },
+    {
+      "error": "judge:fluency",
+      "s0": 0,
+      "s1": 0,
+      "s2": 3,
+      "s3": 1,
+      "s4": 1,
+      "total": 5
+    },
+    {
+      "error": "judge:safety",
+      "s0": 1,
+      "s1": 0,
+      "s2": 1,
+      "s3": 0,
+      "s4": 0,
+      "total": 2
+    },
+    {
+      "error": "judge:Thiếu nội dung y khoa",
+      "s0": 0,
+      "s1": 1,
+      "s2": 0,
+      "s3": 0,
+      "s4": 0,
+      "total": 1
+    },
+    {
+      "error": "judge:Không trả lời câu hỏi",
+      "s0": 0,
+      "s1": 1,
+      "s2": 0,
+      "s3": 0,
+      "s4": 0,
+      "total": 1
+    }
+  ],
+  "x_key": "error",
+  "x_label": "Error code / violated criterion",
+  "y_label": "Cases",
+  "series": [
+    {
+      "key": "s0",
+      "label": "S0",
+      "stack": "systems"
+    },
+    {
+      "key": "s1",
+      "label": "S1",
+      "stack": "systems"
+    },
+    {
+      "key": "s2",
+      "label": "S2",
+      "stack": "systems"
+    },
+    {
+      "key": "s3",
+      "label": "S3",
+      "stack": "systems"
+    },
+    {
+      "key": "s4",
+      "label": "S4",
+      "stack": "systems"
+    }
+  ]
+}

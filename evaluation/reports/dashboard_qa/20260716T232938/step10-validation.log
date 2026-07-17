@@ -1,0 +1,22 @@
+[dashboard] 2026-07-16T16:50:57.804Z
+[command] .venv/Scripts/python.exe -m evaluation.validate.loop --run-dir evaluation/reports/qa_1case --dataset evaluation/datasets/v1/d2_test.jsonl --repro-subset 0
+
+
+VALIDATION VERDICT: NOT_TRUSTWORTHY
+  [PASS] load_config
+  [FAIL] dataset_validity
+  [WARN] runtime_alignment
+  [PASS] case_parity
+  [PASS] non_rag_clean
+  [PASS] rag_trace
+  [PASS] model_identity
+  [PASS] fair_comparison
+  [PASS] score_domain
+  [PASS] clean_aggregate
+  [FAIL] versioning
+  [SKIPPED] session_isolation
+  [FAIL] judge_validity
+  [SKIPPED] reproducibility
+Summary: E:\project\AcneLLM\evaluation\reports\validation\20260716T165058Z\summary.json
+
+[dashboard] process finished: exit=1 signal=null

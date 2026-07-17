@@ -1,0 +1,136 @@
+{
+  "id": "b5_source_chunk_oversampling",
+  "title": "Top source chunks used for QA generation",
+  "chart_type": "bar",
+  "data": [
+    {
+      "source_chunk_id": "vinmec_7c6f596a16::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_061ac108f5::0007",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_3a4384d7c0::0000",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_061ac108f5::0011",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_3a4384d7c0::0006",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e21f786914::0000",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e21f786914::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_3a4384d7c0::0004",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_a65291f9ca::0005",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e21f786914::0005",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_d12d86d3b8::0008",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_4d5c00d8f1::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_4d5c00d8f1::0014",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_4d5c00d8f1::0012",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_4d5c00d8f1::0015",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_4d5c00d8f1::0010",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_93350248a6::0004",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_cf92afbc2f::0004",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e8d95585f6::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_9dbca4ae3a::0006",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_9dbca4ae3a::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e8d95585f6::0000",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e8d95585f6::0010",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e8d95585f6::0009",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_e8d95585f6::0007",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_d5c67d56f0::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_b50357b198::0003",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_d5c67d56f0::0002",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_b50357b198::0001",
+      "count": 3
+    },
+    {
+      "source_chunk_id": "vinmec_b50357b198::0009",
+      "count": 3
+    }
+  ],
+  "x_key": "source_chunk_id",
+  "x_label": "Source chunk id",
+  "y_label": "Generated examples",
+  "series": [
+    {
+      "key": "count",
+      "label": "Examples"
+    }
+  ]
+}

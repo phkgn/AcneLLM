@@ -1,5 +1,6 @@
 export type CommandId =
   | "run_all"
+  | "preliminary_d2"
   | "t1_normalizer"
   | "t1_intent"
   | "t1_planner"
@@ -10,6 +11,10 @@ export type CommandId =
   | "report"
   | "check_gate"
   | "validation_loop"
+  | "figures_kb"
+  | "figures_eval"
+  | "figures_usage"
+  | "figures_all"
   | "tests";
 
 export type JobStatus =

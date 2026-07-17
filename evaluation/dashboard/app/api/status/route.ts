@@ -47,7 +47,9 @@ export async function GET() {
   const env = await fs
     .readFile(path.join(REPO_ROOT, ".env"), "utf8")
     .catch(() => "");
-  const hasJudgeKey = /^\s*DEEPSEEK_API_KEY\s*=\s*[^#\s].*$/m.test(env);
+  const hasJudgeKey =
+    Boolean(process.env.OPENAI_API_KEY?.trim()) ||
+    /^\s*OPENAI_API_KEY\s*=\s*[^#\s].*$/m.test(env);
   const d2FinalExists = await exists("evaluation/datasets/v1/d2_test.jsonl");
   const d2DraftExists = await exists(
     "evaluation/datasets/drafts/v1/d2_test.draft.jsonl",
@@ -130,12 +132,12 @@ export async function GET() {
     },
     {
       id: "judge_key",
-      label: "DeepSeek judge key",
+      label: "OpenAI judge key",
       ok: hasJudgeKey,
       detail: hasJudgeKey
-        ? "DEEPSEEK_API_KEY đã được cấu hình"
+        ? "OPENAI_API_KEY đã cấu hình · GPT-5 mini judge + GPT-5 nano faithfulness"
         : "Không tìm thấy key có giá trị trong .env",
-      fix: "Thêm DEEPSEEK_API_KEY vào .env hoặc skip judge",
+      fix: "Thêm OPENAI_API_KEY vào .env hoặc skip judge",
     },
   ];
 

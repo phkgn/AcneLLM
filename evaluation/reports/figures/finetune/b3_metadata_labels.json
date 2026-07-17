@@ -1,0 +1,147 @@
+{
+  "id": "b3_metadata_labels",
+  "title": "Finetune metadata label distribution",
+  "chart_type": "bar",
+  "data": [
+    {
+      "dimension": "severity",
+      "label": "mild",
+      "count": 19595
+    },
+    {
+      "dimension": "severity",
+      "label": "moderate",
+      "count": 18096
+    },
+    {
+      "dimension": "severity",
+      "label": "severe",
+      "count": 14716
+    },
+    {
+      "dimension": "severity",
+      "label": "unknown",
+      "count": 8242
+    },
+    {
+      "dimension": "is_pregnant",
+      "label": "false",
+      "count": 48565
+    },
+    {
+      "dimension": "is_pregnant",
+      "label": "true",
+      "count": 12084
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "pregnancy",
+      "count": 11232
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "treatment_failure",
+      "count": 7820
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "refer_to_dermatologist",
+      "count": 3986
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "scarring_risk",
+      "count": 3604
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "scarring",
+      "count": 2854
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "isotretinoin_boundary",
+      "count": 2290
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "antibiotic_stewardship",
+      "count": 1632
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "severe_acne",
+      "count": 1609
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "no_retinoid",
+      "count": 1527
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "no_tetracycline",
+      "count": 1452
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "antibiotic_boundary",
+      "count": 1401
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "self_procedure_refusal",
+      "count": 1126
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "retinoid_contraindicated",
+      "count": 923
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "need_dermatologist",
+      "count": 879
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "severe_nodular_cystic",
+      "count": 789
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "see_doctor",
+      "count": 664
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "severe_inflammation",
+      "count": 643
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "nodules",
+      "count": 642
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "severe",
+      "count": 622
+    },
+    {
+      "dimension": "safety_flags",
+      "label": "no_self_medication",
+      "count": 549
+    }
+  ],
+  "x_key": "label",
+  "x_label": "Label",
+  "y_label": "Examples",
+  "group_key": "dimension",
+  "series": [
+    {
+      "key": "count",
+      "label": "Examples"
+    }
+  ]
+}

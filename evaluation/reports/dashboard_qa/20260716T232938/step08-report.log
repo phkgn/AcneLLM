@@ -1,0 +1,6 @@
+[dashboard] 2026-07-16T16:48:23.209Z
+[command] .venv/Scripts/python.exe -m evaluation.analysis.report --run-dir evaluation/reports/qa_1case --dataset evaluation/datasets/v1/d2_test.jsonl
+
+Report: evaluation\reports\qa_1case\report.json + report.md
+
+[dashboard] process finished: exit=0 signal=null

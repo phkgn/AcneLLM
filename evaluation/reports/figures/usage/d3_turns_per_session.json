@@ -1,0 +1,136 @@
+{
+  "id": "d3_turns_per_session",
+  "title": "Turns per session",
+  "chart_type": "hist",
+  "data": [
+    {
+      "bin": "2.0–2.9",
+      "bin_start": 2.0,
+      "bin_end": 2.9,
+      "count": 649
+    },
+    {
+      "bin": "2.9–3.8",
+      "bin_start": 2.9,
+      "bin_end": 3.8,
+      "count": 0
+    },
+    {
+      "bin": "3.8–4.7",
+      "bin_start": 3.8,
+      "bin_end": 4.7,
+      "count": 199
+    },
+    {
+      "bin": "4.7–5.6",
+      "bin_start": 4.7,
+      "bin_end": 5.6,
+      "count": 0
+    },
+    {
+      "bin": "5.6–6.5",
+      "bin_start": 5.6,
+      "bin_end": 6.5,
+      "count": 106
+    },
+    {
+      "bin": "6.5–7.4",
+      "bin_start": 6.5,
+      "bin_end": 7.4,
+      "count": 0
+    },
+    {
+      "bin": "7.4–8.3",
+      "bin_start": 7.4,
+      "bin_end": 8.3,
+      "count": 18
+    },
+    {
+      "bin": "8.3–9.2",
+      "bin_start": 8.3,
+      "bin_end": 9.2,
+      "count": 0
+    },
+    {
+      "bin": "9.2–10.1",
+      "bin_start": 9.2,
+      "bin_end": 10.1,
+      "count": 34
+    },
+    {
+      "bin": "10.1–11.0",
+      "bin_start": 10.1,
+      "bin_end": 11.0,
+      "count": 0
+    },
+    {
+      "bin": "11.0–11.9",
+      "bin_start": 11.0,
+      "bin_end": 11.9,
+      "count": 1
+    },
+    {
+      "bin": "11.9–12.8",
+      "bin_start": 11.9,
+      "bin_end": 12.8,
+      "count": 4
+    },
+    {
+      "bin": "12.8–13.7",
+      "bin_start": 12.8,
+      "bin_end": 13.7,
+      "count": 0
+    },
+    {
+      "bin": "13.7–14.6",
+      "bin_start": 13.7,
+      "bin_end": 14.6,
+      "count": 3
+    },
+    {
+      "bin": "14.6–15.5",
+      "bin_start": 14.6,
+      "bin_end": 15.5,
+      "count": 0
+    },
+    {
+      "bin": "15.5–16.4",
+      "bin_start": 15.5,
+      "bin_end": 16.4,
+      "count": 2
+    },
+    {
+      "bin": "16.4–17.3",
+      "bin_start": 16.4,
+      "bin_end": 17.3,
+      "count": 0
+    },
+    {
+      "bin": "17.3–18.2",
+      "bin_start": 17.3,
+      "bin_end": 18.2,
+      "count": 1
+    },
+    {
+      "bin": "18.2–19.1",
+      "bin_start": 18.2,
+      "bin_end": 19.1,
+      "count": 0
+    },
+    {
+      "bin": "19.1–20.0",
+      "bin_start": 19.1,
+      "bin_end": 20.0,
+      "count": 1
+    }
+  ],
+  "x_key": "bin",
+  "x_label": "Turns per session",
+  "y_label": "Sessions",
+  "series": [
+    {
+      "key": "count",
+      "label": "Sessions"
+    }
+  ]
+}

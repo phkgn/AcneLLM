@@ -1,0 +1,9 @@
+event: ready
+data: {"exists":true}
+
+event: chunk
+data: {"chunk":"[dashboard] 2026-07-16T16:32:40.628Z\n[command] .venv/Scripts/python.exe -m pytest evaluation/tests -q\n\n.............................................................            [100%]\r\n61 passed in 0.69s\r\n","offset":204}
+
+event: chunk
+data: {"chunk":"\n[dashboard] process finished: exit=0 signal=null\n","offset":254}
+

@@ -1,0 +1,44 @@
+{
+  "id": "f3_retrieval_curves",
+  "title": "Retrieval hit@k and recall@k",
+  "chart_type": "line",
+  "data": [
+    {
+      "k": 1,
+      "sparse_hit": 0.0,
+      "sparse_recall": 0.0
+    },
+    {
+      "k": 3,
+      "sparse_hit": 0.0,
+      "sparse_recall": 0.0
+    },
+    {
+      "k": 5,
+      "sparse_hit": 0.0,
+      "sparse_recall": 0.0
+    },
+    {
+      "k": 10,
+      "sparse_hit": 1.0,
+      "sparse_recall": 0.125
+    }
+  ],
+  "x_key": "k",
+  "x_label": "k",
+  "y_label": "Rate",
+  "domain": [
+    0,
+    1
+  ],
+  "series": [
+    {
+      "key": "sparse_hit",
+      "label": "sparse hit@k"
+    },
+    {
+      "key": "sparse_recall",
+      "label": "sparse recall@k"
+    }
+  ]
+}

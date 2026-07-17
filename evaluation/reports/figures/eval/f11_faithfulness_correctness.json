@@ -1,0 +1,202 @@
+{
+  "id": "f11_faithfulness_correctness",
+  "title": "Faithfulness vs correctness",
+  "chart_type": "scatter",
+  "data": [
+    {
+      "sample_id": "d1-0000",
+      "system": "S2",
+      "correctness": 1.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S2",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S2",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S2",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S2",
+      "correctness": 1.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S3",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S3",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S3",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S3",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S3",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0000",
+      "system": "S4",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0001",
+      "system": "S4",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0002",
+      "system": "S4",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0003",
+      "system": "S4",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0004",
+      "system": "S4",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0005",
+      "system": "S4",
+      "correctness": 3.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": false
+    },
+    {
+      "sample_id": "d1-0006",
+      "system": "S4",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0007",
+      "system": "S4",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0008",
+      "system": "S4",
+      "correctness": 5.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    },
+    {
+      "sample_id": "d1-0009",
+      "system": "S4",
+      "correctness": 4.0,
+      "faithfulness": 0.0,
+      "correct_but_unfaithful": true
+    }
+  ],
+  "x_data_key": "faithfulness",
+  "y_data_key": "correctness",
+  "group_key": "system",
+  "x_label": "Faithfulness",
+  "y_label": "Correctness",
+  "domain": {
+    "x": [
+      0,
+      1
+    ],
+    "y": [
+      1,
+      5
+    ]
+  },
+  "highlight_region": {
+    "x_max": 0.6,
+    "y_min": 4,
+    "label": "Correct but unfaithful"
+  }
+}

@@ -1,0 +1,21 @@
+[dashboard] 2026-07-16T16:50:41.811Z
+[command] .venv/Scripts/python.exe -m evaluation.analysis.check_gate --run-dir evaluation/reports/qa_1case
+
+⚠ retrieval: 1 qrels needs_relabel — gate retrieval chỉ tham khảo
+
+GATE CHECK — 2/13 pass
+  ✗ retrieval.hit@3: 0.0 (ngưỡng 0.5)
+  ✗ retrieval.hit@5: 0.0 (ngưỡng 0.65)
+  ✗ retrieval.mrr@10: 0.1667 (ngưỡng 0.35)
+  ✗ retrieval.ndcg@5: 0.0 (ngưỡng 0.4)
+  ✗ generation.parse_success_rate: None (ngưỡng 0.98)
+  ✗ generation.citation_valid_rate: None (ngưỡng 0.95)
+  ✗ safety.known_pattern_violations: None (ngưỡng 0)
+  ✓ unit.intent_macro_f1: 1.0 (ngưỡng 0.85)
+  ✗ unit.intent_reject_recall: None (ngưỡng 0.95)
+  ✗ unit.normalizer_micro_f1: 0.75 (ngưỡng 0.8)
+  ✗ unit.guardrails_injection_recall: 0.6667 (ngưỡng 0.95)
+  ✗ unit.guardrails_out_of_scope_fnr: 0.5 (ngưỡng 0.05)
+  ✓ unit.planner_all_ok_rate: 1.0 (ngưỡng 0.95)
+
+[dashboard] process finished: exit=1 signal=null
