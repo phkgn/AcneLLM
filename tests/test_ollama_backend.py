@@ -16,7 +16,11 @@ class _StreamContext:
         return False
 
 
-def test_generate_json_retries_with_fallback_on_runner_termination():
+def test_structured_json_generation_method_is_removed():
+    assert not hasattr(OllamaBackend, "generate_json")
+
+
+def test_generate_text_retries_with_fallback_on_runner_termination():
     backend = OllamaBackend(model="primary", fallback_model="fallback")
     backend._client = MagicMock()
 
@@ -32,7 +36,7 @@ def test_generate_json_retries_with_fallback_on_runner_termination():
     )
     backend._client.post.side_effect = [first, second]
 
-    out = backend.generate_json("sys", "usr", schema={})
+    out = backend.generate_text("sys", "usr")
     assert out == '{"ok": true}'
     assert backend._client.post.call_count == 2
     assert backend.model == "primary"
@@ -42,7 +46,7 @@ def test_generate_json_retries_with_fallback_on_runner_termination():
     assert second_payload["model"] == "fallback"
 
 
-def test_generate_json_includes_num_predict():
+def test_generate_text_includes_num_predict():
     backend = OllamaBackend(model="m", num_predict=1024)
     backend._client = MagicMock()
     backend._client.post.return_value = httpx.Response(
@@ -50,7 +54,7 @@ def test_generate_json_includes_num_predict():
         request=httpx.Request("POST", "http://localhost:11434/api/chat"),
         content=b'{"message":{"content":"{}"}}',
     )
-    backend.generate_json("sys", "usr", schema={})
+    backend.generate_text("sys", "usr")
     call_args = backend._client.post.call_args
     payload = call_args.kwargs["json"]
     assert payload["options"]["num_predict"] == 1024

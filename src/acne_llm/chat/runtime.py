@@ -70,7 +70,6 @@ def stream_chat_sse(
             message,
             requested_mode=requested_mode,
             session_id=session_id,
-            response_format="text",
         )
         intake = prepared.intake
         clean_message = intake.clean_text

@@ -26,16 +26,6 @@ class _MockLLM:
         yield "Xin chào "
         yield "từ stream."
 
-    def generate_json(self, system: str, user: str, schema=None):
-        self.user_prompts.append(user)
-        return AdviseOutput(
-            severity="unknown",
-            acne_type_primary="unknown",
-            causes=["mock"],
-            confidence=0.2,
-        ).model_dump_json()
-
-
 class _MockPrompt:
     def __init__(self):
         self.templates = []
@@ -276,7 +266,7 @@ def test_stream_endpoint_acne_partial_goes_to_llm():
 
 
 def test_stream_endpoint_calls_plan_once():
-    """Sau refactor: runtime gọi planner.plan() — đây là rule-based, không LLM."""
+    """Hot-path SSE omits the analytics-only clinical planner."""
     plan = ClinicalQueryPlan(
         detected_language="vi",
         normalized_case=NormalizedAcneCase(),
@@ -293,11 +283,10 @@ def test_stream_endpoint_calls_plan_once():
     app.include_router(chat.router, prefix="/api/v1")
     c = TestClient(app)
 
-    # Input đủ để pass completeness gate → planner.plan() sẽ được gọi
     r = c.get("/api/v1/chat/stream", params={"message": _SUFFICIENT_MSG})
 
     assert r.status_code == 200
-    planner.plan.assert_called_once()        # plan() được gọi đúng 1 lần
+    planner.plan.assert_not_called()
     planner.fallback_plan.assert_not_called()  # fallback_plan không còn được gọi trực tiếp
 
 
@@ -482,7 +471,9 @@ def test_stream_endpoint_persists_self_snapshot_when_safety_clarify_is_overridde
         store.delete(session_id)
 
 
-def test_post_and_stream_share_current_turn_retrieval_query():
+def test_batch_prepare_and_stream_share_current_turn_retrieval_query():
+    from acne_llm.chat.orchestrator import prepare_chat_turn
+
     container = _MockContainer()
     container.rag_ready = True
     container.retriever = _MockRetriever()
@@ -491,12 +482,11 @@ def test_post_and_stream_share_current_turn_retrieval_query():
 
     stream = client.get("/api/v1/chat/stream", params={"message": message, "mode": "hybrid"})
     stream_query = container.retriever.queries[-1]
-    post = client.post("/api/v1/chat", json={"message": message, "mode": "hybrid"})
-    post_query = container.retriever.queries[-1]
+    prepare_chat_turn(container, message, requested_mode="hybrid")
+    batch_query = container.retriever.queries[-1]
 
     assert stream.status_code == 200
-    assert post.status_code == 200
-    assert stream_query == post_query
+    assert stream_query == batch_query
     assert stream_query.startswith(message)
     assert "salicylic acid" in stream_query
 

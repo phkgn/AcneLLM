@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import json
 import re
 import time
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from ..schemas import AdviseOutput, RetrievalOutput, UserInput
+from ..schemas import RetrievalOutput, UserInput
 from ._retrieval import retrieve_for_chat
 from .extraction_confidence import build_confidence_hint
 from .intake import IntakeResult, run_intake
@@ -16,9 +15,6 @@ from .preprocess import prepare_user_text
 
 if TYPE_CHECKING:
     from ..di import Container
-
-
-ResponseFormat = Literal["text", "structured"]
 
 
 @dataclass
@@ -125,7 +121,6 @@ def prepare_chat_turn(
     message: str,
     requested_mode: str = "auto",
     session_id: str | None = None,
-    response_format: ResponseFormat = "text",
     user_override: UserInput | None = None,
     include_analytics: bool = False,
 ) -> PreparedChatTurn:
@@ -138,9 +133,8 @@ def prepare_chat_turn(
         include_analytics=include_analytics,
     )
     if user_override is not None:
-        # Compatibility adapter for the legacy structured POST payload. These
-        # fields are explicit for this turn, but only confirmed safety facts
-        # are allowed to persist/influence the system prompt.
+        # Explicit profile fields supplied by trusted local callers (CLI/eval).
+        # Only confirmed safety facts may influence the prompt.
         intake.user = user_override
         intake.confirmed_profile = {
             "is_pregnant": bool(user_override.context.is_pregnant),
@@ -183,8 +177,6 @@ def prepare_chat_turn(
 
     if intake.scope_refusal is not None or intake.effective_mode == "refuse":
         template = None
-    elif response_format == "structured":
-        template = "hybrid_user.j2" if mode == "hybrid" else "llm_only_user.j2"
     elif primary_intent == "clarify":
         template = "clarify_user.j2"
     elif primary_intent == "knowledge":
@@ -231,46 +223,39 @@ def prepare_chat_turn(
     )
 
 
-def generate_structured(c: "Container", prepared: PreparedChatTurn) -> AdviseOutput:
-    """Generate the POST JSON response from the same prepared turn as streaming."""
+def generate_prose(
+    c: "Container",
+    prepared: PreparedChatTurn,
+    temperature: float | None = None,
+) -> str:
+    """Generate non-stream prose from the same prompt contract as SSE.
+
+    T3 eval and the CLI use this helper. The user-facing HTTP route remains SSE;
+    T4 covers stream transport, persistence and event-level post-processing.
+    """
     if prepared.fixed_reply:
-        return AdviseOutput(
-            severity="unknown",
-            acne_type_primary="unknown",
-            causes=[prepared.fixed_reply],
-            confidence=1.0,
-            mode="llm_only",
-            model_name="deterministic",
-        )
-    raw = c.llm.generate_json(
+        return prepared.fixed_reply
+    refusal = prepared.intake.scope_refusal
+    if refusal is not None:
+        return refusal.disclaimer or "\n".join(refusal.causes)
+
+    text = c.llm.generate_text(
         prepared.system_prompt,
         prepared.user_prompt,
-        schema=AdviseOutput.model_json_schema(),
+        temperature=temperature,
     )
-    parsed: AdviseOutput | None = None
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
-    for candidate in (raw, match.group() if match else ""):
-        if not candidate:
-            continue
-        try:
-            parsed = AdviseOutput.model_validate(json.loads(candidate))
-            break
-        except Exception:
-            continue
-    if parsed is None:
-        parsed = AdviseOutput(
-            severity="unknown",
-            acne_type_primary="unknown",
-            causes=["Không thể phân tích phản hồi từ LLM, vui lòng thử lại."],
-            confidence=0.1,
-        )
-    if str(getattr(c.settings, "inline_citation", "off")) != "model":
-        from .inline_citations import strip_inline_citations_value
+    text = re.sub(r"[一-鿿぀-ゟ゠-ヿ가-힯]+", "", text)
+    inline_mode = str(getattr(c.settings, "inline_citation", "off"))
+    if inline_mode not in {"off", "model"}:
+        inline_mode = "off"
+    if inline_mode == "off":
+        from .inline_citations import strip_inline_citations
 
-        parsed = AdviseOutput.model_validate(
-            strip_inline_citations_value(parsed.model_dump(mode="python"))
-        )
-    parsed.used_chunks = [chunk.chunk_id for chunk in prepared.retrieval.chunks] if prepared.retrieval else []
-    parsed.mode = prepared.mode
-    parsed.model_name = getattr(c.llm, "model", "")
-    return c.guardrails.post_check(parsed, prepared.intake.user)
+        text = strip_inline_citations(text)
+    elif (
+        prepared.retrieval is not None
+        and prepared.retrieval.chunks
+        and not re.search(r"\[\d+\]", text)
+    ):
+        text += " [1]"
+    return text

@@ -199,18 +199,6 @@ class OllamaBackend:
             "repeat_last_n":  self.repeat_last_n,
         }
 
-    def generate_json(self, system: str, user: str, schema: dict,
-                      temperature: float | None = None) -> str:
-        payload = {
-            "model": self.model,
-            "messages": self._build_messages(system, user),
-            "format": schema,
-            "options": self._sampling_options(temperature=temperature),
-            "stream": False,
-            "keep_alive": self.keep_alive,
-        }
-        return self._chat(payload)["message"]["content"]
-
     def generate_text(self, system: str, user: str,
                       temperature: float | None = None) -> str:
         payload = {

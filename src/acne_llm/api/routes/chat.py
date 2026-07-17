@@ -2,183 +2,16 @@ import asyncio
 import json
 import time
 
-from fastapi import APIRouter, Body, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from loguru import logger
 from pydantic import BaseModel
 
-from ...schemas import UserInput, AdviseOutput
 from ...chat.intake import MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, _count_words
 from ...chat.runtime import stream_chat_sse
-from ...chat.session import ConversationTurn, get_session_store
-from ...chat.orchestrator import prepare_chat_turn, generate_structured
-from ...db.audit import AuditEntry
+from ...chat.orchestrator import prepare_chat_turn
 
 router = APIRouter(tags=["chat"])
-
-
-@router.post("/chat", response_model=AdviseOutput)
-async def chat(request: Request, payload: dict = Body(...)):
-    if "message" in payload:
-        return await _chat_new_body(payload, request)
-
-    inp = UserInput.model_validate(payload)
-    if inp.mode not in {"llm_only", "hybrid"}:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Pipeline '{inp.mode}' is not supported.",
-        )
-    try:
-        c = request.app.state.container
-        prepared = await asyncio.to_thread(
-            prepare_chat_turn,
-            c,
-            inp.description,
-            inp.mode,
-            None,
-            "structured",
-            inp,
-        )
-        if prepared.intake.scope_refusal is not None:
-            return prepared.intake.scope_refusal
-        return await asyncio.to_thread(generate_structured, c, prepared)
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception("pipeline error")
-        raise HTTPException(status_code=500, detail=f"Pipeline error: {e}")
-
-
-async def _chat_new_body(payload: dict, request: Request) -> AdviseOutput:
-    message = str(payload.get("message", ""))
-    if not message.strip():
-        raise HTTPException(status_code=400, detail="message is required")
-    if len(message) > MAX_MESSAGE_CHARS:
-        raise HTTPException(status_code=413, detail=f"message must be <= {MAX_MESSAGE_CHARS} characters")
-    if _count_words(message) > MAX_MESSAGE_WORDS:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Tin nhắn quá dài. Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ.",
-        )
-
-    c = request.app.state.container
-    session_id = payload.get("session_id")
-    mode_request = str(payload.get("mode", "auto"))
-    started = time.perf_counter()
-    try:
-        prepared = await asyncio.to_thread(
-            prepare_chat_turn,
-            c,
-            message,
-            mode_request,
-            session_id,
-            "structured",
-        )
-        intake = prepared.intake
-        store = getattr(c, "session_store", None) or get_session_store()
-        route_metadata = intake.route_decision.metadata() if intake.route_decision else {}
-
-        if intake.scope_refusal is not None:
-            out = intake.scope_refusal
-            out.model_name = getattr(c.llm, "model", "")
-            out.latency_ms = int((time.perf_counter() - started) * 1000)
-            # Bug #5 fix: increment guardrail trigger metric
-            metrics = getattr(request.app.state, "metrics", None)
-            if metrics is not None:
-                metrics.guardrail_trigger_count += 1
-            if session_id:
-                store.append_turn(
-                    session_id,
-                    ConversationTurn(
-                        role="user",
-                        # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
-                        content=intake.raw_message,
-                        mode=out.mode,
-                        normalized_snapshot=intake.turn_snapshot,
-                        metadata=route_metadata,
-                    ),
-                )
-                store.append_turn(
-                    session_id,
-                    ConversationTurn(role="assistant", content=out.disclaimer, mode=out.mode),
-                )
-            return out
-
-        if intake.effective_mode == "clarify":
-            question = intake.completeness.followup_question if intake.completeness else ""
-            out = AdviseOutput(
-                severity="unknown",
-                acne_type_primary="unknown",
-                causes=[question or "Cần thêm thông tin trước khi tư vấn"],
-                recommendations=[],
-                red_flags=[],
-                used_chunks=[],
-                confidence=0.0,
-                mode="llm_only",
-                model_name=getattr(c.llm, "model", ""),
-                latency_ms=int((time.perf_counter() - started) * 1000),
-            )
-            if session_id:
-                store.append_turn(
-                    session_id,
-                    ConversationTurn(
-                        role="user",
-                        # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
-                        content=intake.raw_message,
-                        mode="llm_only",
-                        normalized_snapshot=intake.turn_snapshot,
-                        metadata=route_metadata,
-                    ),
-                )
-                store.append_turn(
-                    session_id,
-                    ConversationTurn(role="assistant", content=question, mode="clarify"),
-                )
-            return out
-
-        mode = prepared.mode
-        out = await asyncio.to_thread(generate_structured, c, prepared)
-        out.latency_ms = int((time.perf_counter() - started) * 1000)
-        if session_id:
-            store.append_turn(
-                session_id,
-                ConversationTurn(
-                    role="user",
-                    # F10b: lưu nguyên văn user gõ, không phải bản đã preprocess.
-                    content=intake.raw_message,
-                    mode=mode,
-                    normalized_snapshot=intake.turn_snapshot,
-                    metadata=route_metadata,
-                ),
-            )
-            store.append_turn(
-                session_id,
-                ConversationTurn(
-                    role="assistant",
-                    content="; ".join(out.causes + [r.action for r in out.recommendations]),
-                    mode=mode,
-                    used_chunks=out.used_chunks,
-                ),
-            )
-        audit = getattr(c, "audit_store", None)
-        if audit is not None:
-            audit.log(AuditEntry(
-                user_message=intake.clean_text,
-                assistant_response="; ".join(
-                    out.causes + [r.action for r in out.recommendations]
-                ),
-                used_chunk_ids=out.used_chunks,
-                scope_decision=intake.scope_decision or "",
-                latency_ms=int((time.perf_counter() - started) * 1000),
-                model_used=getattr(c.llm, "model", ""),
-                session_id=session_id,
-            ))
-        return out
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception("chat intake/pipeline error")
-        raise HTTPException(status_code=500, detail=f"Pipeline error: {e}")
 
 
 @router.get("/chat/stream")
@@ -249,7 +82,7 @@ async def debug_trace(
     # ②–⑥ Intake (normalize, guardrails, route, fold, completeness, plan).
     # include_analytics=True: build clinical_plan CHỈ cho trace (hot path bỏ qua).
     prepared_turn = await asyncio.to_thread(
-        prepare_chat_turn, c, message, mode, session_id, "text",
+        prepare_chat_turn, c, message, mode, session_id,
         include_analytics=True,
     )
     intake = prepared_turn.intake

@@ -421,7 +421,7 @@ class PromptBuilder:
         self,
         user: UserInput,
         retrieval: RetrievalOutput | None,
-        template: str = "hybrid_user.j2",
+        template: str = "stream_user.j2",
         detected_language: str = "unknown",
         query_vi: str = "",
         max_context_chars: int = 6000,

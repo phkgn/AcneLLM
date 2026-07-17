@@ -1,5 +1,4 @@
 from acne_llm.chat._retrieval import merge_retrieval_outputs as merge_chat_outputs
-from acne_llm.pipeline.hybrid import HybridPipeline
 from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 
 
@@ -22,19 +21,6 @@ def _output(ids: list[str]) -> RetrievalOutput:
     )
 
 
-def test_hybrid_merge_uses_rrf_and_deduplicates_chunks():
-    merged = HybridPipeline._merge_retrieval_outputs(
-        [_output(["a", "b", "c"]), _output(["b", "d", "a"])],
-        combined_query="q1\nq2",
-    )
-
-    assert [chunk.chunk_id for chunk in merged.chunks][:2] == ["b", "a"]
-    assert len({chunk.chunk_id for chunk in merged.chunks}) == len(merged.chunks)
-    assert merged.query == "q1\nq2"
-    assert merged.avg_score > 0
-    assert max(chunk.score for chunk in merged.chunks) == 1.0
-
-
 def test_chat_merge_uses_same_rrf_order():
     merged = merge_chat_outputs(
         [_output(["a", "b", "c"]), _output(["b", "d", "a"])],
@@ -43,4 +29,6 @@ def test_chat_merge_uses_same_rrf_order():
 
     assert [chunk.chunk_id for chunk in merged.chunks][:2] == ["b", "a"]
     assert len({chunk.chunk_id for chunk in merged.chunks}) == len(merged.chunks)
+    assert merged.query == "q1\nq2"
+    assert merged.avg_score > 0
     assert max(chunk.score for chunk in merged.chunks) == 1.0
