@@ -1,0 +1,14 @@
+# Round 3 prose-contract smoke: every T3 condition, three D1 cases.
+name: round3_smoke
+tier: t3
+dataset: evaluation/datasets/v1/d1_dev_seed.jsonl
+systems:
+  - evaluation/configs/systems/s0.yaml
+  - evaluation/configs/systems/s1.yaml
+  - evaluation/configs/systems/s2.yaml
+  - evaluation/configs/systems/s3.yaml
+  - evaluation/configs/systems/s4.yaml
+comparisons: []
+seed: 42
+max_retries: 1
+request_timeout_s: 180

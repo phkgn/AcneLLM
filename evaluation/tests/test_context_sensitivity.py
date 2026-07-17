@@ -1,5 +1,7 @@
 from evaluation.unit.eval_context_sensitivity import (
+    CANARY_QUERY,
     CANARY_TOKEN,
+    STRICT_GROUNDING_INSTRUCTION,
     add_in_memory_canary,
     char_ngram_similarity,
     summarize_results,
@@ -31,6 +33,9 @@ def test_canary_injection_is_copy_only_and_never_mutates_retrieval() -> None:
     assert CANARY_TOKEN not in original.chunks[0].text
     assert injected.chunks[0].chunk_id == "eval-only-canary"
     assert CANARY_TOKEN in injected.chunks[0].text
+    assert CANARY_TOKEN not in CANARY_QUERY
+    assert "tên mã" in CANARY_QUERY
+    assert "chỉ dùng" in STRICT_GROUNDING_INSTRUCTION.casefold()
 
 
 def test_char_ngram_similarity_has_expected_extremes() -> None:
@@ -42,17 +47,38 @@ def test_context_sensitivity_summary_reports_distances_and_red_flag() -> None:
     summary = summarize_results([
         {
             "canary_adopted": True,
+            "strict_canary_adopted": True,
             "embedding_cosine": 0.9,
             "char_ngram_similarity": 0.7,
+            "baseline_grounding": {
+                "eligible_sentence_count": 2,
+                "grounded_sentence_count": 1,
+            },
+            "strict_grounding": {
+                "eligible_sentence_count": 2,
+                "grounded_sentence_count": 2,
+            },
         },
         {
             "canary_adopted": False,
+            "strict_canary_adopted": True,
             "embedding_cosine": 0.7,
             "char_ngram_similarity": 0.5,
+            "baseline_grounding": {
+                "eligible_sentence_count": 1,
+                "grounded_sentence_count": 0,
+            },
+            "strict_grounding": {
+                "eligible_sentence_count": 1,
+                "grounded_sentence_count": 1,
+            },
         },
     ], low_sensitivity_threshold=0.25)
 
     assert summary["canary_adoption_rate"] == 0.5
+    assert summary["strict_canary_adoption_rate"] == 1.0
+    assert summary["baseline_grounded_sentence_rate"] == 1 / 3
+    assert summary["strict_grounded_sentence_rate"] == 1.0
     assert summary["embedding_distance_mean"] == 0.2
     assert summary["char_ngram_distance_mean"] == 0.4
     assert summary["context_swap_sensitivity_mean"] == 0.3

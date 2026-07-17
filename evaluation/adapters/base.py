@@ -12,8 +12,8 @@ class SystemAdapter(ABC):
     run() trả về record chuẩn:
     {
       "sample_id", "system_id", "ok": bool, "error": str|None,
-      "answer": str,                # text người dùng thấy (prose hoặc JSON-flatten)
-      "structured": dict|None,      # AdviseOutput dump (batch path) nếu có
+      "answer": str,                # prose người dùng thấy
+      "structured": None,           # reserved only to read legacy records
       "used_chunks": [chunk_id],
       "model_name": str|None,       # model THỰC trả lời (assert chống fallback R4)
       "timings_ms": {"retrieval": .., "generation": .., "total": ..},
