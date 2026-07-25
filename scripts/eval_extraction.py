@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare rule extraction with the dedicated LLM extractor.
+"""Compare rule, dedicated-extractor, and unified-intake extraction arms.
 
 The LLM mode calls the dedicated ``acne-extractor:1.5b`` adapter directly.  It
 does not silently substitute rule predictions on failure, so the reported LLM
@@ -11,6 +11,7 @@ LLM extraction fields.
 Usage:
     python scripts/eval_extraction.py --mode rule
     python scripts/eval_extraction.py --mode llm --limit 50
+    python scripts/eval_extraction.py --mode unified --limit 50
     python scripts/eval_extraction.py --mode both --json-output reports/extractor_eval.json
 """
 from __future__ import annotations
@@ -25,6 +26,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
 from acne_llm.chat.extraction_confidence import (  # noqa: E402
@@ -35,8 +37,10 @@ from acne_llm.chat.fallback.intent_router import RouteDecision, route_intent  # 
 from acne_llm.chat.fallback.llm_extractor import LLMExtractor  # noqa: E402
 from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
 from acne_llm.chat.preprocess import prepare_user_text  # noqa: E402
+from acne_llm.chat.unified_intake import UnifiedIntake  # noqa: E402
 from acne_llm.config import Settings  # noqa: E402
 from acne_llm.llm.ollama_backend import OllamaBackend  # noqa: E402
+from evaluation.metrics.intake import intent_prf, list_prf  # noqa: E402
 
 
 _SCALAR_FIELDS = (
@@ -81,22 +85,16 @@ def _load(path: Path) -> list[dict]:
 
 
 def _set_metrics(name: str, gold_sets: list, pred_sets: list) -> dict:
-    """Micro precision/recall/F1 for singleton scalar or list-valued labels."""
-    tp = fp = fn = 0
-    for gold, pred in zip(gold_sets, pred_sets):
-        gold_set = set(gold or [])
-        pred_set = set(pred or [])
-        tp += len(gold_set & pred_set)
-        fp += len(pred_set - gold_set)
-        fn += len(gold_set - pred_set)
-    precision = tp / (tp + fp) if (tp + fp) else 0.0
-    recall = tp / (tp + fn) if (tp + fn) else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
+    """Adapt the shared intake list metric to this legacy report schema."""
+    shared = list_prf(gold_sets, pred_sets)
+    tp = sum(len(set(gold or []) & set(pred or [])) for gold, pred in zip(gold_sets, pred_sets))
+    fp = sum(len(set(pred or []) - set(gold or [])) for gold, pred in zip(gold_sets, pred_sets))
+    fn = sum(len(set(gold or []) - set(pred or [])) for gold, pred in zip(gold_sets, pred_sets))
     return {
         "field": name,
-        "precision": round(precision, 4),
-        "recall": round(recall, 4),
-        "f1": round(f1, 4),
+        "precision": shared["micro_precision"],
+        "recall": shared["micro_recall"],
+        "f1": shared["micro_f1"],
         "tp": tp,
         "fp": fp,
         "fn": fn,
@@ -206,6 +204,21 @@ def _predict_llm(
     return result.confidence, route
 
 
+def _predict_unified(
+    text: str,
+    intake: UnifiedIntake,
+) -> tuple[ExtractionConfidence, RouteDecision]:
+    prepared = prepare_user_text(text)
+    result = intake.run(
+        clean_text=prepared.clean_text,
+        clean_text_no_accent=prepared.clean_text_no_accent,
+        mode="llm_only",
+        history=[],
+    )
+    route = intake.classify(prepared.clean_text, [])
+    return result.confidence, route
+
+
 def _make_llm_extractor(args) -> LLMExtractor:
     settings = Settings()
     model = args.extractor_model or settings.extractor_model
@@ -229,11 +242,35 @@ def _make_llm_extractor(args) -> LLMExtractor:
     return LLMExtractor(backend, model=model, timeout=timeout)
 
 
+def _make_unified_intake(args) -> UnifiedIntake:
+    settings = Settings()
+    model = args.intake_model or settings.intake_model
+    timeout = args.intake_timeout or settings.intake_timeout
+    backend = OllamaBackend(
+        base_url=settings.ollama_url,
+        model=model,
+        fallback_model=None,
+        num_ctx=min(settings.llm_num_ctx, 4096),
+        num_predict=768,
+        temperature=0.0,
+        top_p=1.0,
+        top_k=20,
+        repeat_penalty=1.0,
+        repeat_last_n=64,
+        keep_alive=settings.llm_keep_alive,
+        timeout=timeout,
+        health_timeout=settings.ollama_health_timeout,
+        use_modelfile_system=True,
+    )
+    return UnifiedIntake(backend, model=model, timeout=timeout)
+
+
 def _evaluate_mode(
     mode: str,
     rows: list[dict],
     *,
     extractor: LLMExtractor | None,
+    unified: UnifiedIntake | None,
     show_errors: bool,
     progress_every: int,
     workers: int,
@@ -262,6 +299,10 @@ def _evaluate_mode(
                     extractor,
                     route_field_threshold,
                 )
+            elif mode == "unified":
+                if unified is None:
+                    raise RuntimeError("unified intake was not initialized")
+                confidence, route = _predict_unified(text, unified)
             else:
                 confidence, route = _predict_rule(text)
             return confidence, route, None
@@ -331,6 +372,10 @@ def _evaluate_mode(
         for field in _LIST_FIELDS
     }
     intent_total = len(intent_gold)
+    shared_intent = intent_prf(
+        intent_gold,
+        [value if value is not None else "__failure__" for value in intent_pred],
+    ) if intent_gold else {"per_class": {}, "macro_f1": 0.0, "confusion_matrix": {}}
     intent_metrics = {
         "primary_intent_accuracy": round(
             sum(gold == pred for gold, pred in zip(intent_gold, intent_pred)) / intent_total,
@@ -339,6 +384,7 @@ def _evaluate_mode(
         if intent_total
         else 0.0,
         "labeled_primary_intent": intent_total,
+        **shared_intent,
     }
     return {
         "mode": mode,
@@ -346,7 +392,9 @@ def _evaluate_mode(
         "failures": failures,
         "elapsed_seconds": round(time.perf_counter() - started, 2),
         "intent_pipeline": (
-            "rule_on_confidence_gated_llm_fields" if mode == "llm" else "rule_fields"
+            "unified_intake"
+            if mode == "unified"
+            else ("legacy_text_router" if mode == "llm" else "rule_fields")
         ),
         "route_field_threshold": route_field_threshold,
         "scalar": scalar_metrics,
@@ -384,30 +432,30 @@ def _print_mode(result: dict) -> None:
         print(f"\n  captured error/mismatch examples: {len(result['errors'])}")
 
 
-def _print_comparison(rule: dict, llm: dict) -> None:
+def _print_comparison(baseline: dict, candidate: dict) -> None:
     print("\n" + "=" * 88)
-    print("LLM - RULE DELTA")
+    print(f"{candidate['mode'].upper()} - {baseline['mode'].upper()} DELTA")
     print("=" * 88)
     for field in _SCALAR_FIELDS:
-        delta = llm["scalar"][field]["f1"] - rule["scalar"][field]["f1"]
+        delta = candidate["scalar"][field]["f1"] - baseline["scalar"][field]["f1"]
         print(f"  {field:20s} F1 delta={delta:+.3f}")
     for field in _LIST_FIELDS:
-        delta = llm["list"][field]["f1"] - rule["list"][field]["f1"]
+        delta = candidate["list"][field]["f1"] - baseline["list"][field]["f1"]
         print(f"  {field:20s} F1 delta={delta:+.3f}")
     print("\n-- Safety-field deltas (must be inspected before trusting rollout) --")
     for field in _SAFETY_FIELDS:
         section = "scalar" if field in _SCALAR_FIELDS else "list"
-        delta = llm[section][field]["f1"] - rule[section][field]["f1"]
+        delta = candidate[section][field]["f1"] - baseline[section][field]["f1"]
         print(f"  {field:20s} F1 delta={delta:+.3f}")
     print("\n-- Intent deltas --")
     key = "primary_intent_accuracy"
-    delta = llm["intent"][key] - rule["intent"][key]
+    delta = candidate["intent"][key] - baseline["intent"][key]
     print(f"  {key:28s} delta={delta:+.3f}")
 
 
 def _default_mode() -> str:
     value = os.getenv("EXTRACTOR_MODE", "rule").strip().lower()
-    return value if value in {"rule", "llm", "both"} else "rule"
+    return value if value in {"rule", "llm", "unified", "both", "all"} else "rule"
 
 
 def main() -> None:
@@ -415,9 +463,15 @@ def main() -> None:
     parser.add_argument("--golden", default="data/golden_extraction_gen.jsonl")
     parser.add_argument("--offset", type=int, default=0, help="skip the first N rows")
     parser.add_argument("--limit", type=int, default=0, help="0 = all rows")
-    parser.add_argument("--mode", choices=("rule", "llm", "both"), default=_default_mode())
+    parser.add_argument(
+        "--mode",
+        choices=("rule", "llm", "unified", "both", "all"),
+        default=_default_mode(),
+    )
     parser.add_argument("--extractor-model", default="")
     parser.add_argument("--extractor-timeout", type=float, default=0.0)
+    parser.add_argument("--intake-model", default="")
+    parser.add_argument("--intake-timeout", type=float, default=0.0)
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--workers", type=int, default=1, help="parallel Ollama requests")
     parser.add_argument("--show-errors", action="store_true")
@@ -437,9 +491,14 @@ def main() -> None:
     if not rows:
         parser.error("golden set is empty")
 
-    modes = ("rule", "llm") if args.mode == "both" else (args.mode,)
+    modes = (
+        ("rule", "llm", "unified")
+        if args.mode == "all"
+        else (("rule", "llm") if args.mode == "both" else (args.mode,))
+    )
     route_field_threshold = Settings().extract_min_field_conf
     extractor = _make_llm_extractor(args) if "llm" in modes else None
+    unified = _make_unified_intake(args) if "unified" in modes else None
     results: dict[str, dict] = {}
     try:
         for mode in modes:
@@ -447,6 +506,7 @@ def main() -> None:
                 mode,
                 rows,
                 extractor=extractor,
+                unified=unified,
                 show_errors=args.show_errors,
                 progress_every=max(0, args.progress_every),
                 workers=max(1, args.workers),
@@ -456,9 +516,13 @@ def main() -> None:
     finally:
         if extractor is not None:
             extractor.close()
+        if unified is not None:
+            unified.close()
 
     if "rule" in results and "llm" in results:
         _print_comparison(results["rule"], results["llm"])
+    if "rule" in results and "unified" in results:
+        _print_comparison(results["rule"], results["unified"])
 
     if args.json_output:
         output = Path(args.json_output)

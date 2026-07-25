@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from acne_llm.chat.fallback.intent_router import route_intent  # noqa: E402
 from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
@@ -33,6 +35,9 @@ from acne_llm.chat.fallback.semantic_router import (  # noqa: E402
     SemanticRouter,
 )
 from acne_llm.rag.embedder import Embedder  # noqa: E402
+from acne_llm.config import Settings  # noqa: E402
+from evaluation.metrics.intake import intent_prf  # noqa: E402
+from scripts.eval_unified_intake import _build_model_infer  # noqa: E402
 
 
 IN_SCOPE_LABELS = ("advise", "knowledge", "clarify")
@@ -297,6 +302,60 @@ def _legacy_rule_metrics(rows: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
+def _unified_metrics(
+    test_rows: list[dict[str, str]],
+    oos_rows: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Run the unified-intake arm directly, without semantic/rule fallback."""
+    rows = [*test_rows, *oos_rows]
+    predicted: list[str] = []
+    latencies_ms: list[float] = []
+    failures = 0
+    infer, close = _build_model_infer(Settings())
+    try:
+        for index, row in enumerate(rows, 1):
+            started = time.perf_counter()
+            try:
+                payload = infer(row["text"])
+                intent = payload.get("intent")
+                if intent not in ALL_PREDICTION_LABELS:
+                    raise ValueError(f"invalid unified intent: {intent!r}")
+                predicted.append(intent)
+            except Exception:
+                failures += 1
+                predicted.append("__failure__")
+            latencies_ms.append((time.perf_counter() - started) * 1000)
+            if index % 25 == 0:
+                print(f"[unified] {index}/{len(rows)}", flush=True)
+    finally:
+        close()
+
+    gold = [row["intent"] for row in rows]
+    in_scope_pred = predicted[: len(test_rows)]
+    oos_pred = predicted[len(test_rows) :]
+    shared = intent_prf(gold, predicted)
+    return {
+        "model": Settings().intake_model,
+        "rows": len(rows),
+        "failures": failures,
+        "fallback_rate": round(failures / len(rows), 4),
+        "fallback_executed": False,
+        "accuracy": round(sum(g == p for g, p in zip(gold, predicted)) / len(rows), 4),
+        "in_scope_accuracy": round(
+            sum(row["intent"] == pred for row, pred in zip(test_rows, in_scope_pred))
+            / len(test_rows),
+            4,
+        ),
+        "oos_recall": round(
+            sum(pred == "reject" for pred in oos_pred) / len(oos_pred),
+            4,
+        ),
+        "intent_prf": shared,
+        "predicted_counts": dict(Counter(predicted)),
+        "latency_ms": _latency_summary(latencies_ms),
+    }
+
+
 def _latency_summary(values: list[float]) -> dict[str, float]:
     array = np.asarray(values, dtype=np.float64)
     return {
@@ -417,6 +476,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     golden_oos_predictions = oos_predictions[: args.golden_oos_count]
     generated_oos_predictions = oos_predictions[args.golden_oos_count :]
     rule = _legacy_rule_metrics(test_rows)
+    unified = _unified_metrics(test_rows, oos_rows) if args.include_unified else None
     all_latencies = [*test_latencies_ms, *oos_latencies_ms]
 
     metrics = {
@@ -453,6 +513,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
             ),
         },
         "legacy_rule_test": rule,
+        "unified_intake": unified,
         "stated_rule_baseline_accuracy": 0.716,
         "latency_ms_real_local_embedding_plus_knn": {
             "all": _latency_summary(all_latencies),
@@ -495,6 +556,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
             {
                 "semantic_accuracy": semantic["accuracy"],
                 "rule_accuracy": rule["accuracy"],
+                "unified_accuracy": unified["accuracy"] if unified else None,
                 "in_scope_recall": selected_oos["in_scope_recall"],
                 "oos_recall": selected_oos["oos_recall"],
                 "oos_precision": selected_oos["oos_precision"],
@@ -534,6 +596,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Leading OOS rows copied from the original golden dataset.",
     )
     parser.add_argument("--minimum-in-scope-recall", type=float, default=0.98)
+    parser.add_argument(
+        "--include-unified",
+        action="store_true",
+        help="also run the no-fallback unified-intake arm on test + OOS rows",
+    )
     args = parser.parse_args(argv)
     if args.k < 1:
         parser.error("--k must be positive")
