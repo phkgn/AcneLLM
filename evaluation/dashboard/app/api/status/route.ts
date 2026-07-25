@@ -135,7 +135,7 @@ export async function GET() {
       label: "OpenAI judge key",
       ok: hasJudgeKey,
       detail: hasJudgeKey
-        ? "OPENAI_API_KEY đã cấu hình · judge theo Settings + GPT-5 nano faithfulness"
+        ? "OPENAI_API_KEY đã cấu hình · judge và faithfulness theo Python"
         : "Không tìm thấy key có giá trị trong .env",
       fix: "Thêm OPENAI_API_KEY vào .env hoặc skip judge",
     },

@@ -13,7 +13,6 @@ import { parsePreliminaryLimit } from "./preliminary.ts";
 import type { CommandId } from "./types.ts";
 
 const FORBIDDEN = /[;&|`$><\r\n]/;
-const FAITHFULNESS_MODEL = "gpt-5-nano-2025-08-07";
 const JUDGE_WORKERS = 4;
 const SYSTEM_IDS = new Set(["s0", "s1", "s2", "s3", "s4"]);
 const RETRIEVAL_MODES = new Set([
@@ -293,7 +292,6 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.pairs = pairs;
       normalizedArgs.limit = presetLimit;
       normalizedArgs.provisional = true;
-      normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
       normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       break;
     }
@@ -374,14 +372,11 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         runDir,
         "--dataset",
         dataset,
-        "--faithfulness-model",
-        FAITHFULNESS_MODEL,
         "--workers",
         String(JUDGE_WORKERS),
       );
       normalizedArgs.dataset = dataset;
       normalizedArgs.runDir = runDir;
-      normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
       normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       const pairs = pairList(args.pairs);
       if (pairs.length) {

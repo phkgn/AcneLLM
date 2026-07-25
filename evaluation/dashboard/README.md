@@ -19,8 +19,8 @@ Kiến trúc:
   cổng ambiguity và bảng k câu train gần nhất của `SemanticRouter`; hỗ trợ
   override live `k`/`oos`/`margin`, `--expect` và batch mini nhiều dòng.
 - Overview có preset `Quick preliminary D2`: tạo run riêng, chạy các module chuẩn
-  T3 S0–S4 → pointwise/pairwise bằng judge trong `Settings` +
-  `gpt-5-nano-2025-08-07` faithfulness → report cho limit tùy chọn 30–140 mẫu
+  T3 S0–S4 → pointwise/pairwise bằng judge trong `Settings` + faithfulness bằng
+  default Python → report cho limit tùy chọn 30–140 mẫu
   và ghi notice synthetic-only.
 - Job registry nằm ở `.jobs.json`; stdout/stderr được append vào `logs/<jobId>.log`.
 - SSE tail dùng `fs.watch` và polling 1 giây để ổn định trên Windows.

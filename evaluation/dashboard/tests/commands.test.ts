@@ -76,7 +76,6 @@ test("preliminary D2 preset uses an isolated run and the standard pipeline wrapp
     pairs: ["s0:s1", "s0:s2", "s1:s3", "s2:s3"],
     limit: 140,
     provisional: true,
-    faithfulnessModel: "gpt-5-nano-2025-08-07",
     judgeWorkers: 4,
   });
   assert.equal(COMMAND_IDS.includes("preliminary_d2"), true);
@@ -172,17 +171,12 @@ test("judge command delegates provider and pointwise model to Python settings", 
     "evaluation/reports/main_2x2_t3",
     "--dataset",
     "evaluation/datasets/v1/d2_test.jsonl",
-    "--faithfulness-model",
-    "gpt-5-nano-2025-08-07",
     "--workers",
     "4",
   ]);
   assert.equal("judgeProvider" in command.normalizedArgs, false);
   assert.equal("judgeModel" in command.normalizedArgs, false);
-  assert.equal(
-    command.normalizedArgs.faithfulnessModel,
-    "gpt-5-nano-2025-08-07",
-  );
+  assert.equal("faithfulnessModel" in command.normalizedArgs, false);
   assert.equal(command.normalizedArgs.judgeWorkers, 4);
 });
 
