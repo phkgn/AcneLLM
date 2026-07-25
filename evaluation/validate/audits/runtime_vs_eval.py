@@ -52,7 +52,7 @@ def write_runtime_audit(
             "non-stream `generate_text`, prose | T4 is the transport reality check. |"
         ),
         (
-            "| Trace | server SSE events + debug trace when queried | adapter stores route/citation/session | "
+            "| Trace | server SSE events + debug trace when queried | adapter stores route/source/session | "
             "adapter stores normalized input, output and retrieval context | "
             "Missing trace fields invalidate layer attribution. |"
         ),

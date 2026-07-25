@@ -63,11 +63,7 @@ def validate_judge(
                 chunk for chunk in trace.get("context_chunks") or []
                 if isinstance(chunk, dict) and chunk.get("text")
             ]
-            citations = [
-                chunk for chunk in trace.get("citations") or []
-                if isinstance(chunk, dict) and (chunk.get("snippet") or chunk.get("text"))
-            ]
-            if not context_chunks and not citations:
+            if not context_chunks:
                 invalid_faithfulness_context.append({
                     "case_id": sample_id,
                     "system": sid,

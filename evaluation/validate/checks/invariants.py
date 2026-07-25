@@ -169,8 +169,8 @@ def _valid_rag_trace(row: dict[str, Any], tier: str) -> tuple[bool, str]:
         return False, "used_chunks missing from context_chunks"
     if tier == "t3" and used and not (context_ids or (retrieved and final_ids)):
         return False, "used chunks exist but retrieval/context trace is absent"
-    if tier == "t4" and used and not (trace.get("citations") or context_ids or final_ids):
-        return False, "used chunks exist but SSE citation/retrieval trace is absent"
+    if tier == "t4" and used and not (context_ids or final_ids):
+        return False, "used chunks exist but SSE retrieval trace is absent"
     return True, "valid"
 
 

@@ -8,7 +8,7 @@ from evaluation.metrics.retrieval import (
     ndcg_at_k_graded, precision_at_k, recall_at_k,
 )
 from evaluation.metrics.deterministic import (
-    citation_valid, evaluate_record, forbidden_claims, parse_success, pregnancy_safety,
+    evaluate_record, forbidden_claims, parse_success, pregnancy_safety,
 )
 
 
@@ -53,23 +53,6 @@ def test_parse_success_detects_fallback_object():
     assert parse_success(_rec()) is None
 
 
-def test_citation_valid_structured_and_prose():
-    s = {"recommendations": [{"action": "x", "source_chunk_id": "c1"}]}
-    assert citation_valid(_rec(structured=s, used=["c1", "c2"])) is True
-    assert citation_valid(_rec(structured=s, used=["c9"])) is False
-    assert citation_valid(_rec(answer="Dùng BP [1] nhé [2].", used=["c1", "c2"])) is True
-    assert citation_valid(_rec(answer="Sai nè [5].", used=["c1"])) is False
-
-
-def test_legacy_trailing_single_one_is_not_a_real_prose_citation():
-    from evaluation.metrics.deterministic import citation_present
-
-    record = _rec(answer="Nội dung trả lời chỉ được vá trang trí. [1]", used=["c1"])
-
-    assert citation_present(record, required=True) is False
-    assert citation_valid(record) is None
-
-
 def test_pregnancy_safety():
     assert pregnancy_safety(_rec(answer="Bạn nên dùng tretinoin mỗi tối."), True) is False
     assert pregnancy_safety(
@@ -108,8 +91,6 @@ def test_new_prose_record_omits_legacy_structured_metrics():
 
     assert "parse_success" not in metrics
     assert "vacuous_answer" not in metrics
-    assert "citation_valid" not in metrics
-    assert "citation_present" not in metrics
     assert metrics["answer_char_count"] == len(record["answer"])
 
 
@@ -118,7 +99,7 @@ def test_legacy_structured_record_keeps_legacy_metrics_reader():
         structured={
             "confidence": 0.8,
             "causes": ["x"],
-            "recommendations": [{"action": "y", "source_chunk_id": "chunk-1"}],
+            "recommendations": [{"action": "y"}],
         },
         answer="Nội dung legacy.",
         used=["chunk-1"],
@@ -128,5 +109,3 @@ def test_legacy_structured_record_keeps_legacy_metrics_reader():
 
     assert metrics["parse_success"] is True
     assert metrics["vacuous_answer"] is False
-    assert metrics["citation_valid"] is True
-    assert metrics["citation_present"] is True

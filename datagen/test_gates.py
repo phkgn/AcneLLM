@@ -102,8 +102,8 @@ def test_render_context_uses_production_template_order() -> None:
     rendered = render_runtime_user("Mình cần hiểu điều này.", ["Fact thứ nhất.", "Fact thứ hai."])
     assert rendered == (
         "[TÀI LIỆU Y KHOA THAM KHẢO]\n"
-        "[Nguon 1]\nFact thứ nhất.\n\n"
-        "[Nguon 2]\nFact thứ hai.\n\n"
+        "Nguồn 1 —\nFact thứ nhất.\n\n"
+        "Nguồn 2 —\nFact thứ hai.\n\n"
         "[CÂU HỎI HIỆN TẠI]\nMình cần hiểu điều này."
     )
 

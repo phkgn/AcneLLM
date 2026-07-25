@@ -19,7 +19,7 @@ OPTIONAL_DEFAULTS = {
     "session_id": None, "conversation_history": [], "intent_label": None,
     "subject_label": None, "clinical_risk_level": None, "expected_behavior": None,
     "expected_answer_points": [], "forbidden_claims": [], "relevant_chunk_ids": [],
-    "relevance_grade": {}, "gold_citations": [], "reference_answer": None,
+    "relevance_grade": {}, "reference_answer": None,
     "difficulty": None, "annotation_status": "draft", "human_notes": "",
 }
 VALID_PROVENANCE = {

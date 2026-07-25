@@ -1,8 +1,8 @@
 """Deterministic, eval-only sentence grounding metric.
 
-The metric deliberately separates source support from inline citation syntax.
-Each eligible answer sentence is matched against the exact/fallback context by
-character n-gram coverage and embedding cosine; the stronger signal wins.
+Each eligible answer sentence is matched against the exact/fallback source
+text by character n-gram coverage and embedding cosine; the stronger signal
+wins.
 """
 from __future__ import annotations
 
@@ -202,7 +202,7 @@ def contexts_from_record(record: dict[str, Any]) -> list[str]:
     trace = record.get("trace") or {}
     exact = trace.get("faithfulness_context")
     if isinstance(exact, str) and exact.strip():
-        blocks = re.split(r"\n\s*---\s*\n|(?=\[Nguon\s+\d+\])", exact)
+        blocks = re.split(r"\n\s*---\s*\n", exact)
         parsed = [block.strip() for block in blocks if block.strip()]
         return parsed or [exact.strip()]
 

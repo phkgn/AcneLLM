@@ -7,7 +7,7 @@ from typing import Any, Mapping, Sequence
 from evaluation.analysis.error_attribution import attribute
 from evaluation.annotations.import_labels import spearman
 from evaluation.common import write_jsonl
-from evaluation.metrics.deterministic import citation_valid, evaluate_record
+from evaluation.metrics.deterministic import evaluate_record
 
 
 def _trace_refs(run_dir: Path, system: str, case_id: str) -> list[str]:
@@ -143,22 +143,6 @@ def detect_conflicts(
                         suspected_layer=suspected,
                     ))
                 deterministic = evaluate_record(record, sample)
-                contradicted = [
-                    claim for claim in faith.get("claims") or []
-                    if isinstance(claim, dict) and claim.get("verdict") == "contradicted"
-                ]
-                if citation_valid(record) is True and contradicted:
-                    conflicts.append(_conflict(
-                        case_id=case_id,
-                        system=system,
-                        conflict_type="valid_citation_but_contradicted_claim",
-                        metrics={
-                            "citation_valid": True,
-                            "contradicted_claims": len(contradicted),
-                        },
-                        run_dir=run_dir,
-                        suspected_layer="E13",
-                    ))
                 forbidden_hit = bool(deterministic.get("forbidden_claims_hit"))
                 pregnancy_fail = deterministic.get("pregnancy_safety") is False
                 high_risk = sample.get("clinical_risk_level") in {"high", "critical"}

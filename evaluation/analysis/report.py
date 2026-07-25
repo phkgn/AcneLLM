@@ -35,31 +35,6 @@ AXES = ["correctness", "completeness", "safety", "relevance", "fluency",
 ensure_repo_importable()
 
 
-def _citation_summary(det_rows: list[dict]) -> dict:
-    """Report citation correctness both conditionally and over required rows."""
-    required = [row for row in det_rows if row.get("citation_present") is not None]
-    present = [row for row in required if row.get("citation_present") is True]
-    validity = [row.get("citation_valid") for row in present
-                if row.get("citation_valid") is not None]
-    valid = sum(value is True for value in validity)
-    invalid = sum(value is False for value in validity)
-
-    def ratio(numerator: int, denominator: int) -> float | None:
-        return round(numerator / denominator, 4) if denominator else None
-
-    return {
-        "citation_present_rate": ratio(len(present), len(required)),
-        "citation_valid_rate": ratio(valid, valid + invalid),
-        "citation_coverage_valid_rate": ratio(valid, len(required)),
-        "citation_counts": {
-            "required": len(required),
-            "present": len(present),
-            "valid": valid,
-            "invalid": invalid,
-        },
-    }
-
-
 def _grounding_summary(det_rows: list[dict]) -> dict:
     applicable = [
         row for row in det_rows
@@ -249,8 +224,7 @@ def main() -> None:
             system_report.update({
                 "parse_success_rate": rate("parse_success"),
                 "vacuous_answer_rate": rate("vacuous_answer"),
-                "legacy_citation_metrics": True,
-                **_citation_summary(det_rows),
+                "legacy_structured_metrics": True,
             })
         report["systems"][sid] = system_report
 
@@ -341,15 +315,14 @@ def _write_markdown(path: Path, report: dict) -> None:
 
     legacy_systems = {
         sid: summary for sid, summary in report["systems"].items()
-        if summary.get("legacy_citation_metrics")
+        if summary.get("legacy_structured_metrics")
     }
     if legacy_systems:
         lines.append("\n## LEGACY structured metrics\n")
         lines.append(
             "> Chỉ dùng để đọc artifact JSON cũ; không thuộc contract hoặc gate prose mới.\n"
         )
-        legacy_header = ["system", "parse_success", "empty_core_fields_rate",
-                         "cite_valid_all_required"]
+        legacy_header = ["system", "parse_success", "empty_core_fields_rate"]
         lines.append("| " + " | ".join(legacy_header) + " |")
         lines.append("|" + "---|" * len(legacy_header))
         for sid, summary in legacy_systems.items():
@@ -357,7 +330,6 @@ def _write_markdown(path: Path, report: dict) -> None:
                 sid,
                 summary.get("parse_success_rate"),
                 summary.get("vacuous_answer_rate"),
-                summary.get("citation_coverage_valid_rate"),
             ]) + " |")
 
     lines.append("\n## Pre-registered comparisons\n")

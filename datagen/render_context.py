@@ -19,10 +19,10 @@ TEMPLATE_NAME = "stream_user.j2"
 
 
 def format_sources(sources: Sequence[str]) -> str:
-    """Format synthetic context using the runtime's `[Nguon N]` convention."""
+    """Format synthetic context using the runtime's plain source headings."""
     clean = [str(source).strip() for source in sources if str(source).strip()]
     return "\n\n".join(
-        f"[Nguon {index}]\n{source}" for index, source in enumerate(clean, 1)
+        f"Nguồn {index} —\n{source}" for index, source in enumerate(clean, 1)
     )
 
 
@@ -48,7 +48,6 @@ def render_runtime_user(description: str, sources: Sequence[str] | None = None) 
         has_retrieved_context=bool(source_list),
         retrieved_context=format_sources(source_list),
         description=clean_description,
-        inline_citation="none",
     ).strip()
 
 
@@ -67,4 +66,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

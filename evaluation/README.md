@@ -218,7 +218,7 @@ evaluation/
 - Production chỉ có `GET /api/v1/chat/stream`; T3 S0–S3 dùng cùng
   `prepare_chat_turn`, route template và retrieval production, sau đó gọi prose
   non-stream để chạy batch. S4 vẫn là extractive prose.
-- Record prose mới không có metric parse/empty-core/citation structured. Bộ
+- Record prose mới không có metric parse/empty-core/marker structured. Bộ
   deterministic chính là sentence grounding, context sensitivity, safety text,
   forbidden claims, language và latency.
 - `AdviseOutput` còn được giữ cho refusal/clarify/session dựng tay, không phải

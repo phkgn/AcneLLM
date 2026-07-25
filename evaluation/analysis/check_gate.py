@@ -49,14 +49,6 @@ def _normalizer_micro_f1(report: dict) -> float | None:
     return float(value) if isinstance(value, (int, float)) else None
 
 
-def _citation_gate_value(system_report: dict) -> float | None:
-    """Legacy artifact reader; citation is no longer a release gate."""
-    coverage = system_report.get("citation_coverage_valid_rate")
-    return coverage if isinstance(coverage, (int, float)) else system_report.get(
-        "citation_valid_rate"
-    )
-
-
 def _latest_nested_report(root: Path) -> Path | None:
     candidates = list(root.glob("*/report.json"))
     direct = root / "report.json"

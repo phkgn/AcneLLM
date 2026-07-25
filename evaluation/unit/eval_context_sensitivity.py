@@ -195,24 +195,19 @@ def _retrieve(container, user, config: dict):
 
 
 def _generate(container, user, retrieval, *, strict: bool = False) -> tuple[str, dict]:
-    from acne_llm.chat.inline_citations import strip_inline_citations
-
     system, prompt = container.prompt.build(
         user,
         retrieval,
         template="stream_user.j2",
-        inline_citation="off",
     )
     if strict:
         prompt = f"{STRICT_GROUNDING_INSTRUCTION}\n\n{prompt}"
-    answer = strip_inline_citations(container.llm.generate_text(system, prompt))
+    answer = container.llm.generate_text(system, prompt)
     return answer, {
         "raw": answer,
         "rendered_user_prompt": prompt,
         "prompt_chars": len(system) + len(prompt),
         "strict_grounding_instruction": strict,
-        "prompt_contains_inline_citation_instruction": "Đặt [N]" in prompt,
-        "prompt_contains_chunk_ref": "chunk_ref=" in prompt,
         "prompt_contains_canary": CANARY_TOKEN in prompt,
     }
 
@@ -220,18 +215,15 @@ def _generate(container, user, retrieval, *, strict: bool = False) -> tuple[str,
 def _generate_from_rendered_prompt(
     container, user, rendered_prompt: str, *, strict: bool = False
 ) -> tuple[str, dict]:
-    from acne_llm.chat.inline_citations import strip_inline_citations
-
     system, _ = container.prompt.build(
         user,
         None,
         template="stream_user.j2",
-        inline_citation="off",
     )
     prompt = rendered_prompt
     if strict:
         prompt = f"{STRICT_GROUNDING_INSTRUCTION}\n\n{prompt}"
-    answer = strip_inline_citations(container.llm.generate_text(system, prompt))
+    answer = container.llm.generate_text(system, prompt)
     return answer, {
         "raw": answer,
         "rendered_user_prompt": prompt,

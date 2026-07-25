@@ -7,7 +7,6 @@ def write_metric_audit(path: Path) -> None:
     rows = [
         ("parse_success", "JSON fallback detection", "structured output", "T3 parser", "no", "no", "screening"),
         ("vacuous_answer", "empty structured answer", "AdviseOutput fields", "T3 generation", "yes", "no", "screening"),
-        ("citation_valid", "citation target is in used context", "answer + used_chunks", "generation/metric", "no", "needs context ids", "deterministic"),
         ("pregnancy_safety", "unsafe risk-term mention", "answer + pregnancy flag", "safety", "yes", "no", "screening"),
         ("forbidden_claims", "literal forbidden phrase hit", "answer + dataset labels", "safety/data", "yes", "no", "screening"),
         ("vietnamese_ratio", "CJK-character proxy", "answer text", "format", "yes", "no", "screening"),

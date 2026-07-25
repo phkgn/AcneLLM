@@ -32,7 +32,7 @@ def _context_block(retrieval: RetrievalOutput | None, max_chars: int) -> str:
             break
         if len(text) > remaining:
             text = text[:remaining].rsplit(" ", 1)[0].strip() + "..."
-        blocks.append(f"[{i}] {title} | Nguồn: {source} | chunk_id={chunk.chunk_id}\n{text}")
+        blocks.append(f"Nguồn {i} — {title} | {source}\n{text}")
         used_chars += len(text)
     return "\n\n---\n\n".join(blocks) if blocks else "(Không có ngữ cảnh KB phù hợp.)"
 

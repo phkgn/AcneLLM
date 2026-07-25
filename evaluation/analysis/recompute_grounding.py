@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from evaluation.analysis.report import _citation_summary, _grounding_summary  # noqa: E402
+from evaluation.analysis.report import _grounding_summary  # noqa: E402
 from evaluation.common import (  # noqa: E402
     REPORTS_DIR,
     ROOT,
@@ -104,7 +104,6 @@ def main() -> None:
         "context_reconstruction": "used_chunks -> hash-matched current BM25 texts",
         "source_bm25_sha256": source_bm25_hash,
         **_grounding_summary(deterministic),
-        "legacy_citation": _citation_summary(deterministic),
         "n_records": len(records),
         "run_meta": build_run_meta({"recomputed_from": args.artifact}),
     }

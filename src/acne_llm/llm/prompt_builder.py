@@ -166,7 +166,6 @@ class PromptBuilder:
         self,
         retrieval: RetrievalOutput | None,
         max_chars: int = 6000,
-        include_chunk_refs: bool = False,
     ) -> str:
         if not retrieval or not retrieval.chunks:
             return "(không có ngữ cảnh từ tri thức phù hợp.)"
@@ -186,9 +185,7 @@ class PromptBuilder:
             )
             badge = self._SOURCE_BADGES.get(source_type, "")
             badge_str = f" {badge}" if badge else ""
-            header = f"[Nguon {i}]{badge_str} {title} | {source}\n"
-            if include_chunk_refs:
-                header += f"chunk_ref={c.chunk_id}\n"
+            header = f"Nguồn {i} —{badge_str} {title} | {source}\n"
             # Sanitize chunk text trước khi inject vào prompt
             text = _sanitize_chunk_text(c.text)
             remaining = max_chars - used_chars
@@ -416,7 +413,6 @@ class PromptBuilder:
         safe_context = _escape_jinja(self._context_block(
             retrieval,
             max_chars=max_context_chars,
-            include_chunk_refs=False,
         ))
         safe_history = _escape_jinja(format_history_block(
             sanitize_history_turns(history or []),

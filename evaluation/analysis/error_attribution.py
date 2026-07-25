@@ -42,10 +42,8 @@ def attribute(record: dict, sample: dict, judged: dict | None = None) -> list[st
             if noise / len(final) > 0.5:
                 codes.append("E05_retrieval_noise")
 
-    # E13 citation mismatch (deterministic — đồng bộ metrics.deterministic)
-    from evaluation.metrics.deterministic import citation_valid, parse_success
-    if citation_valid(record) is False:
-        codes.append("E13_citation_mismatch")
+    # E13 intentionally unused after removing marker-syntax scoring.
+    from evaluation.metrics.deterministic import parse_success
     if parse_success(record) is False:
         codes.append("E21_parse_failure")
 

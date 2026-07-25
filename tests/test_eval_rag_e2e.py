@@ -138,4 +138,4 @@ def test_run_e2e_eval_with_mocked_backend_and_judge(monkeypatch, tmp_path: Path)
     assert summary["chat_succeeded"] == 2
     assert summary["judge_succeeded"] == 2
     assert summary["avg_scores"]["accuracy"] == 5.0
-    assert summary["citation_coverage"] == 1.0
+    assert summary["source_coverage"] == 1.0

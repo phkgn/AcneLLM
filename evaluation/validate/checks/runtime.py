@@ -227,7 +227,6 @@ def validate_runtime(
                 "retrieve_top_k": settings.chat_retrieve_top_k,
                 "rerank_top_k": settings.chat_rerank_top_k,
                 "max_context_chars": settings.chat_max_context_chars,
-                "inline_citation": settings.inline_citation,
             },
         }
     except Exception as exc:  # noqa: BLE001

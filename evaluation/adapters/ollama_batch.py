@@ -110,7 +110,6 @@ class OllamaBatchAdapter(SystemAdapter):
             "template": turn.template,
             "rendered_user_prompt": rendered_prompt,
             "prompt_chars": len(turn.system_prompt) + len(rendered_prompt),
-            "prompt_contains_chunk_ref": "chunk_ref=" in rendered_prompt,
         })
         if used and exact_context:
             self._trace["faithfulness_context"] = exact_context

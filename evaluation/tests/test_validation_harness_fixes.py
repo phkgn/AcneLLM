@@ -65,7 +65,6 @@ def test_sse_adapter_uses_unique_session_same_history_session_and_condition_mode
             "session_id": session_id,
             "primary_intent": "advise",
             "route_flags": [],
-            "citations": [],
             "errors": [],
         }
 

@@ -133,18 +133,14 @@ def _prepare_resume(path: Path, client: JudgeClient, *, pairwise: bool,
 
 def _context_text(record: dict) -> str:
     """Ghép context THẬT từ trace: ưu tiên context_chunks (adapter lưu text đầy đủ),
-    fallback citations snippet (SSE). Nếu chỉ có id không text → trả '(không có)' để
-    judge KHÔNG chấm faithfulness trên placeholder (tránh not_found giả)."""
+    Nếu chỉ có id không text thì trả '(không có)' để judge KHÔNG chấm
+    faithfulness trên placeholder (tránh not_found giả)."""
     trace = record.get("trace") or {}
     exact_context = trace.get("faithfulness_context")
     if isinstance(exact_context, str) and exact_context.strip():
         return exact_context.strip()
     parts = [f"[{c['chunk_id']}] {c['text']}"
              for c in trace.get("context_chunks") or [] if c.get("text")]
-    if not parts:
-        parts = [f"[{c.get('chunk_id', '?')}] {c.get('snippet') or c.get('text', '')}"
-                 for c in trace.get("citations") or []
-                 if c.get("snippet") or c.get("text")]
     return "\n\n".join(parts) or "(không có tài liệu)"
 
 

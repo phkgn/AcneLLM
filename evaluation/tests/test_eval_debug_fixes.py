@@ -1,85 +1,6 @@
 from __future__ import annotations
 
 
-def _record(*, source_chunk_id: str | None, used: list[str]) -> dict:
-    recommendation = {"action": "x", "source_chunk_id": source_chunk_id}
-    return {
-        "answer": "",
-        "structured": {"recommendations": [recommendation]},
-        "used_chunks": used,
-    }
-
-
-def test_citation_valid_accepts_only_unambiguous_prompt_aliases():
-    from evaluation.metrics.deterministic import citation_valid
-
-    used = [
-        "vinmec_cf05d5fd43::0000",
-        "medlatec_d8540d60a4::0004",
-        "vnexpress-suckhoe_4c2352567b::0001",
-    ]
-    assert citation_valid(_record(source_chunk_id="chunk_ref_1", used=used)) is True
-    assert citation_valid(
-        _record(source_chunk_id="chunk_ref=medlatec_d8540d60a4::0004", used=used)
-    ) is True
-    assert citation_valid(_record(source_chunk_id="d8540d60a4", used=used)) is True
-    assert citation_valid(
-        _record(source_chunk_id="vnexpress-suckhoe_4c2352567b", used=used)
-    ) is True
-
-
-def test_citation_valid_rejects_ambiguous_alias_and_wrong_chunk_index():
-    from evaluation.metrics.deterministic import citation_valid
-
-    used = [
-        "medlatec_53aeabc0ca::0003",
-        "medlatec_53aeabc0ca::0004",
-        "hellobacsi_87d400241e::0004",
-    ]
-    assert citation_valid(
-        _record(source_chunk_id="chunk_ref_53aeabc0ca", used=used)
-    ) is False
-    assert citation_valid(
-        _record(source_chunk_id="hellobacsi_87d400241e::0003", used=used)
-    ) is False
-
-
-def test_citation_valid_rejects_wrong_source_even_when_hash_index_match():
-    from evaluation.metrics.deterministic import citation_valid
-
-    used = ["vnexpress-suckhoe_784f8040e9::0003"]
-    assert citation_valid(
-        _record(source_chunk_id="happyskin-vn_784f8040e9::0003", used=used)
-    ) is False
-
-
-def test_citation_summary_counts_missing_citation_as_coverage_failure():
-    from evaluation.analysis.report import _citation_summary
-
-    summary = _citation_summary([
-        {"citation_present": True, "citation_valid": True},
-        {"citation_present": True, "citation_valid": False},
-        {"citation_present": False, "citation_valid": None},
-        {"citation_present": None, "citation_valid": None},
-    ])
-    assert summary == {
-        "citation_present_rate": 0.6667,
-        "citation_valid_rate": 0.5,
-        "citation_coverage_valid_rate": 0.3333,
-        "citation_counts": {"required": 3, "present": 2, "valid": 1, "invalid": 1},
-    }
-
-
-def test_citation_gate_prefers_all_required_coverage_over_conditional_validity():
-    from evaluation.analysis.check_gate import _citation_gate_value
-
-    assert _citation_gate_value({
-        "citation_valid_rate": 1.0,
-        "citation_coverage_valid_rate": 0.4,
-    }) == 0.4
-    assert _citation_gate_value({"citation_valid_rate": 0.9}) == 0.9
-
-
 def test_grounding_summary_uses_sentence_denominator_not_record_average():
     from evaluation.analysis.report import _grounding_summary
 
@@ -109,14 +30,13 @@ def test_grounding_summary_uses_sentence_denominator_not_record_average():
     }
 
 
-def test_gate_config_replaces_citation_threshold_with_grounding():
+def test_gate_config_uses_grounding_threshold():
     from evaluation.common import EVAL_DIR, load_yaml
 
     generation = load_yaml(EVAL_DIR / "configs" / "gate.yaml")["generation"]
 
     assert generation["grounded_sentence_rate"] == 0.50
     assert "parse_success_rate" not in generation
-    assert "citation_valid_rate" not in generation
 
 
 def test_new_prose_report_has_no_structured_contract_columns(tmp_path):
@@ -190,13 +110,13 @@ def test_faithfulness_context_prefers_exact_context_captured_from_prompt():
     from evaluation.judges.run_judge import _context_text
 
     prompt = (
-        "<retrieved_context>\n[Nguon 1] Tieu de\n"
-        "chunk_ref=chunk-a\nĐây là đoạn thực sự model đã thấy.\n"
+        "<retrieved_context>\nNguồn 1 — Tiêu đề\n"
+        "Đây là đoạn thực sự model đã thấy.\n"
         "</retrieved_context>\n<current_message>Hoi</current_message>"
     )
     exact = _extract_retrieved_context(prompt)
     assert exact == (
-        "[Nguon 1] Tieu de\nchunk_ref=chunk-a\n"
+        "Nguồn 1 — Tiêu đề\n"
         "Đây là đoạn thực sự model đã thấy."
     )
     record = {

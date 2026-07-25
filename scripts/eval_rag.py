@@ -685,7 +685,7 @@ def run_eval(args: argparse.Namespace) -> bool:
     # _build_retriever đã insert src vào sys.path nên import được ngay.
     try:
         from acne_llm.config import settings as _prod_settings
-        min_score    = float(getattr(_prod_settings, "chat_min_citation_score", 0.25))
+        min_score    = float(getattr(_prod_settings, "chat_min_chunk_score", 0.25))
         rerank_top_k = int(getattr(_prod_settings, "chat_rerank_top_k", getattr(args, "rerank_top_k", 3)))
         print(f"  Production settings: min_score={min_score}  rerank_top_k={rerank_top_k}")
     except Exception as _se:
@@ -1028,7 +1028,7 @@ def _api_url(api_url: str, path: str) -> str:
 def _parse_sse_chat(raw: str) -> dict:
     events: list[dict] = []
     tokens: list[str] = []
-    citations: list[dict] = []
+    sources: list[dict] = []
     done: dict = {}
     errors: list[str] = []
 
@@ -1050,8 +1050,8 @@ def _parse_sse_chat(raw: str) -> dict:
         data = event.get("data")
         if name == "token":
             tokens.append(str(data))
-        elif name == "citation" and isinstance(data, dict):
-            citations.append(data)
+        elif name == "source" and isinstance(data, dict):
+            sources.append(data)
         elif name == "done" and isinstance(data, dict):
             done = data
         elif name == "error":
@@ -1062,7 +1062,7 @@ def _parse_sse_chat(raw: str) -> dict:
     if not used_chunks:
         used_chunks = [
             str(c.get("chunk_id") or c.get("id") or "")
-            for c in citations
+            for c in sources
             if c.get("chunk_id") or c.get("id")
         ]
 
@@ -1075,7 +1075,7 @@ def _parse_sse_chat(raw: str) -> dict:
         "evidence_quality": done.get("evidence_quality"),
         "primary_intent": done.get("primary_intent"),
         "route_flags": done.get("route_flags", []),
-        "citations": citations,
+        "sources": sources,
         "errors": errors,
         "raw_events": events,
     }
@@ -1399,7 +1399,7 @@ def run_e2e_eval(args: argparse.Namespace) -> bool:
         "chat_failed": chat_failed,
         "judge_failed": judge_failed,
         "avg_scores": avg_scores,
-        "citation_coverage": round(rows_with_chunks / chat_succeeded, 4) if chat_succeeded else 0.0,
+        "source_coverage": round(rows_with_chunks / chat_succeeded, 4) if chat_succeeded else 0.0,
         "latency_ms": _latency_summary_ms(chat_latencies),
         "target_checks": checks,
         "all_targets_met": all(checks.values()),
@@ -1417,7 +1417,7 @@ def run_e2e_eval(args: argparse.Namespace) -> bool:
         print("  Avg scores    : " + " ".join(f"{k}={v:.3f}" for k, v in avg_scores.items()))
     lat = summary["latency_ms"]
     print(f"  Latency       : mean={lat['mean']}ms p50={lat['p50']}ms p95={lat['p95']}ms")
-    print(f"  Citations     : {summary['citation_coverage']:.3f}")
+    print(f"  Source coverage: {summary['source_coverage']:.3f}")
     print("\n  Target checks:")
     for label, passed in checks.items():
         icon = "PASS" if passed else "FAIL"
