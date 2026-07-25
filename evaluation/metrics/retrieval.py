@@ -1,4 +1,4 @@
-"""Retrieval metrics T2 — binary (recall/hit/precision/MRR/MAP) + graded (nDCG 0-2).
+"""Qrels-only retrieval metrics; answer text is deliberately not accepted.
 
 Khác legacy (src/acne_llm/eval/metrics.py — binary only): thêm precision@k, MAP,
 graded nDCG, duplicate rate, irrelevant-context rate. Pure functions, unit-tested.

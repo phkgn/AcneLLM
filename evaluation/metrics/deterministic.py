@@ -1,4 +1,4 @@
-"""Deterministic checks trên generation records (không cần judge/human)."""
+"""Answer-only deterministic checks; qrels are deliberately not accepted."""
 from __future__ import annotations
 
 import re

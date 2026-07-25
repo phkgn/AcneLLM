@@ -15,7 +15,14 @@ from pathlib import Path
 from statistics import mean, median
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from evaluation.common import ROOT, ensure_repo_importable, read_jsonl, utcnow  # noqa: E402
+from evaluation.common import (  # noqa: E402
+    REPORTS_DIR,
+    ROOT,
+    ensure_repo_importable,
+    read_jsonl,
+    utcnow,
+)
+from evaluation.analysis.check_gate import _select_primary_retrieval_summary  # noqa: E402
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.metrics.deterministic import evaluate_record  # noqa: E402
 from evaluation.metrics.grounding import GroundingScorer  # noqa: E402
@@ -96,6 +103,11 @@ def main() -> None:
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--comparisons", default="s0:s1,s0:s2,s1:s3,s2:s3")
     ap.add_argument(
+        "--retrieval-summary",
+        default=None,
+        help="Qrels-only T2 summary; mặc định chọn run constructed-query mới nhất.",
+    )
+    ap.add_argument(
         "--recompute-grounding",
         action="store_true",
         help="recompute old artifacts with the configured local embedder",
@@ -112,9 +124,32 @@ def main() -> None:
         system_rows[sid] = rows
         systems[sid] = {r["sample_id"]: r for r in rows}
 
-    report: dict = {"generated_at": utcnow(), "run_dir": str(run_dir),
-                    "n_systems": len(systems), "systems": {}, "comparisons": {},
-                    "errors": {}}
+    retrieval_path = (
+        Path(args.retrieval_summary)
+        if args.retrieval_summary
+        else _select_primary_retrieval_summary(
+            list(REPORTS_DIR.glob("retrieval/*/summary.json"))
+        )
+    )
+    retrieval_report = None
+    if retrieval_path is not None and retrieval_path.exists():
+        retrieval_payload = json.loads(retrieval_path.read_text(encoding="utf-8"))
+        retrieval_report = {
+            "artifact": str(retrieval_path),
+            "dataset": retrieval_payload.get("dataset"),
+            "n_queries": retrieval_payload.get("n_queries"),
+            "raw_query": retrieval_payload.get("raw_query"),
+            "modes": retrieval_payload.get("modes") or {},
+        }
+    report: dict = {
+        "generated_at": utcnow(),
+        "run_dir": str(run_dir),
+        "n_systems": len(systems),
+        "retrieval": retrieval_report,
+        "systems": {},
+        "comparisons": {},
+        "errors": {},
+    }
 
     grounding_scorer = None
     if args.recompute_grounding:
@@ -287,7 +322,34 @@ def main() -> None:
 
 def _write_markdown(path: Path, report: dict) -> None:
     lines = [f"# Eval report — {report['generated_at']}", ""]
-    lines.append("## Per-system\n")
+    retrieval = report.get("retrieval") or {}
+    if retrieval:
+        lines.append("## Retrieval metrics — qrels only\n")
+        lines.append(
+            f"> Dataset: `{retrieval.get('dataset')}`; n={retrieval.get('n_queries')}; "
+            f"artifact: `{retrieval.get('artifact')}`. Không dùng answer text.\n"
+        )
+        retrieval_header = [
+            "mode", "hit@3", "recall@5", "mrr@10", "ndcg@5",
+            "precision@5", "irrelevant@5", "dup_rate", "latency_ms_mean",
+        ]
+        lines.append("| " + " | ".join(retrieval_header) + " |")
+        lines.append("|" + "---|" * len(retrieval_header))
+        for mode, metrics in (retrieval.get("modes") or {}).items():
+            lines.append("| " + " | ".join(str(value) for value in [
+                mode,
+                metrics.get("hit@3"),
+                metrics.get("recall@5"),
+                metrics.get("mrr@10"),
+                metrics.get("ndcg@5"),
+                metrics.get("precision@5"),
+                metrics.get("irrelevant@5"),
+                metrics.get("dup_rate"),
+                metrics.get("latency_ms_mean"),
+            ]) + " |")
+        lines.append("")
+
+    lines.append("## Answer metrics — generated responses only\n")
     lines.append(
         "> Grounding dùng mẫu số câu đủ điều kiện; câu hỏi, lời chào và disclaimer "
         "chuẩn được loại. Safety được chấm trực tiếp trên prose.\n"
