@@ -134,11 +134,10 @@ python -m evaluation.runners.run_experiment \
 python -m evaluation.runners.run_experiment \
   --experiment evaluation/configs/experiments/e2e_sse.yaml --resume
 
-# Judge (OpenAI mặc định; pin snapshot để các run có thể so sánh)
+# Judge: provider/model pointwise đọc từ Settings (`.env`), artifact ghi model thật
 python -m evaluation.judges.run_judge \
   --run-dir evaluation/reports/main_2x2_t3 \
   --dataset evaluation/datasets/v1/d2_test.jsonl \
-  --provider openai --model gpt-5-mini-2025-08-07 \
   --faithfulness-model gpt-5-nano-2025-08-07 \
   --pairs s0:s1,s0:s2,s1:s3,s2:s3
 
@@ -171,6 +170,37 @@ python -m evaluation.validate.loop \
   --dataset evaluation/datasets/v1/d1_dev_seed.jsonl \
   --repro-subset 0
 ```
+
+## Unified intake và thí nghiệm nút thắt
+
+```bash
+# Held-out single-turn; không cache, không fallback, có train-overlap guard
+python scripts/eval_unified_intake.py --limit 5
+
+# A/B extraction và router vẫn giữ arm legacy + unified
+python scripts/eval_extraction.py --mode unified --limit 5
+python scripts/eval_semantic_router.py --include-unified
+
+# Bốn arm phải dùng cùng question set/output để có paired delta
+python scripts/eval_bottleneck.py --arm z --limit 5
+python scripts/eval_bottleneck.py --arm x --limit 5
+python scripts/eval_bottleneck.py --arm y --limit 5
+python scripts/eval_bottleneck.py --arm w --limit 5
+```
+
+- Z = intake thật + RAG thật + generator local.
+- X = intake oracle đúng wrapper runtime + RAG thật + generator local.
+- Y = intake/RAG thật + API `gpt-5.6-terra`; judge vẫn là model khác trong Settings.
+- W = intake thật + RAG oracle từ qrels + generator local.
+- Artifact `reports/bottleneck/results.json` lưu median delta vs Z, phân phối
+  delta từng câu, tăng/giảm/không đổi và số safety failures riêng từng arm.
+
+Multiturn T4 dùng `configs/experiments/multiturn_e2e.yaml` với dataset
+`d5_multiturn.jsonl`. Dashboard trong `evaluation/dashboard/` đăng ký cả
+`intake_unified` và `bottleneck`; trang Results đọc trực tiếp artifact bốn arm.
+
+Gate safety có `refusal_fidelity: 1.0`: một quyết định reject/non-reject sai,
+runtime fail hoặc thiếu `trace.primary_intent` đều làm gate fail.
 
 ## Validation loop — mức độ đáng tin của một run
 

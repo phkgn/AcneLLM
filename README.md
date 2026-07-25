@@ -77,20 +77,22 @@ Linux/macOS:
 cp .env.example .env
 ```
 
-Các biến tối thiểu nên kiểm tra:
+`.env` chỉ giữ secret và giá trị thay đổi theo máy/lần chạy. Các biến tối thiểu
+nên kiểm tra:
 
 ```env
 OLLAMA_URL=http://localhost:11434
-LLM_MODEL=qwen2.5:7b
-LLM_FALLBACK_MODEL=qwen2.5:3b
+LLM_MODEL=acnellm-role
+INTAKE_MODE=unified
+INTAKE_MODEL=acne-intake
 DEVICE=cpu
-CHROMA_DIR=./data/chroma_db
-BM25_PATH=./data/bm25_index.pkl
-FRONTEND_URL=http://localhost:3000
+JUDGE_PROVIDER=openai
+JUDGE_MODEL=gpt-5.4-mini
 ```
 
-Không commit `.env`. Các API key trong `.env.example` chỉ cần khi sinh/evaluate dataset,
-không cần để chạy chatbot.
+Không commit `.env`. Các path, retrieval knob và timeout dùng default duy nhất tại
+`src/acne_llm/config.py`; xem `docs/config_layout.md` và
+`docs/config_reference.md`. API key judge/datagen không cần để chạy chatbot local.
 
 ## Chuẩn Bị Ollama Model
 
@@ -212,7 +214,11 @@ Các test liên quan chat pipeline:
 pytest tests/test_normalizer_regression.py tests/test_chat_normalizer.py tests/test_intent_router.py tests/test_intent_router_new.py tests/test_intake.py tests/test_chat_stream.py tests/test_stream_safety.py -q
 ```
 
-Full test suite hiện có một số test phụ thuộc script/data nội bộ chưa ship trong repo.
+Chạy toàn bộ suite:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
 
 ## Cấu Trúc Chính
 
