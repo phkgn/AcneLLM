@@ -26,8 +26,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
     normalized_query  TEXT    NOT NULL DEFAULT '',
     extracted_entities TEXT   NOT NULL DEFAULT '{}',  -- JSON
     pii_detected      INTEGER NOT NULL DEFAULT 0,
-    teencode_replaced TEXT    NOT NULL DEFAULT '[]',  -- JSON
-    citation_compliance INTEGER
+    teencode_replaced TEXT    NOT NULL DEFAULT '[]'   -- JSON
 );
 
 CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp);
@@ -52,7 +51,6 @@ _AUDIT_EXTRA_COLUMNS: dict[str, str] = {
     "extracted_entities": "TEXT NOT NULL DEFAULT '{}'",
     "pii_detected": "INTEGER NOT NULL DEFAULT 0",
     "teencode_replaced": "TEXT NOT NULL DEFAULT '[]'",
-    "citation_compliance": "INTEGER",
 }
 
 

@@ -36,15 +36,10 @@ _GENITAL_FILTER_TERMS = (
 SESSION_TTL: float = 1800.0        # seconds idle before session expires
 MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
 SESSION_SCHEMA_VERSION: int = 2
-HISTORY_CHAR_BUDGET: int = 1200    # only the most recent relevant pair is prompt-visible
+HISTORY_CHAR_BUDGET: int = 2000    # ~570 tokens; prompt thực đo được 828 tokens / ctx 3072
 FIRST_TURN_BUDGET: int = 0         # first-turn anchoring was removed in schema v2
-ASSISTANT_TURN_MAX: int = 200       # max chars mỗi assistant turn trong history (tránh model echo lại)
 
-_FOLLOWUP_REFERENCES = (
-    "vậy", "thế", "còn", "nó", "loại đó", "cái đó", "như trên",
-    "như mình nói", "tiếp tục", "thì sao", "được không", "dùng sao",
-    "how about", "what about", "that one", "as above",
-)
+HISTORY_WINDOW_TURNS: int = 6      # 3 lượt hỏi-đáp; budget chars mới là giới hạn thật
 
 
 # ── Data classes ─────────────────────────────────────────────────────────────
@@ -299,14 +294,6 @@ def get_session_store() -> SessionStore:
     return _store
 
 
-def is_contextual_followup(message: str) -> bool:
-    """True only when the current turn explicitly depends on recent context."""
-    lowered = (message or "").strip().lower()
-    return bool(lowered) and (
-        lowered.startswith("v ")
-        or any(marker in lowered for marker in _FOLLOWUP_REFERENCES)
-    )
-
 
 def select_relevant_history(
     message: str,
@@ -314,18 +301,27 @@ def select_relevant_history(
     history: list[ConversationTurn],
     route_flags: list[str] | None = None,
 ) -> list[ConversationTurn]:
-    """Select at most the latest user/assistant pair for an explicit follow-up."""
-    flagged_followup = "progress_followup" in (route_flags or [])
-    if not (flagged_followup or is_contextual_followup(message)):
-        return []
+    """Return a recent window of in-scope turns for the answer prompt.
+
+    Không đoán "đây có phải follow-up không" bằng whitelist tiền tố nữa: mọi
+    câu trần thuật ("đã thử X rồi vẫn không đỡ") đều trượt whitelist và làm
+    prompt mất sạch ngữ cảnh. format_history_block() đã cắt theo
+    HISTORY_CHAR_BUDGET nên gửi cả cửa sổ là an toàn.
+    """
+    del message, route_flags
     filtered = [turn for turn in history if not _is_genital_turn(turn)]
+    window = filtered[-HISTORY_WINDOW_TURNS:]
     if primary_intent == "knowledge":
+        # Knowledge trả lời từ RAG: giữ prose cũ của bot ra ngoài prompt, và chỉ
+        # lấy user turn gần nhất để giải đại từ ("loại này") mà không kéo cả
+        # case cá nhân vào retrieval query.
+        # ponytail: turn cá nhân tự đứng được vẫn lọt vào query, làm loãng match.
+        # Cần intaker phát tín hiệu "referential" thay vì đoán bằng keyword.
         previous_user = next(
-            (turn for turn in reversed(filtered) if turn.role == "user"),
-            None,
+            (turn for turn in reversed(window) if turn.role == "user"), None
         )
         return [previous_user] if previous_user is not None else []
-    return filtered[-2:]
+    return window
 
 
 def build_confirmed_profile(
@@ -428,8 +424,12 @@ def _mentions_stop(clean_text: str, value: str) -> bool:
         "benzoyl_peroxide": ("benzoyl peroxide", "bpo"),
         "adapalene": ("adapalene", "differin"),
     }
+    # Intaker canonical hoá ra "salicylic acid" (dấu cách) nhưng aliases lại key
+    # bằng "salicylic_acid" -> nhánh alias chưa từng khớp dữ liệu thật, nên
+    # "tôi ngưng BHA" không bao giờ gỡ được salicylic acid khỏi profile.
+    alias_key = value_lower.replace(" ", "_")
     mentioned = next(
-        (term for term in aliases.get(value_lower, (value_lower,)) if term in lowered),
+        (term for term in aliases.get(alias_key, (value_lower,)) if term in lowered),
         None,
     )
     if mentioned is None:

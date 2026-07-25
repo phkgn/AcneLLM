@@ -64,7 +64,6 @@ def test_sse_adapter_uses_unique_session_same_history_session_and_condition_mode
             "latency_ms": 10,
             "session_id": session_id,
             "primary_intent": "advise",
-            "query_subject": "self",
             "route_flags": [],
             "citations": [],
             "errors": [],

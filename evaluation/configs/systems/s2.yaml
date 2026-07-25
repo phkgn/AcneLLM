@@ -5,7 +5,6 @@ adapter: ollama_batch
 model: qwen25-base-acnesys
 retrieval: true
 template: route_prose
-inline_citation: "off"
 fallback_model: null
 retrieve_top_k: 15
 rerank_top_k: 5

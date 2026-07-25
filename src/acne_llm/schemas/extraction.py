@@ -16,7 +16,7 @@ from typing import Generic, Literal, TypeAlias, TypeVar
 T = TypeVar("T")
 
 # Cách trích được giá trị — để audit/debug và để gán confidence base.
-Method: TypeAlias = Literal["exact", "pattern", "fuzzy", "fallback", "none"]
+Method: TypeAlias = Literal["exact", "pattern", "fuzzy", "fallback", "llm", "none"]
 
 # Confidence base theo method (heuristic khởi điểm; golden set sẽ tinh chỉnh).
 METHOD_BASE_CONFIDENCE: dict[Method, float] = {
@@ -24,6 +24,7 @@ METHOD_BASE_CONFIDENCE: dict[Method, float] = {
     "pattern": 0.85,
     "fuzzy": 0.80,     # thường bị ghi đè bằng similarity thực tế
     "fallback": 0.45,
+    "llm": 0.0,        # LLM extractor luôn truyền confidence do model cung cấp
     "none": 0.0,
 }
 

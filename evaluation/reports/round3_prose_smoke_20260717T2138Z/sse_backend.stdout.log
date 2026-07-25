@@ -1,0 +1,5 @@
+INFO:     127.0.0.1:3682 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:3687 - "GET /api/v1/chat/stream?message=M%E1%BB%A5n%20vi%C3%AAm%20%E1%BB%9F%20c%E1%BA%B1m%20nguy%C3%AAn%20nh%C3%A2n%20l%C3%A0%20g%C3%AC%3F&mode=auto HTTP/1.1" 200 OK
+INFO:     127.0.0.1:3712 - "GET /api/v1/chat/stream?message=Benzoyl%20peroxide%20c%C3%B3%20d%C3%B9ng%20%C4%91%C6%B0%E1%BB%A3c%20cho%20da%20nh%E1%BA%A1y%20c%E1%BA%A3m%20kh%C3%B4ng%3F&mode=auto HTTP/1.1" 200 OK
+INFO:     127.0.0.1:13669 - "GET /api/v1/chat/stream?message=Isotretinoin%20c%C3%B3%20an%20to%C3%A0n%20khi%20mang%20thai%3F&mode=auto HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6870 - "POST /api/v1/chat HTTP/1.1" 404 Not Found

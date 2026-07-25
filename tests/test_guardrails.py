@@ -295,6 +295,28 @@ def test_medication_safety_refusal_blocks_pregnancy_and_interaction():
     assert "thai kỳ" in result.disclaimer
 
 
+def test_medication_safety_refusal_blocks_generic_retinoid_while_breastfeeding():
+    g = GuardrailRunner(
+        "config/guardrails.yaml",
+        enable_ood=False,
+        scope_mode="soft",
+    )
+    user = UserInput(
+        description="em đang cho con bú, dùng retinoid trị mụn được không",
+        context=UserContext(is_breastfeeding=True),
+    )
+
+    result = g.medication_safety_refusal(
+        user,
+        ["breastfeeding", "retinoid"],
+    )
+
+    assert result is not None
+    assert result.model_name == "deterministic-safety"
+    assert "Không sử dụng" in result.disclaimer
+    assert "cho con bú" in result.disclaimer
+
+
 def test_guardrail_scope_check_hard_refuses_ood_out_of_domain():
     """scope_check hard mode: OOD ngoài domain trả refusal cũ."""
     g = GuardrailRunner(

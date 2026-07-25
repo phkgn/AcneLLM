@@ -13,26 +13,20 @@ import unicodedata
 
 _ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200d\ufeff]")
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-_WORD_JOINER_RE = re.compile(r"(?<=\w)[_-](?=\w)")
+_WORD_JOINER_RE = re.compile(r"(?<=\w)_(?=\w)")
 _REPEATED_PUNCT_RE = re.compile(r"([!?.,])\1{2,}")
-_WHITESPACE_RE = re.compile(r"\s+")
 
+# Chỉ dùng cho retrieval query: BM25 khớp token literal nên "ko"/"vs" không match
+# corpus viết chuẩn. LLM không cần bảng này — intaker được train trên teencode thô.
 _TEENCODE_MAP: dict[str, str] = {
-    "dc": "được",
-    "kop": "không",
-    "ko": "không",
-    "k": "không",
-    "vs": "với",
-    "sp": "sản phẩm",
-    "xit": "xịt",
-    "bt": "bình thường",
-    "bh": "bây giờ",
+    "dc": "được", "kop": "không", "ko": "không", "vs": "với",
+    "sp": "sản phẩm", "xit": "xịt", "bt": "bình thường", "bh": "bây giờ",
 }
 _TEENCODE_RE = re.compile(
     r"(?<!\w)(" + "|".join(re.escape(k) for k in sorted(_TEENCODE_MAP, key=len, reverse=True)) + r")(?!\w)",
     flags=re.IGNORECASE,
 )
-
+_WHITESPACE_RE = re.compile(r"\s+")
 
 @dataclass(frozen=True)
 class PreparedText:
@@ -59,34 +53,26 @@ def strip_accents(text: str) -> str:
     return stripped.replace("đ", "d").replace("Đ", "D")
 
 
-def normalize_teencode(text: str) -> tuple[str, list[str]]:
-    """Expand common Vietnamese teencode tokens with word-boundary matching."""
-    replaced: list[str] = []
-    seen: set[str] = set()
 
-    def _replace(match: re.Match[str]) -> str:
-        token = match.group(1).lower()
-        # 'k' ngay sau 'vitamin'/'vit' là ký hiệu vitamin K, không phải teencode 'không'.
-        if token == "k":
-            before = match.string[: match.start()].rstrip().lower()
-            if before.endswith("vitamin") or before.endswith("vit"):
-                return match.group(0)
-        if token not in seen:
-            seen.add(token)
-            replaced.append(token)
-        return _TEENCODE_MAP[token]
+def expand_teencode_for_retrieval(text: str) -> str:
+    """Expand teencode for BM25 only — never for text the model reads.
 
-    normalized = _TEENCODE_RE.sub(_replace, text or "")
-    normalized = _WHITESPACE_RE.sub(" ", normalized).strip()
-    return normalized, replaced
+    ponytail: "k" bị bỏ khỏi bảng (trùng vitamin K, "50 k", ký hiệu). Thêm lại
+    khi đo được recall thực sự sụt vì nó.
+    """
+    return _TEENCODE_RE.sub(lambda m: _TEENCODE_MAP[m.group(1).lower()], text or "")
 
 
 def prepare_user_text(text: str) -> PreparedText:
-    """Preprocess, expand teencode, and create a no-accent extraction twin."""
+    """Sanitize hostile characters only; leave wording to the model.
+
+    Teencode expansion was removed: intaker được train trên 110 mẫu teencode
+    thô ("ko", "k", "vs"), nên mở rộng ở runtime tạo train/serve skew — và
+    word-joiner phía trên còn tách "BT-Cortin" thành mồi cho nó.
+    """
     clean_text = preprocess_user_text(text)
-    clean_text, replaced = normalize_teencode(clean_text)
     return PreparedText(
         clean_text=clean_text,
         clean_text_no_accent=strip_accents(clean_text),
-        teencode_replaced=replaced,
+        teencode_replaced=[],
     )

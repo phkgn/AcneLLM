@@ -16,7 +16,6 @@ def test_structured_prompt_templates_are_removed():
     prompts = ROOT / "config" / "prompts"
     assert not (prompts / "hybrid_user.j2").exists()
     assert not (prompts / "llm_only_user.j2").exists()
-    assert not (prompts / "_inline_citation_model_structured.j2").exists()
 
 
 def test_legacy_json_pipeline_modules_are_removed():

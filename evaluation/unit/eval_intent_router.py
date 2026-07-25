@@ -1,7 +1,6 @@
-"""T1 — Intent router eval: route_intent (RULE-BASED, classifier đã gỡ) trên gold labels.
+"""T1 — Legacy fallback intent eval on gold primary-intent labels.
 
-Dataset schema (thêm vào schema chung §5.2): intent_label ∈ {advise|knowledge|clarify|reject},
-subject_label ∈ {self|other|general}.
+Dataset schema: intent_label ∈ {advise|knowledge|clarify|reject}.
 
 Usage:
     python -m evaluation.unit.eval_intent_router \
@@ -26,7 +25,7 @@ def predict(sample: dict) -> dict:
     ensure_repo_importable()
     from acne_llm.chat.preprocess import prepare_user_text
     from acne_llm.chat.normalizer import normalize_chat_message
-    from acne_llm.chat.intent_router import route_intent
+    from acne_llm.chat.fallback.intent_router import route_intent
 
     raw = sample["user_query"]
     prepared = prepare_user_text(raw)
@@ -38,7 +37,6 @@ def predict(sample: dict) -> dict:
     decision = route_intent(prepared.clean_text, user, history=[])
     return {
         "primary_intent": decision.primary_intent,
-        "query_subject": decision.query_subject,
         "confidence": decision.confidence,
         "reason_code": decision.reason_code,
         "route_flags": list(decision.route_flags or []),
@@ -53,19 +51,14 @@ def main() -> None:
 
     samples = load_dataset(ROOT / args.dataset)[: args.limit]
     samples = [s for s in samples if s.get("intent_label")]
-    rows, gold_i, pred_i, gold_s, pred_s = [], [], [], [], []
+    rows, gold_i, pred_i = [], [], []
     for s in samples:
         p = predict(s)
         rows.append({"sample_id": s["sample_id"], "query": s["user_query"],
                      "gold_intent": s["intent_label"], "pred": p,
-                     "intent_ok": p["primary_intent"] == s["intent_label"],
-                     "subject_ok": (not s.get("subject_label"))
-                     or p["query_subject"] == s["subject_label"]})
+                     "intent_ok": p["primary_intent"] == s["intent_label"]})
         gold_i.append(s["intent_label"])
         pred_i.append(p["primary_intent"])
-        if s.get("subject_label"):
-            gold_s.append(s["subject_label"])
-            pred_s.append(p["query_subject"])
 
     prf = per_class_prf(gold_i, pred_i)
     report = {
@@ -76,7 +69,6 @@ def main() -> None:
         # reject là safety-critical: recall phải ≥ 0.95 (gate)
         "reject_recall": prf.get("reject", {}).get("recall"),
         "confusion": confusion_matrix(gold_i, pred_i),
-        "subject_accuracy": round(accuracy(gold_s, pred_s), 4) if gold_s else None,
     }
     out = REPORTS_DIR / "unit" / "intent_router"
     out.mkdir(parents=True, exist_ok=True)

@@ -29,7 +29,6 @@ def _build_mock_app():
             chat_max_context_chars=4500,
             chat_retrieve_top_k=8,
             chat_rerank_top_k=3,
-            chat_min_citation_score=0.12,
             extract_min_field_conf=0.60,
         )
         from acne_llm.llm.prompt_builder import PromptBuilder

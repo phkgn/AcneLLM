@@ -23,7 +23,7 @@ from .db.base import DBConnection
 from .db.jsonl_session_store import JsonlSessionStore
 from .db.audit import AuditStore
 from .cache import init_cache
-from .chat.intent_router import OllamaIntentClassifier
+from .chat.fallback.intent_router import OllamaIntentClassifier
 
 
 class Container:

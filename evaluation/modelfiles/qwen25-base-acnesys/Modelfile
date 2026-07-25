@@ -2,7 +2,7 @@
 # source_modelfile_sha256: 7b3bbd6a939934408f427649ab8005ca926a35be024b17723a85e42539d0c5da
 # Chạy lại: python evaluation/scripts/make_base_modelfile.py
 
-FROM qwen2.5:7b
+FROM qcwind/qwen2.5-7B-instruct-Q4_K_M
 
 TEMPLATE """{{- if .System }}<|im_start|>system
 {{ .System }}<|im_end|>

@@ -115,42 +115,6 @@ QUESTION_TERMS: tuple[str, ...] = (
 )
 
 
-COMPLAINT_TERMS: tuple[str, ...] = (
-    # Chê câu trả lời — không dấu
-    "tu van vay", "tu van the",
-    "tra loi vay", "tra loi the",
-    "khong hieu", "hoi lai", "hoi roi",
-    "noi roi", "biet roi", "hoi hoai", "lap lai",
-    "tu van kieu gi", "cau tra loi vo nghia",
-    "khong giup duoc gi", "toan hoi lai",
-    "vo ich", "khong dung", "tra loi sai",
-    "te qua", "chan qua", "hieu gi dau",
-    "tra loi linh tinh", "khong chinh xac",
-    "bot vo dung", "bot do", "tra loi lan",
-    "khong ro rang", "kho hieu", "khong thuc te",
-    "co biet gi dau", "biet gi ma tu van",
-    "tra loi cu", "tra loi nhu nhau",
-    "vong vo", "dai dong", "khong truong hop",
-    # unicode
-    "tư vấn vậy", "tư vấn thế",
-    "trả lời vậy", "trả lời thế",
-    "không hiểu", "hỏi lại", "hỏi rồi",
-    "nói rồi", "biết rồi", "hỏi hoài", "lặp lại",
-    "tư vấn kiểu gì", "câu trả lời vô nghĩa",
-    "không giúp được gì", "toàn hỏi lại",
-    "vô ích", "không đúng", "trả lời sai",
-    "tệ quá", "chán quá", "hiểu gì đâu",
-    "trả lời linh tinh", "không chính xác",
-    "bot vô dụng", "bot dở", "trả lời lan",
-    "không rõ ràng", "khó hiểu", "không thực tế",
-    "có biết gì đâu", "biết gì mà tư vấn",
-    "trả lời cũ", "trả lời như nhau",
-    "vòng vo", "dài dòng", "không đúng trường hợp",
-    "hỏi mãi", "hỏi nhiều quá", "tại sao hỏi nhiều",
-    "hỏi lắm vậy", "hỏi hoài không tư vấn",
-    "sao cứ hỏi", "chỉ hỏi không trả lời",
-)
-
 
 CASE_INTAKE_TERMS: tuple[str, ...] = (
     # Chủ ngữ + bị/nổi

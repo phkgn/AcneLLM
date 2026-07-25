@@ -1,0 +1,265 @@
+{
+  "dataset": "evaluation/datasets/v1/d1_dev_seed.jsonl",
+  "split": "D1",
+  "model": "qwen25-base-acnesys",
+  "system": "s2",
+  "production_prompt_modified": false,
+  "baseline_artifact": "evaluation/reports/main_2x2_t3/s2.results.jsonl",
+  "baseline": {
+    "summary": {
+      "n_attempted": 3,
+      "n_parse_success": 3,
+      "parse_success_rate": 1.0,
+      "empty_core_fields_count": 3,
+      "empty_core_fields_rate": 1.0
+    },
+    "rows": [
+      {
+        "sample_id": "d1-0000",
+        "parse_success": true,
+        "empty_core_fields": true,
+        "content_in_disclaimer_only": true,
+        "structured": {
+          "severity": "unknown",
+          "acne_type_primary": "unknown",
+          "causes": [],
+          "recommendations": [],
+          "red_flags": [],
+          "used_chunks": [
+            "hellobacsi_ad2959a873::0000",
+            "hellobacsi_85683c282a::0009",
+            "vitaclinic_39ed275538::0001",
+            "hellobacsi_85683c282a::0002",
+            "hellobacsi_2ef711e311::0001"
+          ],
+          "confidence": 0.8,
+          "disclaimer": "Các nguyên nhân dưới đây dựa trên thông tin từ các nguồn y tế đáng tin cậy.",
+          "mode": "hybrid",
+          "model_name": "qwen25-base-acnesys",
+          "latency_ms": 53770
+        },
+        "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nCác nguyên nhân dưới đây dựa trên thông tin từ các nguồn y tế đáng tin cậy."
+      },
+      {
+        "sample_id": "d1-0001",
+        "parse_success": true,
+        "empty_core_fields": true,
+        "content_in_disclaimer_only": true,
+        "structured": {
+          "severity": "unknown",
+          "acne_type_primary": "unknown",
+          "causes": [],
+          "recommendations": [],
+          "red_flags": [],
+          "used_chunks": [
+            "medlatec_95c58dfb42::0005",
+            "medlatec_95c58dfb42::0004",
+            "vinmec_0f4892fd51::0004",
+            "suckhoedoisong_73f47eaa6c::0000",
+            "medlatec_6ee94b0f2e::0002"
+          ],
+          "confidence": 0.8,
+          "disclaimer": "Dựa trên thông tin từ các nguồn, việc sử dụng Benzoyl peroxide cho da nhạy cảm cần thận trọng và có thể gây kích ứng.",
+          "mode": "hybrid",
+          "model_name": "qwen25-base-acnesys",
+          "latency_ms": 38842
+        },
+        "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nDựa trên thông tin từ các nguồn, việc sử dụng Benzoyl peroxide cho da nhạy cảm cần thận trọng và có thể gây kích ứng."
+      },
+      {
+        "sample_id": "d1-0002",
+        "parse_success": true,
+        "empty_core_fields": true,
+        "content_in_disclaimer_only": true,
+        "structured": {
+          "severity": "unknown",
+          "acne_type_primary": "unknown",
+          "causes": [],
+          "recommendations": [],
+          "red_flags": [],
+          "used_chunks": [
+            "hellobacsi_b7e2e466cb::0015",
+            "suckhoedoisong_bed1d408e8::0001",
+            "vinmec_31bb881faf::0003",
+            "vnexpress-suckhoe_3aeb6e6fd9::0000",
+            "suckhoedoisong_ebcea8f685::0001"
+          ],
+          "confidence": 0.7,
+          "disclaimer": "Isotretinoin có thể gây dị tật bẩm sinh nghiêm trọng ở thai nhi và ảnh hưởng đến sự phát triển trí tuệ của trẻ. Do đó, phụ nữ mang thai tuyệt đối không được sử dụng loại thuốc này.",
+          "mode": "hybrid",
+          "model_name": "qwen25-base-acnesys",
+          "latency_ms": 48084
+        },
+        "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nIsotretinoin có thể gây dị tật bẩm sinh nghiêm trọng ở thai nhi và ảnh hưởng đến sự phát triển trí tuệ của trẻ. Do đó, phụ nữ mang thai tuyệt đối không được sử dụng loại thuốc này."
+      }
+    ]
+  },
+  "variants": {
+    "explicit_nonempty": {
+      "instruction": "Nếu câu hỏi nằm trong phạm vi và có thể trả lời an toàn, causes và recommendations không được đồng thời rỗng; điền ít nhất một ý cụ thể vào đúng mảng thay vì dồn nội dung vào disclaimer.",
+      "summary": {
+        "n_attempted": 3,
+        "n_parse_success": 3,
+        "parse_success_rate": 1.0,
+        "empty_core_fields_count": 3,
+        "empty_core_fields_rate": 1.0
+      },
+      "rows": [
+        {
+          "sample_id": "d1-0000",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.8,
+            "disclaimer": "Mụn viêm ở cằm thường do sự tích tụ bã nhờn và tế bào chết gây tắc nghẽn lỗ chân lông kết hợp với vi khuẩn Cutibacterium acnes (cũ gọi là C. acnes). Các yếu tố khác như rối loạn nội tiết tố, sử dụng sản phẩm chăm sóc da không phù hợp hoặc quá nhiều mồ hôi cũng có thể góp phần gây ra tình trạng này.",
+            "mode": "hybrid",
+            "model_name": "Mụn Viêm ở Cằm",
+            "latency_ms": 1234567890
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nMụn viêm ở cằm thường do sự tích tụ bã nhờn và tế bào chết gây tắc nghẽn lỗ chân lông kết hợp với vi khuẩn Cutibacterium acnes (cũ gọi là C. acnes). Các yếu tố khác như rối loạn nội tiết tố, sử dụng sản phẩm chăm sóc da không phù hợp hoặc quá nhiều mồ hôi cũng có thể góp phần gây ra tình trạng này.",
+          "raw": "{\n    \"confidence\": 0.8,\n    \"disclaimer\": \"Mụn viêm ở cằm thường do sự tích tụ bã nhờn và tế bào chết gây tắc nghẽn lỗ chân lông kết hợp với vi khuẩn Cutibacterium acnes (cũ gọi là C. acnes). Các yếu tố khác như rối loạn nội tiết tố, sử dụng sản phẩm chăm sóc da không phù hợp hoặc quá nhiều mồ hôi cũng có thể góp phần gây ra tình trạng này.\",\n    \"model_name\": \"Mụn Viêm ở Cằm\",\n    \"latency_ms\": 1234567890\n}\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+          "prompt_instruction": "Nếu câu hỏi nằm trong phạm vi và có thể trả lời an toàn, causes và recommendations không được đồng thời rỗng; điền ít nhất một ý cụ thể vào đúng mảng thay vì dồn nội dung vào disclaimer."
+        },
+        {
+          "sample_id": "d1-0001",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.8,
+            "disclaimer": "Dùng Benzoyl peroxide cho da nhạy cảm cần thận trọng, nên tham khảo ý kiến bác sĩ để lựa chọn liều lượng phù hợp.",
+            "mode": "hybrid",
+            "model_name": "Benzoyl Peroxide",
+            "latency_ms": 5234
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nDùng Benzoyl peroxide cho da nhạy cảm cần thận trọng, nên tham khảo ý kiến bác sĩ để lựa chọn liều lượng phù hợp.",
+          "raw": "{\n    \"confidence\": 0.8,\n    \"disclaimer\": \"Dùng Benzoyl peroxide cho da nhạy cảm cần thận trọng, nên tham khảo ý kiến bác sĩ để lựa chọn liều lượng phù hợp.\",\n    \"mode\": \"hybrid\",\n    \"model_name\": \"Benzoyl Peroxide\",\n    \"latency_ms\": 5234\n}\n\n\t\t\t\t\t\t\t     \t \t \t \t\t",
+          "prompt_instruction": "Nếu câu hỏi nằm trong phạm vi và có thể trả lời an toàn, causes và recommendations không được đồng thời rỗng; điền ít nhất một ý cụ thể vào đúng mảng thay vì dồn nội dung vào disclaimer."
+        },
+        {
+          "sample_id": "d1-0002",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.5,
+            "disclaimer": "Isotretinoin cực kỳ nguy hiểm đối với phụ nữ mang thai và có thể gây ra dị tật bẩm sinh nghiêm trọng ở thai nhi. Do đó, thuốc này tuyệt đối không được sử dụng khi mang thai.",
+            "mode": "hybrid",
+            "model_name": "M jihadists",
+            "latency_ms": 123456789
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nIsotretinoin cực kỳ nguy hiểm đối với phụ nữ mang thai và có thể gây ra dị tật bẩm sinh nghiêm trọng ở thai nhi. Do đó, thuốc này tuyệt đối không được sử dụng khi mang thai.",
+          "raw": "{\n    \"confidence\": 0.5,\n    \"disclaimer\": \"Isotretinoin cực kỳ nguy hiểm đối với phụ nữ mang thai và có thể gây ra dị tật bẩm sinh nghiêm trọng ở thai nhi. Do đó, thuốc này tuyệt đối không được sử dụng khi mang thai.\",\n    \"model_name\": \"M jihadists\",\n    \"latency_ms\": 123456789\n}\n\n        ",
+          "prompt_instruction": "Nếu câu hỏi nằm trong phạm vi và có thể trả lời an toàn, causes và recommendations không được đồng thời rỗng; điền ít nhất một ý cụ thể vào đúng mảng thay vì dồn nội dung vào disclaimer."
+        }
+      ]
+    },
+    "field_ownership": {
+      "instruction": "Chỉ dùng disclaimer cho giới hạn/an toàn. Mọi giải thích y khoa phải ở causes và mọi hành động thực tế phải ở recommendations; không trả một disclaimer thay cho nội dung chính.",
+      "summary": {
+        "n_attempted": 3,
+        "n_parse_success": 3,
+        "parse_success_rate": 1.0,
+        "empty_core_fields_count": 3,
+        "empty_core_fields_rate": 1.0
+      },
+      "rows": [
+        {
+          "sample_id": "d1-0000",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.8,
+            "disclaimer": "Vui lòng tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp.",
+            "mode": "hybrid",
+            "model_name": "AI Assistant",
+            "latency_ms": 523
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nVui lòng tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp.",
+          "raw": "{\n    \"confidence\": 0.8,\n    \"disclaimer\": \"Vui lòng tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp.\",\n    \"model_name\": \"AI Assistant\",\n    \"latency_ms\": 523\n}\n\n       \t \t\t     \t\t\t\t",
+          "prompt_instruction": "Chỉ dùng disclaimer cho giới hạn/an toàn. Mọi giải thích y khoa phải ở causes và mọi hành động thực tế phải ở recommendations; không trả một disclaimer thay cho nội dung chính."
+        },
+        {
+          "sample_id": "d1-0001",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.8,
+            "disclaimer": "Dựa trên thông tin hiện có, việc sử dụng Benzoyl peroxide cho da nhạy cảm cần thận trọng và tuân theo hướng dẫn của bác sĩ hoặc chuyên gia làm đẹp.",
+            "mode": "hybrid",
+            "model_name": "Benzoyl Peroxide Usage for Sensitive Skin",
+            "latency_ms": 123456789
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nDựa trên thông tin hiện có, việc sử dụng Benzoyl peroxide cho da nhạy cảm cần thận trọng và tuân theo hướng dẫn của bác sĩ hoặc chuyên gia làm đẹp.",
+          "raw": "{\n    \"confidence\": 0.8,\n    \"disclaimer\": \"Dựa trên thông tin hiện có, việc sử dụng Benzoyl peroxide cho da nhạy cảm cần thận trọng và tuân theo hướng dẫn của bác sĩ hoặc chuyên gia làm đẹp.\",\n    \"model_name\": \"Benzoyl Peroxide Usage for Sensitive Skin\",\n    \"latency_ms\": 123456789\n}\n\n\t\t      \t\t\t\t\t\t\t\t\t\t\t\t",
+          "prompt_instruction": "Chỉ dùng disclaimer cho giới hạn/an toàn. Mọi giải thích y khoa phải ở causes và mọi hành động thực tế phải ở recommendations; không trả một disclaimer thay cho nội dung chính."
+        },
+        {
+          "sample_id": "d1-0002",
+          "parse_success": true,
+          "empty_core_fields": true,
+          "content_in_disclaimer_only": true,
+          "structured": {
+            "severity": "unknown",
+            "acne_type_primary": "unknown",
+            "causes": [],
+            "recommendations": [],
+            "red_flags": [],
+            "used_chunks": [],
+            "confidence": 0.7,
+            "disclaimer": "Isotretinoin có thể gây ra những dị tật bẩm sinh nghiêm trọng nếu sử dụng trong thai kỳ. Do đó, phụ nữ mang thai tuyệt đối không được sử dụng thuốc này.",
+            "mode": "hybrid",
+            "model_name": "AI Assistant",
+            "latency_ms": 123456
+          },
+          "answer": "Mức độ: unknown\nLoại mụn chính: unknown\nIsotretinoin có thể gây ra những dị tật bẩm sinh nghiêm trọng nếu sử dụng trong thai kỳ. Do đó, phụ nữ mang thai tuyệt đối không được sử dụng thuốc này.",
+          "raw": "{\n    \"confidence\": 0.7,\n    \"disclaimer\": \"Isotretinoin có thể gây ra những dị tật bẩm sinh nghiêm trọng nếu sử dụng trong thai kỳ. Do đó, phụ nữ mang thai tuyệt đối không được sử dụng thuốc này.\",\n    \"model_name\": \"AI Assistant\",\n    \"latency_ms\": 123456\n}\n\n   \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+          "prompt_instruction": "Chỉ dùng disclaimer cho giới hạn/an toàn. Mọi giải thích y khoa phải ở causes và mọi hành động thực tế phải ở recommendations; không trả một disclaimer thay cho nội dung chính."
+        }
+      ]
+    }
+  },
+  "run_meta": {
+    "timestamp": "2026-07-17T12:24:50.193579+00:00",
+    "git_commit": "1174ce5b9fe58c8a75e6a2bd1689f7af9c75ffd8",
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "nt",
+    "bm25_sha256": "6b7c324ba970a8f92d62b49c459934b9255efd17d4a9416740168d33fa5067b0",
+    "chroma_fingerprint": "cde149055cd117661e0cbf3909a0a131fb819f89b2d4d563e3d6462927665c51",
+    "chroma_num_files": 6,
+    "system_config": "evaluation/configs/systems/s2.yaml"
+  }
+}

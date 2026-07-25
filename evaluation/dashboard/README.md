@@ -11,8 +11,13 @@ Mở `http://127.0.0.1:3100`.
 
 Kiến trúc:
 
-- App Router + TypeScript + Tailwind, các trang Dashboard / Runs / Results / Figures / Inspect / Review.
+- App Router + TypeScript + Tailwind, các trang Dashboard / Runs / Results / Figures / Router Probe / Inspect / Review.
 - Node API routes spawn duy nhất các Python command trong whitelist, `shell: false`.
+- Trang Router Probe (`/probe`) gọi đồng bộ command whitelist `probe_semantic`
+  (`python -m evaluation.probe.semantic_probe --text ... --neighbors --json`) qua
+  `POST /api/probe/semantic`: hiển thị verdict intent, cổng OOS, vote scores,
+  cổng ambiguity và bảng k câu train gần nhất của `SemanticRouter`; hỗ trợ
+  override live `k`/`oos`/`margin`, `--expect` và batch mini nhiều dòng.
 - Overview có preset `Quick preliminary D2`: tạo run riêng, chạy các module chuẩn
   T3 S0–S4 → OpenAI `gpt-5-mini-2025-08-07` pointwise/pairwise +
   `gpt-5-nano-2025-08-07` faithfulness → report cho limit tùy chọn 30–140 mẫu

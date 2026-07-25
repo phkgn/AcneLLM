@@ -277,7 +277,7 @@ class OllamaQAGenerator:
         # Remove markdown code fences if present
         if raw.startswith("```"):
             lines = raw.split("\n")
-            lines = [l for l in lines if not l.startswith("```")]
+            lines = [line for line in lines if not line.startswith("```")]
             raw = "\n".join(lines).strip()
         # Find first { and last }
         start = raw.find("{")

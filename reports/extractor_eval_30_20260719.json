@@ -1,0 +1,643 @@
+{
+  "golden": "E:\\project\\AcneLLM\\data\\golden_extraction_gen.jsonl",
+  "generated_at_epoch": 1784440772,
+  "results": {
+    "rule": {
+      "mode": "rule",
+      "rows": 30,
+      "failures": 0,
+      "elapsed_seconds": 2.64,
+      "scalar": {
+        "skin_type": {
+          "field": "skin_type",
+          "precision": 0.4444,
+          "recall": 0.8,
+          "f1": 0.5714,
+          "tp": 4,
+          "fp": 5,
+          "fn": 1,
+          "accuracy": 0.8
+        },
+        "sex": {
+          "field": "sex",
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571,
+          "tp": 3,
+          "fp": 0,
+          "fn": 1,
+          "accuracy": 0.9667
+        },
+        "age": {
+          "field": "age",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "accuracy": 1.0
+        },
+        "duration_weeks": {
+          "field": "duration_weeks",
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571,
+          "tp": 3,
+          "fp": 0,
+          "fn": 1,
+          "accuracy": 0.9667
+        },
+        "is_pregnant": {
+          "field": "is_pregnant",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "accuracy": 0.9333
+        },
+        "is_breastfeeding": {
+          "field": "is_breastfeeding",
+          "precision": 1.0,
+          "recall": 0.3333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "accuracy": 0.9333
+        },
+        "inflammation": {
+          "field": "inflammation",
+          "precision": 0.7857,
+          "recall": 0.7857,
+          "f1": 0.7857,
+          "tp": 11,
+          "fp": 3,
+          "fn": 3,
+          "accuracy": 0.8333
+        }
+      },
+      "list": {
+        "lesions": {
+          "field": "lesions",
+          "precision": 0.6296,
+          "recall": 0.4474,
+          "f1": 0.5231,
+          "tp": 17,
+          "fp": 10,
+          "fn": 21
+        },
+        "distribution": {
+          "field": "distribution",
+          "precision": 0.8824,
+          "recall": 0.5,
+          "f1": 0.6383,
+          "tp": 15,
+          "fp": 2,
+          "fn": 15
+        },
+        "products": {
+          "field": "products",
+          "precision": 0.6667,
+          "recall": 0.6667,
+          "f1": 0.6667,
+          "tp": 6,
+          "fp": 3,
+          "fn": 3
+        },
+        "medications": {
+          "field": "medications",
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6667,
+          "tp": 1,
+          "fp": 0,
+          "fn": 1
+        },
+        "allergies": {
+          "field": "allergies",
+          "precision": 0.4,
+          "recall": 1.0,
+          "f1": 0.5714,
+          "tp": 2,
+          "fp": 3,
+          "fn": 0
+        },
+        "scarring_signs": {
+          "field": "scarring_signs",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 3,
+          "fn": 2
+        },
+        "hormonal_factors": {
+          "field": "hormonal_factors",
+          "precision": 0.8333,
+          "recall": 0.5556,
+          "f1": 0.6667,
+          "tp": 5,
+          "fp": 1,
+          "fn": 4
+        },
+        "treatment_goals": {
+          "field": "treatment_goals",
+          "precision": 0.3939,
+          "recall": 0.619,
+          "f1": 0.4815,
+          "tp": 13,
+          "fp": 20,
+          "fn": 8
+        },
+        "red_flags": {
+          "field": "red_flags",
+          "precision": 0.7742,
+          "recall": 0.6857,
+          "f1": 0.7273,
+          "tp": 24,
+          "fp": 7,
+          "fn": 11
+        }
+      },
+      "intent": {
+        "primary_intent_accuracy": 0.8,
+        "query_subject_accuracy": 0.5667,
+        "joint_accuracy": 0.5333,
+        "labeled_primary_intent": 30,
+        "labeled_query_subject": 30
+      },
+      "errors": [
+        {
+          "index": 0,
+          "text": "Mình nghe nói có nhiều loại mụn khác nhau như mụn đầu trắng, đầu đen, mụn bọc, và mỗi loại lại có cách chăm sóc da khác nhau. Bạn có thể giải thích rõ hơn về cá",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 1,
+          "text": "Mình đang thắc mắc không biết da dầu và da hỗn hợp thì có nên dùng cùng một loại sữa rửa mặt không? Vì nghe nói nếu dùng không đúng có thể khiến tình trạng mụn ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 2,
+          "text": "Mình thường nghe nói các sản phẩm chứa BHA hoặc AHA rất tốt cho da mụn nhưng không rõ là BHA thì khác gì so với AHA, việc sử dụng chúng như thế nào cho đúng để ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 3,
+          "text": "Xin hỏi một chút, việc thay đổi nội tiết tố có ảnh hưởng như thế nào đến mụn trên da? Mình nghe nói lúc stress hoặc trong kỳ kinh nguyệt mụn thường bùng phát mạ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 4,
+          "text": "Mình muốn tìm hiểu kĩ hơn về các biện pháp cơ bản để phòng ngừa mụn hiệu quả, chứ nghe nói ngoài việc chăm sóc da hằng ngày còn có chuyện ăn uống, ngủ nghỉ và t",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 5,
+          "text": "Thắc mắc của mình là trong quá trình trị mụn, việc kết hợp kem chống nắng và các sản phẩm chứa vitamin C có gây ra phản ứng phụ gì không? Mình nghe nói vitamin ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 6,
+          "text": "Mình nghe nói có nhiều sản phẩm bôi trị mụn chứa benzoyl peroxide với tác dụng diệt khuẩn mạnh, tuy nhiên có bạn bè bảo dễ gây khô da và bong tróc. Liệu benzoyl",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 7,
+          "text": "Mình là nam, mới nghe nói về việc thuốc tránh thai có thể được dùng để điều chỉnh mụn ở nữ giới. Vậy có thể giải thích rõ hơn về cơ chế thuốc tránh thai giúp cả",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 9,
+          "text": "Mình quan tâm về việc liệu có nên tự nặn mụn tại nhà không, vì nhiều người vẫn khá tin tưởng vào cách này mà không biết rằng có thể gây nhiễm trùng hay để lại s",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 14,
+          "text": "toi di hoc va hay bi mun vi stress toi nen chon san pham gi de tri mun hieu qua",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 15,
+          "text": "be trai toi 15 tuoi bi mun noi nhieu tren lung va lung cua con rat do voi mun biet phai lam sao",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 18,
+          "text": "toi muon biet neu co mun bi thung sau thi phai tri tri mun nhu the nao cho tot",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 19,
+          "text": "toi chi muon hoi mun co tu di loi, da kho khong lien quan mun",
+          "error": null,
+          "gold_intent": "reject",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 24,
+          "text": "Con gái em 16 tuổi, da hỗn hợp, lúc này có vài nốt mụn sưng to đỏ bao quanh miệng, còn sốt nhẹ nữa, lúc nào cũng kêu đau, không biết có nguy hiểm không?",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "advise",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        }
+      ]
+    },
+    "llm": {
+      "mode": "llm",
+      "rows": 30,
+      "failures": 0,
+      "elapsed_seconds": 110.78,
+      "scalar": {
+        "skin_type": {
+          "field": "skin_type",
+          "precision": 0.1818,
+          "recall": 0.8,
+          "f1": 0.2963,
+          "tp": 4,
+          "fp": 18,
+          "fn": 1,
+          "accuracy": 0.4
+        },
+        "sex": {
+          "field": "sex",
+          "precision": 0.2857,
+          "recall": 1.0,
+          "f1": 0.4444,
+          "tp": 4,
+          "fp": 10,
+          "fn": 0,
+          "accuracy": 0.6667
+        },
+        "age": {
+          "field": "age",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "accuracy": 1.0
+        },
+        "duration_weeks": {
+          "field": "duration_weeks",
+          "precision": 0.5,
+          "recall": 0.75,
+          "f1": 0.6,
+          "tp": 3,
+          "fp": 3,
+          "fn": 1,
+          "accuracy": 0.8667
+        },
+        "is_pregnant": {
+          "field": "is_pregnant",
+          "precision": 0.1429,
+          "recall": 0.5,
+          "f1": 0.2222,
+          "tp": 1,
+          "fp": 6,
+          "fn": 1,
+          "accuracy": 0.7667
+        },
+        "is_breastfeeding": {
+          "field": "is_breastfeeding",
+          "precision": 0.2857,
+          "recall": 0.6667,
+          "f1": 0.4,
+          "tp": 2,
+          "fp": 5,
+          "fn": 1,
+          "accuracy": 0.8
+        },
+        "inflammation": {
+          "field": "inflammation",
+          "precision": 0.5238,
+          "recall": 0.7857,
+          "f1": 0.6286,
+          "tp": 11,
+          "fp": 10,
+          "fn": 3,
+          "accuracy": 0.6667
+        }
+      },
+      "list": {
+        "lesions": {
+          "field": "lesions",
+          "precision": 0.3651,
+          "recall": 0.6053,
+          "f1": 0.4554,
+          "tp": 23,
+          "fp": 40,
+          "fn": 15
+        },
+        "distribution": {
+          "field": "distribution",
+          "precision": 0.3243,
+          "recall": 0.4,
+          "f1": 0.3582,
+          "tp": 12,
+          "fp": 25,
+          "fn": 18
+        },
+        "products": {
+          "field": "products",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 2,
+          "fn": 9
+        },
+        "medications": {
+          "field": "medications",
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 1,
+          "fn": 1
+        },
+        "allergies": {
+          "field": "allergies",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 2
+        },
+        "scarring_signs": {
+          "field": "scarring_signs",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 2
+        },
+        "hormonal_factors": {
+          "field": "hormonal_factors",
+          "precision": 0.1538,
+          "recall": 0.2222,
+          "f1": 0.1818,
+          "tp": 2,
+          "fp": 11,
+          "fn": 7
+        },
+        "treatment_goals": {
+          "field": "treatment_goals",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 21
+        },
+        "red_flags": {
+          "field": "red_flags",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 35
+        }
+      },
+      "intent": {
+        "primary_intent_accuracy": 0.4667,
+        "query_subject_accuracy": 0.5,
+        "joint_accuracy": 0.3667,
+        "labeled_primary_intent": 30,
+        "labeled_query_subject": 30
+      },
+      "errors": [
+        {
+          "index": 0,
+          "text": "Mình nghe nói có nhiều loại mụn khác nhau như mụn đầu trắng, đầu đen, mụn bọc, và mỗi loại lại có cách chăm sóc da khác nhau. Bạn có thể giải thích rõ hơn về cá",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 2,
+          "text": "Mình thường nghe nói các sản phẩm chứa BHA hoặc AHA rất tốt cho da mụn nhưng không rõ là BHA thì khác gì so với AHA, việc sử dụng chúng như thế nào cho đúng để ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 10,
+          "text": "toi bi mun trung ca mat va cam gan 3 tuan roi ban co the tu van cho toi duoc khong",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 11,
+          "text": "da toi la da dau va hay bi mun dau den o mui khong biet phai lam sao",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 12,
+          "text": "toi la nu 28 tuoi dang cho con bu vi mun xung quanh mieng khong biet dung duoc thuoc nua khong",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 13,
+          "text": "da toi bi mun sung va co mun mu o lua chin gan vai thang roi toi dang uong khang sinh doxycycline",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 14,
+          "text": "toi di hoc va hay bi mun vi stress toi nen chon san pham gi de tri mun hieu qua",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 15,
+          "text": "be trai toi 15 tuoi bi mun noi nhieu tren lung va lung cua con rat do voi mun biet phai lam sao",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 16,
+          "text": "toi bi kich ung voi salicylic acid va benzoyl peroxide da bong da rat nhieu",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 19,
+          "text": "toi chi muon hoi mun co tu di loi, da kho khong lien quan mun",
+          "error": null,
+          "gold_intent": "reject",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 20,
+          "text": "Cháu bị mụn rất nhiều trên mặt, có mụn bọc sưng tấy đỏ, giờ còn chảy máu và đau rát nữa, không biết có sao không? Bệnh này đã kéo dài 3 tuần rồi.",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 21,
+          "text": "Bác sĩ ơi, em bị mụn lan rộng hết cả vùng mặt và cổ, lại còn sốt nhẹ, đau nhức nữa. Em lo quá, tình trạng này đã hơn 4 tuần rồi.",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 22,
+          "text": "Em bị mụn bọc đau nhức, lan rộng ra cả ngực và lưng, mụn còn có mủ và chảy máu. Em sốt nhẹ hôm qua. Em 22 tuổi, da dầu.",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 23,
+          "text": "Em bị mụn lâu ngày ở cằm với nhiều mụn bọc, vài hôm nay mụn rất đau, đỏ tấy và chảy dịch vàng, khiến em rất lo lắng.",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 24,
+          "text": "Con gái em 16 tuổi, da hỗn hợp, lúc này có vài nốt mụn sưng to đỏ bao quanh miệng, còn sốt nhẹ nữa, lúc nào cũng kêu đau, không biết có nguy hiểm không?",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 25,
+          "text": "Tôi bị mụn mủ ở lưng, mủ nhiều và có vết chảy máu, mấy ngày nay còn thấy sốt và người mệt mỏi, rất mong được tư vấn gấp.",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "advise",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 26,
+          "text": "Em bị mụn nặng ở cả mũi và trán, mụn bọc, sưng to, tấy đỏ, còn thấy đau hẳn lên cả tai, bác sĩ ơi có cách nào cứu nguy cho em không ạ?",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 28,
+          "text": "Em 27 tuổi, da nhạy cảm, bị mụn viêm nặng, toàn bộ mặt đỏ tấy có nhiều mụn mủ, mụn bọc, hơn tuần nay em còn bị sốt và cảm giác đau khắp mặt, rất sợ sẽ bị sẹo sa",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 29,
+          "text": "Da em thường, gần đây mụn viêm sưng to, đỏ và đau ở quầng quanh miệng, có hiện tượng mủ và hơi sốt. Em không biết có nên tự mua thuốc bôi không hay phải đi khám",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        }
+      ]
+    }
+  }
+}

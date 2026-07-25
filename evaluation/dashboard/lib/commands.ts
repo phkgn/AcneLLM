@@ -26,6 +26,7 @@ const RETRIEVAL_MODES = new Set([
   "hybrid_mmr_rerank",
 ]);
 const SKIP_STEPS = new Set(["t1", "t2", "t3", "judge", "report", "gate"]);
+const PROBE_EXPECTS = new Set(["advise", "knowledge", "clarify", "reject"]);
 
 export interface BuiltCommand {
   commandId: CommandId;
@@ -64,6 +65,37 @@ function optionalSample(value: unknown): number {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isInteger(parsed) || parsed < 3 || parsed > 100_000) {
     throw new Error("Sample phải là số nguyên từ 3 đến 100000.");
+  }
+  return parsed;
+}
+
+function optionalProbeK(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) {
+    throw new Error("k phải là số nguyên từ 1 đến 100.");
+  }
+  return parsed;
+}
+
+function optionalProbeThreshold(
+  value: unknown,
+  label: string,
+  max: number,
+): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > max) {
+    throw new Error(`${label} phải là số từ 0 đến ${max}.`);
+  }
+  return parsed;
+}
+
+function optionalProbeExpect(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  const parsed = assertCleanString(value, "Expect");
+  if (!PROBE_EXPECTS.has(parsed)) {
+    throw new Error("Expect chỉ nhận advise|knowledge|clarify|reject.");
   }
   return parsed;
 }
@@ -177,6 +209,20 @@ function pairList(value: unknown): string[] {
 
 function quoteForDisplay(value: string): string {
   return /\s/.test(value) ? JSON.stringify(value) : value;
+}
+
+function probeText(value: unknown): string {
+  // Free-form Vietnamese input; spawned via argv array with shell:false and
+  // passed as --text=<value> so shell metacharacters are inert.  Only reject
+  // what would corrupt a single-line CLI argument.
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error("Câu probe không được rỗng.");
+  }
+  const text = value.trim();
+  if (text.length > 2000 || /[\0\r\n]/.test(text)) {
+    throw new Error("Câu probe phải là một dòng, tối đa 2000 ký tự.");
+  }
+  return text;
 }
 
 function preliminaryOutputDir(value: unknown): string {
@@ -462,6 +508,38 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
+    case "probe_semantic": {
+      // Text free-form tiếng Việt; spawn argv + shell:false nên metachar vô hại.
+      const text = probeText(args.text);
+      argv.push("-m", "evaluation.probe.semantic_probe", "--text", text);
+      normalizedArgs.text = text;
+      const k = optionalProbeK(args.k);
+      if (k !== null) {
+        argv.push("--k", String(k));
+        normalizedArgs.k = k;
+      }
+      const oos = optionalProbeThreshold(args.oos, "OOS threshold", 2);
+      if (oos !== null) {
+        argv.push("--oos", String(oos));
+        normalizedArgs.oos = oos;
+      }
+      const margin = optionalProbeThreshold(args.margin, "Ambiguity margin", 1);
+      if (margin !== null) {
+        argv.push("--margin", String(margin));
+        normalizedArgs.margin = margin;
+      }
+      const expect = optionalProbeExpect(args.expect);
+      if (expect !== null) {
+        argv.push("--expect", expect);
+        normalizedArgs.expect = expect;
+      }
+      if (args.neighbors !== false) {
+        argv.push("--neighbors");
+        normalizedArgs.neighbors = true;
+      }
+      argv.push("--json");
+      break;
+    }
     case "tests":
       argv.push("-m", "pytest", "evaluation/tests", "-q");
       break;
@@ -479,7 +557,8 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
     commandId !== "figures_kb" &&
     commandId !== "figures_eval" &&
     commandId !== "figures_usage" &&
-    commandId !== "figures_all"
+    commandId !== "figures_all" &&
+    commandId !== "probe_semantic"
   ) {
     argv.push("--limit", String(limit));
     normalizedArgs.limit = limit;

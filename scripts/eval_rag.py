@@ -1074,7 +1074,6 @@ def _parse_sse_chat(raw: str) -> dict:
         "session_id": done.get("session_id"),
         "evidence_quality": done.get("evidence_quality"),
         "primary_intent": done.get("primary_intent"),
-        "query_subject": done.get("query_subject"),
         "route_flags": done.get("route_flags", []),
         "citations": citations,
         "errors": errors,

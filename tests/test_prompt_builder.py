@@ -1,10 +1,11 @@
+from inspect import signature
 from pathlib import Path
+
 from acne_llm.chat.session import ConversationTurn
 from acne_llm.llm.prompt_builder import PromptBuilder, _escape_jinja
 from acne_llm.schemas import (
     UserInput, UserContext, AcneClinicalInput, RetrievalOutput, RetrievedChunk,
 )
-from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
 
 PROMPTS = str(Path(__file__).resolve().parents[1] / "config" / "prompts")
 
@@ -206,26 +207,10 @@ def test_knowledge_prompt_omits_kb_block_when_no_context():
     assert "mụn mủ là gì" in usr_p
 
 
-def test_prompt_builder_excludes_analytics_only_clinical_plan():
-    pb = PromptBuilder(PROMPTS)
-    user = UserInput(description="Mụn viêm ở cằm")
-    plan = ClinicalQueryPlan(
-        normalized_case=NormalizedAcneCase(
-            lesion_types=["papule"],
-            distribution=["chin"],
-            inflammation_level="moderate",
-            canonical_ingredients=["salicylic_acid"],
-            usage_frequencies=["twice_daily"],
-            concentrations=[0.02],
-        ),
-        rag_queries=ClinicalRagQueries(query_vi="mụn viêm ở cằm guideline"),
-    )
+def test_prompt_builder_contract_has_no_retired_clinical_plan():
+    parameters = signature(PromptBuilder.build).parameters
 
-    _, usr_p = pb.build(user, None, "stream_user.j2", clinical_plan=plan)
-
-    assert "<normalized_case_plan>" not in usr_p
-    assert "salicylic_acid" not in usr_p
-    assert "twice_daily" not in usr_p
+    assert "clinical_plan" not in parameters
 
 
 def test_prompt_builder_includes_bounded_recent_pair():
@@ -245,18 +230,64 @@ def test_prompt_builder_includes_bounded_recent_pair():
     assert "..." in usr_p
 
 
-def test_prompt_builder_includes_non_self_guidance():
+def test_prompt_builder_marks_knowledge_as_non_personal():
     pb = PromptBuilder(PROMPTS)
-    user = UserInput(description="Bạn tôi bị mụn ở lưng nên làm gì")
+    user = UserInput(description="Benzoyl peroxide hoạt động thế nào?")
 
     _, usr_p = pb.build(
         user,
         None,
         "stream_user.j2",
-        route_metadata={"primary_intent": "advise", "query_subject": "non_self"},
+        route_metadata={"primary_intent": "knowledge"},
     )
 
     assert "hồ sơ cá nhân" in usr_p
+
+
+def test_reject_prompt_is_data_minimal_without_facts_history_or_rag():
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(
+        description="goku đẹp trai ko",
+        context=UserContext(age=22, skin_type="oily", medications=["doxycycline"]),
+        clinical=AcneClinicalInput(
+            lesion_types=["papule"],
+            lesion_distribution=["chin"],
+            inflammation_level="moderate",
+        ),
+    )
+    retrieval = RetrievalOutput(
+        query="ignored",
+        chunks=[
+            RetrievedChunk(
+                chunk_id="secret-chunk",
+                source="NICE",
+                text="clinical context must not be present",
+                score=0.9,
+                metadata={"title": "secret title", "source": "NICE"},
+            )
+        ],
+        retrieval_mode="hybrid",
+        num_chunks=1,
+        avg_score=0.9,
+    )
+    history = [ConversationTurn(role="user", content="prior private acne context")]
+
+    _, usr_p = pb.build(
+        user,
+        retrieval,
+        "reject_user.j2",
+        history=history,
+        confirmed_profile={"medications": ["doxycycline"]},
+    )
+
+    assert "goku đẹp trai ko" in usr_p
+    assert "22" not in usr_p
+    assert "doxycycline" not in usr_p
+    assert "papule" not in usr_p
+    assert "chin" not in usr_p
+    assert "secret-chunk" not in usr_p
+    assert "clinical context" not in usr_p
+    assert "prior private acne context" not in usr_p
 
 
 def test_clarify_template_keeps_prompt_minimal():

@@ -24,6 +24,7 @@ def _turn(role="user", content="mụn viêm ở cằm", mode="hybrid"):
 
 
 def test_knowledge_followup_keeps_only_latest_user_turn():
+    """Knowledge trả lời từ RAG: chỉ user turn gần nhất để giải đại từ."""
     history = [
         _turn("user", "turn cũ"),
         _turn("assistant", "trả lời cũ"),
@@ -46,6 +47,30 @@ def test_short_v_slang_is_treated_as_explicit_followup():
     selected = select_relevant_history("v dùng nghệ đi", "advise", history)
 
     assert selected == history
+
+
+def test_plain_statement_followup_still_gets_history():
+    """Câu trần thuật không có tiền tố 'vậy/thế' vẫn phải giữ ngữ cảnh."""
+    history = [
+        _turn("user", "tôi bị mụn ở lưng và bắp tay sau"),
+        _turn("assistant", "có thể do bít tắc nang lông"),
+    ]
+
+    selected = select_relevant_history(
+        "tôi đã chà lưng kỹ rồi nhưng vẫn không hết",
+        "advise",
+        history,
+    )
+
+    assert selected == history
+
+
+def test_window_is_capped_at_six_turns():
+    history = [_turn("user" if i % 2 == 0 else "assistant", f"t{i}") for i in range(12)]
+
+    selected = select_relevant_history("vậy thì sao", "advise", history)
+
+    assert [turn.content for turn in selected] == [f"t{i}" for i in range(6, 12)]
 
 
 # ── SessionStore basic operations ────────────────────────────────────────────

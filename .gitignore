@@ -27,6 +27,7 @@ data/processed/
 data/chroma_db/
 data/bm25_index.pkl
 data/bm25_index.pkl.sha256
+data/intent_router_index.npz
 data/finetune/
 data/finetune/clean/
 data/eval_reports/

@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Microscope,
   PlayCircle,
+  Radar,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -49,6 +50,12 @@ const nav = [
     label: "Dataset review",
     description: "Duyệt dataset D1–D7",
     icon: ClipboardCheck,
+  },
+  {
+    href: "/probe",
+    label: "Router Probe",
+    description: "Chẩn đoán semantic router",
+    icon: Radar,
   },
 ];
 

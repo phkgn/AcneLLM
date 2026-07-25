@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from loguru import logger
 from ...schemas.kb import DocumentRaw, SourceMeta, infer_source_type
 
-clog = logger.opt(colors=True)
 from ...utils.hashing import doc_id_for
 from ..fetcher import AsyncFetcher
 from ..discovery import discover_from_sitemap, discover_from_category, discover_from_search, _normalize_url
@@ -16,6 +15,9 @@ from ..normalizer import normalize_vi_text
 from ..quality_filter import passes_quality, score_quality
 from ..stats import CrawlStats
 from ..playwright_fetcher import JSDetector, PlaywrightFetcher
+
+
+clog = logger.opt(colors=True)
 
 
 # --- Log tag constants -------------------------------------------------------

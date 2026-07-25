@@ -14,13 +14,11 @@ from ._repo import build_eval_container, normalize_query
 class _PromptCapture:
     """Delegate PromptBuilder while retaining the exact rendered user prompt."""
 
-    def __init__(self, delegate, inline_citation: str = "off"):
+    def __init__(self, delegate):
         self._delegate = delegate
-        self._inline_citation = inline_citation
         self.last_user_prompt = ""
 
     def build(self, *args, **kwargs):
-        kwargs["inline_citation"] = self._inline_citation
         result = self._delegate.build(*args, **kwargs)
         if isinstance(result, tuple) and len(result) == 2:
             self.last_user_prompt = result[1]
@@ -57,13 +55,10 @@ class OllamaBatchAdapter(SystemAdapter):
             raise RuntimeError(
                 "KB chưa sẵn sàng (chroma_db + bm25_index.pkl) nhưng condition yêu cầu retrieval"
             )
-        inline_mode = str(cfg.get("inline_citation", "off"))
         self.container.settings = self.container.settings.model_copy(
-            update={"inline_citation": inline_mode}
         )
         self._prompt_capture = _PromptCapture(
             self.container.prompt,
-            inline_citation=inline_mode,
         )
         self.container.prompt = self._prompt_capture
         assert self.container.llm.model == cfg["model"], (
@@ -115,7 +110,6 @@ class OllamaBatchAdapter(SystemAdapter):
             "template": turn.template,
             "rendered_user_prompt": rendered_prompt,
             "prompt_chars": len(turn.system_prompt) + len(rendered_prompt),
-            "prompt_contains_inline_citation_instruction": "Đặt [N]" in rendered_prompt,
             "prompt_contains_chunk_ref": "chunk_ref=" in rendered_prompt,
         })
         if used and exact_context:

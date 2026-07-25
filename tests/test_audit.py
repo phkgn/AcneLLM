@@ -16,7 +16,6 @@ def test_audit_logs_normalized_fields(tmp_path):
         extracted_entities={"lesions": ["nodule"], "canonical_ingredients": ["salicylic_acid"]},
         pii_detected=True,
         teencode_replaced=["k"],
-        citation_compliance=False,
     ))
 
     rows = store.query(limit=1)
@@ -25,7 +24,6 @@ def test_audit_logs_normalized_fields(tmp_path):
     assert rows[0]["extracted_entities"]["lesions"] == ["nodule"]
     assert rows[0]["pii_detected"] is True
     assert rows[0]["teencode_replaced"] == ["k"]
-    assert rows[0]["citation_compliance"] is False
 
 
 def test_audit_schema_migrates_existing_database(tmp_path):
@@ -54,4 +52,3 @@ def test_audit_schema_migrates_existing_database(tmp_path):
     assert row["normalized_query"] == ""
     assert row["extracted_entities"] == {}
     assert row["teencode_replaced"] == []
-    assert row["citation_compliance"] is None

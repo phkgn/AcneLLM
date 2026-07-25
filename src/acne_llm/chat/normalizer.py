@@ -1,5 +1,7 @@
 """Rule-based intake normalizer for one-box chat input.
 
+LEGACY: live fallback when ``EXTRACTOR_MODE=rule`` or the LLM extractor fails.
+
 The goal is not perfect medical NLP. It extracts high-signal safety and acne
 context without adding another Ollama call before the actual answer.
 

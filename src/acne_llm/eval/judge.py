@@ -62,16 +62,6 @@ def safety_compliance(output: AdviseOutput, *, is_pregnant: bool = False) -> boo
     return True
 
 
-def citation_correctness(output: AdviseOutput, available_chunk_ids: set[str]) -> bool | None:
-    cited = {
-        rec.source_chunk_id
-        for rec in output.recommendations
-        if rec.source_chunk_id
-    }
-    if not cited:
-        return None
-    return cited <= available_chunk_ids
-
 
 def latency_summary(latencies: list[int]) -> dict[str, int | float]:
     if not latencies:
@@ -101,5 +91,4 @@ def judge_case(
         "format_ok": True,
         "severity_ok": severity_accuracy(output, expected_severity),
         "safety_ok": safety_compliance(output, is_pregnant=is_pregnant),
-        "citation_ok": citation_correctness(output, available_chunk_ids or set()),
     }

@@ -11,8 +11,6 @@ Sửa bias EN:
 4. Mở rộng từ vựng VI thêm colloquial terms còn thiếu
 5. score_quality boost VI ×1.3 vì keyword list nhỏ hơn EN
 """
-import re
-
 try:
     from langdetect import detect as _detect_lang
 except Exception:

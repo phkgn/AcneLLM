@@ -20,7 +20,7 @@ from evaluation.common import ROOT, sha256_text  # noqa: E402
 SRC = ROOT / "model" / "V2" / "Q4" / "Modelfile"
 DST = ROOT / "evaluation" / "modelfiles" / "qwen25-base-acnesys" / "Modelfile"
 # Registry qwen2.5:7b mặc định Q4_K_M — xác nhận trên máy bằng `ollama show qwen2.5:7b`
-BASE_REF = "qwen2.5:7b"
+BASE_REF = "qcwind/qwen2.5-7B-instruct-Q4_K_M"
 
 
 def main() -> None:

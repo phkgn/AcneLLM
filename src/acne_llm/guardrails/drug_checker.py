@@ -9,7 +9,6 @@ Su dung:
 from __future__ import annotations
 
 import re
-import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -124,7 +123,7 @@ class DrugChecker:
         """Goi OpenFDA label API, tra ve warning text hoac None.
         Ket qua duoc cache 24h boi diskcache (neu co).
         """
-        from ..cache import get_cache, _make_key
+        from ..cache import get_cache
         import pickle
 
         CACHE_KEY = f"openfda_v1:{self._normalize(drug_name)}"

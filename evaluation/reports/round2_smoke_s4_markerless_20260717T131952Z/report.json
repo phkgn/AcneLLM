@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-07-17T13:21:47.531348+00:00",
+  "run_dir": "evaluation\\reports\\round2_smoke_s4_markerless_20260717T131952Z",
+  "n_systems": 1,
+  "systems": {
+    "s4": {
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "grounded_sentence_rate": 0.9577,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 71,
+        "grounded_sentences": 68,
+        "unsupported_sentences": 3
+      },
+      "legacy_citation_metrics": true,
+      "citation_present_rate": 0.0,
+      "citation_valid_rate": null,
+      "citation_coverage_valid_rate": 0.0,
+      "citation_counts": {
+        "required": 3,
+        "present": 0,
+        "valid": 0,
+        "invalid": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 10518,
+        "mean": 11303
+      },
+      "error_pareto": []
+    }
+  },
+  "comparisons": {},
+  "errors": {},
+  "holm_correction": {}
+}

@@ -117,7 +117,7 @@ class ChromaStore:
         ]
         # Optional fallback for callers that prefer recall over precision.
         # Chat retrieval disables this so a bad dense match cannot bypass the
-        # distance gate and later appear as an irrelevant citation.
+        # distance gate and later appear as an irrelevant source.
         if not filtered and fallback_to_raw:
             return raw
         if not filtered:

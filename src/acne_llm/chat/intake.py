@@ -7,16 +7,17 @@ select recent context -> completeness hint -> effective mode.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+import time
 from typing import TYPE_CHECKING, Literal
 
-from loguru import logger
 from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
-from ._terms import CASE_INTAKE_TERMS, COMPLAINT_TERMS, QUESTION_TERMS, contains_any
-from ..schemas.clinical import ClinicalQueryPlan
+from ._terms import CASE_INTAKE_TERMS, contains_any
 from .completeness import CompletenessResult, check_completeness
-from .intent_router import RouteDecision, route_intent
-from .normalizer import normalize_chat_message
+from .fallback.intent_router import RouteDecision, route_intent
+from .fallback.llm_extractor import ExtractorFallback
+from .fallback.llm_router import RouterFallback
+from .normalizer import _light_normalize, normalize_chat_message
 from .extraction_confidence import extract_with_confidence, ExtractionConfidence
 from .preprocess import prepare_user_text, strip_accents
 from .session import (
@@ -29,6 +30,7 @@ from .session import (
     snapshot_from_user,
 )
 from ..guardrails.ood_detector import contains_pii
+from ..utils.logging import log_pipeline_stage
 from ..utils.retrieval_query import build_current_turn_query, extracted_entities_from_user
 
 if TYPE_CHECKING:
@@ -45,8 +47,6 @@ def _count_words(text: str) -> int:
     return len(text.split())
 
 
-_KNOWLEDGE_QUESTION_TERMS = QUESTION_TERMS
-_COMPLAINT_TERMS = COMPLAINT_TERMS
 _CASE_INTAKE_TERMS = CASE_INTAKE_TERMS
 
 
@@ -61,7 +61,6 @@ class IntakeResult:
     scope_decision: ScopeDecision
     scope_refusal: AdviseOutput | None = None
     completeness: CompletenessResult | None = None
-    clinical_plan: ClinicalQueryPlan | None = None
     route_decision: RouteDecision | None = None
     session_id: str | None = None
     clean_text_no_accent: str = ""
@@ -107,6 +106,14 @@ def _has_allowed_acne_region(message: str) -> bool:
 def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
     lowered = message.lower()
     terms = [term for term in _SAFETY_SIGNAL_TERMS if term in lowered]
+    # Cổng thuốc cứng (medication_safety_refusal) tra khoá canonical tiếng Anh.
+    # Trước đây khoá này chỉ tới từ user.context.is_pregnant do extractor rule
+    # điền — nên gate im lặng phụ thuộc extractor. Map thẳng từ text để nó tự
+    # đứng được, không cần bất kỳ tầng trích xuất nào chạy trước.
+    if any(term in lowered for term in ("mang thai", "pregnant", "pregnancy", "co thai", "có thai")):
+        terms.append("pregnancy")
+    if any(term in lowered for term in ("cho con bu", "cho con bú", "breastfeeding", "lactation")):
+        terms.append("breastfeeding")
     if user.context.is_pregnant:
         terms.append("pregnancy")
     if user.context.is_breastfeeding:
@@ -139,10 +146,6 @@ def _profile_safety_terms(profile: dict) -> list[str]:
             terms.append(lowered)
     return terms
 
-
-def _is_knowledge_question(message: str) -> bool:
-    lowered = message.lower()
-    return contains_any(lowered, _KNOWLEDGE_QUESTION_TERMS)
 
 
 def _has_clinical_data(clinical: AcneClinicalInput) -> bool:
@@ -186,49 +189,6 @@ def _snapshot_has_values(snapshot: NormalizedSnapshot | None) -> bool:
     return bool(meaningful_context or meaningful_clinical)
 
 
-def _scope_check_compat(
-    guardrails: object,
-    user: UserInput,
-    has_acne_history: bool,
-) -> AdviseOutput | None:
-    if not hasattr(guardrails, "scope_check"):
-        return None
-    try:
-        return guardrails.scope_check(user, has_acne_history=has_acne_history)
-    except TypeError:
-        return guardrails.scope_check(user)
-
-
-def _history_clarify_count(history: list[ConversationTurn]) -> int:
-    return sum(1 for turn in history if turn.role == "assistant" and turn.mode == "clarify")
-
-
-def _session_clarify_count(store: object, session_id: str | None, history: list[ConversationTurn]) -> int:
-    history_count = _history_clarify_count(history)
-    if not session_id or not hasattr(store, "get_or_create"):
-        return history_count
-    try:
-        session = store.get_or_create(session_id)
-    except Exception:
-        return history_count
-    return max(history_count, int(getattr(session, "total_clarify_count", 0) or 0))
-
-
-def _force_advise_route(route_decision: RouteDecision, reason: str) -> RouteDecision:
-    return replace(
-        route_decision,
-        primary_intent="advise",
-        turn_type="answer",
-        confidence=max(route_decision.confidence, 0.72),
-        reason_code=f"{route_decision.reason_code}|{reason}",
-        route_flags=list(dict.fromkeys([
-            *route_decision.route_flags,
-            "partial_advise",
-            "clarify_loop_break",
-        ])),
-    )
-
-
 def _is_intake_reply(message: str, history: list[ConversationTurn]) -> bool:
     if not history:
         return False
@@ -249,13 +209,13 @@ def _should_check_completeness(
 ) -> bool:
     if route_decision is not None and route_decision.primary_intent == "knowledge":
         return False
+    if route_decision is not None and route_decision.primary_intent == "advise":
+        return True
     if _is_intake_reply(message, history):
         return True
     if not _is_acne_scope(message):
         return False
     lowered = message.lower()
-    if route_decision is not None and route_decision.primary_intent == "advise":
-        return True
     if contains_any(lowered, _CASE_INTAKE_TERMS):
         return True
     clinical = user.clinical or AcneClinicalInput()
@@ -268,11 +228,17 @@ def _should_check_completeness(
     return has_prior_acne_context and bool(message.strip())
 
 
-def _is_complaint(message: str) -> bool:
-    if len(message.split()) > 20:
-        return False
-    lowered = message.lower()
-    return contains_any(lowered, _COMPLAINT_TERMS)
+def _has_established_case(history: list[ConversationTurn]) -> bool:
+    """True when an earlier user turn already put a real acne case on the table."""
+    return any(
+        turn.role == "user"
+        and (
+            _snapshot_has_values(turn.normalized_snapshot)
+            or _is_acne_scope(turn.content)
+        )
+        for turn in history
+    )
+
 
 
 def _resolve_mode(
@@ -288,14 +254,6 @@ def _resolve_mode(
         return "hybrid" if c.rag_ready else "llm_only"
     if not c.rag_ready:
         return "llm_only"
-    if clean_text and not GuardrailRunner.is_acne_scope_text(clean_text):
-        has_acne_history = any(
-            GuardrailRunner.is_acne_scope_text(t.content)
-            for t in (history or [])
-            if t.role == "user"
-        )
-        if not has_acne_history:
-            return "llm_only"
     return "hybrid"
 
 
@@ -307,6 +265,7 @@ def run_intake(
     include_analytics: bool = False,
 ) -> IntakeResult:
     """Run the shared pre-generation intake path for SSE, WS, and evaluation."""
+    request_started = time.perf_counter()
     if len(message) > MAX_MESSAGE_CHARS:
         raise ValueError(f"message is too long (max {MAX_MESSAGE_CHARS} characters)")
     word_count = _count_words(message)
@@ -315,9 +274,16 @@ def run_intake(
             f"Tin nhan qua dai ({word_count} tu). Vui long rut gon xuong toi da {MAX_MESSAGE_WORDS} tu."
         )
 
-    sid_short = (session_id or "no-session")[:8]
-    logger.info("[{}] INPUT ({}c): {!r}", sid_short, len(message), message[:120])
+    log_pipeline_stage(
+        session_id,
+        "INPUT",
+        request_started,
+        chars=len(message),
+        words=word_count,
+        requested_mode=mode_request,
+    )
 
+    preprocess_started = time.perf_counter()
     raw_message = message
     prepared = prepare_user_text(raw_message)
     clean_text = prepared.clean_text
@@ -325,45 +291,73 @@ def run_intake(
     store = getattr(c, "session_store", None) or get_session_store()
     history = store.get_history(session_id)
     mode = _resolve_mode(mode_request, c, clean_text=clean_text, history=history)
-    base_user = normalize_chat_message(
-        raw_message,
-        mode=mode,
-        clean_text=clean_text,
-        clean_text_no_accent=clean_text_no_accent,
-    )
-    _extraction_conf = extract_with_confidence(
-        raw_message,
-        clean_text=clean_text,
-        clean_text_no_accent=clean_text_no_accent,
-    )
-    # Early-exit safety_terms: dung base_user (chua fold) cho cac nhanh refuse thoat som.
-    # Happy path se re-extract sau fold de bat pregnancy/medication tu session history.
+    intake_settings = getattr(c, "settings", None)
+    # Extractor rule giờ CHỈ là fallback. Trước đây nó chạy ở đây mọi turn và
+    # guardrails phán trên số của nó — nên "ngưng tretinoin rồi" vẫn ra
+    # medications=['tretinoin'] và bắn safety trước khi intaker kịp nói.
+    # Pre-LLM chỉ cần description cho pre_check/scope_check.
+    def _rule_user() -> UserInput:
+        return normalize_chat_message(
+            raw_message,
+            mode=mode,
+            clean_text=clean_text,
+            clean_text_no_accent=clean_text_no_accent,
+        )
+
+    def _rule_conf() -> ExtractionConfidence:
+        return extract_with_confidence(
+            raw_message,
+            clean_text=clean_text,
+            clean_text_no_accent=clean_text_no_accent,
+        )
+
+    base_user = UserInput(description=_light_normalize(raw_message), mode=mode)
+    _extraction_conf: ExtractionConfidence | None = None
     safety_terms = _extract_safety_terms(clean_text, base_user)
-    # The current-turn snapshot is persisted only after routing confirms this
-    # is the user's own case. It powers correction-aware structured memory;
-    # prompt-visible text history remains separately selected and bounded.
-    turn_snapshot = None
-
-    _cl = base_user.clinical
-    logger.info(
-        "[{}] NORMALIZE: age={} sex={} skin={} lesions={} inflam={} mode={}",
-        sid_short,
-        base_user.context.age,
-        base_user.context.sex,
-        base_user.context.skin_type,
-        (_cl.lesion_types if _cl else []),
-        (_cl.inflammation_level if _cl else None),
-        mode,
+    log_pipeline_stage(
+        session_id,
+        "PREPROCESS",
+        preprocess_started,
+        mode=mode,
+        clean_chars=len(clean_text),
+        history_turns=len(history),
     )
 
-    current_clinical = (
-        base_user.clinical.model_copy(deep=True) if base_user.clinical is not None else None
-    )
-
+    safety_started = time.perf_counter()
     try:
         c.guardrails.pre_check(base_user)
     except ValueError as exc:
-        logger.info("[{}] REFUSE (pre_check ValueError: {})", sid_short, exc)
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            safety_started,
+            level="WARNING",
+            result="blocked",
+            reason="pre_check_invalid",
+            error=exc,
+        )
+        log_pipeline_stage(
+            session_id,
+            "INTAKE",
+            safety_started,
+            result="blocked",
+            reason="pre_check_invalid",
+        )
+        log_pipeline_stage(
+            session_id,
+            "ROUTE",
+            safety_started,
+            intent="reject",
+            source="deterministic",
+            reason="pre_check_invalid",
+        )
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            safety_started,
+            status="skipped",
+            reason="pre_check_invalid",
+        )
         precheck_refusal = AdviseOutput(
             severity="unknown",
             acne_type_primary="unknown",
@@ -392,7 +386,6 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="non_self",
                 turn_type="reject",
                 route_flags=["pre_check_invalid"],
                 reason_code="pre_check_invalid",
@@ -409,7 +402,36 @@ def run_intake(
     genital_scope = _is_genital_scope(clean_text)
     mixed_genital_scope = genital_scope and acne_signal and _has_allowed_acne_region(clean_text)
     if genital_scope and not mixed_genital_scope:
-        logger.info("[{}] REFUSE (genital/out-of-scope body region)", sid_short)
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            safety_started,
+            level="WARNING",
+            result="blocked",
+            reason="genital_scope_hard_reject",
+        )
+        log_pipeline_stage(
+            session_id,
+            "INTAKE",
+            safety_started,
+            result="blocked",
+            reason="genital_scope_hard_reject",
+        )
+        log_pipeline_stage(
+            session_id,
+            "ROUTE",
+            safety_started,
+            intent="reject",
+            source="deterministic",
+            reason="genital_scope_hard_reject",
+        )
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            safety_started,
+            status="skipped",
+            reason="genital_scope_hard_reject",
+        )
         genital_refusal = AdviseOutput(
             severity="unknown",
             acne_type_primary="unknown",
@@ -438,7 +460,6 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="non_self",
                 turn_type="reject",
                 route_flags=["genital_scope"],
                 reason_code="genital_scope_hard_reject",
@@ -451,25 +472,55 @@ def run_intake(
             teencode_replaced=prepared.teencode_replaced,
         )
     if mixed_genital_scope:
-        logger.info("[{}] MIXED SCOPE: acne region + genital mention", sid_short)
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            safety_started,
+            result="mixed_scope",
+            genital=True,
+        )
 
-    has_acne_history = any(
-        GuardrailRunner.is_acne_scope_text(t.content)
-        for t in history
-        if t.role == "user"
+    # Hard current-turn medication/pregnancy refusal must run before semantic
+    # routing. A second identical guard remains after advise-only session fold
+    # so previously confirmed medications are covered as well.
+    medication_check = getattr(c.guardrails, "medication_safety_refusal", None)
+    current_medication_refusal = (
+        medication_check(base_user, safety_terms)
+        if callable(medication_check)
+        else None
     )
-    scope_refusal = _scope_check_compat(c.guardrails, base_user, has_acne_history)
-    logger.info(
-        "[{}] GUARDRAILS: acne_signal={} genital={} refused={} scope={}",
-        sid_short,
-        acne_signal,
-        genital_scope,
-        scope_refusal is not None,
-        "in_scope" if acne_signal else "pass_to_llm_soft",
-    )
-
-    if scope_refusal is not None:
-        logger.info("[{}] REFUSE (out-of-scope)", sid_short)
+    if isinstance(current_medication_refusal, AdviseOutput):
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            safety_started,
+            level="WARNING",
+            result="blocked",
+            reason="medication_safety_block",
+            phase="current_turn",
+        )
+        log_pipeline_stage(
+            session_id,
+            "INTAKE",
+            safety_started,
+            result="blocked",
+            reason="medication_safety_block",
+        )
+        log_pipeline_stage(
+            session_id,
+            "ROUTE",
+            safety_started,
+            intent="reject",
+            source="deterministic",
+            reason="medication_safety_block",
+        )
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            safety_started,
+            status="skipped",
+            reason="medication_safety_block",
+        )
         return IntakeResult(
             raw_message=raw_message,
             clean_text=clean_text,
@@ -478,60 +529,13 @@ def run_intake(
             history=history,
             effective_mode="refuse",
             scope_decision="refuse_hard",
-            scope_refusal=scope_refusal,
+            scope_refusal=current_medication_refusal,
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="non_self",
                 turn_type="reject",
-                route_flags=["out_of_scope"],
-                reason_code="scope_hard_reject",
-            ),
-            session_id=session_id,
-            clean_text_no_accent=clean_text_no_accent,
-            safety_terms=safety_terms,
-            extracted_entities=extracted_entities_from_user(base_user),
-            pii_detected=contains_pii(clean_text),
-            teencode_replaced=prepared.teencode_replaced,
-        )
-
-    scope_decision: ScopeDecision = "in_scope" if acne_signal else "pass_to_llm_soft"
-
-    if scope_decision == "pass_to_llm_soft" and mode == "hybrid" and mode_request == "auto":
-        if not has_acne_history:
-            mode = "llm_only"
-            logger.info("[{}] OOD auto-downgrade hybrid -> llm_only", sid_short)
-        else:
-            logger.info("[{}] OOD soft -- keep hybrid (session has acne history)", sid_short)
-
-    if _is_complaint(clean_text) and history:
-        logger.info("[{}] CLARIFY (complaint detected)", sid_short)
-        apology_q = (
-            "Xin loi vi cau tra loi truoc chua phu hop! "
-            "Ban co the mo ta them tinh trang da khong -- "
-            "vi du mun o vung nao, co dau/viem khong, bi bao lau roi? "
-            "Minh se tu van sat hon ngay."
-        )
-        return IntakeResult(
-            raw_message=raw_message,
-            clean_text=clean_text,
-            user=base_user,
-            turn_snapshot=None,
-            history=history,
-            effective_mode="clarify",
-            scope_decision=scope_decision,
-            route_decision=RouteDecision(
-                primary_intent="clarify",
-                confidence=0.95,
-                query_subject="non_self",
-                turn_type="clarify",
-                route_flags=[],
-                reason_code="complaint",
-            ),
-            completeness=CompletenessResult(
-                kind="too_short",
-                question=apology_q,
-                clarify_reason="complaint",
+                route_flags=["medication_safety_block"],
+                reason_code="medication_safety_block",
             ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
@@ -540,15 +544,96 @@ def run_intake(
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
+            extraction_confidence=_extraction_conf,
         )
 
-    route_decision = route_intent(
-        clean_text,
-        base_user,
-        history,
-        settings=getattr(c, "settings", None),
-        current_clinical=current_clinical,
+    log_pipeline_stage(
+        session_id,
+        "SAFETY",
+        safety_started,
+        result="pass",
+        acne_signal=acne_signal,
+        genital=genital_scope,
+        soft_oos="semantic_router",
     )
+    scope_decision: ScopeDecision = "in_scope"
+    intake_started = time.perf_counter()
+    log_pipeline_stage(
+        session_id,
+        "INTAKE",
+        intake_started,
+        state="routing",
+        mode=mode,
+        history_turns=len(history),
+    )
+
+    route_started = time.perf_counter()
+    route_decision = None
+    llm_router = getattr(c, "llm_router", None)
+    if llm_router is not None:
+        try:
+            route_decision = llm_router.classify(clean_text, history)
+        except RouterFallback as exc:
+            log_pipeline_stage(
+                session_id,
+                "ROUTE",
+                route_started,
+                level="WARNING",
+                fallback="semantic",
+                error=exc,
+            )
+        except Exception as exc:
+            log_pipeline_stage(
+                session_id,
+                "ROUTE",
+                route_started,
+                level="WARNING",
+                fallback="semantic",
+                error=f"{type(exc).__name__}: {exc}",
+            )
+    else:
+        log_pipeline_stage(
+            session_id,
+            "ROUTE",
+            route_started,
+            fallback="semantic",
+            reason="llm_router_unavailable",
+        )
+
+    if route_decision is None:
+        semantic_router = getattr(c, "semantic_router", None)
+        if semantic_router is not None:
+            try:
+                route_decision = semantic_router.classify(clean_text)
+            except Exception as exc:
+                log_pipeline_stage(
+                    session_id,
+                    "ROUTE",
+                    route_started,
+                    level="WARNING",
+                    fallback="rule",
+                    error=f"{type(exc).__name__}: {exc}",
+                )
+        else:
+            log_pipeline_stage(
+                session_id,
+                "ROUTE",
+                route_started,
+                level="WARNING",
+                fallback="rule",
+                reason="semantic_router_unavailable",
+            )
+
+        if route_decision is None:
+            base_user = _rule_user()
+            _extraction_conf = _rule_conf()
+            route_decision = route_intent(
+                clean_text,
+                base_user,
+                history,
+                settings=getattr(c, "settings", None),
+                current_clinical=base_user.clinical,
+            )
     if mixed_genital_scope:
         route_decision = replace(
             route_decision,
@@ -558,33 +643,187 @@ def run_intake(
             ])),
             reason_code=f"{route_decision.reason_code}|mixed_genital_scope",
         )
-    logger.info(
-        "[{}] ROUTE: intent={} subject={} conf={:.2f} flags={} reason={}",
-        sid_short,
-        route_decision.primary_intent,
-        route_decision.query_subject,
-        route_decision.confidence,
-        route_decision.route_flags,
-        route_decision.reason_code,
+    # Intaker 3B học multi-turn từ 180/180 mẫu đều gán nhãn clarify, nên mọi
+    # follow-up có history đều bị kéo về clarify. Khi phiên đã có case thật,
+    # hỏi lại là hành vi sai bất kể model nói gì -> hạ xuống advise để chạy
+    # tiếp extraction + RAG. Bỏ guard này sau khi datagen multi-turn cân lại.
+    if route_decision.primary_intent == "clarify" and _has_established_case(history):
+        route_decision = replace(
+            route_decision,
+            primary_intent="advise",
+            route_flags=list(dict.fromkeys([
+                *route_decision.route_flags,
+                "clarify_downgraded",
+            ])),
+            reason_code=f"{route_decision.reason_code}|established_case",
+        )
+    route_source = (
+        "unified_intake"
+        if route_decision.reason_code == "unified_intake"
+        else "legacy_llm"
+        if route_decision.source == "llm"
+        else route_decision.source
+    )
+    log_pipeline_stage(
+        session_id,
+        "ROUTE",
+        route_started,
+        intent=route_decision.primary_intent,
+        source=route_source,
+        confidence=route_decision.confidence,
+        flags=route_decision.route_flags,
+        reason=route_decision.reason_code,
     )
 
     if route_decision.primary_intent == "reject":
-        logger.info("[{}] REFUSE (intent reject)", sid_short)
-        intent_refusal = AdviseOutput(
-            severity="unknown",
-            acne_type_primary="unknown",
-            causes=["Ngoai pham vi tu van mun trung ca"],
-            recommendations=[],
-            red_flags=[],
-            used_chunks=[],
-            confidence=0.0,
-            disclaimer=(
-                "Minh chi ho tro cac cau hoi ve mun trung ca, cham soc da mun "
-                "va dieu tri mun an toan."
-            ),
-            mode=base_user.mode,
-            model_name="",
-            latency_ms=0,
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            time.perf_counter(),
+            status="skipped",
+            reason="soft_reject",
+        )
+        return IntakeResult(
+            raw_message=raw_message,
+            clean_text=clean_text,
+            user=UserInput(description=clean_text, mode="llm_only"),
+            turn_snapshot=None,
+            history=[],
+            effective_mode="llm_only",
+            scope_decision="pass_to_llm_soft",
+            scope_refusal=None,
+            route_decision=route_decision,
+            session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            normalized_query=clean_text,
+            safety_terms=[],
+            extracted_entities={},
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
+        )
+
+    if route_decision.primary_intent == "clarify":
+        selected_history = select_relevant_history(
+            clean_text,
+            route_decision.primary_intent,
+            history,
+            route_decision.route_flags,
+        )
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            time.perf_counter(),
+            status="skipped",
+            reason="clarify",
+        )
+        return IntakeResult(
+            raw_message=raw_message,
+            clean_text=clean_text,
+            user=UserInput(description=clean_text, mode="llm_only"),
+            turn_snapshot=None,
+            history=selected_history,
+            effective_mode="clarify",
+            scope_decision="in_scope",
+            route_decision=route_decision,
+            session_id=session_id,
+            clean_text_no_accent=clean_text_no_accent,
+            normalized_query=build_current_turn_query(clean_text, selected_history),
+            safety_terms=safety_terms,
+            extracted_entities={},
+            pii_detected=contains_pii(clean_text),
+            teencode_replaced=prepared.teencode_replaced,
+        )
+
+    # Advise/knowledge only: now pay the 1.5B extraction cost. The rule parser
+    # above remains the fallback if the model is unavailable or invalid.
+    extract_started = time.perf_counter()
+    extraction_source = "rule"
+    extractor_mode = getattr(intake_settings, "extractor_mode", "rule")
+    llm_extractor = getattr(c, "llm_extractor", None)
+    if extractor_mode == "llm" and llm_extractor is not None:
+        try:
+            extracted = llm_extractor.run(
+                clean_text=clean_text,
+                clean_text_no_accent=clean_text_no_accent,
+                mode=mode,
+                history=history,
+            )
+            base_user = extracted.user
+            _extraction_conf = extracted.confidence
+            extraction_source = (
+                "unified_intake"
+                if route_decision.reason_code == "unified_intake"
+                else "legacy_llm"
+            )
+        except ExtractorFallback as exc:
+            base_user = _rule_user()
+            _extraction_conf = _rule_conf()
+            log_pipeline_stage(
+                session_id,
+                "EXTRACT",
+                extract_started,
+                level="WARNING",
+                fallback="rule",
+                error=exc,
+            )
+        except Exception as exc:
+            base_user = _rule_user()
+            _extraction_conf = _rule_conf()
+            log_pipeline_stage(
+                session_id,
+                "EXTRACT",
+                extract_started,
+                level="WARNING",
+                fallback="rule",
+                error=f"{type(exc).__name__}: {exc}",
+            )
+    else:
+        base_user = _rule_user()
+        _extraction_conf = _rule_conf()
+        if extractor_mode == "llm":
+            log_pipeline_stage(
+                session_id,
+                "EXTRACT",
+                extract_started,
+                level="WARNING",
+                fallback="rule",
+                reason="extractor_unavailable",
+            )
+
+    _cl = base_user.clinical
+    log_pipeline_stage(
+        session_id,
+        "EXTRACT",
+        extract_started,
+        source=extraction_source,
+        age=base_user.context.age,
+        sex=base_user.context.sex,
+        skin=base_user.context.skin_type,
+        lesions=(_cl.lesion_types if _cl else []),
+        inflammation=(_cl.inflammation_level if _cl else None),
+    )
+
+    # Preserve the full-field hard gates after extraction and before any fold,
+    # retrieval, prompt build, or generation.
+    c.guardrails.pre_check(base_user)
+    safety_terms = list(dict.fromkeys([
+        *safety_terms,
+        *_extract_safety_terms(clean_text, base_user),
+    ]))
+    extracted_medication_refusal = (
+        medication_check(base_user, safety_terms)
+        if callable(medication_check)
+        else None
+    )
+    if isinstance(extracted_medication_refusal, AdviseOutput):
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            extract_started,
+            level="WARNING",
+            result="blocked",
+            reason="medication_safety_block",
+            phase="post_extract",
         )
         return IntakeResult(
             raw_message=raw_message,
@@ -594,17 +833,25 @@ def run_intake(
             history=history,
             effective_mode="refuse",
             scope_decision="refuse_hard",
-            scope_refusal=intent_refusal,
-            route_decision=route_decision,
+            scope_refusal=extracted_medication_refusal,
+            route_decision=RouteDecision(
+                primary_intent="reject",
+                confidence=1.0,
+                turn_type="reject",
+                route_flags=["medication_safety_block"],
+                reason_code="medication_safety_block",
+            ),
             session_id=session_id,
             clean_text_no_accent=clean_text_no_accent,
+            normalized_query=build_current_turn_query(clean_text),
             safety_terms=safety_terms,
             extracted_entities=extracted_entities_from_user(base_user),
             pii_detected=contains_pii(clean_text),
             teencode_replaced=prepared.teencode_replaced,
+            extraction_confidence=_extraction_conf,
         )
 
-    is_self_case = route_decision.query_subject == "self"
+    is_personal_case = route_decision.primary_intent == "advise"
     selected_history = select_relevant_history(
         clean_text,
         route_decision.primary_intent,
@@ -612,7 +859,7 @@ def run_intake(
         route_decision.route_flags,
     )
     confirmed_profile: dict = {}
-    if is_self_case:
+    if is_personal_case:
         if session_id and hasattr(store, "get_or_create"):
             store.get_or_create(session_id)
         existing_profile = store.get_user_context(session_id)
@@ -631,29 +878,38 @@ def run_intake(
             *_extract_safety_terms(clean_text, base_user),
             *_profile_safety_terms(confirmed_profile),
         ]))
-    user = fold_history_facts(base_user, history) if is_self_case else base_user
+    user = fold_history_facts(base_user, history) if is_personal_case else base_user
     turn_snapshot = (
         snapshot_from_user(base_user, clean_text)
-        if session_id and is_self_case and route_decision.primary_intent == "advise"
+        if session_id and is_personal_case
         else None
     )
     _folded_cl = user.clinical
-    logger.info(
-        "[{}] SESSION FOLD: {} | history={} turns | age={} lesions={} inflam={}",
-        sid_short,
-        "structured-fold" if is_self_case else "skipped",
-        len(selected_history),
-        user.context.age,
-        (_folded_cl.lesion_types if _folded_cl else []),
-        (_folded_cl.inflammation_level if _folded_cl else None),
+    log_pipeline_stage(
+        session_id,
+        "INTAKE",
+        intake_started,
+        level="DEBUG",
+        fold=("structured" if is_personal_case else "skipped"),
+        history_turns=len(selected_history),
+        age=user.context.age,
+        lesions=(_folded_cl.lesion_types if _folded_cl else []),
+        inflammation=(_folded_cl.inflammation_level if _folded_cl else None),
     )
 
     medication_refusal = None
-    medication_check = getattr(c.guardrails, "medication_safety_refusal", None)
     if callable(medication_check):
         medication_refusal = medication_check(user, safety_terms)
     if isinstance(medication_refusal, AdviseOutput):
-        logger.warning("[{}] REFUSE (deterministic medication safety)", sid_short)
+        log_pipeline_stage(
+            session_id,
+            "SAFETY",
+            intake_started,
+            level="WARNING",
+            result="blocked",
+            reason="medication_safety_block",
+            phase="session_fold",
+        )
         return IntakeResult(
             raw_message=raw_message,
             clean_text=clean_text,
@@ -666,7 +922,6 @@ def run_intake(
             route_decision=RouteDecision(
                 primary_intent="reject",
                 confidence=1.0,
-                query_subject="self",
                 turn_type="reject",
                 route_flags=["medication_safety_block"],
                 reason_code="medication_safety_block",
@@ -682,80 +937,47 @@ def run_intake(
             confirmed_profile=confirmed_profile,
         )
 
-    # Gap fix 2: route override (clarify -> advise) phai xay ra TRUOC check_completeness.
-    # Neu override xay ra SAU, completeness duoc tinh voi intent=clarify roi prompt
-    # advise nhan completeness=None -- thieu hint du user chua du thong tin.
-    if (
-        route_decision.primary_intent == "clarify"
-        and route_decision.query_subject == "self"
-        and not ({"crisis_signal", "urgency_red_flag"} & set(route_decision.route_flags))
-    ):
-        clarify_count = _session_clarify_count(store, session_id, history)
-        clarify_limit = 3 if has_acne_history else 5
-        too_many_clarifies = clarify_count >= clarify_limit
-        if too_many_clarifies:
-            route_decision = _force_advise_route(route_decision, "clarify_loop_hard_stop")
-            logger.info("[{}] ROUTE OVERRIDE: clarify -> advise (clarify loop hard stop)", sid_short)
-        else:
-            _quick_completeness = check_completeness(
-                user, history=selected_history,
-                asked_fields=store.get_asked_fields(session_id),
-                confidence=_extraction_conf,
-            )
-            if _quick_completeness is not None and _quick_completeness.level == "sufficient":
-                route_decision = _force_advise_route(route_decision, "clarify_sufficient_context")
-                logger.info("[{}] ROUTE OVERRIDE: clarify -> advise (sufficient self context)", sid_short)
-
     asked_fields = store.get_asked_fields(session_id)
     completeness = (
         check_completeness(user, history=selected_history, asked_fields=asked_fields, confidence=_extraction_conf)
-        if is_self_case and _should_check_completeness(clean_text, user, selected_history, route_decision)
+        if is_personal_case
+        and _should_check_completeness(clean_text, user, selected_history, route_decision)
         else None
     )
 
-    logger.info(
-        "[{}] COMPLETENESS: checked={} kind={} level={} missing={}",
-        sid_short,
-        completeness is not None,
-        completeness.kind if completeness else "skip",
-        completeness.level if completeness else "skip",
-        completeness.missing_fields if completeness else [],
+    log_pipeline_stage(
+        session_id,
+        "INTAKE",
+        intake_started,
+        level="DEBUG",
+        completeness=("checked" if completeness is not None else "skipped"),
+        kind=(completeness.kind if completeness else "skip"),
+        level_name=(completeness.level if completeness else "skip"),
+        missing=(completeness.missing_fields if completeness else []),
     )
 
     if completeness is not None and completeness.level == "none":
-        logger.info("[{}] SOFT HINT missing={}", sid_short, completeness.missing_fields)
+        log_pipeline_stage(
+            session_id,
+            "INTAKE",
+            intake_started,
+            level="DEBUG",
+            hint="missing_fields",
+            missing=completeness.missing_fields,
+        )
 
-    # Planner is analytics-only in schema v2: never drives retrieval or prompt.
-    # Chỉ build khi include_analytics (vd /debug/trace) để không phí CPU trên hot path.
-    planner = getattr(c, "clinical_planner", None)
-    should_build_clinical_plan = (
-        route_decision.primary_intent == "advise"
-        and route_decision.query_subject == "self"
-    )
-    has_current_or_history_acne = acne_signal or _has_clinical_data(user.clinical or AcneClinicalInput())
-    clinical_plan = (
-        planner.plan(user)
-        if include_analytics
-        and planner is not None and should_build_clinical_plan and has_current_or_history_acne
-        else None
-    )
+    # Retrieval dùng thẳng query của lượt hiện tại (planner đã gỡ).
     normalized_query = build_current_turn_query(clean_text, selected_history)
     extracted_entities = extracted_entities_from_user(base_user)
-    logger.info(
-        "[{}] CLINICAL PLAN: built={} lang={} query={!r:.80}",
-        sid_short,
-        clinical_plan is not None,
-        clinical_plan.detected_language if clinical_plan else "n/a",
-        (clinical_plan.rag_queries.query_vi if clinical_plan else ""),
-    )
     effective_mode: EffectiveMode = "clarify" if route_decision.primary_intent == "clarify" else mode
-    logger.info(
-        "[{}] -> {} (scope={} plan={} snapshot={})",
-        sid_short,
-        effective_mode.upper(),
-        scope_decision,
-        clinical_plan is not None,
-        turn_snapshot is not None,
+    log_pipeline_stage(
+        session_id,
+        "INTAKE",
+        intake_started,
+        result="ready",
+        effective_mode=effective_mode,
+        scope=scope_decision,
+        snapshot=turn_snapshot is not None,
     )
     return IntakeResult(
         raw_message=raw_message,
@@ -766,7 +988,6 @@ def run_intake(
         effective_mode=effective_mode,
         scope_decision=scope_decision,
         completeness=completeness,
-        clinical_plan=clinical_plan,
         route_decision=route_decision,
         session_id=session_id,
         clean_text_no_accent=clean_text_no_accent,

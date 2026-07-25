@@ -1,4 +1,4 @@
-export interface Citation {
+export interface RetrievedSource {
   chunk_id: string;
   source: string;
   title: string;
@@ -23,7 +23,7 @@ export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
-  citations?: Citation[];
+  sources?: RetrievedSource[];
   mode?: string;
   latency_ms?: number;
   evidence_quality?: EvidenceQuality;
@@ -33,8 +33,8 @@ export interface ChatMessage {
 }
 
 export interface StreamEvent {
-  event: "token" | "citation" | "done" | "error";
-  data: string | Citation | DoneData;
+  event: "token" | "source" | "done" | "error";
+  data: string | RetrievedSource | DoneData;
 }
 
 export interface KBSearchResult {

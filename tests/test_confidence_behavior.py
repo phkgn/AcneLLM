@@ -4,7 +4,7 @@ from acne_llm.schemas.extraction import FieldResult, ListFieldResult
 from acne_llm.chat.completeness import check_completeness
 from acne_llm.chat.extraction_confidence import extract_with_confidence, ExtractionConfidence
 from acne_llm.chat.normalizer import normalize_chat_message
-from acne_llm.chat.intent_router import route_intent
+from acne_llm.chat.fallback.intent_router import route_intent
 from acne_llm.config import Settings
 
 

@@ -274,10 +274,10 @@ def check_completeness(
     # and allergies creates irrelevant, repetitive clarification loops.
     _askable = _CORE_FIELDS
     missing: list[str] = []
-    for field in _askable:
-        has_val = _field_has_value(field)
-        if not has_val and field not in asked_fields:
-            missing.append(field)
+    for field_name in _askable:
+        has_val = _field_has_value(field_name)
+        if not has_val and field_name not in asked_fields:
+            missing.append(field_name)
 
     if not has_signal:
         return CompletenessResult(

@@ -1,0 +1,67 @@
+{
+  "label": "before",
+  "model": "acne-extractor:1.5b",
+  "extractor_mode": "llm",
+  "all_match": false,
+  "results": [
+    {
+      "case": "A",
+      "message": "em 22 tuổi da dầu bị mụn viêm 2 bên má gần 2 tháng, benzoyl peroxide có nên dùng không",
+      "expected_intent": "advise",
+      "expected_subject": "self",
+      "expected_template": "stream_user.j2",
+      "actual_intent": "advise",
+      "actual_subject": "self",
+      "reason_code": "llm_extractor",
+      "route_flags": [],
+      "route_source": "llm",
+      "effective_mode": "llm_only",
+      "template": "stream_user.j2",
+      "completeness": {
+        "kind": "sufficient",
+        "level": "sufficient",
+        "missing_fields": [],
+        "question": null
+      },
+      "clinical_plan_built": true,
+      "snapshot_built": true,
+      "match": true
+    },
+    {
+      "case": "B",
+      "message": "benzoyl peroxide với tretinoin khác nhau thế nào",
+      "expected_intent": "knowledge",
+      "expected_subject": "non_self",
+      "expected_template": "knowledge_user.j2",
+      "actual_intent": "knowledge",
+      "actual_subject": "non_self",
+      "reason_code": "llm_extractor",
+      "route_flags": [],
+      "route_source": "llm",
+      "effective_mode": "llm_only",
+      "template": "knowledge_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "match": true
+    },
+    {
+      "case": "C",
+      "message": "con em 2 tuổi bị nổi mụn sữa ở má phải làm sao",
+      "expected_intent": "advise",
+      "expected_subject": "non_self",
+      "expected_template": "stream_user.j2",
+      "actual_intent": "knowledge",
+      "actual_subject": "non_self",
+      "reason_code": "llm_extractor",
+      "route_flags": [],
+      "route_source": "llm",
+      "effective_mode": "llm_only",
+      "template": "knowledge_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "match": false
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 """Unit tests for intent router -- new flags and routing logic."""
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
-from acne_llm.chat.intent_router import route_intent, is_repeated_question
+from acne_llm.chat.fallback.intent_router import is_repeated_question, route_intent
 from acne_llm.chat.normalizer import normalize_chat_message
 from acne_llm.chat.session import ConversationTurn
 
@@ -40,19 +40,25 @@ def test_food_query_routes_knowledge():
 def test_personal_case_routes_advise():
     r = route_intent("toi bi mun boc o cam da lau roi", _user("mun boc o cam"), [])
     assert r.primary_intent == "advise"
-    assert r.query_subject == "self"
 
 
-def test_other_subject_routes_current_only_subject():
+def test_other_person_case_still_routes_advise():
     r = route_intent("ban toi bi mun o cam nen lam gi", _user("ban toi bi mun"), [])
     assert r.primary_intent == "advise"
-    assert r.query_subject == "non_self"
 
 
-def test_general_knowledge_subject_without_personal_signal():
+def test_child_case_routes_advise():
+    r = route_intent(
+        "con em 2 tuổi bị nổi mụn sữa ở má phải làm sao",
+        _user("con em bị nổi mụn sữa"),
+        [],
+    )
+    assert r.primary_intent == "advise"
+
+
+def test_general_question_routes_knowledge_without_personal_signal():
     r = route_intent("tai sao bi mun boc", _user("tai sao bi mun boc"), [])
     assert r.primary_intent == "knowledge"
-    assert r.query_subject == "non_self"
 
 
 def test_acne_type_comparison_routes_knowledge_despite_extracted_lesions():
@@ -65,7 +71,6 @@ def test_acne_type_comparison_routes_knowledge_despite_extracted_lesions():
     )
 
     assert r.primary_intent == "knowledge"
-    assert r.query_subject == "non_self"
     assert r.reason_code == "general_comparison_question"
 
 
@@ -78,7 +83,6 @@ def test_blackhead_whitehead_comparison_routes_knowledge():
         current_clinical=user.clinical,
     )
     assert result.primary_intent == "knowledge"
-    assert result.query_subject == "non_self"
 
 
 def test_clinical_signal_routes_advise():

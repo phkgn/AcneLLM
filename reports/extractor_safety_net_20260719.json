@@ -1,0 +1,23 @@
+{
+  "golden": "E:\\project\\AcneLLM\\data\\golden_extraction_gen.jsonl",
+  "rows": 985,
+  "scope": "deterministic raw-text medication/allergy safety net before guardrails",
+  "runtime_policy": "union_with_llm_output",
+  "recall_guarantee": "effective runtime recall is at least the deterministic floor below",
+  "medications": {
+    "precision": 0.5,
+    "recall": 0.8519,
+    "f1": 0.6301,
+    "tp": 23,
+    "fp": 23,
+    "fn": 4
+  },
+  "allergies": {
+    "precision": 0.4248,
+    "recall": 0.6761,
+    "f1": 0.5217,
+    "tp": 48,
+    "fp": 65,
+    "fn": 23
+  }
+}

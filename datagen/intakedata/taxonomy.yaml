@@ -1,0 +1,18 @@
+version: unified-intake-v1
+groups:
+  - {case_type: advise_selfreport_simple, quota: 500, intent_hint: advise, style_hint: "Một hoặc hai field tự khai rõ ràng, tiếng Việt tự nhiên", behavior: "Trích đúng field rõ với confidence cao; clinical có thể null nếu chỉ có context"}
+  - {case_type: advise_selfreport_rich, quota: 450, intent_hint: advise, style_hint: "Nhiều context và clinical field cùng lúc", behavior: "Sinh self-report giàu thông tin, nhiều enum/list hợp lệ và không bịa"}
+  - {case_type: advise_negation_stopped, quota: 350, intent_hint: advise, style_hint: "Có chất đã ngưng và có thể có chất đang dùng", behavior: "Không đưa chất sau cue ngưng/không dùng vào current_products hoặc medications"}
+  - {case_type: advise_duration_convert, quota: 200, intent_hint: advise, style_hint: "Nêu duration bằng ngày, tháng hoặc năm", behavior: "Quy đổi duration_weeks đúng: năm x52, tháng x4, ngày round(n/7)"}
+  - {case_type: advise_noaccent, quota: 250, intent_hint: advise, style_hint: "Turn tiếng Việt không dấu", behavior: "Trích đúng từ input không dấu, description vẫn giữ nguyên văn"}
+  - {case_type: advise_mixed_vi_en, quota: 100, intent_hint: advise, style_hint: "Câu Việt trộn tên hoạt chất hoặc mô tả tiếng Anh", behavior: "Canonical hóa hoạt chất và giữ enum chuẩn"}
+  - {case_type: advise_ambiguous_lowconf, quota: 150, intent_hint: advise, style_hint: "Có ít nhất một chi tiết mơ hồ", behavior: "Ít nhất một field nested phải có confidence dưới 0.6; không biến suy đoán thành chắc chắn"}
+  - {case_type: knowledge_product_trap, quota: 300, intent_hint: knowledge, style_hint: "Hỏi X có tốt/có dùng được không", behavior: "Không coi sản phẩm được hỏi là sản phẩm đang dùng; context rỗng và clinical null"}
+  - {case_type: knowledge_general, quota: 300, intent_hint: knowledge, style_hint: "Hỏi kiến thức mụn nói chung", behavior: "intent knowledge, context rỗng, clinical null"}
+  - {case_type: knowledge_ingredient_compare, quota: 200, intent_hint: knowledge, style_hint: "So sánh hai hoạt chất", behavior: "Không đưa hoạt chất so sánh vào current_products/medications"}
+  - {case_type: clarify_vague, quota: 300, intent_hint: clarify, style_hint: "Turn thiếu thông tin hoặc mơ hồ", behavior: "intent clarify; chỉ trích tín hiệu ít ỏi thật sự có"}
+  - {case_type: clarify_followup_multiturn, quota: 200, intent_hint: clarify, style_hint: "Hai history message rồi turn follow-up ngắn", behavior: "Dùng history để hiểu turn hiện tại; history phải xen kẽ user/assistant"}
+  - {case_type: reject_jailbreak_meta, quota: 150, intent_hint: reject, style_hint: "DAN, bỏ luật, lộ prompt hoặc meta attack", behavior: "intent reject, context rỗng, clinical null"}
+  - {case_type: reject_ood, quota: 200, intent_hint: reject, style_hint: "Yêu cầu ngoài chủ đề mụn", behavior: "intent reject, context rỗng, clinical null"}
+  - {case_type: reject_unsafe_rx, quota: 150, intent_hint: reject, style_hint: "Đòi kê đơn hoặc liều thuốc nguy hiểm", behavior: "intent reject; không coi yêu cầu như đơn thuốc hợp lệ để trích"}
+  - {case_type: glue_greeting_thanks, quota: 200, intent_hint: clarify, style_hint: "Chào, cảm ơn hoặc xã giao ngắn", behavior: "Không bịa field; context rỗng, clinical null; thường intent clarify"}

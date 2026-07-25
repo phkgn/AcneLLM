@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-07-17T13:00:14.335821+00:00",
+  "run_dir": "evaluation\\reports\\round2_smoke_20260717T124200Z",
+  "n_systems": 4,
+  "systems": {
+    "s2": {
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 0.6667,
+      "grounded_sentence_rate": 0.5,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 14,
+        "grounded_sentences": 7,
+        "unsupported_sentences": 7
+      },
+      "legacy_citation_metrics": true,
+      "citation_present_rate": 0.0,
+      "citation_valid_rate": null,
+      "citation_coverage_valid_rate": 0.0,
+      "citation_counts": {
+        "required": 3,
+        "present": 0,
+        "valid": 0,
+        "invalid": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 40656,
+        "mean": 62014
+      },
+      "error_pareto": []
+    },
+    "s3": {
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 0.0,
+      "grounded_sentence_rate": 0.2,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 25,
+        "grounded_sentences": 5,
+        "unsupported_sentences": 20
+      },
+      "legacy_citation_metrics": true,
+      "citation_present_rate": 0.0,
+      "citation_valid_rate": null,
+      "citation_coverage_valid_rate": 0.0,
+      "citation_counts": {
+        "required": 3,
+        "present": 0,
+        "valid": 0,
+        "invalid": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 60020,
+        "mean": 56558
+      },
+      "error_pareto": []
+    },
+    "s3_inline_model": {
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": 1.0,
+      "vacuous_answer_rate": 0.0,
+      "grounded_sentence_rate": 0.4444,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 18,
+        "grounded_sentences": 8,
+        "unsupported_sentences": 10
+      },
+      "legacy_citation_metrics": true,
+      "citation_present_rate": 0.0,
+      "citation_valid_rate": null,
+      "citation_coverage_valid_rate": 0.0,
+      "citation_counts": {
+        "required": 3,
+        "present": 0,
+        "valid": 0,
+        "invalid": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 35036,
+        "mean": 42480
+      },
+      "error_pareto": []
+    },
+    "s4": {
+      "n": 0,
+      "n_generation_valid": 3,
+      "n_attempted": 3,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 3,
+        "metric_failure": 0,
+        "skipped": 97
+      },
+      "ok_rate": 1.0,
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "grounded_sentence_rate": 0.9577,
+      "grounding_counts": {
+        "records_applicable": 3,
+        "eligible_sentences": 71,
+        "grounded_sentences": 68,
+        "unsupported_sentences": 3
+      },
+      "legacy_citation_metrics": true,
+      "citation_present_rate": 1.0,
+      "citation_valid_rate": 1.0,
+      "citation_coverage_valid_rate": 1.0,
+      "citation_counts": {
+        "required": 3,
+        "present": 3,
+        "valid": 3,
+        "invalid": 0
+      },
+      "pregnancy_safety_rate": 1.0,
+      "forbidden_claim_rate": 0.0,
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 10396,
+        "mean": 10770
+      },
+      "error_pareto": []
+    }
+  },
+  "comparisons": {
+    "s2:s3": {
+      "n_common": 0,
+      "pregnancy_safety_mcnemar": {
+        "n01": 0,
+        "n10": 0,
+        "p_value": 1.0
+      }
+    }
+  },
+  "errors": {},
+  "holm_correction": {}
+}

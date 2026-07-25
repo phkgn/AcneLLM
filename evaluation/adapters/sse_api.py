@@ -86,10 +86,8 @@ class SseApiAdapter(SystemAdapter):
             )
         self._trace.update({
             "primary_intent": payload.get("primary_intent"),
-            "query_subject": payload.get("query_subject"),
             "route_flags": payload.get("route_flags"),
             "mode": payload.get("mode"),
-            "citations": payload.get("citations"),
             "session_id": returned_session or session_id,
             "session_id_requested": session_id,
             "history_user_turns_replayed": replayed,
@@ -127,7 +125,6 @@ def _find_model_name(obj) -> str | None:
 
 def _parse_sse(raw: str) -> dict:
     tokens: list[str] = []
-    citations: list[dict] = []
     done: dict = {}
     errors: list[str] = []
     for block in raw.split("\n\n"):
@@ -142,22 +139,16 @@ def _parse_sse(raw: str) -> dict:
         name, data = event.get("event"), event.get("data")
         if name == "token":
             tokens.append(str(data))
-        elif name == "citation" and isinstance(data, dict):
-            citations.append(data)
         elif name == "done" and isinstance(data, dict):
             done = data
         elif name == "error":
             errors.append(str(data))
-    used = done.get("used_chunks") or [
-        str(c.get("chunk_id") or c.get("id") or "") for c in citations
-        if c.get("chunk_id") or c.get("id")
-    ]
+    used = done.get("used_chunks") or []
     return {
         "answer": "".join(tokens).strip(), "used_chunks": used,
         "mode": done.get("mode", ""), "latency_ms": done.get("latency_ms", 0),
         "session_id": done.get("session_id"),
         "primary_intent": done.get("primary_intent"),
-        "query_subject": done.get("query_subject"),
         "route_flags": done.get("route_flags", []),
-        "citations": citations, "errors": errors,
+        "errors": errors,
     }

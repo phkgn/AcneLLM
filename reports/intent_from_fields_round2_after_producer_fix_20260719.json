@@ -1,0 +1,175 @@
+{
+  "label": "after-producer-fix",
+  "model": "acne-extractor:1.5b",
+  "extractor_mode": "llm",
+  "all_match": true,
+  "results": [
+    {
+      "case": "A",
+      "message": "em 22 tuổi da dầu bị mụn viêm 2 bên má gần 2 tháng, benzoyl peroxide có nên dùng không",
+      "expected_intent": "advise",
+      "expected_subject": "self",
+      "expected_template": "stream_user.j2",
+      "actual_intent": "advise",
+      "actual_subject": "self",
+      "reason_code": "personal_acne_case",
+      "route_flags": [
+        "product_safety_check"
+      ],
+      "route_source": "rule",
+      "effective_mode": "llm_only",
+      "template": "stream_user.j2",
+      "completeness": {
+        "kind": "sufficient",
+        "level": "sufficient",
+        "missing_fields": [],
+        "question": null
+      },
+      "clinical_plan_built": true,
+      "snapshot_built": true,
+      "routing_field_confidence": {
+        "lesion_types": [
+          {
+            "value": "papule",
+            "confidence": 0.8,
+            "method": "llm"
+          },
+          {
+            "value": "pustule",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "distribution": [
+          {
+            "value": "cheeks",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "inflammation": {
+          "value": "moderate",
+          "confidence": 0.9,
+          "method": "llm"
+        }
+      },
+      "routing_clinical": {
+        "lesion_types": [
+          "papule",
+          "pustule"
+        ],
+        "lesion_distribution": [
+          "cheeks"
+        ],
+        "inflammation_level": "moderate"
+      },
+      "match": true
+    },
+    {
+      "case": "B",
+      "message": "benzoyl peroxide với tretinoin khác nhau thế nào",
+      "expected_intent": "knowledge",
+      "expected_subject": "non_self",
+      "expected_template": "knowledge_user.j2",
+      "actual_intent": "knowledge",
+      "actual_subject": "non_self",
+      "reason_code": "general_comparison_question",
+      "route_flags": [
+        "product_safety_check"
+      ],
+      "route_source": "rule",
+      "effective_mode": "llm_only",
+      "template": "knowledge_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "routing_field_confidence": {
+        "lesion_types": [
+          {
+            "value": "papule",
+            "confidence": 0.9,
+            "method": "llm"
+          },
+          {
+            "value": "pustule",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "distribution": [
+          {
+            "value": "chin",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "inflammation": {
+          "value": "moderate",
+          "confidence": 0.8,
+          "method": "llm"
+        }
+      },
+      "routing_clinical": {
+        "lesion_types": [
+          "papule",
+          "pustule"
+        ],
+        "lesion_distribution": [
+          "chin"
+        ],
+        "inflammation_level": "moderate"
+      },
+      "match": true
+    },
+    {
+      "case": "C",
+      "message": "con em 2 tuổi bị nổi mụn sữa ở má phải làm sao",
+      "expected_intent": "advise",
+      "expected_subject": "non_self",
+      "expected_template": "stream_user.j2",
+      "actual_intent": "advise",
+      "actual_subject": "non_self",
+      "reason_code": "personal_acne_case",
+      "route_flags": [
+        "partial_advise"
+      ],
+      "route_source": "rule",
+      "effective_mode": "llm_only",
+      "template": "stream_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "routing_field_confidence": {
+        "lesion_types": [
+          {
+            "value": "papule",
+            "confidence": 0.95,
+            "method": "llm"
+          }
+        ],
+        "distribution": [
+          {
+            "value": "chin",
+            "confidence": 0.95,
+            "method": "llm"
+          }
+        ],
+        "inflammation": {
+          "value": "moderate",
+          "confidence": 0.95,
+          "method": "llm"
+        }
+      },
+      "routing_clinical": {
+        "lesion_types": [
+          "papule"
+        ],
+        "lesion_distribution": [
+          "chin"
+        ],
+        "inflammation_level": "moderate"
+      },
+      "match": true
+    }
+  ]
+}

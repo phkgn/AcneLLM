@@ -4,9 +4,12 @@ from dataclasses import replace
 import re
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from ..schemas import UserInput, RetrievalOutput, VisionOutput
-from ..schemas.clinical import ClinicalQueryPlan
 from ..schemas.kb import infer_source_type
-from ..chat.session import ConversationTurn, format_history_block
+from ..chat.session import (
+    HISTORY_WINDOW_TURNS,
+    ConversationTurn,
+    format_history_block,
+)
 
 # Injection markers phổ biến trong chunk text (nếu crawler lấy về trang độc hại)
 _INJECTION_MARKERS = (
@@ -102,9 +105,9 @@ def _route_guidance(route_metadata: dict | None) -> str:
     if not route_metadata:
         return ""
     flags = route_metadata.get("route_flags") or []
-    query_subject = route_metadata.get("query_subject", "self")
+    primary_intent = route_metadata.get("primary_intent")
     guidance: list[str] = []
-    if query_subject == "non_self":
+    if primary_intent == "knowledge":
         guidance.append("Không xem nội dung này là hồ sơ cá nhân của user.")
     if "crisis_signal" in flags:
         guidance.append("Ưu tiên phản hồi an toàn, khuyến khích tìm hỗ trợ khẩn cấp.")
@@ -380,43 +383,6 @@ class PromptBuilder:
             parts.append("dấu hiệu cần chú ý: " + ", ".join(c.red_flags_input))
         return "; ".join(parts) if parts else "dữ liệu lâm sàng trống"
 
-    def _clinical_plan_summary(self, plan: ClinicalQueryPlan | None) -> str:
-        """Summary ngắn gọn của clinical plan (~1 dòng) thay vì dump JSON đầy đủ.
-
-        model_dump_json() có thể dài 500-800 ký tự, ăn token budget của KB chunks.
-        Chỉ giữ các field thực sự cần thiết cho LLM ra quyết định.
-        Tên thuật ngữ được dịch sang tiếng Việt để LLM không bắt chước dùng EN.
-        """
-        if not plan:
-            return "chưa có thông tin lâm sàng"
-        c = plan.normalized_case
-        parts: list[str] = []
-        if c.lesion_types:
-            vi_lesions = [self._vi(self._LESION_VI, x) for x in c.lesion_types]
-            parts.append("loại tổn thương: " + ", ".join(vi_lesions))
-        if c.distribution:
-            vi_locs = [self._vi(self._LOCATION_VI, x) for x in c.distribution]
-            parts.append("vị trí: " + ", ".join(vi_locs))
-        if c.inflammation_level and c.inflammation_level != "unknown":
-            parts.append("mức viêm: " + self._vi(self._INFLAMMATION_VI, c.inflammation_level))
-        if c.scarring_signs:
-            parts.append("sẹo/thâm: " + ", ".join(c.scarring_signs))
-        if c.hormonal_factors:
-            vi_horm = [self._vi(self._HORMONAL_VI, x) for x in c.hormonal_factors]
-            parts.append("nội tiết: " + ", ".join(vi_horm))
-        if c.canonical_ingredients:
-            parts.append("hoạt chất chuẩn hóa: " + ", ".join(c.canonical_ingredients))
-        if c.usage_frequencies:
-            parts.append("tần suất dùng: " + ", ".join(c.usage_frequencies))
-        if c.concentrations:
-            conc = ", ".join(f"{float(x):.8g}" for x in c.concentrations)
-            parts.append("nồng độ: " + conc)
-        if c.red_flags:
-            parts.append("dấu hiệu nghiêm trọng: " + ", ".join(c.red_flags))
-        if plan.missing_info:
-            parts.append("thông tin còn thiếu: " + ", ".join(plan.missing_info))
-        return "; ".join(parts) if parts else "không có dữ liệu cấu trúc"
-
     def build(
         self,
         user: UserInput,
@@ -425,26 +391,24 @@ class PromptBuilder:
         detected_language: str = "unknown",
         query_vi: str = "",
         max_context_chars: int = 6000,
-        clinical_plan: ClinicalQueryPlan | None = None,
         history: list[ConversationTurn] | None = None,
         route_metadata: dict | None = None,
         completeness_hint: str | None = None,
         confirmed_profile: dict | None = None,
-        inline_citation: str = "off",
-        require_citations: bool | None = None,
     ) -> tuple[str, str]:
         # Modelfile SYSTEM là nguồn sự thật DUY NHẤT cho hành vi model
         # (use_modelfile_system=True → backend bỏ system message). Repo không gửi
         # system prompt; user template chỉ mang dữ liệu + format contract theo endpoint.
         sys_p = ""
-        # ``require_citations`` remains a call-level compatibility alias only;
-        # all production/config code uses the explicit off|model mode.
-        if require_citations is not None:
-            inline_citation = "model" if require_citations else "off"
-        if inline_citation not in {"off", "model"}:
-            raise ValueError("inline_citation must be 'off' or 'model'")
         has_kb = retrieval is not None and bool(retrieval.chunks)
         safe_description = _escape_jinja(_sanitize_user_description(user.description))
+        if template == "reject_user.j2":
+            # Soft OOS reject is intentionally data-minimal: no clinical fields,
+            # known facts, history, or retrieved chunks may enter this prompt.
+            user_p = self.env.get_template(template).render(
+                description=safe_description,
+            )
+            return sys_p, user_p
         safe_allergies = _escape_jinja(", ".join(user.context.allergies) or "không")
         safe_medications = _escape_jinja(", ".join(user.context.medications) or "không")
         safe_vision = _escape_jinja(self._vision_summary(user.vision))
@@ -452,12 +416,12 @@ class PromptBuilder:
         safe_context = _escape_jinja(self._context_block(
             retrieval,
             max_chars=max_context_chars,
-            include_chunk_refs=inline_citation == "model",
+            include_chunk_refs=False,
         ))
         safe_history = _escape_jinja(format_history_block(
             sanitize_history_turns(history or []),
             keep_anchor=False,
-            max_turns=2,
+            max_turns=HISTORY_WINDOW_TURNS,
         ))
         profile = confirmed_profile or {}
         safety_facts: list[str] = []
@@ -472,7 +436,6 @@ class PromptBuilder:
         safe_confirmed_safety = _escape_jinja("; ".join(safety_facts))
         # Route guidance: chỉ truyền những chỉ dẫn ngữ cảnh ngắn, không dump metadata nội bộ
         safe_route_guidance = _escape_jinja(_route_guidance(route_metadata))
-        query_subject = str((route_metadata or {}).get("query_subject") or "self")
         # Completeness hint: hướng dẫn LLM hỏi thêm thay vì gate cứng
         safe_completeness_hint = _escape_jinja(completeness_hint or "")
         safe_known_facts = _escape_jinja(self._known_facts_summary(user))
@@ -495,10 +458,8 @@ class PromptBuilder:
             retrieved_context=safe_context,
             history_block=safe_history,
             route_metadata=safe_route_guidance,  # backward-compat: templates dùng biến này
-            query_subject=query_subject,
             completeness_hint=safe_completeness_hint,
             has_retrieved_context=has_kb,
             confirmed_safety_facts=safe_confirmed_safety,
-            inline_citation=inline_citation,
         )
         return sys_p, user_p

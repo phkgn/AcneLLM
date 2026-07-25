@@ -111,7 +111,7 @@ class AsyncFetcher:
                 await asyncio.sleep(retry_after)
                 # Re-raise as HTTPStatusError so tenacity catches and retries
                 raise httpx.HTTPStatusError(
-                    f"429 Too Many Requests",
+                    "429 Too Many Requests",
                     request=resp.request,
                     response=resp,
                 )

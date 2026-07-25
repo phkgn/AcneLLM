@@ -67,11 +67,10 @@ def test_e2e_api_url_targets_current_stream_endpoint():
     )
 
 
-def test_parse_sse_chat_collects_tokens_citations_and_done():
+def test_parse_sse_chat_collects_tokens_and_done():
     raw = "\n\n".join([
         'data: {"event":"token","data":"Xin chào"}',
         'data: {"event":"token","data":" bạn"}',
-        'data: {"event":"citation","data":{"chunk_id":"c1","title":"Doc"}}',
         'data: {"event":"done","data":{"mode":"hybrid","latency_ms":123,"used_chunks":["c1"]}}',
         "",
     ])
@@ -82,7 +81,6 @@ def test_parse_sse_chat_collects_tokens_citations_and_done():
     assert parsed["used_chunks"] == ["c1"]
     assert parsed["mode"] == "hybrid"
     assert parsed["latency_ms"] == 123
-    assert parsed["citations"] == [{"chunk_id": "c1", "title": "Doc"}]
 
 
 def test_run_e2e_eval_with_mocked_backend_and_judge(monkeypatch, tmp_path: Path):

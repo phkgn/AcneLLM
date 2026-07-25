@@ -1,0 +1,194 @@
+{
+  "golden": "E:\\project\\AcneLLM\\data\\golden_extraction_gen.jsonl",
+  "generated_at_epoch": 1784440597,
+  "results": {
+    "llm": {
+      "mode": "llm",
+      "rows": 5,
+      "failures": 0,
+      "elapsed_seconds": 18.93,
+      "scalar": {
+        "skin_type": {
+          "field": "skin_type",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 4,
+          "fn": 0,
+          "accuracy": 0.2
+        },
+        "sex": {
+          "field": "sex",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 3,
+          "fn": 0,
+          "accuracy": 0.4
+        },
+        "age": {
+          "field": "age",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "accuracy": 1.0
+        },
+        "duration_weeks": {
+          "field": "duration_weeks",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "accuracy": 0.8
+        },
+        "is_pregnant": {
+          "field": "is_pregnant",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "accuracy": 0.8
+        },
+        "is_breastfeeding": {
+          "field": "is_breastfeeding",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "accuracy": 0.8
+        },
+        "inflammation": {
+          "field": "inflammation",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "accuracy": 1.0
+        }
+      },
+      "list": {
+        "lesions": {
+          "field": "lesions",
+          "precision": 0.2353,
+          "recall": 0.8,
+          "f1": 0.3636,
+          "tp": 4,
+          "fp": 13,
+          "fn": 1
+        },
+        "distribution": {
+          "field": "distribution",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 7,
+          "fn": 0
+        },
+        "products": {
+          "field": "products",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 3
+        },
+        "medications": {
+          "field": "medications",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0
+        },
+        "allergies": {
+          "field": "allergies",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0
+        },
+        "scarring_signs": {
+          "field": "scarring_signs",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0
+        },
+        "hormonal_factors": {
+          "field": "hormonal_factors",
+          "precision": 0.3333,
+          "recall": 0.2,
+          "f1": 0.25,
+          "tp": 1,
+          "fp": 2,
+          "fn": 4
+        },
+        "treatment_goals": {
+          "field": "treatment_goals",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 1
+        },
+        "red_flags": {
+          "field": "red_flags",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0
+        }
+      },
+      "intent": {
+        "primary_intent_accuracy": 1.0,
+        "query_subject_accuracy": 0.6,
+        "joint_accuracy": 0.6,
+        "labeled_primary_intent": 5,
+        "labeled_query_subject": 5
+      },
+      "errors": [
+        {
+          "index": 0,
+          "text": "Mình nghe nói có nhiều loại mụn khác nhau như mụn đầu trắng, đầu đen, mụn bọc, và mỗi loại lại có cách chăm sóc da khác nhau. Bạn có thể giải thích rõ hơn về cá",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 2,
+          "text": "Mình thường nghe nói các sản phẩm chứa BHA hoặc AHA rất tốt cho da mụn nhưng không rõ là BHA thì khác gì so với AHA, việc sử dụng chúng như thế nào cho đúng để ",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        }
+      ]
+    }
+  }
+}

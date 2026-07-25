@@ -1,0 +1,5 @@
+INFO:     127.0.0.1:11623 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6089 - "GET /api/v1/chat/stream?message=goku%20%C4%91%E1%BA%B9p%20trai%20ko HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1873 - "GET /api/v1/chat/stream?message=da%20em%20t%E1%BB%87%20qu%C3%A1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:11084 - "GET /api/v1/chat/stream?message=goku%20%C4%91%E1%BA%B9p%20trai%20ko HTTP/1.1" 200 OK
+INFO:     127.0.0.1:11107 - "GET /api/v1/chat/stream?message=goku%20%C4%91%E1%BA%B9p%20trai%20ko HTTP/1.1" 200 OK

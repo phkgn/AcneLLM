@@ -1,0 +1,4 @@
+INFO:     127.0.0.1:2216 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1726 - "GET /api/v1/chat/stream?message=t%C3%B4i%20%C4%91ang%20mang%20thai%20v%C3%A0%20mu%E1%BB%91n%20d%C3%B9ng%20tretinoin%20tr%E1%BB%8B%20m%E1%BB%A5n HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1727 - "GET /api/v1/chat/stream?message=t%C3%B4i%20%C4%91ang%20mang%20thai%20v%C3%A0%20mu%E1%BB%91n%20d%C3%B9ng%20isotretinoin%20tr%E1%BB%8B%20m%E1%BB%A5n HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1728 - "GET /api/v1/chat/stream?message=t%C3%B4i%20%C4%91ang%20cho%20con%20b%C3%BA%20v%C3%A0%20mu%E1%BB%91n%20d%C3%B9ng%20retinoid%20tr%E1%BB%8B%20m%E1%BB%A5n HTTP/1.1" 200 OK

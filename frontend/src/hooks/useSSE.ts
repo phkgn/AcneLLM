@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { createStreamUrl } from "@/lib/api";
-import type { Citation, DoneData, StreamEvent } from "@/lib/types";
+import type { RetrievedSource, DoneData, StreamEvent } from "@/lib/types";
 import { useChatStore } from "@/stores/chatStore";
 
 export function useSSE() {
@@ -13,7 +13,7 @@ export function useSSE() {
   const addUserMessage = useChatStore((state) => state.addUserMessage);
   const addAssistantPlaceholder = useChatStore((state) => state.addAssistantPlaceholder);
   const appendToLastAssistant = useChatStore((state) => state.appendToLastAssistant);
-  const addCitationToLastAssistant = useChatStore((state) => state.addCitationToLastAssistant);
+  const addSourceToLastAssistant = useChatStore((state) => state.addSourceToLastAssistant);
   const finishLastAssistant = useChatStore((state) => state.finishLastAssistant);
   const failLastAssistant = useChatStore((state) => state.failLastAssistant);
   const setLoading = useChatStore((state) => state.setLoading);
@@ -52,8 +52,8 @@ export function useSSE() {
             const event = JSON.parse(line.slice(6)) as StreamEvent;
             if (event.event === "token" && typeof event.data === "string") {
               appendToLastAssistant(event.data);
-            } else if (event.event === "citation") {
-              addCitationToLastAssistant(event.data as Citation);
+            } else if (event.event === "source") {
+              addSourceToLastAssistant(event.data as RetrievedSource);
             } else if (event.event === "error" && typeof event.data === "string") {
               failLastAssistant(event.data);
             } else if (event.event === "done") {
@@ -70,7 +70,7 @@ export function useSSE() {
     },
     [
       addAssistantPlaceholder,
-      addCitationToLastAssistant,
+      addSourceToLastAssistant,
       addUserMessage,
       appendToLastAssistant,
       failLastAssistant,

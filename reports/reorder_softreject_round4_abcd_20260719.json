@@ -1,0 +1,148 @@
+{
+  "label": "round4-final",
+  "model": "acne-extractor:1.5b",
+  "embedding_model": "AITeamVN/Vietnamese_Embedding",
+  "extractor_mode": "llm",
+  "semantic_router": {
+    "k": 9,
+    "oos_distance_threshold": 0.483609,
+    "ambiguity_margin": 0.08
+  },
+  "all_match": true,
+  "results": [
+    {
+      "case": "A",
+      "message": "em 22 tuổi da dầu bị mụn viêm 2 bên má gần 2 tháng, benzoyl peroxide có nên dùng không",
+      "expected_intent": "advise",
+      "expected_template": "stream_user.j2",
+      "expected_completeness": true,
+      "expected_extraction": true,
+      "actual_intent": "advise",
+      "reason_code": "semantic_router",
+      "ambiguity_reason": null,
+      "route_flags": [],
+      "route_source": "semantic",
+      "effective_mode": "llm_only",
+      "template": "stream_user.j2",
+      "completeness": {
+        "kind": "sufficient",
+        "level": "sufficient",
+        "missing_fields": [],
+        "question": null
+      },
+      "clinical_plan_built": true,
+      "snapshot_built": true,
+      "extraction_ran": true,
+      "extraction_field_confidence": {
+        "lesion_types": [
+          {
+            "value": "pustule",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "distribution": [
+          {
+            "value": "cheeks",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "inflammation": {
+          "value": "moderate",
+          "confidence": 0.9,
+          "method": "llm"
+        }
+      },
+      "match": true
+    },
+    {
+      "case": "B",
+      "message": "benzoyl peroxide với tretinoin khác nhau thế nào",
+      "expected_intent": "knowledge",
+      "expected_template": "knowledge_user.j2",
+      "expected_completeness": false,
+      "expected_extraction": true,
+      "actual_intent": "knowledge",
+      "reason_code": "semantic_router",
+      "ambiguity_reason": null,
+      "route_flags": [],
+      "route_source": "semantic",
+      "effective_mode": "llm_only",
+      "template": "knowledge_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "extraction_ran": true,
+      "extraction_field_confidence": {
+        "lesion_types": [
+          {
+            "value": "papule",
+            "confidence": 0.8,
+            "method": "llm"
+          },
+          {
+            "value": "pustule",
+            "confidence": 0.7,
+            "method": "llm"
+          }
+        ],
+        "distribution": [
+          {
+            "value": "cheeks",
+            "confidence": 0.9,
+            "method": "llm"
+          }
+        ],
+        "inflammation": {
+          "value": "moderate",
+          "confidence": 0.5,
+          "method": "llm"
+        }
+      },
+      "match": true
+    },
+    {
+      "case": "C",
+      "message": "da em dạo này tệ quá",
+      "expected_intent": "clarify",
+      "expected_template": "clarify_user.j2",
+      "expected_completeness": false,
+      "expected_extraction": false,
+      "actual_intent": "clarify",
+      "reason_code": "semantic_router",
+      "ambiguity_reason": null,
+      "route_flags": [],
+      "route_source": "semantic",
+      "effective_mode": "clarify",
+      "template": "clarify_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "extraction_ran": false,
+      "extraction_field_confidence": {},
+      "match": true
+    },
+    {
+      "case": "D",
+      "message": "hôm nay trời mưa có nên đi chơi không",
+      "expected_intent": "reject",
+      "expected_template": "reject_user.j2",
+      "expected_completeness": false,
+      "expected_extraction": false,
+      "actual_intent": "reject",
+      "reason_code": "semantic_router",
+      "ambiguity_reason": "oos_distance=0.525348>threshold=0.483609",
+      "route_flags": [],
+      "route_source": "semantic",
+      "effective_mode": "llm_only",
+      "template": "reject_user.j2",
+      "completeness": null,
+      "clinical_plan_built": false,
+      "snapshot_built": false,
+      "extraction_ran": false,
+      "extraction_field_confidence": {},
+      "match": true
+    }
+  ]
+}

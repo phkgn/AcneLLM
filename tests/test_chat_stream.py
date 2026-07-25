@@ -5,11 +5,10 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from acne_llm.api.routes import chat
+from acne_llm.chat.fallback.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn, get_session_store
 from acne_llm.db.session_store import SQLiteSessionStore
-from acne_llm.llm.clinical_planner import ClinicalQueryPlanner
 from acne_llm.schemas import AdviseOutput, RetrievedChunk, RetrievalOutput
-from acne_llm.schemas.clinical import ClinicalQueryPlan, ClinicalRagQueries, NormalizedAcneCase
 
 
 class _MockLLM:
@@ -115,7 +114,6 @@ class _MockContainer:
             chat_max_context_chars=4500,
             chat_retrieve_top_k=8,
             chat_rerank_top_k=3,
-            chat_min_citation_score=0.12,
             intent_router_min_confidence=0.80,
             intent_router_tie_margin=0.10,
         )
@@ -178,42 +176,28 @@ def test_stream_endpoint_uses_config_temperature_when_param_missing():
     assert container.llm.temperatures == [0.42]
 
 
-def test_stream_endpoint_greeting_uses_fixed_reply_without_llm():
+def test_stream_endpoint_greeting_goes_through_the_model():
+    """Lời chào do generator sinh, không còn chuỗi cứng trong runtime."""
     container = _MockContainer()
     c = TestClient(_app(container))
 
     r = c.get("/api/v1/chat/stream", params={"message": "xin chào"})
 
     assert r.status_code == 200
-    body = r.text
-    assert body.count('"event": "token"') == 1
-    assert "Chào bạn. Bạn cần hỏi gì về mụn?" in body
-    assert '"mode": "llm_only"' in body
-    assert container.llm.user_prompts == []
+    assert '"mode": "llm_only"' in r.text
+    assert container.llm.user_prompts
 
 
-def test_stream_endpoint_exit_does_not_invite_more_questions():
-    container = _MockContainer()
-    c = TestClient(_app(container))
-
-    r = c.get("/api/v1/chat/stream", params={"message": "tôi không muốn hỏi nữa"})
-
-    assert r.status_code == 200
-    assert "Được nhé. Khi nào cần bạn cứ quay lại." in r.text
-    assert "Bạn muốn hỏi gì" not in r.text
-    assert container.llm.user_prompts == []
-
-
-def test_ack_and_laughter_use_fixed_replies_without_llm():
+def test_every_turn_reaches_the_generator():
+    """Không còn chuỗi cứng nào: chào, ack, cười, xin dừng đều qua model."""
     container = _MockContainer()
     client = TestClient(_app(container))
 
-    ack = client.get("/api/v1/chat/stream", params={"message": "ok"})
-    laughter = client.get("/api/v1/chat/stream", params={"message": "hahahaha"})
-
-    assert "Ừ nhé." in ack.text
-    assert "😄" in laughter.text
-    assert container.llm.user_prompts == []
+    for message in ("xin chào", "ok", "hahahaha", "tôi không muốn hỏi nữa"):
+        before = len(container.llm.user_prompts)
+        r = client.get("/api/v1/chat/stream", params={"message": message})
+        assert r.status_code == 200, message
+        assert len(container.llm.user_prompts) == before + 1, message
 
 
 def test_greeting_with_acne_question_still_goes_through_pipeline():
@@ -226,15 +210,40 @@ def test_greeting_with_acne_question_still_goes_through_pipeline():
     assert container.llm.user_prompts
 
 
-def test_stream_endpoint_refuses_explicit_out_of_domain_without_llm():
-    c = TestClient(_app())
+def test_stream_endpoint_soft_rejects_out_of_domain_with_llm_and_without_rag():
+    class _SoftRejectLLM(_MockLLM):
+        def stream_text(self, system: str, user: str, temperature: float = 0.3):
+            self.temperatures.append(temperature)
+            self.user_prompts.append(user)
+            yield "Mình hiểu bạn đang hỏi về toán. "
+            yield "Mình chỉ chuyên về da mụn; bạn muốn hỏi gì về mụn không?"
+
+    container = _MockContainer()
+    container.llm = _SoftRejectLLM()
+    container.rag_ready = True
+    container.retriever = _MockRetriever()
+    container.semantic_router = SimpleNamespace(
+        classify=lambda text: RouteDecision(
+            primary_intent="reject",
+            confidence=0.43,
+            source="semantic",
+            reason_code="semantic_router",
+            ambiguity_reason="oos_distance=0.57>threshold=0.40",
+        )
+    )
+    c = TestClient(_app(container))
 
     r = c.get("/api/v1/chat/stream", params={"message": "Giải phương trình x bình phương cộng 3x cộng 2"})
 
     assert r.status_code == 200
     body = r.text
-    assert "ngoài phạm vi" in body
-    assert '"mode": "refuse"' in body
+    assert "chỉ chuyên về da mụn" in body
+    assert '"mode": "llm_only"' in body
+    assert '"primary_intent": "reject"' in body
+    assert container.prompt.templates[-1] == "reject_user.j2"
+    assert container.llm.user_prompts
+    assert container.retriever.queries == []
+    assert container.retriever.safety_calls == []
 
 
 def test_stream_endpoint_skincare_knowledge_question_goes_to_llm():
@@ -265,16 +274,54 @@ def test_stream_endpoint_acne_partial_goes_to_llm():
     assert "Xin chào" in body
 
 
-def test_stream_endpoint_calls_plan_once():
-    """Hot-path SSE omits the analytics-only clinical planner."""
-    plan = ClinicalQueryPlan(
-        detected_language="vi",
-        normalized_case=NormalizedAcneCase(),
-        rag_queries=ClinicalRagQueries(query_vi="mụn trứng cá guideline acne guideline"),
-        safety_terms=[],
+def test_stream_coordinates_router_clarify_and_completeness_to_one_ask():
+    advise_container = _MockContainer()
+    advise_container.semantic_router = SimpleNamespace(
+        classify=lambda text: RouteDecision(
+            primary_intent="advise",
+            confidence=0.8,
+            source="semantic",
+            reason_code="semantic_router",
+        )
     )
+    advise_response = TestClient(_app(advise_container)).get(
+        "/api/v1/chat/stream",
+        params={"message": "tôi bị mụn"},
+    )
+
+    assert advise_response.status_code == 200
+    assert advise_container.prompt.templates[-1] == "stream_user.j2"
+    assert advise_response.text.count("?") == 1
+
+    class _ClarifyQuestionLLM(_MockLLM):
+        def stream_text(self, system: str, user: str, temperature: float = 0.3):
+            assert "Mô tả người dùng" in user
+            yield "Bạn có thể mô tả rõ hơn?"
+
+    clarify_container = _MockContainer()
+    clarify_container.llm = _ClarifyQuestionLLM()
+    clarify_container.semantic_router = SimpleNamespace(
+        classify=lambda text: RouteDecision(
+            primary_intent="clarify",
+            confidence=0.7,
+            source="semantic",
+            reason_code="semantic_router",
+            ambiguity_reason="vote_margin=0.02<threshold=0.08",
+        )
+    )
+    clarify_response = TestClient(_app(clarify_container)).get(
+        "/api/v1/chat/stream",
+        params={"message": "da em tệ quá"},
+    )
+
+    assert clarify_response.status_code == 200
+    assert clarify_container.prompt.templates[-1] == "clarify_user.j2"
+    assert clarify_response.text.count("?") == 1
+
+
+def test_stream_endpoint_does_not_call_retired_clinical_planner():
+    """Hot-path SSE must stay independent from the retired clinical planner."""
     planner = MagicMock()
-    planner.plan.return_value = plan
 
     container = _MockContainer()
     container.clinical_planner = planner
@@ -316,7 +363,7 @@ def test_stream_endpoint_merges_session_context_before_completeness(tmp_path):
         assert "Xin chào" in body
         assert '"mode": "llm_only"' in body
         assert "sex=male" in container.llm.user_prompts[-1]
-        assert "history=0" in container.llm.user_prompts[-1]
+        assert "history=2" in container.llm.user_prompts[-1]
     finally:
         container.session_store.delete(session_id)
 
@@ -349,7 +396,6 @@ def test_stream_followup_soft_scope_uses_rag_from_session_history(tmp_path):
     container = _MockContainer()
     container.rag_ready = True
     container.retriever = _MockRetriever()
-    container.clinical_planner = ClinicalQueryPlanner()
     container.session_store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
     c = TestClient(_app(container))
 
@@ -428,7 +474,7 @@ def test_stream_knowledge_pustule_question_does_not_append_urgent_suffix():
     assert container.prompt.templates[-1] == "knowledge_user.j2"
 
 
-def test_stream_endpoint_other_subject_metadata_has_no_snapshot():
+def test_stream_endpoint_advise_metadata_has_no_subject_and_persists_snapshot():
     session_id = "test-stream-other-subject"
     store = get_session_store()
     store.delete(session_id)
@@ -442,9 +488,10 @@ def test_stream_endpoint_other_subject_metadata_has_no_snapshot():
         )
 
         assert r.status_code == 200
-        assert container.prompt.route_metadata[-1]["query_subject"] == "non_self"
+        assert container.prompt.route_metadata[-1]["primary_intent"] == "advise"
+        assert "query_subject" not in container.prompt.route_metadata[-1]
         history = store.get_history(session_id)
-        assert history[0].normalized_snapshot is None
+        assert history[0].normalized_snapshot is not None
     finally:
         store.delete(session_id)
 
@@ -489,50 +536,6 @@ def test_batch_prepare_and_stream_share_current_turn_retrieval_query():
     assert stream_query == batch_query
     assert stream_query.startswith(message)
     assert "salicylic acid" in stream_query
-
-
-def test_stream_repairs_missing_inline_citation_marker_without_retry():
-    container = _MockContainer()
-    container.settings.inline_citation = "model"
-    container.rag_ready = True
-    container.retriever = _MockRetriever()
-    client = TestClient(_app(container))
-
-    response = client.get(
-        "/api/v1/chat/stream",
-        params={"message": "mụn đầu đen là gì?", "mode": "hybrid"},
-    )
-
-    assert response.status_code == 200
-    assert '"citation_compliance": true' in response.text
-    assert "[1]" in response.text
-    assert len(container.llm.user_prompts) == 1
-
-
-def test_stream_default_off_strips_leftover_marker_but_keeps_citation_event():
-    container = _MockContainer()
-    container.rag_ready = True
-    container.retriever = _MockRetriever()
-
-    def stream_with_split_marker(system: str, user: str, temperature: float = 0.3):
-        yield "Khuyến nghị theo nguồn ["
-        yield "1"
-        yield "]."
-
-    container.llm.stream_text = stream_with_split_marker
-    client = TestClient(_app(container))
-
-    response = client.get(
-        "/api/v1/chat/stream",
-        params={"message": "mụn đầu đen là gì?", "mode": "hybrid"},
-    )
-
-    assert response.status_code == 200
-    assert "[1]" not in response.text
-    assert '"event": "citation"' in response.text
-    assert '"citation_compliance": null' in response.text
-
-
 def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planner():
     container = _MockContainer()
     client = TestClient(_app(container))

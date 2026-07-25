@@ -46,6 +46,34 @@ class Settings(BaseSettings):
     # Default True: model production acnellm-v2-q4 đã nhúng SYSTEM trong Modelfile.
     llm_use_modelfile_system: bool = True
 
+    # ── Unified intake ──────────────────────────────────────────────────────
+    # Default legacy preserves the current two-model runtime until explicitly
+    # enabled. Unified replaces only the LLM router/extractor adapters.
+    intake_mode: Literal["unified", "legacy"] = "unified"
+    intake_model: str = "acne-intake"
+    intake_timeout: float = 60.0
+
+    # ── Intake extractor ────────────────────────────────────────────────────
+    # Dedicated small-model producer for UserInput + per-field confidence only.
+    # Rule modules remain live and are used whenever this path fails.
+    extractor_mode: Literal["llm", "rule"] = "llm"
+    extractor_model: str = "acne-extractor:1.5b"
+    extractor_timeout: float = 20.0
+
+    # ── LLM-first intent router ─────────────────────────────────────────────
+    # "llm": generative router primary, semantic then rule as fallbacks.
+    # "semantic": disable the generative router for baseline/A-B comparison.
+    router_mode: Literal["llm", "semantic"] = "llm"
+    router_model: str = "acnellm-intent"
+    router_timeout: float = 8.0
+
+    @field_validator("intake_timeout")
+    @classmethod
+    def _check_intake_timeout(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("intake_timeout must be greater than zero")
+        return v
+
     @field_validator("llm_num_ctx")
     @classmethod
     def _check_num_ctx(cls, v: int) -> int:
@@ -85,6 +113,32 @@ class Settings(BaseSettings):
     # Lưu ý: "gpu" không phải giá trị PyTorch chuẩn — validator sẽ map → "cuda".
     device: str = "cpu"
 
+    # ── Semantic intent router ───────────────────────────────────────────────
+    # Chỉ train split được index; test split và OOS calibration không bao giờ
+    # được đọc bởi runtime.
+    semantic_router_train_path: str = "./data/intent_classify.train.jsonl"
+    semantic_router_cache_path: str = "./data/intent_router_index.npz"
+    semantic_router_k: int = 9
+    semantic_router_oos_distance_threshold: float = 0.483609
+    semantic_router_ambiguity_margin: float = 0.08
+
+    @field_validator("semantic_router_k")
+    @classmethod
+    def _check_semantic_router_k(cls, v: int) -> int:
+        if not 1 <= v <= 100:
+            raise ValueError("semantic_router_k must be in [1,100]")
+        return v
+
+    @field_validator(
+        "semantic_router_oos_distance_threshold",
+        "semantic_router_ambiguity_margin",
+    )
+    @classmethod
+    def _check_semantic_router_thresholds(cls, v: float) -> float:
+        if not 0.0 <= v <= 1.0:
+            raise ValueError("semantic router thresholds must be in [0,1]")
+        return v
+
     @field_validator("device")
     @classmethod
     def _normalize_device(cls, v: str) -> str:
@@ -115,11 +169,8 @@ class Settings(BaseSettings):
     seed_sources: str = "./data/seed_sources.yaml"
 
     # ── Guardrails ───────────────────────────────────────────────────────────
-    guardrails_enable_ood: bool = True
-    # OOD: cosine sim query vs acne centroid. < threshold → out-of-domain refusal.
-    # 0.25 = conservative; tăng lên 0.30-0.35 nếu muốn chặt hơn.
-    guardrails_ood_threshold: float = 0.25
-    # soft: LLM fine-tune tự xử lý out-of-scope | hard: refusal cứng | off: tắt
+    # Legacy scope-mode API is retained for direct callers/tests. Live soft OOS
+    # is owned by the semantic router's nearest-neighbor distance threshold.
     guardrails_scope_mode: str = "soft"
 
     # ── Retrieval ────────────────────────────────────────────────────────────

@@ -1,5 +1,7 @@
 """Tầng confidence bọc quanh các extractor rule-based trong normalizer.
 
+LEGACY: live fallback when ``EXTRACTOR_MODE=rule`` or the LLM extractor fails.
+
 THIẾT KẾ 'bọc không phá vỡ':
 - KHÔNG sửa normalizer.py. normalize_chat_message() và UserInput giữ nguyên 100%.
 - Module này gọi LẠI chính các extractor cũ (tầng pattern), bổ sung tầng fuzzy

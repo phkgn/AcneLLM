@@ -71,16 +71,15 @@ async def debug_trace(
 
     c = request.app.state.container
     from ...chat.preprocess import prepare_user_text
+    from ...chat._retrieval import source_data
     from ...chat.extraction_confidence import extract_with_confidence
-    from ...chat._retrieval import citation_data
 
     t0 = time.perf_counter()
 
     # ① Preprocess
     prepared = prepare_user_text(message)
 
-    # ②–⑥ Intake (normalize, guardrails, route, fold, completeness, plan).
-    # include_analytics=True: build clinical_plan CHỈ cho trace (hot path bỏ qua).
+    # ②–⑤ Intake (normalize, guardrails, route, fold, completeness).
     prepared_turn = await asyncio.to_thread(
         prepare_chat_turn, c, message, mode, session_id,
         include_analytics=True,
@@ -151,7 +150,6 @@ async def debug_trace(
         },
         "stage_4_route": {
             "primary_intent": route_metadata.get("primary_intent"),
-            "query_subject": route_metadata.get("query_subject"),
             "confidence": route_metadata.get("intent_confidence"),
             "route_flags": route_metadata.get("route_flags", []),
             "reason_code": getattr(route, "reason_code", None),
@@ -166,17 +164,6 @@ async def debug_trace(
             }
             if intake.completeness is not None
             else {"checked": False, "reason": "skipped (knowledge/clarify/reject hoặc không acne-scope)"}
-        ),
-        "stage_6_clinical_plan": (
-            {
-                "built": True,
-                "authoritative": False,
-                "role": "debug_analytics_only",
-                "query_vi": getattr(getattr(intake.clinical_plan, "rag_queries", None), "query_vi", None),
-                "detected_language": getattr(intake.clinical_plan, "detected_language", None),
-            }
-            if intake.clinical_plan is not None
-            else {"built": False}
         ),
         "effective_mode": intake.effective_mode,
     }
@@ -204,7 +191,7 @@ async def debug_trace(
         ],
         "confirmed_profile": intake.confirmed_profile,
         "num_chunks": len(retrieval.chunks) if retrieval else 0,
-        "chunks": [citation_data(ch) for ch in (retrieval.chunks if retrieval else [])],
+        "chunks": [source_data(ch) for ch in (retrieval.chunks if retrieval else [])],
     }
 
     # ⑧ Build prompt — TÁI DÙNG c.prompt.build y như runtime

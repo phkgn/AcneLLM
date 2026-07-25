@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from ..schemas import RetrievedChunk, RetrievalOutput, UserInput
-from ..schemas.clinical import ClinicalQueryPlan
 from ..utils.chunk_filter import (
     drop_acne_boils_mismatched_chunks,
     drop_body_region_mismatched_chunks,
@@ -129,7 +128,6 @@ def _has_medical_safety_terms(safety_terms: list[str]) -> bool:
 def retrieve_for_chat(
     c: "Container",
     user: UserInput,
-    clinical_plan: ClinicalQueryPlan | None = None,
     route_flags: list[str] | None = None,
     normalized_query: str | None = None,
     safety_terms: list[str] | None = None,
@@ -139,7 +137,7 @@ def retrieve_for_chat(
         return None
 
     settings = c.settings
-    min_score = float(getattr(settings, "chat_min_citation_score", 0.25))
+    min_score = float(getattr(settings, "chat_min_chunk_score", 0.25))
     top_k = getattr(settings, "chat_retrieve_top_k", 8)
     route_flags = route_flags or []
     safety_terms = list(dict.fromkeys(safety_terms or []))
@@ -249,10 +247,10 @@ def retrieve_for_chat(
     return cached_retrieve(_do_retrieve_and_rerank, _cache_key)
 
 
-# -- Citation helper ----------------------------------------------------------
 
-def citation_data(chunk: RetrievedChunk) -> dict:
-    """Chuyen RetrievedChunk thanh dict gui qua SSE event 'citation'."""
+
+def source_data(chunk: RetrievedChunk) -> dict:
+    """Chuyen RetrievedChunk thanh dict gui qua SSE event 'source'."""
     meta = chunk.metadata or {}
     return {
         "chunk_id": chunk.chunk_id,

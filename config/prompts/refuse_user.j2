@@ -1,0 +1,21 @@
+{# Hard refusal. Nội dung do guardrail quyết, câu chữ do model viết. #}
+<user_data>
+<message>{{ description }}</message>
+</user_data>
+<safety_ruling>{{ completeness_hint }}</safety_ruling>
+<task>
+Viết 2–3 câu tiếng Việt truyền đạt ĐÚNG nội dung trong safety_ruling.
+
+Bắt buộc:
+- Giữ nguyên mọi ràng buộc y khoa trong safety_ruling: tên thuốc, điều kiện chống
+  chỉ định, và hướng xử lý. Không được làm nhẹ đi, không thêm ngoại lệ.
+- Không đưa liều, không gợi ý thay thế bằng hoạt chất khác.
+- Không nhắc guardrail, rule, hệ thống hay tài liệu nội bộ.
+
+Nên:
+- Viết bằng giọng người thật, ngắn, không doạ nạt.
+- Thừa nhận ngắn gọn điều người dùng đang muốn trước khi nói vì sao không được.
+- Kết bằng bước tiếp theo cụ thể (gặp bác sĩ nào, hoặc mời hỏi tiếp về mụn).
+
+Bắt đầu trực tiếp, không dùng dấu ngoặc kép bao quanh câu trả lời.
+</task>

@@ -5,6 +5,7 @@ import re
 import unicodedata
 from typing import Any
 
+from ..chat.preprocess import expand_teencode_for_retrieval
 from ..schemas import UserInput
 
 _HIGH_PRECISION_ALIASES: tuple[tuple[re.Pattern[str], str], ...] = (
@@ -120,7 +121,9 @@ def build_retrieval_query_from_user(
         lesions=list(clinical.lesion_types) if clinical else [],
         skin_type=user.context.skin_type,
         canonical_ingredients=list(clinical.canonical_ingredients) if clinical else [],
-        clean_text_normalized=clean_text_normalized or user.description,
+        clean_text_normalized=expand_teencode_for_retrieval(
+            clean_text_normalized or user.description
+        ),
         severity=clinical.inflammation_level if clinical else None,
         distribution=list(clinical.lesion_distribution) if clinical else [],
         products=list(user.context.current_products or []),

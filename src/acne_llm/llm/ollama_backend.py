@@ -200,7 +200,8 @@ class OllamaBackend:
         }
 
     def generate_text(self, system: str, user: str,
-                      temperature: float | None = None) -> str:
+                      temperature: float | None = None,
+                      response_format: str | dict | None = None) -> str:
         payload = {
             "model": self.model,
             "messages": self._build_messages(system, user),
@@ -208,6 +209,8 @@ class OllamaBackend:
             "stream": False,
             "keep_alive": self.keep_alive,
         }
+        if response_format is not None:
+            payload["format"] = response_format
         return self._chat(payload)["message"]["content"]
 
     def stream_text(self, system: str, user: str,

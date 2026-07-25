@@ -1,0 +1,257 @@
+{
+  "golden": "E:\\project\\AcneLLM\\data\\golden_extraction_gen.jsonl",
+  "generated_at_epoch": 1784441309,
+  "results": {
+    "llm": {
+      "mode": "llm",
+      "rows": 10,
+      "failures": 0,
+      "elapsed_seconds": 33.98,
+      "scalar": {
+        "skin_type": {
+          "field": "skin_type",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 9,
+          "fn": 1,
+          "accuracy": 0.1
+        },
+        "sex": {
+          "field": "sex",
+          "precision": 0.2857,
+          "recall": 1.0,
+          "f1": 0.4444,
+          "tp": 2,
+          "fp": 5,
+          "fn": 0,
+          "accuracy": 0.5
+        },
+        "age": {
+          "field": "age",
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 1,
+          "fn": 0,
+          "accuracy": 0.9
+        },
+        "duration_weeks": {
+          "field": "duration_weeks",
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6667,
+          "tp": 1,
+          "fp": 0,
+          "fn": 1,
+          "accuracy": 0.9
+        },
+        "is_pregnant": {
+          "field": "is_pregnant",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 2,
+          "fn": 0,
+          "accuracy": 0.8
+        },
+        "is_breastfeeding": {
+          "field": "is_breastfeeding",
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 2,
+          "fn": 0,
+          "accuracy": 0.8
+        },
+        "inflammation": {
+          "field": "inflammation",
+          "precision": 0.1429,
+          "recall": 0.5,
+          "f1": 0.2222,
+          "tp": 1,
+          "fp": 6,
+          "fn": 1,
+          "accuracy": 0.4
+        }
+      },
+      "list": {
+        "lesions": {
+          "field": "lesions",
+          "precision": 0.1667,
+          "recall": 0.25,
+          "f1": 0.2,
+          "tp": 2,
+          "fp": 10,
+          "fn": 6
+        },
+        "distribution": {
+          "field": "distribution",
+          "precision": 0.2,
+          "recall": 0.2857,
+          "f1": 0.2353,
+          "tp": 2,
+          "fp": 8,
+          "fn": 5
+        },
+        "products": {
+          "field": "products",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0
+        },
+        "medications": {
+          "field": "medications",
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667,
+          "tp": 1,
+          "fp": 1,
+          "fn": 0
+        },
+        "allergies": {
+          "field": "allergies",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 2
+        },
+        "scarring_signs": {
+          "field": "scarring_signs",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 1
+        },
+        "hormonal_factors": {
+          "field": "hormonal_factors",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 3
+        },
+        "treatment_goals": {
+          "field": "treatment_goals",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 9
+        },
+        "red_flags": {
+          "field": "red_flags",
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 1
+        }
+      },
+      "intent": {
+        "primary_intent_accuracy": 0.2,
+        "query_subject_accuracy": 0.3,
+        "joint_accuracy": 0.1,
+        "labeled_primary_intent": 10,
+        "labeled_query_subject": 10
+      },
+      "errors": [
+        {
+          "index": 0,
+          "text": "toi bi mun trung ca mat va cam gan 3 tuan roi ban co the tu van cho toi duoc khong",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 1,
+          "text": "da toi la da dau va hay bi mun dau den o mui khong biet phai lam sao",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 2,
+          "text": "toi la nu 28 tuoi dang cho con bu vi mun xung quanh mieng khong biet dung duoc thuoc nua khong",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 3,
+          "text": "da toi bi mun sung va co mun mu o lua chin gan vai thang roi toi dang uong khang sinh doxycycline",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 4,
+          "text": "toi di hoc va hay bi mun vi stress toi nen chon san pham gi de tri mun hieu qua",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 5,
+          "text": "be trai toi 15 tuoi bi mun noi nhieu tren lung va lung cua con rat do voi mun biet phai lam sao",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 6,
+          "text": "toi bi kich ung voi salicylic acid va benzoyl peroxide da bong da rat nhieu",
+          "error": null,
+          "gold_intent": "advise",
+          "pred_intent": "knowledge",
+          "gold_subject": "self",
+          "pred_subject": "non_self"
+        },
+        {
+          "index": 8,
+          "text": "toi muon biet neu co mun bi thung sau thi phai tri tri mun nhu the nao cho tot",
+          "error": null,
+          "gold_intent": "knowledge",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "self"
+        },
+        {
+          "index": 9,
+          "text": "toi chi muon hoi mun co tu di loi, da kho khong lien quan mun",
+          "error": null,
+          "gold_intent": "reject",
+          "pred_intent": "knowledge",
+          "gold_subject": "non_self",
+          "pred_subject": "non_self"
+        }
+      ]
+    }
+  }
+}

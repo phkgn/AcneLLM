@@ -1,25 +1,28 @@
 from acne_llm.chat.normalizer import normalize_chat_message
-from acne_llm.chat.preprocess import prepare_user_text, preprocess_user_text
+from acne_llm.chat.preprocess import expand_teencode_for_retrieval, prepare_user_text, preprocess_user_text
 
 
 def test_preprocess_user_text_light_cleanup():
     assert preprocess_user_text("  tôi    là   nam  ") == "tôi là nam"
     assert preprocess_user_text("mụ\u200bn lưng") == "mụn lưng"
     assert preprocess_user_text("mụn_lưng") == "mụn lưng"
-    assert preprocess_user_text("mụn-lưng") == "mụn lưng"
+    # gạch nối được giữ: "BT-Cortin", "benzoyl-peroxide" là tên thật
+    assert preprocess_user_text("mụn-lưng") == "mụn-lưng"
     assert preprocess_user_text("mụn!!!!! sao????") == "mụn!! sao??"
     assert preprocess_user_text("benzoyl peroxide 5% + BHA/AHA") == "benzoyl peroxide 5% + BHA/AHA"
     assert preprocess_user_text("mụn 😭") == "mụn 😭"
 
 
-def test_prepare_user_text_expands_teencode_and_tracks_tokens():
-    # "k" (→ không) và "ng" (→ người) đã bị bỏ khỏi teencode map vì gây nhiễu
-    # ("k" trùng tên thành phần, "ng" trùng nhiều từ thông thường).
-    prepared = prepare_user_text("BHA 2% ko dc dùng vs sp này sáng tối")
+def test_prepare_user_text_leaves_teencode_for_the_model():
+    """Model đọc nguyên văn; teencode chỉ được mở rộng ở retrieval query."""
+    raw = "BHA 2% ko dc dùng vs sp này sáng tối"
+    prepared = prepare_user_text(raw)
 
-    assert prepared.clean_text == "BHA 2% không được dùng với sản phẩm này sáng tối"
-    assert prepared.clean_text_no_accent == "BHA 2% khong duoc dung voi san pham nay sang toi"
-    assert prepared.teencode_replaced == ["ko", "dc", "vs", "sp"]
+    assert prepared.clean_text == raw
+    assert prepared.teencode_replaced == []
+    assert expand_teencode_for_retrieval(raw) == (
+        "BHA 2% không được dùng với sản phẩm này sáng tối"
+    )
 
 
 def test_normalizer_preserves_raw_description_but_extracts_from_clean_text():

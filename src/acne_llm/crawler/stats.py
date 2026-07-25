@@ -101,7 +101,7 @@ class CrawlStats:
     def console_table(self) -> str:
         """Return a formatted table string for terminal output."""
         rows = sorted(self._sources.values(), key=lambda s: s.approved, reverse=True)
-        t = totals = self.totals()
+        t = self.totals()
         vi_pct = (
             round(t["vi_approved"] / (t["vi_approved"] + t["en_approved"]) * 100)
             if (t["vi_approved"] + t["en_approved"]) else 0

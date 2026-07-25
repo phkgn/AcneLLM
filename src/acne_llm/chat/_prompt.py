@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from ..schemas import RetrievalOutput, UserInput
-from ..schemas.clinical import ClinicalQueryPlan
 from .session import ConversationTurn, format_history_block
 from ..llm.prompt_builder import _sanitize_chunk_text, sanitize_history_turns
 
@@ -64,37 +63,12 @@ def _user_facts(user: UserInput) -> str:
     return "\n".join(facts) if facts else "- Chưa tách được bối cảnh có cấu trúc."
 
 
-def _clinical_plan_facts(plan: ClinicalQueryPlan | None) -> str:
-    """Định dạng clinical plan thành dạng bullet cho prompt."""
-    if plan is None:
-        return "- Chưa có clinical plan."
-    case = plan.normalized_case
-    demo = case.demographics
-    rows = [
-        f"- Ngôn ngữ phát hiện: {plan.detected_language}",
-        f"- Tuổi/giới/da: {demo.age or 'không rõ'} / {demo.sex} / {demo.skin_type}",
-        "- Loại tổn thương: " + (", ".join(case.lesion_types) if case.lesion_types else "không rõ"),
-        "- Phân bố: " + (", ".join(case.distribution) if case.distribution else "không rõ"),
-        f"- Mức viêm: {case.inflammation_level}",
-        "- Dấu hiệu sẹo/thâm: " + (", ".join(case.scarring_signs) if case.scarring_signs else "không rõ"),
-        "- Tiền sử thuốc/sản phẩm: " + (
-            ", ".join(case.medication_history + case.skincare_products)
-            if case.medication_history or case.skincare_products else "không rõ"
-        ),
-        "- Yếu tố nội tiết: " + (", ".join(case.hormonal_factors) if case.hormonal_factors else "không rõ"),
-        "- Mong muốn điều trị: " + (", ".join(case.treatment_goals) if case.treatment_goals else "không rõ"),
-        "- Red flags: " + (", ".join(case.red_flags) if case.red_flags else "không rõ"),
-    ]
-    return "\n".join(rows)
-
-
 def build_chat_prompt(
     user: UserInput,
     retrieval: RetrievalOutput | None,
     mode: str,
     max_context_chars: int,
     system_prompt: str = "",
-    clinical_plan: ClinicalQueryPlan | None = None,
     history: list[ConversationTurn] | None = None,
 ) -> tuple[str, str]:
     """Xây dựng (system_prompt, user_message) để gửi vào LLM stream.
@@ -119,10 +93,7 @@ def build_chat_prompt(
 {user.description}
 
 ## Bối cảnh tự tách
-{_user_facts(user)}
-
-## Ca bệnh đã chuẩn hóa
-{_clinical_plan_facts(clinical_plan)}{history_section}
+{_user_facts(user)}{history_section}
 
 ## Ngữ cảnh từ knowledge base
 {context}

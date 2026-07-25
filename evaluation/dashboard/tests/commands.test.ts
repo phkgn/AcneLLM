@@ -104,6 +104,64 @@ test("preliminary D2 rejects limits outside 30 through 140", () => {
   }
 });
 
+test("probe_semantic builds a spawn-safe argv with optional overrides", () => {
+  const command = buildCommand("probe_semantic", {
+    text: "da mình mụn viêm nhiều nên dùng gì?",
+    k: 5,
+    oos: 0.5,
+    margin: 0.1,
+    expect: "advise",
+  });
+  assert.deepEqual(command.argv, [
+    "-m",
+    "evaluation.probe.semantic_probe",
+    "--text",
+    "da mình mụn viêm nhiều nên dùng gì?",
+    "--k",
+    "5",
+    "--oos",
+    "0.5",
+    "--margin",
+    "0.1",
+    "--expect",
+    "advise",
+    "--neighbors",
+    "--json",
+  ]);
+  assert.equal(COMMAND_IDS.includes("probe_semantic"), true);
+
+  const minimal = buildCommand("probe_semantic", { text: "mụn đầu đen là gì?" });
+  assert.deepEqual(minimal.argv, [
+    "-m",
+    "evaluation.probe.semantic_probe",
+    "--text",
+    "mụn đầu đen là gì?",
+    "--neighbors",
+    "--json",
+  ]);
+});
+
+test("probe_semantic keeps metacharacters inert inside a single argv element", () => {
+  // spawn(shell:false) + argv array: ký tự shell được truyền nguyên văn, không nối chuỗi.
+  const tricky = 'mụn "đầu đen" $100; rm -rf & | `x`';
+  const command = buildCommand("probe_semantic", { text: tricky });
+  assert.equal(command.argv[3], tricky);
+  assert.equal(command.argv.includes(tricky), true);
+});
+
+test("probe_semantic rejects empty, multi-line, over-long text and invalid values", () => {
+  for (const text of ["  ", "a\nb", "a\rb", "x".repeat(2001)]) {
+    assert.throws(() => buildCommand("probe_semantic", { text }));
+  }
+  assert.throws(() => buildCommand("probe_semantic", { text: "ok", k: 0 }));
+  assert.throws(() => buildCommand("probe_semantic", { text: "ok", k: 101 }));
+  assert.throws(() => buildCommand("probe_semantic", { text: "ok", oos: 2.5 }));
+  assert.throws(() => buildCommand("probe_semantic", { text: "ok", margin: -0.1 }));
+  assert.throws(() =>
+    buildCommand("probe_semantic", { text: "ok", expect: "other" }),
+  );
+});
+
 test("judge command is pinned to the OpenAI evaluation model", () => {
   const command = buildCommand("judge", {
     runDir: "evaluation/reports/main_2x2_t3",

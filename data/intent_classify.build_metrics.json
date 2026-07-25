@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "created_at_unix": 1784465137,
+  "seed": 20260719,
+  "source": "data\\golden_extraction_gen.jsonl",
+  "model": "gpt-4o-mini",
+  "judge_model": "gpt-4o-mini",
+  "near_duplicate_threshold": 93.0,
+  "base": {
+    "advise": {
+      "eligible": 516,
+      "reliable": 491,
+      "unreliable": 25,
+      "selected": 490,
+      "seed_duplicates_removed": 1,
+      "unreliable_kept": 0
+    },
+    "knowledge": {
+      "eligible": 209,
+      "reliable": 199,
+      "unreliable": 10,
+      "selected": 199,
+      "seed_duplicates_removed": 0,
+      "unreliable_kept": 0
+    },
+    "clarify": {
+      "eligible": 39,
+      "reliable": 18,
+      "unreliable": 21,
+      "selected": 39,
+      "seed_duplicates_removed": 0,
+      "unreliable_kept": 21
+    }
+  },
+  "generation_qc": {
+    "advise": {
+      "rounds": 1,
+      "seed_rows": 490,
+      "generated_accepted": 10,
+      "model_candidates": 13,
+      "accepted": 10
+    },
+    "knowledge": {
+      "rounds": 18,
+      "seed_rows": 199,
+      "generated_accepted": 301,
+      "model_candidates": 427,
+      "accepted": 301,
+      "judge_rejected": 121,
+      "prejudge_duplicate": 2
+    },
+    "clarify": {
+      "rounds": 16,
+      "seed_rows": 39,
+      "generated_accepted": 261,
+      "model_candidates": 382,
+      "accepted": 261,
+      "judge_rejected": 120
+    }
+  },
+  "oos": {
+    "golden_oos": 85,
+    "generated_oos": 40,
+    "total_oos": 125,
+    "rounds": 2
+  },
+  "counts": {
+    "full": {
+      "advise": 500,
+      "knowledge": 500,
+      "clarify": 300
+    },
+    "train": {
+      "clarify": 240,
+      "advise": 400,
+      "knowledge": 400
+    },
+    "test": {
+      "advise": 100,
+      "knowledge": 100,
+      "clarify": 60
+    },
+    "oos": 125
+  },
+  "cost": {
+    "budget_usd": 1.5,
+    "prior_failed_attempt_cost_usd": 0.047976,
+    "successful_run_cost_usd": 0.0468678,
+    "actual_cost_usd": 0.0948438,
+    "by_purpose": {
+      "generate_advise": {
+        "requests": 1,
+        "prompt_tokens": 384,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 498,
+        "cost_usd": 0.0003564
+      },
+      "generate_clarify": {
+        "requests": 16,
+        "prompt_tokens": 6344,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 8880,
+        "cost_usd": 0.0062796
+      },
+      "generate_knowledge": {
+        "requests": 18,
+        "prompt_tokens": 6818,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 10271,
+        "cost_usd": 0.0071853
+      },
+      "generate_oos": {
+        "requests": 2,
+        "prompt_tokens": 389,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 913,
+        "cost_usd": 0.00060615
+      },
+      "qc_advise": {
+        "requests": 1,
+        "prompt_tokens": 928,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 685,
+        "cost_usd": 0.0005502
+      },
+      "qc_clarify": {
+        "requests": 16,
+        "prompt_tokens": 16544,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 20462,
+        "cost_usd": 0.0147588
+      },
+      "qc_knowledge": {
+        "requests": 18,
+        "prompt_tokens": 19121,
+        "cached_prompt_tokens": 0,
+        "completion_tokens": 23772,
+        "cost_usd": 0.01713135
+      }
+    }
+  },
+  "artifacts": {
+    "data\\intent_classify.jsonl": {
+      "rows": 1300,
+      "sha256": "3de84cda13a3fd163762576472fd1b26efcbb94e5c0a5416816a763e01bbd771"
+    },
+    "data\\intent_classify.train.jsonl": {
+      "rows": 1040,
+      "sha256": "f7807449c1a9ebb5a0d6fd1a40d522d5893538e765e82135c357901d1b7bda7f"
+    },
+    "data\\intent_classify.test.jsonl": {
+      "rows": 260,
+      "sha256": "bc863e3fa93608f9509b8cca3b1a8828e9f8f6790faaa9366821ab868e65a70e"
+    },
+    "data\\subject_oos_eval.jsonl": {
+      "rows": 125,
+      "sha256": "5b80767045985837b57d21bda586866e49e74414d04ae33d4f43452cc793f5cd"
+    }
+  },
+  "cross_class_conflicts": []
+}

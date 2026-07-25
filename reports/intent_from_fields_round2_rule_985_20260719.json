@@ -1,0 +1,177 @@
+{
+  "golden": "E:\\project\\AcneLLM\\data\\golden_extraction_gen.jsonl",
+  "generated_at_epoch": 1784448823,
+  "results": {
+    "rule": {
+      "mode": "rule",
+      "rows": 985,
+      "failures": 0,
+      "elapsed_seconds": 133.74,
+      "intent_pipeline": "rule_fields",
+      "route_field_threshold": 0.6,
+      "scalar": {
+        "skin_type": {
+          "field": "skin_type",
+          "precision": 0.7529,
+          "recall": 0.7926,
+          "f1": 0.7722,
+          "tp": 256,
+          "fp": 84,
+          "fn": 67,
+          "accuracy": 0.8731
+        },
+        "sex": {
+          "field": "sex",
+          "precision": 0.9412,
+          "recall": 0.4025,
+          "f1": 0.5639,
+          "tp": 128,
+          "fp": 8,
+          "fn": 190,
+          "accuracy": 0.8041
+        },
+        "age": {
+          "field": "age",
+          "precision": 1.0,
+          "recall": 0.8367,
+          "f1": 0.9111,
+          "tp": 164,
+          "fp": 0,
+          "fn": 32,
+          "accuracy": 0.9675
+        },
+        "duration_weeks": {
+          "field": "duration_weeks",
+          "precision": 0.9056,
+          "recall": 0.7546,
+          "f1": 0.8232,
+          "tp": 163,
+          "fp": 17,
+          "fn": 53,
+          "accuracy": 0.935
+        },
+        "is_pregnant": {
+          "field": "is_pregnant",
+          "precision": 0.9259,
+          "recall": 0.1179,
+          "f1": 0.2092,
+          "tp": 25,
+          "fp": 2,
+          "fn": 187,
+          "accuracy": 0.8091
+        },
+        "is_breastfeeding": {
+          "field": "is_breastfeeding",
+          "precision": 0.96,
+          "recall": 0.1231,
+          "f1": 0.2182,
+          "tp": 24,
+          "fp": 1,
+          "fn": 171,
+          "accuracy": 0.8254
+        },
+        "inflammation": {
+          "field": "inflammation",
+          "precision": 0.6393,
+          "recall": 0.6859,
+          "f1": 0.6618,
+          "tp": 273,
+          "fp": 154,
+          "fn": 125,
+          "accuracy": 0.801
+        }
+      },
+      "list": {
+        "lesions": {
+          "field": "lesions",
+          "precision": 0.6649,
+          "recall": 0.6864,
+          "f1": 0.6755,
+          "tp": 637,
+          "fp": 321,
+          "fn": 291
+        },
+        "distribution": {
+          "field": "distribution",
+          "precision": 0.9615,
+          "recall": 0.8419,
+          "f1": 0.8978,
+          "tp": 799,
+          "fp": 32,
+          "fn": 150
+        },
+        "products": {
+          "field": "products",
+          "precision": 0.503,
+          "recall": 0.8557,
+          "f1": 0.6336,
+          "tp": 166,
+          "fp": 164,
+          "fn": 28
+        },
+        "medications": {
+          "field": "medications",
+          "precision": 0.5,
+          "recall": 0.8519,
+          "f1": 0.6301,
+          "tp": 23,
+          "fp": 23,
+          "fn": 4
+        },
+        "allergies": {
+          "field": "allergies",
+          "precision": 0.4248,
+          "recall": 0.6761,
+          "f1": 0.5217,
+          "tp": 48,
+          "fp": 65,
+          "fn": 23
+        },
+        "scarring_signs": {
+          "field": "scarring_signs",
+          "precision": 0.7895,
+          "recall": 0.9459,
+          "f1": 0.8607,
+          "tp": 105,
+          "fp": 28,
+          "fn": 6
+        },
+        "hormonal_factors": {
+          "field": "hormonal_factors",
+          "precision": 0.7684,
+          "recall": 0.6728,
+          "f1": 0.7174,
+          "tp": 146,
+          "fp": 44,
+          "fn": 71
+        },
+        "treatment_goals": {
+          "field": "treatment_goals",
+          "precision": 0.4545,
+          "recall": 0.4789,
+          "f1": 0.4664,
+          "tp": 385,
+          "fp": 462,
+          "fn": 419
+        },
+        "red_flags": {
+          "field": "red_flags",
+          "precision": 0.5206,
+          "recall": 0.6383,
+          "f1": 0.5735,
+          "tp": 353,
+          "fp": 325,
+          "fn": 200
+        }
+      },
+      "intent": {
+        "primary_intent_accuracy": 0.7157,
+        "query_subject_accuracy": 0.733,
+        "joint_accuracy": 0.6315,
+        "labeled_primary_intent": 985,
+        "labeled_query_subject": 985
+      },
+      "errors": []
+    }
+  }
+}

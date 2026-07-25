@@ -484,7 +484,7 @@ class GuardrailRunner:
         tetracycline/isotretinoin interaction.
         """
         drug_terms = {
-            "isotretinoin", "tretinoin", "adapalene", "retinol", "tazarotene",
+            "retinoid", "isotretinoin", "tretinoin", "adapalene", "retinol", "tazarotene",
             "doxycycline", "minocycline", "tetracycline", "lymecycline",
             "clindamycin", "erythromycin", "spironolactone",
         }

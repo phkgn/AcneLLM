@@ -16,12 +16,12 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from .session import ConversationTurn, get_session_store
-from ._retrieval import citation_data, compute_evidence_quality
-from .inline_citations import InlineCitationStripper
+from ._retrieval import compute_evidence_quality, source_data
 from .orchestrator import prepare_chat_turn
 from ._safety import get_safety_suffix
 from ..db.audit import AuditEntry
 from ..guardrails.ood_detector import mask_pii
+from ..utils.logging import log_pipeline_stage
 
 if TYPE_CHECKING:
     from ..di import Container
@@ -37,7 +37,7 @@ def _event(event: str, data) -> str:
 
 def _snapshot_for_persistence(intake: "IntakeResult"):
     route = intake.route_decision
-    if route is None or route.query_subject != "self":
+    if route is None or route.primary_intent != "advise":
         return None
     return intake.turn_snapshot
 
@@ -64,6 +64,7 @@ def stream_chat_sse(
 ) -> Iterator[str]:
     """Yield SSE-formatted strings cho chat UI (Next.js EventSource)."""
     started = time.perf_counter()
+    sid_short = (session_id or "no-session")[:8]
     try:
         prepared = prepare_chat_turn(
             c,
@@ -85,31 +86,6 @@ def stream_chat_sse(
         # Dung container session store (JSONL in production; in-memory fallback for tests).
         sess = getattr(c, "session_store", None) or get_session_store()
 
-        if prepared.fixed_reply:
-            if session_id:
-                sess.append_turn(session_id, ConversationTurn(
-                    role="user",
-                    content=intake.raw_message,
-                    mode="llm_only",
-                    metadata=route_metadata,
-                ))
-                sess.append_turn(session_id, ConversationTurn(
-                    role="assistant",
-                    content=prepared.fixed_reply,
-                    mode="llm_only",
-                ))
-            yield _event("token", prepared.fixed_reply)
-            yield _event("done", {
-                "mode": "llm_only",
-                "latency_ms": int((time.perf_counter() - started) * 1000),
-                "used_chunks": [],
-                "session_id": session_id,
-                "primary_intent": route_metadata.get("primary_intent"),
-                "query_subject": route_metadata.get("query_subject"),
-                "route_flags": route_metadata.get("route_flags", []),
-            })
-            return
-
         # M5: Progress/follow-up intent — annotate route_metadata so prompt builder
         # and session store know this is a treatment check-in turn.
         _rflags = intake.route_decision.route_flags if intake.route_decision else []
@@ -119,61 +95,23 @@ def stream_chat_sse(
             if session_id and hasattr(sess, "increment_followup_count"):
                 sess.increment_followup_count(session_id, 1.0)
 
-        # -- 1. Scope refusal -------------------------------------------------
+        # Refusal không còn short-circuit: guardrail quyết nội dung, generator
+        # viết câu chữ, get_safety_suffix nối lại bản cứng ở cuối.
         if intake.scope_refusal is not None:
-            # Bug #5 fix: track guardrail trigger count
             _gr = getattr(c, "guardrails", None)
             if _gr is not None:
                 _gr.trigger_count = getattr(_gr, "trigger_count", 0) + 1
-            assistant_text = (
-                intake.scope_refusal.disclaimer
-                or "\n".join(intake.scope_refusal.causes)
+            log_pipeline_stage(
+                session_id,
+                "SAFETY",
+                started,
+                level="WARNING",
+                result="refusal_to_generator",
+                reason=(intake.scope_refusal.causes or ["refusal"])[0],
             )
-            if session_id:
-                sess.append_turn(
-                    session_id,
-                    ConversationTurn(
-                        role="user",
-                        # F10: lưu nguyên văn user gõ, không phải bản đã preprocess.
-                        # Fold/normalize sẽ re-run trên history nếu cần.
-                        content=intake.raw_message,
-                        mode=mode,
-                        normalized_snapshot=persist_snapshot,
-                        metadata=route_metadata,
-                    ),
-                )
-                sess.append_turn(
-                    session_id,
-                    ConversationTurn(role="assistant", content=assistant_text, mode="llm_only"),
-                )
-            yield _event("token", assistant_text)
-            yield _event("done", {
-                "mode": "refuse",
-                "latency_ms": int((time.perf_counter() - started) * 1000),
-                "used_chunks": [],
-                "session_id": session_id,
-            })
-            return
 
         # Retrieval and prompt are prepared once by the shared orchestrator.
         retrieval = prepared.retrieval
-        if retrieval is not None:
-            logger.debug(
-                "[{}] RAG: {} chunks in {:.0f}ms (scope={} plan={})",
-                (session_id or "")[:8],
-                len(retrieval.chunks),
-                prepared.retrieval_ms,
-                intake.scope_decision,
-                False,
-            )
-        else:
-            logger.debug(
-                "[{}] RAG: skipped (mode={} signal={} plan={})",
-                (session_id or "")[:8],
-                mode,
-                intake.is_acne_signal or bool(intake.safety_terms),
-                False,
-            )
 
         system, user_message = prepared.system_prompt, prepared.user_prompt
 
@@ -187,11 +125,16 @@ def stream_chat_sse(
             else _default_temp
         )
         prompt_chars = len(system) + len(user_message)
-        logger.debug(
-            "[{}] PROMPT: {:.0f} chars (~{:.0f} tokens) -> LLM",
-            (session_id or "")[:8],
-            prompt_chars,
-            prompt_chars / 3.5,
+        generation_started = time.perf_counter()
+        log_pipeline_stage(
+            session_id,
+            "GENERATE",
+            generation_started,
+            level="DEBUG",
+            status="prompt_ready",
+            prompt_chars=prompt_chars,
+            approx_tokens=int(prompt_chars / 3.5),
+            temperature=effective_temperature,
         )
         # M7 + M2: Pre-stream prefixes (repeated question / empathy)
         pre_prefix = ""
@@ -205,9 +148,14 @@ def stream_chat_sse(
                 "chuyên gia tâm lý nhé. Về phần da, "
             )
             yield _event("token", pre_prefix)
-            logger.debug("[{}] Crisis signal — empathy prefix yielded", (session_id or "")[:8])
+            log_pipeline_stage(
+                session_id,
+                "GENERATE",
+                generation_started,
+                level="DEBUG",
+                status="empathy_prefix",
+            )
 
-        t_llm = time.perf_counter()
         tokens: list[str] = []
         first_token = True
         # Knowledge queries: không hard-cap output, để model tự dừng khi xong
@@ -222,25 +170,15 @@ def stream_chat_sse(
         _CJK_RE = _re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
         _cjk_total = 0
 
-        inline_citation_mode = str(getattr(c.settings, "inline_citation", "off"))
-        if inline_citation_mode not in {"off", "model"}:
-            logger.warning(
-                "[%s] Invalid inline_citation=%r; falling back to off",
-                (session_id or "")[:8],
-                inline_citation_mode,
-            )
-            inline_citation_mode = "off"
-        citation_stripper = (
-            InlineCitationStripper() if inline_citation_mode == "off" else None
-        )
-
         stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
         for token in stream_iter:
             if first_token:
-                logger.debug(
-                    "[{}] LLM first token in {:.0f}ms",
-                    (session_id or "")[:8],
-                    (time.perf_counter() - t_llm) * 1000,
+                log_pipeline_stage(
+                    session_id,
+                    "GENERATE",
+                    generation_started,
+                    level="DEBUG",
+                    status="first_token",
                 )
                 first_token = False
             # Guard: strip CJK per-token trước khi yield ra UI
@@ -249,43 +187,33 @@ def stream_chat_sse(
                 _cjk_total += len(token) - len(clean_token)
                 token = clean_token
             if token:
-                emitted = citation_stripper.feed(token) if citation_stripper else token
-                if emitted:
-                    tokens.append(emitted)
-                    yield _event("token", emitted)
-
-        if citation_stripper:
-            tail = citation_stripper.finish()
-            if tail:
-                tokens.append(tail)
-                yield _event("token", tail)
+                tokens.append(token)
+                yield _event("token", token)
 
         if _cjk_total > 0:
-            logger.warning(
-                "[{}] CJK guard: stripped {} CJK chars from LLM stream",
-                (session_id or "")[:8],
-                _cjk_total,
+            log_pipeline_stage(
+                session_id,
+                "OUTPUT",
+                generation_started,
+                level="WARNING",
+                guard="cjk_strip",
+                stripped_chars=_cjk_total,
             )
 
         full_text = pre_prefix + "".join(tokens)
-        logger.debug(
-            "[{}] LLM done: {} tokens in {:.0f}ms",
-            (session_id or "")[:8],
-            len(tokens),
-            (time.perf_counter() - t_llm) * 1000,
+        log_pipeline_stage(
+            session_id,
+            "GENERATE",
+            generation_started,
+            status="done",
+            chunks=len(tokens),
+            chars=len(full_text),
         )
 
-        # -- 5b. Citation output gate -----------------------------------------
-        citation_repair = ""
-        _require_citations = inline_citation_mode == "model"
-        if _require_citations and retrieval is not None and retrieval.chunks and not re.search(r"\[\d+\]", full_text):
-            citation_repair = " [1]"
-            full_text += citation_repair
-            yield _event("token", citation_repair)
-            logger.warning(
-                "[{}] Citation marker repaired deterministically with [1]",
-                (session_id or "")[:8],
-            )
+        used_chunks = [c.chunk_id for c in retrieval.chunks] if retrieval else []
+        if retrieval:
+            for chunk in retrieval.chunks:
+                yield _event("source", source_data(chunk))
 
         # -- 6. Safety suffix -------------------------------------------------
         # Streaming text is not an AdviseOutput, so avoid constructing a dummy
@@ -298,52 +226,44 @@ def stream_chat_sse(
         safety_route_flags = route_flags
         if is_knowledge_intent and "urgent_personal_case" not in route_flags:
             safety_route_flags = [f for f in route_flags if f != "urgency_red_flag"]
-        warning_suffix = get_safety_suffix(
-            full_text,
-            user,
-            route_flags=safety_route_flags,
-            skip_generic_disclaimer=is_knowledge_intent,
-            recent_turns=history,
-            current_turn_text=message,
+        warning_suffix = (
+            ""
+            if _primary_intent == "reject"
+            else get_safety_suffix(
+                full_text,
+                user,
+                route_flags=safety_route_flags,
+                skip_generic_disclaimer=is_knowledge_intent,
+                recent_turns=history,
+                current_turn_text=message,
+            )
         )
 
         if warning_suffix:
             yield _event("token", warning_suffix)
 
-        # -- 6b. Partial advise follow-up question ----------------------------
-        # kind="partial": LLM đã trả lời sơ bộ; append câu hỏi bổ sung ở cuối
-        # để không block response nhưng vẫn thu thập thêm thông tin.
-        partial_question_suffix = ""
+        # -- 6b. Exactly one completeness follow-up ---------------------------
+        # Router clarify owns the open clarify template and has no completeness.
+        # Advise owns completeness; append its one deterministic field question.
+        completeness_question_suffix = ""
         if (
-            intake.completeness is not None
-            and intake.completeness.kind == "partial"
-            and intake.completeness.partial_advise
+            _primary_intent == "advise"
+            and intake.completeness is not None
             and intake.completeness.followup_question
         ):
-            partial_question_suffix = "\n\n" + intake.completeness.followup_question
-            yield _event("token", partial_question_suffix)
+            completeness_question_suffix = (
+                "\n\n" + intake.completeness.followup_question
+            )
+            yield _event("token", completeness_question_suffix)
             # Bug fix: mark fields as asked so completeness checker doesn't
             # repeat the same follow-up question on subsequent turns.
             if intake.completeness.missing_fields and session_id:
                 sess.mark_fields_asked(session_id, intake.completeness.missing_fields)
 
-        # -- 7. Citations -----------------------------------------------------
-        used_chunks = [chunk.chunk_id for chunk in retrieval.chunks] if retrieval else []
-        citation_compliance = (
-            bool(re.search(r"\[\d+\]", full_text))
-            if used_chunks and _require_citations else None
-        )
-        if citation_compliance is False:
-            logger.warning(
-                "[{}] Citation compliance failed: retrieval used but no inline [N] marker",
-                (session_id or "")[:8],
-            )
-        if retrieval:
-            for chunk in retrieval.chunks:
-                yield _event("citation", citation_data(chunk))
-
         # -- 8. Persist session -----------------------------------------------
-        full_assistant_text = full_text + (warning_suffix or "") + partial_question_suffix
+        full_assistant_text = (
+            full_text + (warning_suffix or "") + completeness_question_suffix
+        )
         assistant_mode = "clarify" if intake.effective_mode == "clarify" else mode
         if session_id:
             sess.append_turn(
@@ -390,24 +310,37 @@ def stream_chat_sse(
                 extracted_entities=intake.extracted_entities,
                 pii_detected=intake.pii_detected,
                 teencode_replaced=intake.teencode_replaced,
-                citation_compliance=citation_compliance,
             ))
 
         latency_ms = int((time.perf_counter() - started) * 1000)
+        output_started = time.perf_counter()
+        log_pipeline_stage(
+            session_id,
+            "OUTPUT",
+            output_started,
+            status="done",
+            mode=display_mode,
+            chars=len(full_assistant_text),
+            used_chunks=len(used_chunks),
+            total_ms=latency_ms,
+        )
         yield _event("done", {
             "mode": display_mode,
             "latency_ms": latency_ms,
             "used_chunks": used_chunks,
             "session_id": session_id,
             "evidence_quality": evidence_quality,
-            "citation_compliance": citation_compliance,
             "primary_intent": route_metadata.get("primary_intent"),
-            "query_subject": route_metadata.get("query_subject"),
             "route_flags": route_metadata.get("route_flags", []),
         })
 
     except Exception:
-        logger.exception("Streaming chat failed")
+        logger.exception(
+            "[{}] {:<10} status=error ({:.0f}ms)",
+            sid_short,
+            "OUTPUT",
+            (time.perf_counter() - started) * 1000,
+        )
         yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
         yield _event("done", {
             "mode": "error",

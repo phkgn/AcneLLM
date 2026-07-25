@@ -125,8 +125,7 @@ class Recommendation(BaseModel):
     source_chunk_id: Optional[str] = Field(
         default=None,
         description=(
-            "Deprecated compatibility field for legacy inline-citation runs; "
-            "not required or validated in the default citation-off path."
+            "Deprecated compatibility field; not required or validated."
         ),
         json_schema_extra={"deprecated": True},
     )

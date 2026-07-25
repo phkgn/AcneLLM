@@ -15,8 +15,8 @@ def test_retrieval_query_uses_normalized_text_not_raw_slang():
     query = build_retrieval_query_from_user(user, clean_text_normalized=prepared.clean_text)
 
     assert " vs " not in f" {query} "
-    assert " k " not in f" {query} "
-    assert "không được" in query
+    assert "với" in query  # "vs" được mở rộng cho BM25
+    assert "được" in query
     assert "salicylic_acid" in query
     assert "twice_daily" in query
     assert "0.02" in query

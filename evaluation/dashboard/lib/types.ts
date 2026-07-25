@@ -15,6 +15,7 @@ export type CommandId =
   | "figures_eval"
   | "figures_usage"
   | "figures_all"
+  | "probe_semantic"
   | "tests";
 
 export type JobStatus =

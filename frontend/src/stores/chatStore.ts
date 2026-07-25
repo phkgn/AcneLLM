@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { DEFAULT_CHAT_SETTINGS } from "@/config/chatConfig";
-import type { ChatMessage, ChatSettings, Citation, DoneData, FeedbackRating } from "@/lib/types";
+import type { ChatMessage, ChatSettings, RetrievedSource, DoneData, FeedbackRating } from "@/lib/types";
 
 function makeId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -27,7 +27,7 @@ interface ChatStore {
   addUserMessage: (content: string) => void;
   addAssistantPlaceholder: () => void;
   appendToLastAssistant: (token: string) => void;
-  addCitationToLastAssistant: (citation: Citation) => void;
+  addSourceToLastAssistant: (source: RetrievedSource) => void;
   finishLastAssistant: (data: DoneData) => void;
   failLastAssistant: (message: string) => void;
   setMessageFeedback: (messageId: string, rating: FeedbackRating) => void;
@@ -70,13 +70,13 @@ export const useChatStore = create<ChatStore>((set) => ({
       return { messages };
     }),
 
-  addCitationToLastAssistant: (citation) =>
+  addSourceToLastAssistant: (source) =>
     set((state) => {
       const messages = [...state.messages];
       const index = findLastAssistant(messages);
       if (index >= 0) {
-        const citations = messages[index].citations || [];
-        messages[index] = { ...messages[index], citations: [...citations, citation] };
+        const sources = messages[index].sources || [];
+        messages[index] = { ...messages[index], sources: [...sources, source] };
       }
       return { messages };
     }),
