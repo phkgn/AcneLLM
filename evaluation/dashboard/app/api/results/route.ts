@@ -17,13 +17,16 @@ export async function GET(request: Request) {
       "Experiment",
     );
     const runDir = path.join(REPORTS_ROOT, experiment);
-    const [report, runMeta, units, retrieval, gates, validation] = await Promise.all([
+    const [report, runMeta, units, retrieval, gates, validation, bottleneck] = await Promise.all([
       readJsonFile<Record<string, unknown>>(path.join(runDir, "report.json")),
       readJsonFile<Record<string, unknown>>(path.join(runDir, "run_meta.json")),
       readUnitReports(),
       latestRetrievalResult(),
       evaluateGates(experiment),
       latestValidationSummary(),
+      readJsonFile<Record<string, unknown>>(
+        path.join(REPORTS_ROOT, "bottleneck", "results.json"),
+      ),
     ]);
     return NextResponse.json({
       experiment,
@@ -33,6 +36,7 @@ export async function GET(request: Request) {
       retrieval,
       gates,
       validation,
+      bottleneck,
     });
   } catch (error) {
     return NextResponse.json(

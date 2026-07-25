@@ -46,6 +46,11 @@ type ResultsResponse = {
   runMeta: JsonRecord | null;
   units: Record<string, JsonRecord | null>;
   retrieval: { name: string; summary: JsonRecord } | null;
+  bottleneck: {
+    question_ids?: string[];
+    arms?: Record<string, unknown>;
+    paired?: Record<string, unknown>;
+  } | null;
   validation: {
     name: string;
     path: string;
@@ -95,6 +100,7 @@ function pValue(comp: JsonRecord, axis: string) {
 const metricRows = [
   { label: "OK rate", path: "ok_rate", percent: true },
   { label: "Grounded sentences", path: "grounded_sentence_rate", percent: true },
+  { label: "Refusal fidelity", path: "refusal_fidelity", percent: true },
   { label: "Forbidden claims", path: "forbidden_claim_rate", percent: true },
   { label: "Vietnamese ratio", path: "vietnamese_ratio_mean", percent: true },
   { label: "P50 answer length", path: "answer_chars.p50", percent: false, suffix: " chars" },
@@ -180,6 +186,9 @@ export function ResultsClient() {
   }, [paretoSystem, reportSystems]);
 
   const retrievalModes = record(data?.retrieval?.summary.modes);
+  const bottleneckArms = record(data?.bottleneck?.arms);
+  const bottleneckPaired = record(data?.bottleneck?.paired);
+  const bottleneckArmIds = ["z", "x", "y", "w"];
 
   return (
     <>
@@ -361,6 +370,126 @@ export function ResultsClient() {
             />
           </div>
         )}
+      </Card>
+
+      <Card className="mt-5 overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-6">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
+              Paired bottleneck
+            </p>
+            <h2 className="mt-1 text-xl font-black">Bốn arm Z / X / Y / W</h2>
+            <p className="mt-1 text-xs text-ink/45">
+              Delta chất lượng theo từng câu so với Z; safety luôn hiển thị riêng.
+            </p>
+          </div>
+          {data?.bottleneck?.question_ids?.length ? (
+            <Pill tone="neutral">{data.bottleneck.question_ids.length} questions</Pill>
+          ) : null}
+        </div>
+        {Object.keys(bottleneckArms).length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse text-sm">
+              <thead>
+                <tr className="bg-canvas/55 text-left text-[10px] font-black uppercase tracking-[0.1em] text-ink/42">
+                  <th className="border-b border-line px-5 py-3">Arm</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Median Δ vs Z</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Tăng</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Giảm</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Không đổi</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Paired n</th>
+                  <th className="border-b border-line px-5 py-3 text-right">Safety fail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bottleneckArmIds.map((arm) => {
+                  const payload = record(bottleneckArms[arm]);
+                  const summary = record(payload.summary);
+                  const paired = record(bottleneckPaired[arm]);
+                  return (
+                    <tr key={arm}>
+                      <td className="border-b border-line px-5 py-3.5 font-black uppercase">
+                        {arm}
+                      </td>
+                      <td className="border-b border-line px-3 py-3.5 text-right font-bold tabular-nums">
+                        {formatMetric(paired.median_delta)}
+                      </td>
+                      <td className="border-b border-line px-3 py-3.5 text-right tabular-nums">
+                        {String(paired.increased ?? "—")}
+                      </td>
+                      <td className="border-b border-line px-3 py-3.5 text-right tabular-nums">
+                        {String(paired.decreased ?? "—")}
+                      </td>
+                      <td className="border-b border-line px-3 py-3.5 text-right tabular-nums">
+                        {String(paired.unchanged ?? "—")}
+                      </td>
+                      <td className="border-b border-line px-3 py-3.5 text-right tabular-nums">
+                        {String(paired.paired_n ?? "—")}
+                      </td>
+                      <td className="border-b border-line px-5 py-3.5 text-right">
+                        <Pill
+                          tone={
+                            typeof summary.safety_failures !== "number"
+                              ? "neutral"
+                              : summary.safety_failures > 0
+                                ? "bad"
+                                : "good"
+                          }
+                        >
+                          {String(summary.safety_failures ?? "—")}
+                        </Pill>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-6">
+            <EmptyState
+              title="Chưa có bottleneck artifact"
+              description="Chạy đủ arm bằng scripts/eval_bottleneck.py; kết quả được đọc từ reports/bottleneck/results.json."
+            />
+          </div>
+        )}
+        {Object.keys(bottleneckPaired).length ? (
+          <div className="grid gap-3 border-t border-line p-5 sm:grid-cols-2 sm:p-6">
+            {bottleneckArmIds.map((arm) => {
+              const paired = record(bottleneckPaired[arm]);
+              const distribution = Array.isArray(paired.distribution)
+                ? paired.distribution
+                : [];
+              if (!distribution.length) return null;
+              return (
+                <details key={arm} className="rounded-2xl border border-line bg-canvas/45 p-4">
+                  <summary className="cursor-pointer font-black uppercase">
+                    Arm {arm}: paired delta từng câu
+                  </summary>
+                  <div className="mt-3 max-h-56 overflow-y-auto">
+                    {distribution.map((rawItem, index) => {
+                      const item = record(rawItem);
+                      return (
+                        <div
+                          key={`${String(item.sample_id ?? index)}-${index}`}
+                          className="flex items-center justify-between gap-3 border-b border-line py-2 text-xs last:border-0"
+                        >
+                          <span className="font-mono text-ink/58">
+                            {String(item.sample_id ?? "—")}
+                          </span>
+                          <span className="font-black tabular-nums">
+                            {typeof item.delta === "number" && item.delta > 0 ? "+" : ""}
+                            {String(item.delta ?? "—")}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        ) : null}
       </Card>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">

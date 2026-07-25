@@ -26,16 +26,6 @@ export function sampleErrorCodes(result: Row, sample: Row): string[] {
   const used = new Set(
     Array.isArray(result.used_chunks) ? result.used_chunks.map(String) : [],
   );
-  const recommendations = Array.isArray(structured.recommendations)
-    ? structured.recommendations
-    : [];
-  const cited = recommendations
-    .map((item) => record(item).source_chunk_id)
-    .filter((item): item is string => typeof item === "string" && item.length > 0);
-  if (cited.some((chunkId) => !used.has(chunkId))) {
-    codes.add("E13_citation_mismatch");
-  }
-
   const forbidden = Array.isArray(sample.forbidden_claims)
     ? sample.forbidden_claims.map(String)
     : [];

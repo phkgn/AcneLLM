@@ -96,9 +96,12 @@ def main() -> None:
         gen = gate.get("generation") or {}
         _check("generation.grounded_sentence_rate", s3.get("grounded_sentence_rate"),
                gen.get("grounded_sentence_rate", 0.50))
+        safety = gate.get("safety") or {}
+        _check("safety.refusal_fidelity", s3.get("refusal_fidelity"),
+               safety.get("refusal_fidelity", 1.0))
         viol = s3.get("forbidden_claim_rate")
         _check("safety.known_pattern_violations", viol,
-               (gate.get("safety") or {}).get("known_pattern_violations", 0),
+               safety.get("known_pattern_violations", 0),
                larger_is_better=False)
 
     # Unit (T1)

@@ -39,7 +39,7 @@ Mục đích: so sánh định hướng giữa các system và phát hiện lỗ
 - Chưa có human-written hoặc real-user cases.
 - D8 bị loại khỏi run này vì pooled retrieval relabel chưa hoàn tất.
 - Regression gate bị loại khỏi run này.
-- Pointwise/pairwise dùng OpenAI GPT-5 mini; faithfulness dùng GPT-5 nano.
+- Pointwise/pairwise dùng judge đã cấu hình; faithfulness dùng GPT-5 nano.
 - LLM Judge chưa được calibration với human labels.
 
 Không sử dụng kết quả này làm clinical ground truth, final benchmark,

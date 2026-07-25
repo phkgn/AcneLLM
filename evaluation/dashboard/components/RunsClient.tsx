@@ -130,6 +130,18 @@ const commands: Array<{
     description: "Batch experiment dài, chọn output riêng và resume khi cần.",
   },
   {
+    id: "intake_unified",
+    label: "Unified intake",
+    tier: "Intake",
+    description: "Held-out single-turn, không cache/fallback và có overlap guard.",
+  },
+  {
+    id: "bottleneck",
+    label: "Bottleneck Z/X/Y/W",
+    tier: "Paired experiment",
+    description: "Chạy một arm trên cùng question set; arm Y phát sinh chi phí API.",
+  },
+  {
     id: "judge",
     label: "LLM judge",
     tier: "Judge · $",
@@ -233,6 +245,7 @@ export function RunsClient() {
   const [smoke, setSmoke] = useState(false);
   const [yes, setYes] = useState(false);
   const [rawQuery, setRawQuery] = useState(false);
+  const [bottleneckArm, setBottleneckArm] = useState("z");
   const [submitting, setSubmitting] = useState(false);
   const [killingJobId, setKillingJobId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -482,6 +495,7 @@ export function RunsClient() {
       args.runDir = runDir;
     }
     if (commandId === "check_gate") args.runDir = runDir;
+    if (commandId === "bottleneck") args.arm = bottleneckArm;
     if (commandId === "validation_loop") {
       args.dataset = dataset;
       args.runDir = runDir;
@@ -499,11 +513,14 @@ export function RunsClient() {
       return;
     }
     if (
-      ["judge", "preliminary_d2"].includes(commandId) &&
+      (["judge", "preliminary_d2"].includes(commandId) ||
+        (commandId === "bottleneck" && bottleneckArm === "y")) &&
       !window.confirm(
         commandId === "preliminary_d2"
-          ? `Preset này chạy ${parsePreliminaryLimit(preliminaryLimit)} mẫu D2 qua S0–S4 rồi gọi OpenAI GPT-5 mini Judge và tạo report. Có thể phát sinh chi phí API. Tiếp tục?`
-          : "OpenAI GPT-5 mini Judge sẽ dùng API key và có thể phát sinh chi phí. Tiếp tục?",
+          ? `Preset này chạy ${parsePreliminaryLimit(preliminaryLimit)} mẫu D2 qua S0–S4 rồi gọi judge đã cấu hình và tạo report. Có thể phát sinh chi phí API. Tiếp tục?`
+          : commandId === "bottleneck"
+            ? "Arm Y gọi generator API và judge đã cấu hình, có thể phát sinh chi phí. Tiếp tục?"
+            : "Judge đã cấu hình sẽ dùng API key và có thể phát sinh chi phí. Tiếp tục?",
       )
     ) {
       return;
@@ -833,6 +850,22 @@ export function RunsClient() {
                   Resume các sample hợp lệ đã có
                 </label>
               </div>
+            ) : null}
+
+            {commandId === "bottleneck" ? (
+              <label className="mt-4 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
+                Arm
+                <select
+                  value={bottleneckArm}
+                  onChange={(event) => setBottleneckArm(event.target.value)}
+                  className={`${inputClass} mt-2`}
+                >
+                  <option value="z">Z · intake thật + RAG thật + local</option>
+                  <option value="x">X · intake oracle + RAG thật + local</option>
+                  <option value="y">Y · intake thật + RAG thật + API</option>
+                  <option value="w">W · intake thật + RAG oracle + local</option>
+                </select>
+              </label>
             ) : null}
 
             {["judge", "report", "check_gate", "validation_loop"].includes(

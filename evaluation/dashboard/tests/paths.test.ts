@@ -18,6 +18,10 @@ test("valid evaluation paths remain resolvable", () => {
     resolveEvaluationPath("evaluation/reports/gate_check.json"),
     /evaluation[\\/]reports[\\/]gate_check\.json$/,
   );
+  assert.match(
+    resolveEvaluationPath("evaluation/reports/bottleneck/results.json"),
+    /evaluation[\\/]reports[\\/]bottleneck[\\/]results\.json$/,
+  );
 });
 
 test("only the two repository HTML visuals are externally whitelisted", async () => {

@@ -76,8 +76,6 @@ test("preliminary D2 preset uses an isolated run and the standard pipeline wrapp
     pairs: ["s0:s1", "s0:s2", "s1:s3", "s2:s3"],
     limit: 140,
     provisional: true,
-    judgeProvider: "openai",
-    judgeModel: "gpt-5-mini-2025-08-07",
     faithfulnessModel: "gpt-5-nano-2025-08-07",
     judgeWorkers: 4,
   });
@@ -162,7 +160,7 @@ test("probe_semantic rejects empty, multi-line, over-long text and invalid value
   );
 });
 
-test("judge command is pinned to the OpenAI evaluation model", () => {
+test("judge command delegates provider and pointwise model to Python settings", () => {
   const command = buildCommand("judge", {
     runDir: "evaluation/reports/main_2x2_t3",
     dataset: "evaluation/datasets/v1/d2_test.jsonl",
@@ -174,23 +172,42 @@ test("judge command is pinned to the OpenAI evaluation model", () => {
     "evaluation/reports/main_2x2_t3",
     "--dataset",
     "evaluation/datasets/v1/d2_test.jsonl",
-    "--provider",
-    "openai",
-    "--model",
-    "gpt-5-mini-2025-08-07",
     "--faithfulness-model",
     "gpt-5-nano-2025-08-07",
     "--workers",
     "4",
   ]);
-  assert.equal(command.normalizedArgs.judgeProvider, "openai");
-  assert.equal(
-    command.normalizedArgs.judgeModel,
-    "gpt-5-mini-2025-08-07",
-  );
+  assert.equal("judgeProvider" in command.normalizedArgs, false);
+  assert.equal("judgeModel" in command.normalizedArgs, false);
   assert.equal(
     command.normalizedArgs.faithfulnessModel,
     "gpt-5-nano-2025-08-07",
   );
   assert.equal(command.normalizedArgs.judgeWorkers, 4);
+});
+
+test("unified intake and four bottleneck arms are dashboard commands", () => {
+  assert.equal(COMMAND_IDS.includes("intake_unified"), true);
+  assert.equal(COMMAND_IDS.includes("bottleneck"), true);
+  assert.deepEqual(buildCommand("intake_unified", { limit: 5 }).argv, [
+    "scripts/eval_unified_intake.py",
+    "--limit",
+    "5",
+  ]);
+
+  for (const arm of ["z", "x", "y", "w"]) {
+    const command = buildCommand("bottleneck", { arm, limit: 5 });
+    assert.deepEqual(command.argv, [
+      "scripts/eval_bottleneck.py",
+      "--arm",
+      arm,
+      "--limit",
+      "5",
+    ]);
+    assert.equal(command.normalizedArgs.arm, arm);
+  }
+  assert.throws(
+    () => buildCommand("bottleneck", { arm: "invalid" }),
+    /Arm chỉ nhận z\|x\|y\|w/,
+  );
 });

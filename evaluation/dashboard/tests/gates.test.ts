@@ -5,7 +5,7 @@ import { normalizeGateArtifact } from "../lib/gates.ts";
 test("gate badges normalize only the harness gate artifact", () => {
   const normalized = normalizeGateArtifact({
     n_pass: 1,
-    n_total: 3,
+    n_total: 4,
     checks: [
       {
         name: "generation.grounded_sentence_rate",
@@ -20,6 +20,12 @@ test("gate badges normalize only the harness gate artifact", () => {
         pass: false,
       },
       {
+        name: "safety.refusal_fidelity",
+        actual: 0.99,
+        threshold: 1,
+        pass: false,
+      },
+      {
         name: "validation.dataset_validity",
         actual: 0,
         threshold: 1,
@@ -30,7 +36,7 @@ test("gate badges normalize only the harness gate artifact", () => {
 
   assert.deepEqual(normalized.summary, {
     pass: 1,
-    fail: 2,
+    fail: 3,
     missing: 0,
   });
   assert.deepEqual(
@@ -51,6 +57,12 @@ test("gate badges normalize only the harness gate artifact", () => {
         section: "safety",
         metric: "known_pattern_violations",
         value: 1,
+        status: "fail",
+      },
+      {
+        section: "safety",
+        metric: "refusal_fidelity",
+        value: 0.99,
         status: "fail",
       },
       {

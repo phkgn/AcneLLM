@@ -13,8 +13,6 @@ import { parsePreliminaryLimit } from "./preliminary.ts";
 import type { CommandId } from "./types.ts";
 
 const FORBIDDEN = /[;&|`$><\r\n]/;
-const JUDGE_PROVIDER = "openai";
-const JUDGE_MODEL = "gpt-5-mini-2025-08-07";
 const FAITHFULNESS_MODEL = "gpt-5-nano-2025-08-07";
 const JUDGE_WORKERS = 4;
 const SYSTEM_IDS = new Set(["s0", "s1", "s2", "s3", "s4"]);
@@ -27,6 +25,7 @@ const RETRIEVAL_MODES = new Set([
 ]);
 const SKIP_STEPS = new Set(["t1", "t2", "t3", "judge", "report", "gate"]);
 const PROBE_EXPECTS = new Set(["advise", "knowledge", "clarify", "reject"]);
+const BOTTLENECK_ARMS = new Set(["z", "x", "y", "w"]);
 
 export interface BuiltCommand {
   commandId: CommandId;
@@ -294,8 +293,6 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.pairs = pairs;
       normalizedArgs.limit = presetLimit;
       normalizedArgs.provisional = true;
-      normalizedArgs.judgeProvider = JUDGE_PROVIDER;
-      normalizedArgs.judgeModel = JUDGE_MODEL;
       normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
       normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       break;
@@ -377,10 +374,6 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         runDir,
         "--dataset",
         dataset,
-        "--provider",
-        JUDGE_PROVIDER,
-        "--model",
-        JUDGE_MODEL,
         "--faithfulness-model",
         FAITHFULNESS_MODEL,
         "--workers",
@@ -388,8 +381,6 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       );
       normalizedArgs.dataset = dataset;
       normalizedArgs.runDir = runDir;
-      normalizedArgs.judgeProvider = JUDGE_PROVIDER;
-      normalizedArgs.judgeModel = JUDGE_MODEL;
       normalizedArgs.faithfulnessModel = FAITHFULNESS_MODEL;
       normalizedArgs.judgeWorkers = JUDGE_WORKERS;
       const pairs = pairList(args.pairs);
@@ -538,6 +529,18 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
         normalizedArgs.neighbors = true;
       }
       argv.push("--json");
+      break;
+    }
+    case "intake_unified":
+      argv.push("scripts/eval_unified_intake.py");
+      break;
+    case "bottleneck": {
+      const arm = assertCleanString(args.arm, "Arm");
+      if (!BOTTLENECK_ARMS.has(arm)) {
+        throw new Error("Arm chỉ nhận z|x|y|w.");
+      }
+      argv.push("scripts/eval_bottleneck.py", "--arm", arm);
+      normalizedArgs.arm = arm;
       break;
     }
     case "tests":

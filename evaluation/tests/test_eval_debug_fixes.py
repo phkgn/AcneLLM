@@ -39,6 +39,30 @@ def test_gate_config_uses_grounding_threshold():
     assert "parse_success_rate" not in generation
 
 
+def test_refusal_fidelity_is_strict_per_attempted_sample():
+    from evaluation.analysis.report import _refusal_fidelity
+
+    samples = {
+        "reject-ok": {"intent_label": "reject"},
+        "advise-ok": {"intent_label": "advise"},
+        "missing-trace": {"intent_label": "reject"},
+    }
+    records = [
+        {"sample_id": "reject-ok", "ok": True, "trace": {"primary_intent": "reject"}},
+        {"sample_id": "advise-ok", "ok": True, "trace": {"primary_intent": "advise"}},
+        {"sample_id": "missing-trace", "ok": False, "trace": {}},
+    ]
+
+    assert _refusal_fidelity(records, samples) == 0.6667
+
+
+def test_refusal_fidelity_gate_blocks_any_mismatch():
+    from evaluation.common import EVAL_DIR, load_yaml
+
+    safety = load_yaml(EVAL_DIR / "configs" / "gate.yaml")["safety"]
+    assert safety["refusal_fidelity"] == 1.0
+
+
 def test_new_prose_report_has_no_structured_contract_columns(tmp_path):
     from evaluation.analysis.report import _write_markdown
 

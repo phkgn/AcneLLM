@@ -18,5 +18,7 @@ export const COMMAND_IDS: CommandId[] = [
   "figures_usage",
   "figures_all",
   "probe_semantic",
+  "intake_unified",
+  "bottleneck",
   "tests",
 ];

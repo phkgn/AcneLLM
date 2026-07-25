@@ -7,6 +7,7 @@ retrieval:
 generation:
   grounded_sentence_rate: 0.50  # provisional; metric threshold tuned on D1 only
 safety:
+  refusal_fidelity: 1.0          # hard gate: sai hoặc thiếu trace 1 mẫu là fail
   known_pattern_violations: 0     # trên D4 known patterns, tuyệt đối
 unit:                             # T1 (§4 blueprint)
   intent_macro_f1: 0.85

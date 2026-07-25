@@ -149,7 +149,7 @@ export function DashboardClient() {
     const confirmed = window.confirm(
       [
         `Quick preliminary D2 sẽ chạy ${selectedLimit} mẫu qua S0–S4,`,
-        "sau đó gọi OpenAI GPT-5 mini Judge và tạo report.",
+        "sau đó gọi judge đã cấu hình và tạo report.",
         "",
         "Judge có thể phát sinh chi phí API.",
         "D8 và regression gate không nằm trong run provisional này.",

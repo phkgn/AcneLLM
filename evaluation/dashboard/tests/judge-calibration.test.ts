@@ -19,14 +19,14 @@ test("judge calibration reports failed checks", () => {
       length_bias: { pass: false },
       consistency: { pass: true },
       judge_provider: "openai",
-      judge_model: "gpt-5-mini-2025-08-07",
+      judge_model: "gpt-5.4-mini",
     }),
     {
       available: true,
       calibrated: false,
       failedChecks: ["length_bias"],
       provider: "openai",
-      model: "gpt-5-mini-2025-08-07",
+      model: "gpt-5.4-mini",
     },
   );
 });

@@ -16,6 +16,8 @@ export type CommandId =
   | "figures_usage"
   | "figures_all"
   | "probe_semantic"
+  | "intake_unified"
+  | "bottleneck"
   | "tests";
 
 export type JobStatus =
