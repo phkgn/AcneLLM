@@ -15,12 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
+from acne_llm.config import settings  # noqa: E402
 from evaluation.common import load_yaml, utcnow  # noqa: E402
 from evaluation.judges.clients import (  # noqa: E402
-    DEFAULT_JUDGE_PROVIDER,
     DEFAULT_JUDGE_WORKERS,
     DEFAULT_OPENAI_FAITHFULNESS_MODEL,
-    DEFAULT_OPENAI_JUDGE_MODEL,
 )
 from evaluation.run_all import preflight  # noqa: E402
 
@@ -92,9 +91,9 @@ def build_steps(out_dir: str, limit: int) -> list[tuple[str, list[str]]]:
                 "--dataset",
                 DATASET,
                 "--provider",
-                DEFAULT_JUDGE_PROVIDER,
+                settings.judge_provider,
                 "--model",
-                DEFAULT_OPENAI_JUDGE_MODEL,
+                settings.judge_model,
                 "--faithfulness-model",
                 DEFAULT_OPENAI_FAITHFULNESS_MODEL,
                 "--workers",
@@ -198,8 +197,8 @@ def main() -> None:
         "dataset": DATASET,
         "systems": SYSTEMS.split(","),
         "comparisons": PAIRS.split(","),
-        "judge_provider": DEFAULT_JUDGE_PROVIDER,
-        "judge_model": DEFAULT_OPENAI_JUDGE_MODEL,
+        "judge_provider": settings.judge_provider,
+        "judge_model": settings.judge_model,
         "faithfulness_judge_model": DEFAULT_OPENAI_FAITHFULNESS_MODEL,
         "judge_workers": DEFAULT_JUDGE_WORKERS,
         "limit": args.limit,

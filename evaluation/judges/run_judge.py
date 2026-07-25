@@ -18,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from acne_llm.config import settings  # noqa: E402
 from evaluation.common import (  # noqa: E402
     ROOT,
     append_jsonl,
@@ -28,10 +29,8 @@ from evaluation.common import (  # noqa: E402
 )
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.judges.clients import (  # noqa: E402
-    DEFAULT_JUDGE_PROVIDER,
     DEFAULT_JUDGE_WORKERS,
     DEFAULT_OPENAI_FAITHFULNESS_MODEL,
-    DEFAULT_OPENAI_JUDGE_MODEL,
     JudgeClient,
     load_prompt,
 )
@@ -360,15 +359,15 @@ def main() -> None:
     ap.add_argument("--dataset", required=True)
     ap.add_argument(
         "--provider",
-        default=DEFAULT_JUDGE_PROVIDER,
+        default=settings.judge_provider,
         choices=["openai"],
     )
     ap.add_argument(
         "--model",
-        default=None,
+        default=settings.judge_model,
         help=(
-            "Judge model; OpenAI mặc định dùng snapshot "
-            f"{DEFAULT_OPENAI_JUDGE_MODEL}."
+            "Judge model; mặc định đọc từ Settings/.env "
+            f"({settings.judge_model})."
         ),
     )
     ap.add_argument(

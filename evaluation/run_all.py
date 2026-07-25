@@ -20,12 +20,11 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from acne_llm.config import settings  # noqa: E402
 from evaluation.common import ROOT, REPORTS_DIR, load_yaml, utcnow  # noqa: E402
 from evaluation.judges.clients import (  # noqa: E402
-    DEFAULT_JUDGE_PROVIDER,
     DEFAULT_JUDGE_WORKERS,
     DEFAULT_OPENAI_FAITHFULNESS_MODEL,
-    DEFAULT_OPENAI_JUDGE_MODEL,
 )
 
 PY = sys.executable
@@ -161,8 +160,8 @@ def main() -> None:
         sh("judge", [PY, "-m", "evaluation.judges.run_judge",
                      "--run-dir", str(run_dir),
                      "--dataset", experiment_cfg["dataset"],
-                     "--provider", DEFAULT_JUDGE_PROVIDER,
-                     "--model", DEFAULT_OPENAI_JUDGE_MODEL,
+                     "--provider", settings.judge_provider,
+                     "--model", settings.judge_model,
                      "--faithfulness-model", DEFAULT_OPENAI_FAITHFULNESS_MODEL,
                      "--workers", str(DEFAULT_JUDGE_WORKERS),
                      *(["--pairs", pairs] if pairs else []), *limit], results)

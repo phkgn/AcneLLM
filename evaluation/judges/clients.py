@@ -16,6 +16,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from acne_llm.config import settings
 from evaluation.common import EVAL_DIR, ROOT, sha256_text, utcnow
 
 CACHE_DB = EVAL_DIR / "reports" / "judge_cache.sqlite"
@@ -64,13 +65,19 @@ def _read_env(key: str) -> str:
 
 
 class JudgeClient:
-    def __init__(self, provider: str = DEFAULT_JUDGE_PROVIDER,
-                 model: str | None = None):
+    def __init__(self, provider: str | None = None, model: str | None = None):
+        provider = provider or getattr(
+            settings, "judge_provider", DEFAULT_JUDGE_PROVIDER
+        )
         if provider != "openai":
             raise ValueError("Evaluation Judge chỉ hỗ trợ provider=openai")
         self.base_url = "https://api.openai.com"
         self.api_key = _read_env("OPENAI_API_KEY")
-        self.model = model or DEFAULT_OPENAI_JUDGE_MODEL
+        self.model = (
+            model
+            or getattr(settings, "judge_model", "")
+            or DEFAULT_OPENAI_JUDGE_MODEL
+        )
         if not self.api_key:
             raise RuntimeError(f"Thiếu API key cho {provider} (.env)")
         self.provider = provider

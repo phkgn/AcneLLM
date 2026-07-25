@@ -18,11 +18,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from acne_llm.config import settings  # noqa: E402
 from evaluation.common import ROOT, REPORTS_DIR, read_jsonl, utcnow  # noqa: E402
 from evaluation.datasets.registry import load_dataset  # noqa: E402
 from evaluation.judges.clients import (  # noqa: E402
-    DEFAULT_JUDGE_PROVIDER,
-    DEFAULT_OPENAI_JUDGE_MODEL,
     JudgeClient,
 )
 from evaluation.judges.run_judge import (  # noqa: E402
@@ -41,10 +40,10 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", required=True)
     ap.add_argument("--dataset", required=True)
-    ap.add_argument("--provider", default=DEFAULT_JUDGE_PROVIDER,
+    ap.add_argument("--provider", default=settings.judge_provider,
                     choices=["openai"])
-    ap.add_argument("--model", default=None,
-                    help=f"OpenAI default: {DEFAULT_OPENAI_JUDGE_MODEL}")
+    ap.add_argument("--model", default=settings.judge_model,
+                    help=f"Settings/.env default: {settings.judge_model}")
     ap.add_argument("--n", type=int, default=30)
     args = ap.parse_args()
 

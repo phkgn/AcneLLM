@@ -6,10 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 
+from acne_llm.config import settings
 from evaluation.judges import clients
 from evaluation.judges.clients import (
     DEFAULT_JUDGE_WORKERS,
-    DEFAULT_OPENAI_JUDGE_MODEL,
     JudgeAPIError,
     JudgeClient,
 )
@@ -36,11 +36,18 @@ def _client(monkeypatch: pytest.MonkeyPatch, tmp_path) -> JudgeClient:
     return JudgeClient()
 
 
-def test_openai_snapshot_is_the_default(monkeypatch, tmp_path):
+def test_configured_openai_model_is_the_default(monkeypatch, tmp_path):
     client = _client(monkeypatch, tmp_path)
     assert client.provider == "openai"
-    assert client.model == DEFAULT_OPENAI_JUDGE_MODEL
+    assert client.model == settings.judge_model
     assert DEFAULT_JUDGE_WORKERS == 4
+
+
+def test_explicit_model_overrides_settings(monkeypatch, tmp_path):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(clients, "CACHE_DB", tmp_path / "judge-cache.sqlite")
+    client = JudgeClient(model="gpt-5-mini-2025-08-07")
+    assert client.model == "gpt-5-mini-2025-08-07"
 
 
 def test_judge_rejects_deepseek_provider(monkeypatch, tmp_path):
@@ -49,7 +56,7 @@ def test_judge_rejects_deepseek_provider(monkeypatch, tmp_path):
         JudgeClient("deepseek")
 
 
-def test_openai_gpt5_request_uses_json_mode_and_minimal_reasoning(monkeypatch, tmp_path):
+def test_configured_gpt54_request_uses_json_mode_without_reasoning(monkeypatch, tmp_path):
     client = _client(monkeypatch, tmp_path)
     captured = {}
 
@@ -63,7 +70,7 @@ def test_openai_gpt5_request_uses_json_mode_and_minimal_reasoning(monkeypatch, t
 
     monkeypatch.setattr(clients.urllib.request, "urlopen", fake_urlopen)
     assert client.judge("Return a JSON object", use_cache=False) == {"ok": True}
-    assert captured["payload"]["reasoning_effort"] == "minimal"
+    assert captured["payload"]["reasoning_effort"] == "none"
     assert captured["payload"]["response_format"] == {"type": "json_object"}
     assert "temperature" not in captured["payload"]
     assert client.calls == 1
@@ -92,7 +99,7 @@ def test_non_retryable_api_error_fails_fast(monkeypatch, tmp_path):
 
 
 def test_resume_retries_invalid_rows_and_keeps_valid_rows(tmp_path):
-    model = DEFAULT_OPENAI_JUDGE_MODEL
+    model = settings.judge_model
     path = tmp_path / "s1.judged.jsonl"
     valid_scores = {
         "correctness": 4,
@@ -140,7 +147,7 @@ def test_resume_rejects_mixed_judge_provenance(tmp_path):
         }) + "\n",
         encoding="utf-8",
     )
-    client = SimpleNamespace(provider="openai", model=DEFAULT_OPENAI_JUDGE_MODEL)
+    client = SimpleNamespace(provider="openai", model=settings.judge_model)
     with pytest.raises(RuntimeError, match="run directory mới"):
         _prepare_resume(path, client, pairwise=False)
 
