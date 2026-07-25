@@ -359,7 +359,7 @@ def _run_arm(
     *,
     oracle_top_k: int,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    from acne_llm.chat.orchestrator import generate_prose, prepare_chat_turn
+    from acne_llm.chat import orchestrator as chat_orchestrator
 
     settings = Settings()
     local_model = settings.llm_model
@@ -412,12 +412,20 @@ def _run_arm(
                     oracle.set_sample(sample)
                 session_id = f"bottleneck-{arm}-{sample_id}-{uuid.uuid4().hex[:8]}"
                 _populate_history(container, sample, session_id)
-                turn = prepare_chat_turn(
-                    container,
-                    str(sample["user_query"]),
-                    requested_mode="hybrid",
-                    session_id=session_id,
-                )
+                # Arm W must not execute real retrieval before replacing the
+                # context: that would contaminate its latency/failure path.
+                real_retrieve_for_chat = chat_orchestrator.retrieve_for_chat
+                if arm == "w":
+                    chat_orchestrator.retrieve_for_chat = lambda *_args, **_kwargs: None
+                try:
+                    turn = chat_orchestrator.prepare_chat_turn(
+                        container,
+                        str(sample["user_query"]),
+                        requested_mode="hybrid",
+                        session_id=session_id,
+                    )
+                finally:
+                    chat_orchestrator.retrieve_for_chat = real_retrieve_for_chat
                 retrieval_source = "real"
                 if arm == "w":
                     retrieval = _oracle_retrieval(
@@ -436,7 +444,13 @@ def _run_arm(
                     )
                     generator_model = ARM_Y_MODEL
                 else:
-                    candidates = [generate_prose(container, turn, temperature=0.0)]
+                    candidates = [
+                        chat_orchestrator.generate_prose(
+                            container,
+                            turn,
+                            temperature=0.0,
+                        )
+                    ]
                     generator_model = local_model
                 judged = [
                     (candidate, _score_candidate(judge, sample, candidate))
