@@ -213,8 +213,7 @@ def retrieve_for_chat(
             # OOD guard: nếu reranker không tìm được chunk nào liên quan
             # (avg sigmoid thấp + max score gần 0.5 = random logit),
             # trả None để LLM trả lời không dùng RAG thay vì inject chunk nhiễu.
-            _ood_floor = float(getattr(settings, "chat_rerank_ood_floor", 0.45))
-            _keep_floor = float(getattr(settings, "chat_rerank_keep_floor", _ood_floor))
+            _keep_floor = float(getattr(settings, "chat_rerank_floor", 0.58))
             if reranked.chunks:
                 _avg = sum(c.score for c in reranked.chunks) / len(reranked.chunks)
                 _max = max(c.score for c in reranked.chunks)

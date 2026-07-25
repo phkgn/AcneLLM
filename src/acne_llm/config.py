@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     # Trong .env ghi LLM_KEEP_ALIVE=-1 (validator sẽ convert sang int -1).
     llm_keep_alive: str | int = -1
     ollama_health_timeout: float = 5.0
-    # 30s đủ cho mọi request khi GPU healthy. Nếu vượt → có vấn đề, không che giấu.
+    # Timeout thấp để phép đo latency lộ request chậm thay vì che bằng env override.
     ollama_generate_timeout: float = 30.0
     # Khi True: không gửi system message qua API — để Modelfile SYSTEM tự xử lý.
     # Bật khi model đã fine-tune với system prompt nhúng sẵn, tránh 2 system prompt chồng.
@@ -47,8 +47,7 @@ class Settings(BaseSettings):
     llm_use_modelfile_system: bool = True
 
     # ── Unified intake ──────────────────────────────────────────────────────
-    # Default legacy preserves the current two-model runtime until explicitly
-    # enabled. Unified replaces only the LLM router/extractor adapters.
+    # Unified là runtime mặc định; legacy chỉ giữ lại cho arm A/B.
     intake_mode: Literal["unified", "legacy"] = "unified"
     intake_model: str = "acne-intake"
     intake_timeout: float = 60.0
@@ -105,8 +104,6 @@ class Settings(BaseSettings):
 
     # ── Embedding & Reranker ─────────────────────────────────────────────────
     embedding_model: str = "AITeamVN/Vietnamese_Embedding"
-    # Để trống = dùng embedding_model; đặt "intfloat/multilingual-e5-large" cho KB VI+EN.
-    embedding_model_multilingual: str = ""
     reranker_model: str = "BAAI/bge-reranker-v2-m3"
     # device cho embedder + reranker. "cuda" để dùng GPU (cần PyTorch+CUDA build).
     # "cpu" nếu không có GPU hoặc VRAM đã đầy bởi LLM.
@@ -174,33 +171,11 @@ class Settings(BaseSettings):
     guardrails_scope_mode: str = "soft"
 
     # ── Retrieval ────────────────────────────────────────────────────────────
-    # Default = giá trị production đang chạy (tune xuống để giảm latency).
-    # Pool trước rerank. (Lịch sử: 20→15→6; 6 là giá trị vận hành thực tế.)
-    retrieve_top_k: int = 6
     # Giữ lại sau cross-encoder rerank
     rerank_top_k: int = 3
     # Chat dùng pool nhỏ hơn vì latency quan trọng hơn
     chat_retrieve_top_k: int = 6
     chat_rerank_top_k: int = 3
-    # Khi có clinical_plan đầy đủ: giữ nhiều chunk hơn để LLM có đủ context
-    chat_rerank_top_k_clinical: int = 5
-    # ── Retrieval source boost (tune riêng) ───────────────────────────
-    # Dùng trong rag/retriever.py thay vì hardcode
-    retrieval_source_boosts: dict = {
-        "nice_guideline": 1.50,
-        "aad_guideline": 1.50,
-        "jid_paper": 1.30,
-        "pubmed_review": 1.20,
-        "clinical_textbook": 1.20,
-        "vi_medical_site": 1.00,
-        "forum_post": 0.80,
-        "blog": 0.70,
-        "unknown": 1.00,
-    }
-    retrieval_trust_boosts: dict = {"high": 1.40, "medium": 1.00, "low": 0.70}
-    retrieval_authority_boost: float = 1.15
-
-
     # Tổng ký tự context inject vào prompt chat
     chat_max_context_chars: int = 6000
     # Sigmoid score tối thiểu để chunk xuất hiện trong citation (khớp reranker threshold)
@@ -218,18 +193,13 @@ class Settings(BaseSettings):
     # Floor PHẢI > 0.50 mới phân biệt được chunk rác (~0.50) với chunk tốt (~0.65+).
     # 0.58 = chặn vùng score gần-random quan sát được trong trace thực tế (~0.52-0.54).
     # (Trước đây 0.45 < 0.50 nên guard không bao giờ kích hoạt — dead code.)
-    chat_rerank_ood_floor: float = 0.58
-    # Ngưỡng MỀM per-chunk: thay vì drop sạch khi cả pool yếu, giữ riêng những
-    # chunk vượt keep_floor (cứu chunk liên quan nhưng reranker chấm thấp, ví dụ
-    # tiếng Việt domain hẹp), chỉ drop hết khi KHÔNG chunk nào vượt.
-    chat_rerank_keep_floor: float = 0.58
+    # Ngưỡng MỀM per-chunk: giữ riêng chunk vượt floor khi cả pool yếu,
+    # chỉ drop hết khi KHÔNG chunk nào vượt.
+    chat_rerank_floor: float = 0.58
     # ── Extraction confidence (rule-based intake) ────────────────────────────
     # Ngưỡng cho tầng confidence bọc quanh normalizer (extraction_confidence.py).
     # Heuristic khởi điểm; golden set (scripts/tune_extraction_thresholds.py) dò lại.
-    extract_fuzzy_accept: float = 0.86   # similarity ≥ → nhận chắc (method=fuzzy)
-    extract_fuzzy_review: float = 0.72   # review ≤ sim < accept → giữ low-confidence
     extract_min_field_conf: float = 0.60  # completeness coi field "đã có" khi ≥ ngưỡng
-    extract_safety_accept: float = 0.78  # red_flags/allergies hạ ngưỡng (ưu tiên recall)
     route_min_confidence: float = 0.55   # routing dưới ngưỡng → clarify thay vì đoán
     # ── Reranker tuning ──────────────────────────────────────────────────────
     reranker_batch_size: int = 16
@@ -240,8 +210,6 @@ class Settings(BaseSettings):
     # ── Dense retrieval ──────────────────────────────────────────────────────
     # Cosine distance threshold Chroma: 0.60 ≈ similarity 0.40, đủ chặt cho medical
     dense_max_distance: float = 0.60
-    bm25_normalize: bool = True
-    english_input_notice: bool = True
 
     # ── Cache (DiskCache) ────────────────────────────────────────────────────
     # Thu muc luu cache tren disk (embedding vectors + retrieval results)
@@ -252,11 +220,6 @@ class Settings(BaseSettings):
     # ── Session store (SQLite) ───────────────────────────────────────────────
     # Thời gian idle tối đa (giây) trước khi session bị xoá.
     session_ttl: float = 1800.0
-    # Giới hạn lịch sử hội thoại inject vào prompt (ký tự). 0 = không giới hạn.
-    # 3000 chars ≈ 850 tokens — đủ cho ~8-10 turns ngắn, tránh overflow ctx window.
-    session_history_char_budget: int = 3000
-    # Số turns tối đa giữ trong memory (0 = không giới hạn). Kết hợp với char budget.
-    session_max_history_turns: int = 10
 
     # ── Audit log (SQLite) ───────────────────────────────────────────────────
     # SQLite file chỉ dùng cho audit log (tạo tự động nếu chưa có).
@@ -278,6 +241,10 @@ class Settings(BaseSettings):
     api_key: str = ""
     rate_limit_per_minute: int = 60
     metrics_enabled: bool = True
+
+    # ── Judge (eval) ─────────────────────────────────────────────────────────
+    judge_provider: Literal["openai", "anthropic", "deepseek"] = "openai"
+    judge_model: str = "gpt-5.4-mini"
 
     # ── Crawler ────────────────────────────────────────────────────────────────
     crawl_concurrency: int = 8

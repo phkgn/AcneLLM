@@ -123,8 +123,7 @@ def log_runtime_banner(container: Any) -> None:
     embedder_name = getattr(
         container.embedder,
         "model_name",
-        getattr(settings, "embedding_model_multilingual", "")
-        or getattr(settings, "embedding_model", "unavailable"),
+        getattr(settings, "embedding_model", "unavailable"),
     )
     reranker_name = getattr(
         container.reranker,

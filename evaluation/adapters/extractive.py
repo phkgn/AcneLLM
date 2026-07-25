@@ -3,6 +3,8 @@ KHÔNG gọi LLM. Trả top chunks dạng template cố định, không sinh ch�
 """
 from __future__ import annotations
 
+from acne_llm.config import settings
+
 from .base import SystemAdapter
 from ._repo import build_eval_container, normalize_query
 
@@ -48,13 +50,17 @@ class ExtractiveAdapter(SystemAdapter):
         retriever = self.container.retriever
         if cfg.get("use_mmr_prefilter", True) and hasattr(retriever, "retrieve_with_mmr"):
             retrieval = retriever.retrieve_with_mmr(
-                query, top_k=cfg.get("retrieve_top_k", 15),
-                rerank_top_k=cfg.get("retrieve_top_k", 15),
+                query, top_k=cfg.get("retrieve_top_k", settings.chat_retrieve_top_k),
+                rerank_top_k=cfg.get(
+                    "retrieve_top_k", settings.chat_retrieve_top_k
+                ),
                 mode="hybrid", mmr_lambda=cfg.get("mmr_lambda", 0.6),
             )
         else:
             retrieval = retriever.retrieve(
-                query, top_k=cfg.get("retrieve_top_k", 15), mode="hybrid"
+                query,
+                top_k=cfg.get("retrieve_top_k", settings.chat_retrieve_top_k),
+                mode="hybrid",
             )
         self._trace["retrieved_ids"] = [c.chunk_id for c in retrieval.chunks]
 

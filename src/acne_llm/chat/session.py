@@ -36,9 +36,11 @@ _GENITAL_FILTER_TERMS = (
 SESSION_TTL: float = 1800.0        # seconds idle before session expires
 MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
 SESSION_SCHEMA_VERSION: int = 2
+# Nguồn sự thật duy nhất cho ngân sách ký tự lịch sử.
 HISTORY_CHAR_BUDGET: int = 2000    # ~570 tokens; prompt thực đo được 828 tokens / ctx 3072
 FIRST_TURN_BUDGET: int = 0         # first-turn anchoring was removed in schema v2
 
+# Nguồn sự thật duy nhất cho cửa sổ lịch sử đưa vào prompt.
 HISTORY_WINDOW_TURNS: int = 6      # 3 lượt hỏi-đáp; budget chars mới là giới hạn thật
 
 

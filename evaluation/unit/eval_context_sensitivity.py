@@ -160,6 +160,7 @@ def summarize_results(
 
 
 def _retrieve(container, user, config: dict):
+    from acne_llm.config import settings
     from acne_llm.utils.chunk_filter import drop_noisy_chunks, drop_query_mismatched_chunks
     from acne_llm.utils.retrieval_query import build_retrieval_query_from_user
 
@@ -170,14 +171,18 @@ def _retrieve(container, user, config: dict):
     if config.get("use_mmr_prefilter", True) and hasattr(retriever, "retrieve_with_mmr"):
         retrieval = retriever.retrieve_with_mmr(
             query,
-            top_k=config.get("retrieve_top_k", 15),
-            rerank_top_k=config.get("retrieve_top_k", 15),
+            top_k=config.get("retrieve_top_k", settings.chat_retrieve_top_k),
+            rerank_top_k=config.get(
+                "retrieve_top_k", settings.chat_retrieve_top_k
+            ),
             mode="hybrid",
             mmr_lambda=config.get("mmr_lambda", 0.6),
         )
     else:
         retrieval = retriever.retrieve(
-            query, top_k=config.get("retrieve_top_k", 15), mode="hybrid"
+            query,
+            top_k=config.get("retrieve_top_k", settings.chat_retrieve_top_k),
+            mode="hybrid",
         )
     if container.reranker is not None:
         retrieval = container.reranker.rerank(

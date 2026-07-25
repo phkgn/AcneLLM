@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from acne_llm.chat.orchestrator import prepare_chat_turn  # noqa: E402
 from acne_llm.chat.fallback.llm_extractor import LLMExtractor  # noqa: E402
 from acne_llm.chat.fallback.semantic_router import SemanticRouter  # noqa: E402
-from acne_llm.chat.session import ConversationTurn  # noqa: E402
+from acne_llm.chat.session import ConversationTurn, HISTORY_WINDOW_TURNS  # noqa: E402
 from acne_llm.config import Settings  # noqa: E402
 from acne_llm.db.session_store import SQLiteSessionStore  # noqa: E402
 from acne_llm.guardrails.runner import GuardrailRunner  # noqa: E402
@@ -89,7 +89,7 @@ def _build_probe_container(settings: Settings, session_path: str):
     session_store = SQLiteSessionStore(
         session_path,
         ttl=settings.session_ttl,
-        max_turns=settings.session_max_history_turns,
+        max_turns=HISTORY_WINDOW_TURNS,
     )
     guardrails = GuardrailRunner(
         settings.guardrails_yaml,
@@ -97,9 +97,7 @@ def _build_probe_container(settings: Settings, session_path: str):
         enable_ood=False,
         scope_mode=settings.guardrails_scope_mode,
     )
-    embedding_model = (
-        settings.embedding_model_multilingual or settings.embedding_model
-    )
+    embedding_model = settings.embedding_model
     embedder = Embedder(
         model_name=embedding_model,
         device=settings.device,

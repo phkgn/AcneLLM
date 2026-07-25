@@ -1,4 +1,9 @@
-"""Hybrid retriever: dense (Chroma) + sparse (BM25) with RRF fusion."""
+"""Hybrid retriever: dense (Chroma) + sparse (BM25) with RRF fusion.
+
+Ba bảng boost chỉ có nguồn sự thật tại module này. Riêng dense_max_distance
+thuộc config vì production DI luôn truyền Settings; hằng số dưới đây chỉ là
+default đồng bộ cho caller trực tiếp và test.
+"""
 from __future__ import annotations
 import numpy as np
 from loguru import logger
@@ -8,6 +13,7 @@ from .vectorstore import ChromaStore
 from .embedder import Embedder
 from .sparse import BM25Index
 
+# Nguồn sự thật duy nhất cho boost theo source type.
 # Source-type specific boost — granular hơn trust_level 3-tier.
 # Áp dụng sau RRF fusion để guideline sources nổi lên mà không cần
 # nhúng từ "guideline" vào query text.
@@ -22,10 +28,13 @@ _SOURCE_TYPE_BOOST: dict[str, float] = {
     "blog":              0.70,
     "unknown":           1.00,
 }
+# Nguồn sự thật duy nhất cho boost theo trust level.
 # Fallback cho chunks cũ chưa có source_type (chỉ có trust_level generic)
 _TRUST_LEVEL_BOOST: dict[str, float] = {"high": 1.4, "medium": 1.0, "low": 0.7}
+# Nguồn sự thật duy nhất cho boost theo authority tag.
 _AUTHORITY_TAG_BOOST = 1.15
-_DENSE_MAX_DISTANCE: float = 0.48  # tightened: loại chunk xa centroid (was 0.60)
+# Default cho caller trực tiếp/test. Production: di.py truyền settings đè lên.
+_DENSE_MAX_DISTANCE: float = 0.60
 _MIN_FUSION_SCORE: float = 0.005   # absolute floor (fallback)
 _MIN_FUSION_SCORE_RELATIVE: float = 0.30  # giữ chunk có score >= 30% của max_score
 

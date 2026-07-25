@@ -10,6 +10,7 @@ from loguru import logger
 from .llm.ollama_backend import OllamaBackend
 from .llm.prompt_builder import PromptBuilder
 from .chat.fallback.semantic_router import SemanticRouter
+from .chat.session import HISTORY_WINDOW_TURNS
 from .chat.unified_intake import UnifiedIntake
 from .guardrails.runner import GuardrailRunner
 from .rag.embedder import Embedder
@@ -90,7 +91,7 @@ class Container:
 def build_container(settings) -> Container:
     # -- Database ----------------------------------------------------------------
     db_ttl = getattr(settings, "session_ttl", 1800.0)
-    db_max_turns = getattr(settings, "session_max_history_turns", 10)
+    db_max_turns = HISTORY_WINDOW_TURNS
     # Sessions: SQLite (một file sessions.db thay cho nhiều file JSONL)
     session_db_path = getattr(settings, "session_db_path", "./data/sessions.db")
     session_store = SQLiteSessionStore(session_db_path, ttl=db_ttl, max_turns=db_max_turns)
@@ -248,11 +249,10 @@ def build_container(settings) -> Container:
     needs_embedder = semantic_train_path.exists() or (chroma_ready and bm25_ready)
     if needs_embedder:
         try:
-            emb_model = (
-                getattr(settings, "embedding_model_multilingual", "")
-                or settings.embedding_model
+            embedder = Embedder(
+                model_name=settings.embedding_model,
+                device=settings.device,
             )
-            embedder = Embedder(model_name=emb_model, device=settings.device)
         except Exception as e:
             logger.warning(
                 f"Embedder load failed; semantic router/RAG dense path disabled: {e}"

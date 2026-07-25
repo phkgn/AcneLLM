@@ -588,7 +588,7 @@ def _build_retriever(mode: str):
     print(f"  Chroma loaded: {store.count()} vectors")
 
     from acne_llm.rag.embedder import Embedder
-    emb_model = getattr(settings, "embedding_model_multilingual", "") or settings.embedding_model
+    emb_model = settings.embedding_model
     embedder  = Embedder(model_name=emb_model, device=settings.device)
     retriever = HybridRetriever(store=store, embedder=embedder, bm25=bm25)
 
@@ -1492,7 +1492,10 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--top-k", type=int, default=10, dest="top_k",
-        help="Number of chunks to retrieve per query (before rerank, default=10 y chang settings.chat_retrieve_top_k production)",
+        help=(
+            "Number of chunks to retrieve per query before rerank "
+            f"(default=settings.chat_retrieve_top_k={settings.chat_retrieve_top_k})"
+        ),
     )
     parser.add_argument(
         "--rerank-top-k", type=int, default=3, dest="rerank_top_k",

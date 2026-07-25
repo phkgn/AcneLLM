@@ -30,10 +30,7 @@ def _build_router():
     from acne_llm.chat.fallback.semantic_router import SemanticRouter
     from acne_llm.rag.embedder import Embedder
 
-    emb_model = (
-        getattr(settings, "embedding_model_multilingual", "")
-        or settings.embedding_model
-    )
+    emb_model = settings.embedding_model
     embedder = Embedder(model_name=emb_model, device=settings.device)
     return SemanticRouter(
         embedder=embedder,

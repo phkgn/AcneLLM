@@ -534,7 +534,7 @@ def step_embed(batch_size: int = 32, force: bool = False) -> int:
 
     try:
         from acne_llm.config import settings
-        emb_model = getattr(settings, "embedding_model_multilingual", "") or settings.embedding_model
+        emb_model = settings.embedding_model
         device = settings.device
     except Exception:
         emb_model = "AITeamVN/Vietnamese_Embedding"
