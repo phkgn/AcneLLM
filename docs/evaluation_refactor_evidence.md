@@ -5,24 +5,32 @@ Branch: `codex/simplify-chat-pipeline`
 
 ## Kết luận
 
-Refactor Phase A–H đã hoàn tất và các đường kiểm chứng đều xanh. `Settings` còn
-70 field, judge pointwise dùng `openai/gpt-5.4-mini`, dashboard không còn ép
-provider/model/faithfulness model, retrieval metrics và answer metrics có
-contract tách biệt, Unified Intake có harness riêng, và bottleneck artifact chứa
-paired delta từng câu cùng safety count tách riêng.
+Tại refactor baseline `6d2259b`, Phase A–H đã hoàn tất và các đường kiểm chứng
+đều xanh: `Settings` còn 70 field, judge pointwise dùng
+`openai/gpt-5.4-mini`, dashboard không còn ép provider/model/faithfulness model,
+retrieval metrics và answer metrics có contract tách biệt, Unified Intake có
+harness riêng. Checkout hiện tại đã có commit hậu kỳ `f51a710`; khác biệt config
+của commit đó được ghi riêng trong phần correction v2 bên dưới.
 
-Thí nghiệm 5 câu cho tín hiệu mạnh nhất ở **generator**:
+**Kết luận nút thắt từ thí nghiệm 5 câu v1 là vô hiệu về mặt thiết kế thí
+nghiệm.** Phần evidence refactor ở tài liệu này vẫn có giá trị, nhưng không được
+dùng các số v1 để kết luận generator, intake hay retrieval là nút thắt:
 
-- X (oracle intake) không tăng câu nào, giảm 2/5 câu.
-- Y (`gpt-5.6-terra`) tăng 2/5 câu, không giảm câu nào.
-- W (oracle RAG) tăng 1, giảm 1, không đổi 2 và timeout 1.
-- Cả bốn arm có median delta bằng 0 vì subset nhỏ và nhiều tie; không được biến
-  tín hiệu định hướng này thành kết luận thống kê hay production-readiness.
+- Arm X chạy trên D8 không có `intent_label`; code đã ép mọi mẫu thành
+  `knowledge`, chỉ 2/5 mẫu có bất kỳ `user_context` nào. X chưa từng đo oracle
+  intake mà đo tác hại của intent suy đoán và context hầu như rỗng.
+- Arm Y v1 sinh ba candidate rồi dùng chính `quality_score` của judge để chọn
+  candidate trung vị, trong khi Z/X/W chỉ có một candidate. Y là arm duy nhất
+  được giảm phương sai bằng chính thước đo dùng để kết luận.
+- W có n=4 do timeout còn các arm khác n=5; paired analysis v1 không dùng cùng
+  một tập ID thành công.
 
-Vì vậy, ưu tiên kế tiếp hợp lý là generator/local-generation reliability và
-answer quality. Không có evidence để gọi intake hoặc retrieval là semantic
-bottleneck chính trên subset này. Intake oracle có latency thấp hơn, nên intake
-vẫn là bottleneck vận hành, không phải bottleneck chất lượng được chứng minh.
+Harness v2 đã sửa ba lỗi trên và rerun Z/W/Y trên cùng 5 ID D8. Kết quả mới chỉ
+là tín hiệu định hướng: Y tăng answer quality nhưng giảm grounding; W tăng
+role/tone nhưng grounding không có hướng tăng nhất quán. D8 không có nhãn intake
+nên X fail-fast và mặt refusal fidelity không đo được. Chưa có file chấm tay 40
+mẫu, vì vậy các mặt do judge chấm **chưa đủ điều kiện để ra kết luận nút thắt**.
+Không chạy full trước khi B3 có nhãn intake và judge agreement đạt ngưỡng.
 
 ## Commits và line delta theo phase
 
@@ -173,7 +181,66 @@ evaluation/tests/test_eval_debug_fixes.py +24/-0
 `judge_cache.sqlite` đã được restore về HEAD sau paid runs; benchmark không để
 cache sinh tự động lẫn vào diff.
 
-## Bottleneck protocol và artifact
+## Bottleneck experiment correction v2
+
+- Harness commit: `467136f`; runtime checkout khi rerun: `f51a710`.
+- Dataset: `evaluation/datasets/v1/d8_qrels_seed.jsonl`, đúng 5 ID
+  `d8-0001,d8-0003,d8-0004,d8-0006,d8-0008`.
+- Question fingerprint giữ nguyên:
+  `fae85439bbf04b3ac56d1e1d1f9b4828a0d41b216badc571b83756c6d7c8a92b`.
+- Dataset fingerprint mới (bao gồm labels/qrels):
+  `468783581d5a485a0feb9ede709a6269d5273a1184ef163607292df405c93cdd`.
+- Artifact v2 SHA-256:
+  `18f35c0b1d21c04f254c5436cdfc10f0c7141ea6710bda357552e6f8a6890f7d`.
+- Judge bị khóa và ghi provenance là `openai/gpt-5.4-mini`; generator Y là
+  `gpt-5.6-terra`. Y không nhận `temperature=0`, nên sinh ba lần ở temperature
+  mặc định nhưng luôn lấy `candidate[0]`; cả 15 candidate-score pairs vẫn được
+  giữ trong trace.
+- Z/W/Y đều 5/5, không mẫu nào cần retry, `paired_n=5`, `dropped_ids=[]`, và
+  không arm nào fail safety. X trên D8 dừng trước model/judge, exit code 1 và
+  không tạo artifact.
+
+| Arm | Grounding median | Answer quality median | Role/tone median | Safety fail | Median latency |
+|---|---:|---:|---:|---:|---:|
+| Z | 0.6000 | 4.0 | 4.0 | 0 | 46,325 ms |
+| W | 0.6667 | 4.0 | 5.0 | 0 | 39,423 ms |
+| Y | 0.4286 | 5.0 | 5.0 | 0 | 31,773 ms |
+
+Paired delta theo từng mặt:
+
+| Arm−Z | Mặt | Median delta | Tăng/Giảm/= | Paired n |
+|---|---|---:|---:|---:|
+| W−Z | grounding | 0.0000 | 1/2/2 | 5 |
+| W−Z | answer quality | 0.0 | 2/0/3 | 5 |
+| W−Z | role/tone | +1.0 | 3/0/2 | 5 |
+| W−Z | safety gate | không lấy trung bình | fail 0→0 | 5 |
+| Y−Z | grounding | −0.1176 | 2/3/0 | 5 |
+| Y−Z | answer quality | +1.0 | 5/0/0 | 5 |
+| Y−Z | role/tone | +1.0 | 4/0/1 | 5 |
+| Y−Z | safety gate | không lấy trung bình | fail 0→0 | 5 |
+
+Mặt refusal fidelity có `paired_n=0` ở cả ba arm vì D8 không có
+`intent_label`; harness không suy đoán nhãn thay thế. `judge_agreement.py` đã
+được test với 40 dòng chia đều 10 dòng mỗi arm, xuất blind review + key riêng và
+báo cáo overall/Y riêng. Chưa có nhãn người thật, nên agreement thực tế vẫn chờ.
+
+So với artifact v1 `ec955c00…`, các số cũ không cùng scorecard/scale nên không
+được trừ trực tiếp. Thay đổi riêng của Task 1 được kiểm bằng trace: mọi row Y có
+`selected_candidate_index=0`; trong rerun này cả ba candidate của mỗi câu đều
+được judge chấm `(answer_quality=5, role_tone=5)`, nên bỏ median-selection
+**không làm đổi điểm Y trong chính cohort v2 này**. Việc old Y chỉ tăng 2/5 trên
+`quality_score` còn new Y tăng 5/5 trên `answer_quality` đến từ prompt/scale
+scorecard mới và generation mới, không thể quy nhân quả cho Task 1.
+
+Lưu ý checkout: commit `f51a710` được thêm sau harness commit và làm
+`Settings.model_fields` từ 70 thành 85, đồng thời bỏ `judge_provider/judge_model`.
+Full pytest tại harness commit sạch là `539 passed, 1 xfailed`; full pytest ở
+HEAD `f51a710` là `538 passed, 1 xfailed, 1 failed` tại `test_env_keys.py` vì
+`JUDGE_PROVIDER` trong `.env` thành key mồ côi. Harness v2 truyền judge lineage
+tường minh nên artifact trên không dùng nhầm fallback, nhưng regression config
+này cần được xử lý riêng, ngoài phạm vi brief thí nghiệm.
+
+## Bottleneck protocol và artifact v1 — lịch sử, đã vô hiệu
 
 - Dataset: `evaluation/datasets/v1/d8_qrels_seed.jsonl`.
 - Stable IDs: `d8-0001,d8-0003,d8-0004,d8-0006,d8-0008`.
@@ -185,7 +252,7 @@ cache sinh tự động lẫn vào diff.
 - Artifact SHA-256:
   `ec955c0005a6db6402ecd1bc6d4958cf3d9bd77add28df7cf8508196d84d1d43`.
 - Z/X/W local: `temperature=0`; Y: temperature unsupported, ba candidates/mẫu,
-  chọn candidate có judge score trung vị.
+  chọn candidate có judge score trung vị. Đây là lỗi thiết kế đã vô hiệu kết quả.
 
 | Arm | Success | Median quality | Median delta vs Z | Tăng/Giảm/= | Paired n | Safety fail | Median latency |
 |---|---:|---:|---:|---:|---:|---:|---:|

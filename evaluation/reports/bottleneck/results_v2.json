@@ -1,0 +1,2851 @@
+{
+  "schema_version": 2,
+  "experiment": "paired_bottleneck_xyzw",
+  "dataset": "evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+  "question_fingerprint": "fae85439bbf04b3ac56d1e1d1f9b4828a0d41b216badc571b83756c6d7c8a92b",
+  "dataset_fingerprint": "468783581d5a485a0feb9ede709a6269d5273a1184ef163607292df405c93cdd",
+  "question_ids": [
+    "d8-0001",
+    "d8-0003",
+    "d8-0004",
+    "d8-0006",
+    "d8-0008"
+  ],
+  "updated_at": "2026-07-26T02:38:57.878605+00:00",
+  "arms": {
+    "z": {
+      "summary": {
+        "label": "real_intake+real_rag+local_generator",
+        "generator_model": "acnellm-role",
+        "temperature_policy": "temperature_0",
+        "judge_provider": "openai",
+        "judge_model": "gpt-5.4-mini",
+        "judge_cost_usd": 0.004177,
+        "rows": 5,
+        "successful": 5,
+        "failed": 0,
+        "failed_ids": [],
+        "face_medians": {
+          "grounding_support": 0.6,
+          "answer_quality": 4.0,
+          "role_tone": 4.0
+        },
+        "safety_failures": 0,
+        "safety_fail_ids": [],
+        "oracle_zero_field_count": null,
+        "oracle_zero_field_ids": [],
+        "known_asymmetry": null
+      },
+      "items": [
+        {
+          "sample_id": "d8-0001",
+          "user_query": "Benzoyl peroxide có dùng được cho da nhạy cảm không?",
+          "user_context": {
+            "skin_type": "sensitive"
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Benzoyl peroxide có thể gây kích ứng cho da nhạy cảm. Do đó, nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp hơn, khoảng 2,5%. Điều này giúp giảm thiểu nguy cơ gây khô và kích ứng cho da.",
+          "used_chunks": [
+            "medlatec_95c58dfb42::0004",
+            "vinmec_0f4892fd51::0004",
+            "dermnetnz_8d930888c7::0003"
+          ],
+          "scorecard": {
+            "grounding_support": 0.3333,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.3333,
+                "unsupported_sentences": [
+                  "Do đó, nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp hơn, khoảng 2,5%.",
+                  "Điều này giúp giảm thiểu nguy cơ gây khô và kích ứng cho da."
+                ],
+                "eligible_sentence_count": 3,
+                "grounded_sentence_count": 1,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Benzoyl peroxide có thể gây kích ứng cho da nhạy cảm.",
+                    "grounded": true,
+                    "score": 0.6113,
+                    "lexical_score": 0.4733,
+                    "semantic_score": 0.6113,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Do đó, nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp hơn, khoảng 2,5%.",
+                    "grounded": false,
+                    "score": 0.4829,
+                    "lexical_score": 0.0952,
+                    "semantic_score": 0.4829,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Điều này giúp giảm thiểu nguy cơ gây khô và kích ứng cho da.",
+                    "grounded": false,
+                    "score": 0.2983,
+                    "lexical_score": 0.0355,
+                    "semantic_score": 0.2983,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng ý chính: benzoyl peroxide có thể dùng nhưng dễ kích ứng với da nhạy cảm, và gợi ý nồng độ thấp 2,5% là hợp lý. Câu trả lời đủ ngắn gọn để người dùng hiểu hướng đi an toàn, dù chưa nói thêm cách dùng thận trọng như thử trên vùng nhỏ hoặc tăng tần suất từ từ.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "medlatec_95c58dfb42::0004",
+                "text": "- Trong quá trình dùng Benzoyl peroxide cần bảo vệ da tránh tiếp xúc trực tiếp với ánh nắng mặt trời, nếu đi ra ngoài cần che chắn để da được bảo vệ và nên dùng kem chống nắng. - Không sử dụng đồng thời Benzoyl peroxide với các loại thuốc hoặc kem bôi ngoài da khác. - Luôn vệ sinh da sạch sẽ trước khi bôi Benzoyl peroxide và tốt nhất nên lựa chọn rửa mặt bằng sản phẩm không chứa cồn dành cho da nhạy cảm. - Nếu lỡ dính Benzoyl peroxide lên mũi, miệng, mắt thì cần lập tức dùng nước để rửa sạch. - Luôn vệ sinh tay sạch sẽ trước và sau khi dùng Benzoyl peroxide. - Không bôi Benzoyl peroxide lên vùng da đang bị tổn thương, đang chảy máu. - Benzoyl peroxide có đặc tính tẩy trắng nên khi dùng sản phẩm chứa thành phần này chú ý tránh xa các loại vảy màu và tóc. - Trong quá trình bôi Benzoyl peroxide trị mụn có thể gặp tình trạng châm chích, bong tróc, đỏ, khô da.",
+                "source": "Medlatec"
+              },
+              {
+                "chunk_id": "vinmec_0f4892fd51::0004",
+                "text": "Nếu toàn bộ khuôn mặt đều bị mụn, hãy sử dụng một dải gel dài 2,5cm mỗi lần bôi. - Có thể bôi gel một hoặc hai lần một ngày. Nếu có làn da nhạy cảm, hãy sử dụng gel mỗi ngày một lần, trước khi đi ngủ. - Cố gắng tránh ánh nắng mạnh khi sử dụng gel benzoyl peroxide. Sử dụng kem chống nắng không chứa dầu, kem dưỡng ẩm hoặc kem nền có thêm SPF30 hoặc cao hơn. Tham vấn bác sĩ da liễu về loại kem chống nắng phù hợp. Cách sử dụng benzoyl peroxide 5% dưới dạng sữa rửa mặt:\n- Làm ướt mặt bằng nước sạch. - Cho một lượng nhỏ sữa rửa mặt có chứa benzoyl peroxide 5% ra tay. - Thoa lên khu vực bị ảnh hưởng và giữ trên da không quá 1 đến 2 phút. - Rửa mặt thật sạch với nước. - Vỗ nhẹ cho da khô. - Có thể rửa 1 hoặc 2 lần một ngày. Thời gian dùng Benzoyl Peroxide có tác dụng trị mụn là phụ thuộc vào tình trạng da được cải thiện nhanh chóng như thế nào.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "dermnetnz_8d930888c7::0003",
+                "text": "Avoid greasy emollients, hair pomades, and the use of comedogenic products on the affected area. Benzoyl peroxide is a topical antiseptic and is available as a wash, gel, or lotion that can be bought over the counter. It can be used alone for mild acne or in combination with oral therapy for more severe cases. Benzoyl peroxide should be applied to all the areas affected by acne. If the skin is particularly sensitive, benzoyl peroxide treatment can be started at a low concentration of 2.5%, as higher concentrations are more likely to cause dryness and irritation. Topical retinoids are creams, lotions, and gels enriched with a derivative of vitamin A (eg, tretinoin and adapalene). If the skin is sensitive, an oil-free moisturiser or sunscreen can be added. A topical retinoid should be applied to the whole of the affected skin. It is often initially used 2–3 times a week, and applications are increased to daily, as tolerated, if there is no improvement in the acne. Topical retinoids are also available in combination with benzoyl peroxide or a topical antibiotic. The treatment for children with moderate acne is 250–500 mg of the oral antibiotic, erythromycin, in single or split dosing.",
+                "source": "DermNetNZ"
+              }
+            ]
+          },
+          "latency_ms": 40316
+        },
+        {
+          "sample_id": "d8-0003",
+          "user_query": "Cách chăm sóc da mụn tuổi dậy thì",
+          "user_context": {
+            "age": 15
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có nhiều cách chăm sóc da mụn tuổi dậy thì. Đầu tiên, bạn nên rửa mặt hai lần một ngày bằng nước ấm và sữa rửa mặt nhẹ nhàng. Tránh chà xát mạnh để không làm kích ứng da. Ngoài ra, tẩy tế bào chết hàng tuần cũng có thể giúp thông thoáng lỗ chân lông. Nếu mụn nặng, bạn có thể xem xét sử dụng thuốc đặc trị như benzoyl peroxide hoặc axit salicylic. Tuy nhiên, nếu mụn không cải thiện, tốt nhất là nên gặp bác sĩ da liễu để được tư vấn cụ thể.",
+          "used_chunks": [
+            "vnexpress-suckhoe_c4293ecac6::0003",
+            "hellobacsi_a56e195fd9::0012",
+            "vinmec_c844350bab::0002"
+          ],
+          "scorecard": {
+            "grounding_support": 0.5,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 4.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.5,
+                "unsupported_sentences": [
+                  "Tránh chà xát mạnh để không làm kích ứng da.",
+                  "Nếu mụn nặng, bạn có thể xem xét sử dụng thuốc đặc trị như benzoyl peroxide hoặc axit salicylic.",
+                  "Tuy nhiên, nếu mụn không cải thiện, tốt nhất là nên gặp bác sĩ da liễu để được tư vấn cụ thể."
+                ],
+                "eligible_sentence_count": 6,
+                "grounded_sentence_count": 3,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Có nhiều cách chăm sóc da mụn tuổi dậy thì.",
+                    "grounded": true,
+                    "score": 0.5851,
+                    "lexical_score": 0.4144,
+                    "semantic_score": 0.5851,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Đầu tiên, bạn nên rửa mặt hai lần một ngày bằng nước ấm và sữa rửa mặt nhẹ nhàng.",
+                    "grounded": true,
+                    "score": 0.5327,
+                    "lexical_score": 0.4091,
+                    "semantic_score": 0.5327,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Tránh chà xát mạnh để không làm kích ứng da.",
+                    "grounded": false,
+                    "score": 0.4274,
+                    "lexical_score": 0.4274,
+                    "semantic_score": 0.3766,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Ngoài ra, tẩy tế bào chết hàng tuần cũng có thể giúp thông thoáng lỗ chân lông.",
+                    "grounded": true,
+                    "score": 0.6466,
+                    "lexical_score": 0.6466,
+                    "semantic_score": 0.454,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nếu mụn nặng, bạn có thể xem xét sử dụng thuốc đặc trị như benzoyl peroxide hoặc axit salicylic.",
+                    "grounded": false,
+                    "score": 0.4966,
+                    "lexical_score": 0.3786,
+                    "semantic_score": 0.4966,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Tuy nhiên, nếu mụn không cải thiện, tốt nhất là nên gặp bác sĩ da liễu để được tư vấn cụ thể.",
+                    "grounded": false,
+                    "score": 0.4286,
+                    "lexical_score": 0.4286,
+                    "semantic_score": 0.3343,
+                    "best_context_index": 0
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời đúng trọng tâm về chăm sóc da mụn tuổi dậy thì, có các bước cơ bản và nhắc khi nào nên đi khám. Giọng điệu phù hợp vai tư vấn thông tin da liễu, không khẳng định chẩn đoán. Điểm trừ là còn khá chung chung và chưa nói rõ cách dùng sản phẩm trị mụn ở mức an toàn hơn cho tuổi 15 (tần suất, theo dõi kích ứng, dưỡng ẩm/chống nắng).",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 4.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "vnexpress-suckhoe_c4293ecac6::0003",
+                "text": "Rửa sạch da hai lần một ngày\nRửa sạch da rất quan trọng trong việc chăm sóc, cải thiện tình trạng mụn. Cần rửa mặt nhẹ nhàng bằng khăn sạch, tránh chà xát vì sẽ gây kích ứng da, nổi mụn nhiều hơn. Nên dùng nước ấm để làm sạch da, không dùng nước quá nóng sẽ làm khô da, không dùng nước quá lạnh vì không đủ để làm sạch da đúng cách. Mỗi ngày nên rửa mặt 2 lần và cần rửa mặt sau khi tập thể dục nếu đổ mồ hôi. Tuy nhiên, không nên rửa mặt quá nhiều vì có thể làm khô da, nổi mụn nhiều hơn. Tẩy tế bào chết hàng tuần\nTẩy da chết mỗi tuần một lần cũng có thể giúp chữa mụn trứng cá tuổi dậy thì hiệu quả. Các liệu pháp tẩy tế bào chết chứa hoạt chất nhẹ như axit salicylic hoặc axit alpha-hydroxy. Cũng có thể dùng mặt nạ bùn để giúp thông thoáng lỗ chân lông, loại bỏ các tế bào da chết.",
+                "source": "VnExpress-SucKhoe"
+              },
+              {
+                "chunk_id": "hellobacsi_a56e195fd9::0012",
+                "text": "Làm sạch da\nViệc đầu tiên và căn bản nhất trong chu trình dưỡng da là làm sạch da. Đây cũng là một cách trị mụn trứng cá tuổi dậy thì. Khi lỗ chân lông thông thoáng, sạch sẽ, mụn hoặc các vấn đề khác sẽ nhanh chóng bị đẩy lùi. Hãy hướng dẫn con rửa mặt bằng nước ấm cùng sữa rửa mặt chứa 2% benzoyl peroxide với kích cỡ của một hạt đậu, rửa 2 lần/ngày hoặc 3 lần nếu con vận động nhiều. Lưu ý\nMột điều quan trọng cần nhớ khi điều trị mụn trứng cá ở tuổi dậy thì là gội đầu mỗi ngày nếu tóc trẻ thuộc loại tóc dầu. Khi chất bẩn có trong dầu thừa của tóc dính lên da mặt, trẻ sẽ bị nổi mụn. Do đó, hãy khuyến khích trẻ siêng năng làm sạch da đầu và tóc. 2. Cách trị mụn trứng cá ở tuổi dậy thì: Sử dụng thuốc đặc trị\nSử dụng là cách trị mụn ở tuổi dậy thì nam, nữ đơn giản. Thuốc đặc trị sẽ giúp triệt tiêu nốt mụn hoặc ổ mụn nhanh hơn.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "vinmec_c844350bab::0002",
+                "text": "Điều này khiến lỗ chân lông bị bít tắc, kết hợp với sự xâm nhập của vi khuẩn từ môi trường ngoài, làm tăng nguy cơ nổi mụn trứng cá ở tuổi teen, tuổi dậy thì. Mụn trứng cá có xu hướng giảm dần khi bạn già đi hoặc mụn sẽ giảm khi bạn duy trì thói quen chăm sóc da tốt. 2. Mụn trứng cá khi dậy thì phải làm sao? 10 phương pháp điều trị mụn trứng cá ở tuổi dậy thì\nCó rất nhiều phương pháp để điều trị mụn trứng cả ở tuổi teen. Ở mức độ nhẹ thì có thể tự điều trị, còn ở mức độ vừa và nặng thì ngoài thuốc uống, thuốc bôi thì còn cần chú ý chăm sóc da để vừa giúp phục hồi da vừa ngăn ngừa mụn hiệu quả. Dưới đây là 10 phương pháp mà các bạn có thể tham khảo và lựa chọn cho mình phương pháp phù hợp nhất, cụ thể đó là:\n2.1. Benzoyl peroxide và axit salicylic\nBenzoyl peroxide và axit salicylic là hai phương pháp được sử dụng để điều trị mụn trứng cá không kê đơn (OTC) phổ biến nhất.",
+                "source": "Vinmec"
+              }
+            ]
+          },
+          "latency_ms": 46507
+        },
+        {
+          "sample_id": "d8-0004",
+          "user_query": "Mụn trứng cá nặng có để lại sẹo không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Nguồn 1 cho biết mụn trứng cá nặng có thể để lại sẹo lõm hoặc sẹo lồi. Nguồn 2 cũng nhấn mạnh rằng mụn trứng cá nghiêm trọng có thể để lại sẹo, nhưng lại không đề cập đến sẹo lõm. Nguồn 3 lại nói rằng bệnh nhân có thể để lại sẹo lõm hoặc lồi khi lành thương tổn. Như vậy, thông tin từ các nguồn này chưa thống nhất. Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có thông tin chính xác và phù hợp với tình trạng của bạn.",
+          "used_chunks": [
+            "tuoitre-suckhoe_fd0800c7e2::0000",
+            "vinmec_13fc172f3f::0002",
+            "tuoitre-suckhoe_fd0800c7e2::0001"
+          ],
+          "scorecard": {
+            "grounding_support": 0.6,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 2.0,
+            "role_tone": 4.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.6,
+                "unsupported_sentences": [
+                  "Như vậy, thông tin từ các nguồn này chưa thống nhất.",
+                  "Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có thông tin chính xác và phù hợp với tình trạng của bạn."
+                ],
+                "eligible_sentence_count": 5,
+                "grounded_sentence_count": 3,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Nguồn 1 cho biết mụn trứng cá nặng có thể để lại sẹo lõm hoặc sẹo lồi.",
+                    "grounded": true,
+                    "score": 0.6147,
+                    "lexical_score": 0.4646,
+                    "semantic_score": 0.6147,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nguồn 2 cũng nhấn mạnh rằng mụn trứng cá nghiêm trọng có thể để lại sẹo, nhưng lại không đề cập đến sẹo lõm.",
+                    "grounded": true,
+                    "score": 0.523,
+                    "lexical_score": 0.384,
+                    "semantic_score": 0.523,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nguồn 3 lại nói rằng bệnh nhân có thể để lại sẹo lõm hoặc lồi khi lành thương tổn.",
+                    "grounded": true,
+                    "score": 0.7091,
+                    "lexical_score": 0.7091,
+                    "semantic_score": 0.4302,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Như vậy, thông tin từ các nguồn này chưa thống nhất.",
+                    "grounded": false,
+                    "score": 0.2982,
+                    "lexical_score": 0.2982,
+                    "semantic_score": 0.1397,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có thông tin chính xác và phù hợp với tình trạng của bạn.",
+                    "grounded": false,
+                    "score": 0.4048,
+                    "lexical_score": 0.4048,
+                    "semantic_score": 0.3344,
+                    "best_context_index": 1
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời có đúng hướng khi nói mụn trứng cá nặng có thể để lại sẹo và khuyên gặp bác sĩ da liễu, nhưng quá thiên về tóm tắt nguồn, thiếu trả lời trực tiếp, thiếu giải thích ngắn gọn về nguy cơ sẹo lõm/sẹo lồi và không giúp người hỏi hiểu rõ hơn. Giọng điệu nhìn chung phù hợp vai trợ lý thông tin y khoa, nhưng vẫn hơi máy móc và không thật sự tự nhiên.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 2.0,
+                "role_tone": 4.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "tuoitre-suckhoe_fd0800c7e2::0000",
+                "text": "Mủ hay chất nhầy trắng có thể chảy ra ngoài qua các lỗ mở ra da trong một thời gian dài. Khi lành bệnh thường để lại sẹo lõm hoặc lồi. Các dạng mụn trứng cá nặng\nMụn trứng cá bọc:\nSang thương gồm nhiều sẩn viêm, mụn mủ, nang (kyst) và cục sưng to, đau. Vị trí thường ở mặt, ngực, lưng. Dạng này thường gặp ở nam. Mụn trứng cá cụm:\nBiểu hiện lâm sàng đa dạng với cùi mụn, sẩn, mụn mủ, cục, áp xe và sẹo. Vị trí ở lưng, mông, ngực; ít gặp hơn là bụng, vai, cổ, mặt, cánh tay và đùi. Sang thương thường lớn và rất đau, tạo nhiều đường dò chảy dịch hoặc mủ rất hôi. Lành thường để lại sẹo lõm và sẹo lồi. Bệnh thường khởi phát ở tuổi trưởng thành và nam gặp nhiều hơn nữ. Mụn trứng cá ác tính:\nĐây là một dạng mụn trứng cá rất nặng. Bệnh thường xuất hiện đột ngột với sang thương viêm, kích thước lớn và rất đau ở ngực và lưng (ít gặp ở mặt). Sang thương nhanh chóng loét ra và lành để lại sẹo.",
+                "source": "TuoiTre-SucKhoe"
+              },
+              {
+                "chunk_id": "vinmec_13fc172f3f::0002",
+                "text": "Các bác sĩ da liễu thường khuyên dùng thuốc theo đơn cho mụn trứng cá từ trung bình đến nặng. - Mụn trứng cá nặng: Những người bị mụn trứng cá nghiêm trọng có nhiều nang và nốt viêm. Các mụn có thể chuyển sang màu đỏ đậm hoặc tím. Nó thường để lại sẹo. Điều trị kịp thời bởi bác sĩ da liễu có thể giảm thiểu sẹo. - Mụn trứng cá khổng lồ là một loại u nang trong đó có một lỗ mở giống như mụn đầu đen trên da\n- Mụn trứng cá mặt trời được tìm thấy trên má và cằm của người già, và được cho là do tác hại của ánh nắng mặt trời. - Mụn da cây (nốt sần): Các nốt sần là những mụn trứng cá bị viêm, tạo thành những vết sưng nhỏ màu đỏ hoặc hồng trên da. Nặn hoặc bóp có thể làm cho tình trạng viêm nặng hơn và có thể dẫn đến sẹo. Một số lượng lớn các sẩn có thể chỉ ra mụn trứng cá từ trung bình đến nặng.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_fd0800c7e2::0001",
+                "text": "Bệnh thường xuất hiện đột ngột với sang thương viêm, kích thước lớn và rất đau ở ngực và lưng (ít gặp ở mặt). Sang thương nhanh chóng loét ra và lành để lại sẹo. Bệnh nhân thường sốt, kèm với tăng bạch cầu (10.000 - 30.000/mm3), đau khớp, đau cơ và các triệu chứng toàn thân khác. Bệnh đa số gặp ở thiếu niên. Khi lành thương tổn sẽ để lại sẹo lõm hoặc lồi. Các yếu tố gây nên mụn trứng cá nặng:\nTrong một số trường hợp mụn sẽ trở nên nặng do cơ địa, diễn tiến bệnh hoặc do điều trị không thích hợp. Mụn trứng cá nặng hay gặp ở nam nhiều hơn nữ gấp 10 lần và đa số gặp ở những người có yếu tố gia đình tức có anh chị em hoặc bố mẹ trong nhà cũng bị mụn trứng cá nặng. Tự điều trị hoặc sử dụng đơn thuốc của người thân dùng điều trị mụn có hiệu quả trước đây có thể làm tình trạng mụn nặng hơn hoặc gây biến chứng.",
+                "source": "TuoiTre-SucKhoe"
+              }
+            ]
+          },
+          "latency_ms": 46325
+        },
+        {
+          "sample_id": "d8-0006",
+          "user_query": "Phân biệt mụn đầu đen và mụn đầu trắng",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Nguồn 1 cho biết mụn đầu trắng là những nốt mụn nhỏ có màu trắng xuất hiện trên da, xảy ra khi lỗ chân lông bị tắc đóng lại, không có sự tiếp xúc với không khí. Trong khi đó, mụn đầu đen là những chấm đen nhỏ trên da, xảy ra khi lỗ chân lông bị tắc nhưng vẫn mở và nang lông tiếp xúc với không khí, dẫn đến melanin bị oxy hóa và biến thành màu đen. Cả hai loại mụn này đều không gây đau đớn, nhưng có thể gây khó chịu khi tiến triển và da bị viêm do vi khuẩn.",
+          "used_chunks": [
+            "vinmec_b0be77b4fe::0001",
+            "dalieuhanoi_2d5df79811::0000",
+            "medlatec_ddf7caf881::0004"
+          ],
+          "scorecard": {
+            "grounding_support": 1.0,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 4.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 1.0,
+                "unsupported_sentences": [],
+                "eligible_sentence_count": 3,
+                "grounded_sentence_count": 3,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Nguồn 1 cho biết mụn đầu trắng là những nốt mụn nhỏ có màu trắng xuất hiện trên da, xảy ra khi lỗ chân lông bị tắc đóng lại, không có sự tiếp xúc với không khí.",
+                    "grounded": true,
+                    "score": 0.9289,
+                    "lexical_score": 0.9289,
+                    "semantic_score": 0.6768,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Trong khi đó, mụn đầu đen là những chấm đen nhỏ trên da, xảy ra khi lỗ chân lông bị tắc nhưng vẫn mở và nang lông tiếp xúc với không khí, dẫn đến melanin bị oxy hóa và biến thành màu đen.",
+                    "grounded": true,
+                    "score": 0.8318,
+                    "lexical_score": 0.8318,
+                    "semantic_score": 0.7152,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Cả hai loại mụn này đều không gây đau đớn, nhưng có thể gây khó chịu khi tiến triển và da bị viêm do vi khuẩn.",
+                    "grounded": true,
+                    "score": 0.6667,
+                    "lexical_score": 0.6667,
+                    "semantic_score": 0.5591,
+                    "best_context_index": 0
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Phân biệt đúng cơ bản giữa mụn đầu trắng và mụn đầu đen: đều là comedone do tắc lỗ chân lông, đầu trắng là lỗ chân lông đóng, đầu đen là lỗ chân lông mở và bị oxy hóa nên sẫm màu. Tuy nhiên câu trả lời chưa thật gọn và có chi tiết hơi quá mức/không cần thiết như ‘không gây đau đớn’ và ‘da bị viêm do vi khuẩn’ cho cả hai loại, dễ gây hiểu nhầm vì mụn có thể viêm sau đó.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 4.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "vinmec_b0be77b4fe::0001",
+                "text": "Nếu không điều trị, có thể dẫn đến viêm hoặc nhiễm trùng do vi khuẩn tạo thành mụn viêm. Mụn đầu trắng và đầu đen đều được coi là mụn trứng cá và thường xuất hiện trên lưng, vai, mặt. Mặc dù cả 2 loại mụn đều xảy ra khi lỗ chân lông bị tắc nghẽn bởi tế bào da chết và dầu, có một số điểm khác biệt cần phân biệt, cụ thể:\n- Mụn đầu trắng là những nốt mụn nhỏ có màu trắng xuất hiện da, xảy ra khi lỗ chân lông bị tắc đóng lại, không có sự tiếp xúc với không khí. - Mụn đầu đen là những chấm đen nhỏ trên da, xảy ra khi lỗ chân lông bị tắc nhưng vẫn mở và nang lông tiếp xúc với không khí. Kết quả là melanin bị oxy hóa và biến các lỗ chân lông bị tắc thành màu đen. Mụn đầu trắng và đầu đen không gây ra bất kỳ triệu chứng tiêu cực nào ngoài vẻ ngoài của chúng. Chúng không gây đau đớn trừ khi tình trạng mụn tiến triển và da bị viêm do vi khuẩn trú ẩn bên dưới. 2.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "dalieuhanoi_2d5df79811::0000",
+                "text": "Mụn đầu đen và mụn đầu trắng là hai loại mụn phổ biến nhất, có thể xuất hiện ở mọi độ tuổi, mọi loại da. Dù không gây viêm đau như mụn bọc hay mụn mủ, nhưng lại khiến làn da trở nên sần sùi, thiếu mịn màng, ảnh hưởng đến thẩm mỹ. Cùng tìm hiểu chi tiết qua bài viết dưới đây của Phòng khám Chuyên khoa Da liễu Maia&Maia. I. Phân biệt tình trạng mụn đầu đen và mụn đầu trắng\nMụn đầu đen, mụn đầu trắng là tình trạng da liễu thường gặp và dễ dàng nhận biết thông qua những dấu hiệu sau:\nII. Cách xử lý tình trạng mụn đầu đen và mụn đầu trắng\nMặc dù mụn đầu đen và mụn đầu trắng khác nhau về đặc điểm nhận biết nhưng cách điều trị 2 loại mụn này thường tương đồng. Cụ thể những cách điều trị phổ biến gồm:\n1. Làm sạch da đúng cách\nLàm sạch da là bước quan trọng trong việc ngăn ngừa và cải thiện tình trạng lỗ chân lông bít tắc.",
+                "source": "DaLieuHaNoi"
+              },
+              {
+                "chunk_id": "medlatec_ddf7caf881::0004",
+                "text": "Thông thường, mụn trứng cá sẽ hình thành nhiều khi chị em bước vào độ tuổi dậy thì, mang thai hay người sống trong môi trường bị ô nhiễm, nhiều khói bụi. Mụn đầu đen\nMụn đầu đen được coi là cấp độ đầu của mụn trứng cá và cũng thuộc top các loại mụn phổ biến. Trong số các loại mụn ở mặt thì mụn đầu đen dễ nhận biết nhất bởi nhân của chúng có màu đen. Sở dĩ có màu đen là do nhân mụn nhô lên trên bề mặt da, khi có sự tiếp xúc với không khí sẽ nhanh chóng bị oxy hóa. Những chấm nhỏ li ti xuất hiện trên mặt là biểu hiện của mụn đầu đen nhô lên trên bề mặt da\nBạn có thể phân biệt mụn đầu đen với các loại khác dựa trên biểu hiện như sau:\n-\nBề mặt da ban đầu sẽ dần xuất hiện các lỗ nhỏ li ti, nhân hở ra bên ngoài nên có thể nhìn thấy được bằng mắt thường.",
+                "source": "Medlatec"
+              }
+            ]
+          },
+          "latency_ms": 50791
+        },
+        {
+          "sample_id": "d8-0008",
+          "user_query": "Có nên nặn mụn tại nhà không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có, nhưng bạn cần phải biết cách nặn mụn đúng cách. Nếu không, việc nặn mụn có thể gây ra nhiều vấn đề như tình trạng mụn trở nên trầm trọng hơn, gây tổn thương da và thậm chí để lại sẹo. Bạn nên tham khảo ý kiến bác sĩ da liễu để được tư vấn cụ thể hơn.",
+          "used_chunks": [
+            "medlatec_1b89d7c362::0000",
+            "dalieuhanoi_4c31268921::0002",
+            "youmed_b932616541::0003"
+          ],
+          "scorecard": {
+            "grounding_support": 0.6667,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 3.0,
+            "role_tone": 4.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.6667,
+                "unsupported_sentences": [
+                  "Bạn nên tham khảo ý kiến bác sĩ da liễu để được tư vấn cụ thể hơn."
+                ],
+                "eligible_sentence_count": 3,
+                "grounded_sentence_count": 2,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Có, nhưng bạn cần phải biết cách nặn mụn đúng cách.",
+                    "grounded": true,
+                    "score": 0.5385,
+                    "lexical_score": 0.5385,
+                    "semantic_score": 0.4723,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nếu không, việc nặn mụn có thể gây ra nhiều vấn đề như tình trạng mụn trở nên trầm trọng hơn, gây tổn thương da và thậm chí để lại sẹo.",
+                    "grounded": true,
+                    "score": 0.5324,
+                    "lexical_score": 0.4756,
+                    "semantic_score": 0.5324,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Bạn nên tham khảo ý kiến bác sĩ da liễu để được tư vấn cụ thể hơn.",
+                    "grounded": false,
+                    "score": 0.3852,
+                    "lexical_score": 0.3852,
+                    "semantic_score": 0.3037,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời nêu được mặt tích cực và tiêu cực của việc nặn mụn, đồng thời khuyên hỏi bác sĩ da liễu, nên nhìn chung đúng hướng và có giọng điệu phù hợp vai trợ lý thông tin. Tuy nhiên, nó trả lời chưa đủ rõ cho câu hỏi ‘có nên nặn mụn tại nhà không’ vì không khuyến nghị cụ thể khi nào nên tránh, khi nào có thể cân nhắc, và không đưa hướng dẫn an toàn cơ bản; câu ‘Có, nhưng…’ cũng dễ khiến người đọc hiểu là nên tự nặn tại nhà.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 3.0,
+                "role_tone": 4.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "medlatec_1b89d7c362::0000",
+                "text": "Tin tức\nCó nên nặn mụn không và cách nặn mụn an toàn\n- 08/01/2022 | Những lưu ý chăm sóc da sau nặn mụn để ngăn ngừa sẹo hiệu quả\n- 22/02/2023 | Hướng dẫn nặn mụn đúng cách để quên nỗi lo về sẹo\n- 02/11/2021 | Bí kíp chăm sóc da sau khi nặn mụn để làn da luôn căng bóng\n1. Có nên nặn mụn không? - Về thắc mắc “có nên nặn mụn không”, các chuyên gia cho biết:\n+ Theo nguyên tắc chung, chúng ta không nên nặn mụn tại nhà. Tuy nhiên, với một số dạng mụn không viêm chẳng hạn như mụn đầu đen, mụn đầu trắng,… bạn có thể tự nặn tại nhà. Những loại mụn này được hình thành từ những tế bào da chết và dầu thừa gây viêm tắc các nang lông. Mụn thường nằm sát bề mặt da nên việc nặn mụn thường không khó khăn và không cần thiết phải có những biện pháp can thiệp mới có thể loại bỏ nhân mụn.",
+                "source": "Medlatec"
+              },
+              {
+                "chunk_id": "dalieuhanoi_4c31268921::0002",
+                "text": "- Giảm nguy cơ mụn tái phát: Lấy nhân mụn đúng cách sẽ duy trì làn da sáng mịn, hạn chế mụn xuất hiện trên da. III. Bị mụn có nên tự nặn ở nhà không? Mặc dù nặn mụn ở nhà giúp tiết kiệm thời gian và chi phí nhưng nếu lấy nhân mụn sai cách sẽ tiềm ẩn nhiều rủi ro cho da. Dưới đây là những tác hại khi nặn mụn tại nhà mà mọi người nên biết:\n- Tình trạng mụn trở nên trầm trọng hơn: Lấy nhân mụn không đúng cách sẽ tạo điều kiện cho vi khuẩn xâm nhập khiến làn da sưng tấy, đau dữ dội. - Gây tổn thương da: Dùng lực quá mạnh sẽ gây tổn thương, thậm chí là để lại sẹo trên da. - Thay đổi sắc tố da: Tình trạng viêm do nặn mụn sai cách sẽ làm biến đổi sắc tố da, hình thành nên các vùng da sẫm màu gây mất thẩm mỹ về ngoại hình.",
+                "source": "DaLieuHaNoi"
+              },
+              {
+                "chunk_id": "youmed_b932616541::0003",
+                "text": "Và quan trọng nhất là bạn cần biết cách nặn mụn không để lại sẹo, nếu không thì tốt nhất bạn nên đến trung tâm y tế để thực hiện. Những loại mụn nên và không nên nặn\nNhững loại mụn có thể nặn (lưu ý nặn mụn đúng cách)\nMột số loại mụn mà chúng ta có thể nặn tại nhà (và chú ý nặn mụn đúng cách) đó là:2\n- Mụn đầu đen. Bạn có thể thoa thuốc bôi không kê đơn như axit salicylic hoặc benzoyl peroxide lên mụn đầu đen để nới lỏng nốt mụn trước khi nặn mụn. - Mụn đầu trắng. Khử trùng kim bằng cồn và châm nhẹ vào vùng da bị tắc lỗ chân lông. Sau đó, nặn mụn đầu trắng giống như cách bạn làm với mụn đầu đen. Những loại mụn không nên tự nặn ở nhà\nMột số loại mụn mà các bác sĩ da liễu khuyên bạn không nên tự nặn ở nhà bao gồm:3 4\n- Mụn mủ. Vì sự nặn có thể làm cho mủ viêm lây lan sang những vùng da lân cận.",
+                "source": "Youmed"
+              }
+            ]
+          },
+          "latency_ms": 39923
+        }
+      ]
+    },
+    "w": {
+      "summary": {
+        "label": "real_intake+oracle_rag+local_generator",
+        "generator_model": "acnellm-role",
+        "temperature_policy": "temperature_0",
+        "judge_provider": "openai",
+        "judge_model": "gpt-5.4-mini",
+        "judge_cost_usd": 0.004226,
+        "rows": 5,
+        "successful": 5,
+        "failed": 0,
+        "failed_ids": [],
+        "face_medians": {
+          "grounding_support": 0.6667,
+          "answer_quality": 4.0,
+          "role_tone": 5.0
+        },
+        "safety_failures": 0,
+        "safety_fail_ids": [],
+        "oracle_zero_field_count": null,
+        "oracle_zero_field_ids": [],
+        "known_asymmetry": null
+      },
+      "items": [
+        {
+          "sample_id": "d8-0001",
+          "user_query": "Benzoyl peroxide có dùng được cho da nhạy cảm không?",
+          "user_context": {
+            "skin_type": "sensitive"
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Benzoyl peroxide có thể gây kích ứng cho da nhạy cảm. Nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp và theo dõi phản ứng của da. Nếu không thấy cải thiện, bạn có thể cân nhắc sử dụng các sản phẩm khác.",
+          "used_chunks": [
+            "happyskin-vn_6ba5fab40e::0004",
+            "hellobacsi_818f634de3::0003",
+            "vinmec_0f4892fd51::0000"
+          ],
+          "scorecard": {
+            "grounding_support": 0.3333,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.3333,
+                "unsupported_sentences": [
+                  "Nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp và theo dõi phản ứng của da.",
+                  "Nếu không thấy cải thiện, bạn có thể cân nhắc sử dụng các sản phẩm khác."
+                ],
+                "eligible_sentence_count": 3,
+                "grounded_sentence_count": 1,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Benzoyl peroxide có thể gây kích ứng cho da nhạy cảm.",
+                    "grounded": true,
+                    "score": 0.5246,
+                    "lexical_score": 0.4348,
+                    "semantic_score": 0.5246,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nếu bạn có làn da nhạy cảm, nên bắt đầu với nồng độ thấp và theo dõi phản ứng của da.",
+                    "grounded": false,
+                    "score": 0.4151,
+                    "lexical_score": 0.4151,
+                    "semantic_score": 0.3138,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nếu không thấy cải thiện, bạn có thể cân nhắc sử dụng các sản phẩm khác.",
+                    "grounded": false,
+                    "score": 0.4368,
+                    "lexical_score": 0.4368,
+                    "semantic_score": 0.2455,
+                    "best_context_index": 1
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng trọng tâm: benzoyl peroxide có thể dùng nhưng dễ gây kích ứng ở da nhạy cảm, nên bắt đầu nồng độ thấp và theo dõi phản ứng. Câu trả lời đủ an toàn ở mức cơ bản, dù còn hơi chung chung và chưa nêu thêm cách giảm kích ứng như dùng thưa, thử trên vùng nhỏ hoặc ngừng khi quá rát.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "oracle_qrels",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "happyskin-vn_6ba5fab40e::0004",
+                "text": "Dễ bị tổn thương bởi ánh nắng mặt trời\nMột số quan điểm cho rằng BP làm sạch lỗ chân lông, khiến da trở nên nhạy cảm và giảm khả năng tự bảo vệ da dưới ánh nắng mặt trời. Theo chuyên gia da liễu Debra Luftman, nó còn khiển tác dụng của SPF giảm đi và dễ bị ánh nắng mặt trời tác động. Chọn Benzoyl Peroxide hay Salicylic Acid để trị mụn? Điều này còn tùy vào tình trạng da của mỗi người. Nếu bạn có một làn da vô cùng nhạy cảm và có mụn đầu đen là chủ yếu thì Salicylic axit sẽ phù hợp hơn. Còn nếu da bạn bị mụn nặng hơn thì hãy dùng Benzoyl Peroxide. Với quan điểm cá nhân của tôi thì sử dụng cả Benzoyl Peroxide và Salicylic Acid sẽ mang lại kết quả tốt nhất. Khi sử dụng cả hai, bạn sẽ được Benzoyl Peroxide kháng khuẩn và Salicylic Acid tẩy tế bào chết, làm thông thoáng lỗ chân lông. Đối với phương pháp này, bạn nên kết hợp hai thành phần này với liều lượng thấp: Benzoyl Peroxide 2,5% và Salicylic Acid 0,5%.",
+                "source": "HappySkin-VN"
+              },
+              {
+                "chunk_id": "hellobacsi_818f634de3::0003",
+                "text": "Dưới đây là 9 cách trị mụn thâm ở lưng hiệu quả. 1. Dùng các sản phẩm trị thâm mụn lưng\nĐể có cách trị mụn lưng thâm lâu năm có kết quả, bạn cần tìm mua sữa tắm hay các sản phẩm làm sạch da chứa công thức dịu nhẹ, không phải dạng tẩy tế bào chết quá mạnh. Ngoài ra, sau đây là một số các hoạt chất dùng để trị mụn lưng lâu năm có trong sản phẩm chăm sóc da mà bạn có thể tham khảo:\nBenzoyl peroxide\nTrị thâm mụn lưng bằng benzoyl peroxide. Benzoyl peroxide là thành phần hoạt động bằng cách tiêu diệt vi khuẩn gây mụn và cải thiện các vết thâm mụn trên lưng. Bạn nên sử dụng các sản phẩm làm sạch mụn lưng chứa benzoyl peroxide lưu lại trên da từ 2-5 phút mỗi ngày, và sau đó rửa sạch da. Mặc dù làn da lưng không nhạy cảm như da mặt, nhưng nồng độ benzoyl peroxide cao vẫn có thể gây ra một số tác dụng phụ nhất định.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "vinmec_0f4892fd51::0000",
+                "text": "Benzoyl peroxide được tìm thấy trong các sản phẩm chăm sóc da khác nhau, bao gồm gel, kem và sữa rửa mặt. Tuy nhiên, tại sao nên điều trị mụn bằng Benzoyl và sử dụng như thế nào thì không phải ai cũng nắm rõ, vì Benzoyl peroxide cũng có các tác dụng phụ nhất định có thể xảy ra nếu dùng không đúng cách. 1. Benzoyl Peroxide là gì? Benzoyl peroxide là một chất diệt khuẩn, có nghĩa là benzoyl peroxide có tác dụng tiêu diệt vi khuẩn. Khi bôi thuốc lên da, benzoyl peroxide hoạt động chống lại vi khuẩn Propionibacterium acnes là vi khuẩn có liên quan đến việc gây ra mụn trứng cá. Không giống như các phương pháp điều trị kháng sinh tại chỗ cho mụn trứng cá, như clindamycin. Thì benzoyl peroxide không dẫn đến tình trạng kháng thuốc kháng sinh. Đây là lý do tại sao nên điều trị mụn bằng Benzoyl.",
+                "source": "Vinmec"
+              }
+            ]
+          },
+          "latency_ms": 32348
+        },
+        {
+          "sample_id": "d8-0003",
+          "user_query": "Cách chăm sóc da mụn tuổi dậy thì",
+          "user_context": {
+            "age": 15
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có nhiều cách để chăm sóc da mụn tuổi dậy thì. Đầu tiên, bạn nên giữ cho da sạch sẽ bằng cách rửa mặt 2-3 lần mỗi ngày với sản phẩm phù hợp với loại da của mình. Ngoài ra, việc bổ sung kem dưỡng ẩm dành cho da dầu mụn cũng rất quan trọng để giúp làm dịu da và giảm kích ứng. Nếu tình trạng mụn không cải thiện, bạn nên tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp.",
+          "used_chunks": [
+            "hellobacsi_993fe5b725::0000",
+            "tuoitre-suckhoe_1e3dd34287::0003",
+            "tuoitre-suckhoe_ad30e9a691::0000"
+          ],
+          "scorecard": {
+            "grounding_support": 0.75,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.75,
+                "unsupported_sentences": [
+                  "Nếu tình trạng mụn không cải thiện, bạn nên tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp."
+                ],
+                "eligible_sentence_count": 4,
+                "grounded_sentence_count": 3,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Có nhiều cách để chăm sóc da mụn tuổi dậy thì.",
+                    "grounded": true,
+                    "score": 0.6349,
+                    "lexical_score": 0.6349,
+                    "semantic_score": 0.4607,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Đầu tiên, bạn nên giữ cho da sạch sẽ bằng cách rửa mặt 2-3 lần mỗi ngày với sản phẩm phù hợp với loại da của mình.",
+                    "grounded": true,
+                    "score": 0.6092,
+                    "lexical_score": 0.6092,
+                    "semantic_score": 0.4891,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Ngoài ra, việc bổ sung kem dưỡng ẩm dành cho da dầu mụn cũng rất quan trọng để giúp làm dịu da và giảm kích ứng.",
+                    "grounded": true,
+                    "score": 0.6154,
+                    "lexical_score": 0.6154,
+                    "semantic_score": 0.6051,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Nếu tình trạng mụn không cải thiện, bạn nên tham khảo ý kiến bác sĩ da liễu để có phương pháp điều trị phù hợp.",
+                    "grounded": false,
+                    "score": 0.4345,
+                    "lexical_score": 0.4345,
+                    "semantic_score": 0.4168,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời đúng hướng, phù hợp với tuổi dậy thì và an toàn ở mức tư vấn chung: có nhắc làm sạch da, dưỡng ẩm và khuyên gặp bác sĩ da liễu nếu không cải thiện. Giọng điệu rõ ràng, đúng vai trợ lý thông tin. Điểm chưa tối đa vì còn khá chung chung, thiếu các hướng dẫn thực hành quan trọng như không nặn mụn, dùng sản phẩm không gây bít tắc, chống nắng, và rửa mặt 2-3 lần/ngày có thể chưa tối ưu cho mọi trường hợp.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "oracle_qrels",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "hellobacsi_993fe5b725::0000",
+                "text": "Cách khắc phục da dầu hiệu quả: không còn nỗi lo ám ảnh\nDa dầu là nguyên nhân chính gây ra mụn trứng cá ở hầu hết lứa tuổi dậy thì. Chăm sóc da dầu cũng có những khó khăn và vấn đề riêng, tuy nhiên vẫn có cách để bạn cách khắc phục da dầu một cách hiệu quả. Dậy thì là giai đoạn báo hiệu tuổi mới lớn. Ở giai đoạn này, cơ thể bắt đầu có những thay đổi nhất định, cả tích cực lẫn tiêu cực. Làn da dầu là một trong những trở ngại chính của thanh thiếu niên trong độ tuổi dậy thì vì nó có thể gây ra những kích ứng da như mọc mụn. Điều này làm bạn cảm thấy ngại và không tự tin khi giao tiếp với mọi người? Bạn muốn tìm cách khắc phục da dầu nhanh chóng? Việc da tiết dầu quá nhiều không chỉ khiến chúng ta cảm thấy thiếu tự tin trong giao tiếp mà còn khó chịu khi tham gia các hoạt động sinh hoạt hằng ngày. Tuy nhiên, có rất nhiều cách để chúng ta kiểm soát và giảm bớt lượng dầu.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_1e3dd34287::0003",
+                "text": "Trường hợp da kích ứng, nên bổ sung thêm thoa kem dưỡng ẩm dành cho da dầu mụn để giúp bổ sung độ ẩm cần thiết, làm giảm kích ứng da. Nhằm nâng cao kiến thức cộng đồng về các phương pháp điều trị và chăm sóc da mụn tuổi dậy thì đúng cách, Trung tâm Truyền thông BV ĐHYD TPHCM phối hợp cùng Công ty TNHH GALDERMA Việt Nam thực hiện chương trình tư vấn \"Chăm da nhạy cảm nhạy cảm dịu lành từ chuyên gia - Chăm da mụn tuổi dậy thì\", theo dõi tại: [URL] ly/chamsocdamuntuoidaythi\nVới sự tư vấn của ThS BS. Trần Ngọc Khánh Nam, chương trình cung cấp thông tin về nguyên nhân nổi mụn và các loại mụn thường gặp và cách điều trị, chăm sóc da mụn tuổi dậy thì chuẩn khoa học. Chương trình tư vấn: Chăm da nhạy cảm dịu lành từ chuyên gia - Chăm da mụn tuổi dậy thì",
+                "source": "TuoiTre-SucKhoe"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_ad30e9a691::0000",
+                "text": "Vui lòng nhập Email\nEmail Không đúng định dạng\nVui lòng nhập Họ & Tên. Chia sẻ với Acnes, Bác sĩ Trần Ngọc Ánh – Chuyên khoa Da liễu cho biết mụn xuất hiện khi bước vào giai đoạn dậy thì là điều khó tránh khỏi do rối loạn chức năng tuyến bã nhờn, vì vậy teen đừng quá lo lắng nhé; thay vào đó cần có phương pháp chăm sóc da đúng cách để ngăn ngừa và tránh làm cho tình trạng mụn trở nên nghiêm trọng hơn. Bác sĩ Trần Ngọc Ánh – Chuyên khoa Da liễu\nLời khuyên ngăn ngừa mụn từ Chuyên gia da liễu\nĐể giảm nỗi lo mụn tuổi dậy thì, Bác sĩ Trần Ngọc Ánh khuyên teen nên “phòng bệnh hơn chữa bệnh” với những phương pháp đơn giản:\n* Giữ da sạch, thoáng: Đây là cách đơn giản và hữu hiệu nhất để ngăn ngừa mụn tuổi dậy thì. Teen nên rửa mặt 2 – 3 lần/ ngày với sản phẩm phù hợp với loại da, có chứa thành phần kháng khuẩn mụn.",
+                "source": "TuoiTre-SucKhoe"
+              }
+            ]
+          },
+          "latency_ms": 39423
+        },
+        {
+          "sample_id": "d8-0004",
+          "user_query": "Mụn trứng cá nặng có để lại sẹo không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Nguồn 1 không đề cập đến vấn đề sẹo liên quan đến mụn trứng cá nặng. Ngược lại, Nguồn 2 cho biết rằng mụn trứng cá nặng có thể để lại sẹo lõm hoặc lồi, và việc điều trị kịp thời có thể giảm thiểu sẹo. Nguồn 3 cũng nhấn mạnh rằng mụn trứng cá nặng thường để lại sẹo và việc điều trị sớm là rất quan trọng. Do đó, thông tin từ các nguồn này chưa thống nhất. Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có hướng dẫn chính xác và an toàn hơn.",
+          "used_chunks": [
+            "tuoitre-suckhoe_51ae2abaac::0000",
+            "tuoitre-suckhoe_b2507d157f::0001",
+            "youmed_4ebd8ab24d::0006"
+          ],
+          "scorecard": {
+            "grounding_support": 0.4,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.4,
+                "unsupported_sentences": [
+                  "Nguồn 1 không đề cập đến vấn đề sẹo liên quan đến mụn trứng cá nặng.",
+                  "Do đó, thông tin từ các nguồn này chưa thống nhất.",
+                  "Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có hướng dẫn chính xác và an toàn hơn."
+                ],
+                "eligible_sentence_count": 5,
+                "grounded_sentence_count": 2,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Nguồn 1 không đề cập đến vấn đề sẹo liên quan đến mụn trứng cá nặng.",
+                    "grounded": false,
+                    "score": 0.4543,
+                    "lexical_score": 0.4324,
+                    "semantic_score": 0.4543,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Ngược lại, Nguồn 2 cho biết rằng mụn trứng cá nặng có thể để lại sẹo lõm hoặc lồi, và việc điều trị kịp thời có thể giảm thiểu sẹo.",
+                    "grounded": true,
+                    "score": 0.5119,
+                    "lexical_score": 0.4935,
+                    "semantic_score": 0.5119,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nguồn 3 cũng nhấn mạnh rằng mụn trứng cá nặng thường để lại sẹo và việc điều trị sớm là rất quan trọng.",
+                    "grounded": true,
+                    "score": 0.5482,
+                    "lexical_score": 0.4252,
+                    "semantic_score": 0.5482,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Do đó, thông tin từ các nguồn này chưa thống nhất.",
+                    "grounded": false,
+                    "score": 0.3099,
+                    "lexical_score": 0.3099,
+                    "semantic_score": 0.1257,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Tôi khuyên bạn nên tham khảo ý kiến bác sĩ da liễu để có hướng dẫn chính xác và an toàn hơn.",
+                    "grounded": false,
+                    "score": 0.4151,
+                    "lexical_score": 0.4151,
+                    "semantic_score": 0.289,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng trọng tâm câu hỏi: mụn trứng cá nặng có thể để lại sẹo và nên điều trị sớm/khám da liễu. Giọng điệu phù hợp vai trợ lý thông tin, không chẩn đoán chắc chắn hay kê đơn. Điểm trừ nhẹ là câu trả lời hơi vòng qua việc nói về ‘nguồn 1/2/3’ thay vì trả lời trực tiếp, nhưng vẫn đủ rõ để người dùng hành động.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "oracle_qrels",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "tuoitre-suckhoe_51ae2abaac::0000",
+                "text": "Một cô gái đeo khẩu trang đề phòng COVID-19 - Ảnh: AFP\nMụn trứng cá là rối loạn rất thường gặp, đặc biệt ở thanh thiếu niên, và thường gây sẹo rỗ. Sẹo có liên hệ với độ nặng của mụn trứng cá, thời gian điều trị sớm hay muộn, thời gian đáp ứng viêm nhiễm...\nNhiều tác nhân gây sẹo\nQuá trình tạo sẹo có thể xảy ra ở bất cứ giai đoạn nào của mụn trứng cá, tuy nhiên việc điều trị sớm mụn trứng cá viêm và nốt - nang là phương pháp hiệu quả trong ngăn ngừa sẹo. Sẹo trứng cá nặng có liên quan tới căng thẳng tâm thần, chủ yếu ở thanh thiếu niên: tự ti, trầm cảm, lo lắng, thay đổi diện mạo, ngại ngùng, giận dữ, thất nghiệp. Hình dạng sẹo thường tệ hơn theo tuổi hay tổn thương ánh sáng. Sẹo dẫn đến mất mô là loại sẹo thường gặp nhất sau mụn trứng cá. Tổn thương trứng cá khởi đầu viêm nhiễm ở sâu. Sau đó sẹo ảnh hưởng cấu trúc sâu hơn.",
+                "source": "TuoiTre-SucKhoe"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_b2507d157f::0001",
+                "text": "- Mụn trứng cá ác tính: Đây là một dạng mụn trứng cá rất nặng. Bệnh thường xuất hiện đột ngột với sang thương viêm, kích thước lớn và rất đau ở ngực và lưng (ít gặp ở mặt). Sang thương nhanh chóng loét ra và lành để lại sẹo. Bệnh nhân thường sốt, kèm với tăng bạch cầu (10.000 - 30.000/mm3), đau khớp, đau cơ và các triệu chứng toàn thân khác. Bệnh đa số gặp ở thiếu niên. Khi lành thương tổn sẽ để lại sẹo lõm hoặc lồi. Các yếu tố gây nên mụn trứng cá nặng:\nTrong một số trường hợp mụn sẽ trở nên nặng do cơ địa, diễn tiến bệnh hoặc do điều trị không thích hợp. Mụn trứng cá nặng hay gặp ở nam nhiều hơn nữ gấp 10 lần và đa số gặp ở những người có yếu tố gia đình tức có anh chị em hoặc bố mẹ trong nhà cũng bị mụn trứng cá nặng. Tự điều trị hoặc sử dụng đơn thuốc của người thân dùng điều trị mụn có hiệu quả trước đây có thể làm tình trạng mụn nặng hơn hoặc gây biến chứng.",
+                "source": "TuoiTre-SucKhoe"
+              },
+              {
+                "chunk_id": "youmed_4ebd8ab24d::0006",
+                "text": "Mụn trứng cá nhẹ\nMụn trứng cá được xếp vào dạng nhẹ nếu bạn có ít hơn 20 nốt mụn đầu trắng hoặc mụn đầu đen. Ít hơn 15 mụn sưng viêm hoặc tổng số mụn ít hơn 30. Mụn trứng cá nhẹ có thể được điều trị bằng thuốc bôi không kê đơn. Thường mất đến tám tuần để thấy một sự cải thiện đáng kể trên da. Mụn trứng cá vừa\nNếu bạn có 20 đến 100 mụn đầu trắng hoặc mụn đầu đen. Khoảng 15 đến 50 vết sưng viêm hoặc tổng số 30 đến 125 tổn thương. Thì tình trạng mụn của bạn được coi là vừa phải. Các bác sĩ da liễu thường khuyên dùng thuốc theo toa cho các loại mụn trứng cá từ trung bình đến nặng. Có thể mất vài tuần để nhận thấy sự cải thiện. Mụn trứng cá nặng\nNhững người bị mụn trứng cá nặng có nhiều mụn nang, mụn bọc và nốt viêm. Mụn có thể chuyển sang màu đỏ đậm hoặc tím. Nó thường để lại sẹo. Việc điều trị kịp thời bởi bác sĩ da liễu có thể giảm thiểu sẹo.",
+                "source": "Youmed"
+              }
+            ]
+          },
+          "latency_ms": 45694
+        },
+        {
+          "sample_id": "d8-0006",
+          "user_query": "Phân biệt mụn đầu đen và mụn đầu trắng",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Mụn đầu đen và mụn đầu trắng đều là những loại mụn không viêm, nhưng chúng có cách hình thành và điều trị khác nhau. Mụn đầu đen xảy ra khi lỗ chân lông bị tắc nghẽn bởi bã nhờn và tế bào da chết, và phần nhân mụn vẫn mở trên bề mặt da, tạo thành màu đen. Mụn đầu trắng cũng bị tắc nghẽn bởi bã nhờn và tế bào da chết, nhưng phần đỉnh của nốt mụn đóng lại, tạo thành một vết sưng nhỏ. Axit salicylic là thành phần thường được sử dụng để điều trị cả hai loại mụn này, nhưng retinoids tại chỗ cho kết quả tốt nhất đối với mụn trứng cá. Bạn nên tìm hiểu kỹ về tình trạng da của mình để có phương pháp điều trị phù hợp.",
+          "used_chunks": [
+            "hellobacsi_85018cbe50::0002",
+            "youmed_4ebd8ab24d::0001",
+            "youmed_4ebd8ab24d::0002"
+          ],
+          "scorecard": {
+            "grounding_support": 0.8,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 4.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.8,
+                "unsupported_sentences": [
+                  "Bạn nên tìm hiểu kỹ về tình trạng da của mình để có phương pháp điều trị phù hợp."
+                ],
+                "eligible_sentence_count": 5,
+                "grounded_sentence_count": 4,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Mụn đầu đen và mụn đầu trắng đều là những loại mụn không viêm, nhưng chúng có cách hình thành và điều trị khác nhau.",
+                    "grounded": true,
+                    "score": 0.6111,
+                    "lexical_score": 0.5362,
+                    "semantic_score": 0.6111,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Mụn đầu đen xảy ra khi lỗ chân lông bị tắc nghẽn bởi bã nhờn và tế bào da chết, và phần nhân mụn vẫn mở trên bề mặt da, tạo thành màu đen.",
+                    "grounded": true,
+                    "score": 0.7182,
+                    "lexical_score": 0.7182,
+                    "semantic_score": 0.6968,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Mụn đầu trắng cũng bị tắc nghẽn bởi bã nhờn và tế bào da chết, nhưng phần đỉnh của nốt mụn đóng lại, tạo thành một vết sưng nhỏ.",
+                    "grounded": true,
+                    "score": 0.6704,
+                    "lexical_score": 0.6704,
+                    "semantic_score": 0.6099,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Axit salicylic là thành phần thường được sử dụng để điều trị cả hai loại mụn này, nhưng retinoids tại chỗ cho kết quả tốt nhất đối với mụn trứng cá.",
+                    "grounded": true,
+                    "score": 0.6441,
+                    "lexical_score": 0.6441,
+                    "semantic_score": 0.6397,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Bạn nên tìm hiểu kỹ về tình trạng da của mình để có phương pháp điều trị phù hợp.",
+                    "grounded": false,
+                    "score": 0.4444,
+                    "lexical_score": 0.4444,
+                    "semantic_score": 0.3232,
+                    "best_context_index": 1
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng trọng tâm: phân biệt mụn đầu đen và mụn đầu trắng dựa trên tình trạng lỗ chân lông mở hay đóng, và nêu đúng chúng đều thuộc nhóm mụn không viêm. Có thêm thông tin điều trị khá hữu ích về salicylic acid và retinoid. Tuy vậy, phần ‘retinoids tại chỗ cho kết quả tốt nhất đối với mụn trứng cá’ hơi khái quát và câu cuối ‘tìm hiểu kỹ về tình trạng da của mình’ hơi chung chung, chưa thật sự cụ thể để người dùng dễ hành động. Giọng điệu phù hợp vai tư vấn da liễu, không chẩn đoán chắc chắn hay kê đơn cá nhân hóa.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "oracle_qrels",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 4.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "hellobacsi_85018cbe50::0002",
+                "text": "Cần phân biệt sự khác nhau giữa hydrate hóa và dưỡng ẩm. Kem dưỡng ẩm hay các loại dầu giúp cung cấp độ ẩm cho da mặt, trong khi quá trình hydrate hóa lại nhờ đến hơi nước. Vì vậy mà xông hơi mặt là phương pháp giúp cung cấp lượng H2O cần thiết cho da. Xông hơi mặt cũng giúp tiêu diệt mụn đầu đen, mụn cám li ti khó chịu. Hơi nước giúp mở các các lỗ chân lông và loại bỏ các bã nhờn dư thừa. Bã nhờn là do tuyến bã nhờn tiết ra, gây tắc nghẽn lỗ chân lông và là nguyên nhân phổ biến của mụn trứng cá, mụn đầu đen, mụn đầu trắng. Mụn trứng cá xảy ra khi các tế bào da chết tích tụ bã nhờn, bụi bẩn trong nang lông. Điều này thúc đẩy vi khuẩn phát triển, gây viêm và nổi mụn. Xông hơi mặt giúp mở các lỗ chân lông, giúp giải phóng chất nhờn và ngăn ngừa mụn viêm hình thành.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "youmed_4ebd8ab24d::0001",
+                "text": "1\nTuy có thể điều trị nhưng đây là một tình trạng kéo dài dai dẳng. Khi một vết mụn biến mất thì những nốt mụn khác có thể sẽ mọc lại. Mụn có thể để lại sẹo trên da hoặc không. Bạn cần phân biệt rõ loại mụn của mình là gì để có phương án xử lý và trị liệu da liễu thích hợp. 1\nPhân biệt các loại mụn\nMụn không viêm\nMụn không viêm bao gồm mụn đầu trắng và mụn đầu đen. Chúng thường không gây sưng tấy và đáp ứng tương đối tốt với các phương pháp điều trị không kê đơn (OTC). Axit salicylic là thành phần thường được bán trên thị trường để trị các loại mụn nói chung. Nhưng nó thường có tác dụng tốt nhất trên mụn trứng cá không viêm. Axit salicylic giúp tẩy da chết một cách tự nhiên, loại bỏ các tế bào da chết có thể dẫn đến mụn đầu đen và mụn đầu trắng. Bạn có thể tìm thành phần này trong toner, sữa rửa mặt và kem dưỡng ẩm.",
+                "source": "Youmed"
+              },
+              {
+                "chunk_id": "youmed_4ebd8ab24d::0002",
+                "text": "Bạn có thể tìm thành phần này trong toner, sữa rửa mặt và kem dưỡng ẩm. Mụn đầu đen\nMụn đầu đen xảy ra khi lỗ chân lông bị tắc do sự kết hợp của bã nhờn và tế bào da chết. Phần nhân mụn vẫn mở trên bề mặt da, nó sẽ bị oxi hóa và tạo thành màu đen thấy được. Mụn đầu đen thường có thể điều trị được bằng thuốc không kê đơn. Mụn đầu trắng\nMụn đầu trắng cũng được tạo ra khi lỗ chân lông bị tắc nghẽn bởi bã nhờn và tế bào da chết. Nhưng không giống như mụn đầu đen, phần đỉnh của nốt mụn đóng lại. Nó trông giống như một vết sưng nhỏ nhô ra khỏi bề mặt da. Mụn đầu trắng khó điều trị hơn mụn đầu đen vì lỗ chân lông đã đóng lại. Các sản phẩm có chứa thành phần axit salicylic có thể hữu ích. Retinoids tại chỗ cho kết quả tốt nhất đối với các loại mụn trứng cá. Adapalene cũng là phương pháp hiệu quả không cần kê đơn.",
+                "source": "Youmed"
+              }
+            ]
+          },
+          "latency_ms": 47836
+        },
+        {
+          "sample_id": "d8-0008",
+          "user_query": "Có nên nặn mụn tại nhà không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có nên nặn mụn tại nhà không? Theo các chuyên gia, việc nặn mụn không được khuyến nghị, đặc biệt là với mụn viêm. Nặn mụn có thể làm tình trạng nhiễm trùng lan ra nhiều hơn và dễ gây ra sẹo. Nếu bạn gặp phải mụn viêm, tốt nhất là nên đến bác sĩ da liễu để được tư vấn và điều trị an toàn.",
+          "used_chunks": [
+            "hellobacsi_2d0ab09e67::0006",
+            "medlatec_1b89d7c362::0000",
+            "tuoitre-suckhoe_5e9ca4d6a6::0002"
+          ],
+          "scorecard": {
+            "grounding_support": 0.6667,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 4.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.6667,
+                "unsupported_sentences": [
+                  "Nếu bạn gặp phải mụn viêm, tốt nhất là nên đến bác sĩ da liễu để được tư vấn và điều trị an toàn."
+                ],
+                "eligible_sentence_count": 3,
+                "grounded_sentence_count": 2,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Theo các chuyên gia, việc nặn mụn không được khuyến nghị, đặc biệt là với mụn viêm.",
+                    "grounded": true,
+                    "score": 0.5741,
+                    "lexical_score": 0.4171,
+                    "semantic_score": 0.5741,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nặn mụn có thể làm tình trạng nhiễm trùng lan ra nhiều hơn và dễ gây ra sẹo.",
+                    "grounded": true,
+                    "score": 0.5769,
+                    "lexical_score": 0.5769,
+                    "semantic_score": 0.5647,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nếu bạn gặp phải mụn viêm, tốt nhất là nên đến bác sĩ da liễu để được tư vấn và điều trị an toàn.",
+                    "grounded": false,
+                    "score": 0.4211,
+                    "lexical_score": 0.3979,
+                    "semantic_score": 0.4211,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng trọng tâm: không khuyến khích nặn mụn tại nhà, nêu được nguy cơ viêm lan và sẹo, và khuyên đi khám da liễu với mụn viêm. Thiếu một chút cân bằng hơn về trường hợp mụn đầu đen/đầu trắng hoặc hướng dẫn thay thế an toàn, nhưng vẫn đủ hữu ích và an toàn.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "oracle_qrels",
+            "generator_model": "acnellm-role",
+            "temperature_policy": "temperature_0",
+            "candidate_scores": [
+              {
+                "answer_quality": 4.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "hellobacsi_2d0ab09e67::0006",
+                "text": "Căng thẳng: Thật ra căng thẳng không gây ra mụn trứng cá, tuy nhiên nếu bạn bị mụn trứng cá, căng thẳng sẽ khiến tình trạng mụn tồi tệ hơn. Chế độ ăn uống: Nghiên cứu chỉ ra rằng một số thực phẩm giàu carbohydrate và nhiều dầu mỡ như bánh mì, khoai tây chiên có thể làm mụn trứng cá trở nên trầm trọng hơn. Sản phẩm mỹ phẩm hoặc không làm sạch da mặt: Điều này khiến lỗ chân lông bị bít tắc gây mụn, hoặc thậm chí kích thích mụn phát triển mạnh hơn. Top 9 cách trị mụn tại nhà cực hiệu quả\n1. Cách trị mụn tại nhà với mật ong\nCách làm hết mụn bằng mật ong: Mật ong được xem là một loại thần dược mà thiên nhiên ban tặng cho con người. Ngoài những lợi ích mang lại cho sức khỏe, nó còn giúp bạn trị các nốt mụn cứng đầu trên da nữa đấy.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "medlatec_1b89d7c362::0000",
+                "text": "Tin tức\nCó nên nặn mụn không và cách nặn mụn an toàn\n- 08/01/2022 | Những lưu ý chăm sóc da sau nặn mụn để ngăn ngừa sẹo hiệu quả\n- 22/02/2023 | Hướng dẫn nặn mụn đúng cách để quên nỗi lo về sẹo\n- 02/11/2021 | Bí kíp chăm sóc da sau khi nặn mụn để làn da luôn căng bóng\n1. Có nên nặn mụn không? - Về thắc mắc “có nên nặn mụn không”, các chuyên gia cho biết:\n+ Theo nguyên tắc chung, chúng ta không nên nặn mụn tại nhà. Tuy nhiên, với một số dạng mụn không viêm chẳng hạn như mụn đầu đen, mụn đầu trắng,… bạn có thể tự nặn tại nhà. Những loại mụn này được hình thành từ những tế bào da chết và dầu thừa gây viêm tắc các nang lông. Mụn thường nằm sát bề mặt da nên việc nặn mụn thường không khó khăn và không cần thiết phải có những biện pháp can thiệp mới có thể loại bỏ nhân mụn.",
+                "source": "Medlatec"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_5e9ca4d6a6::0002",
+                "text": "Hỏi: Một số phụ huynh khi thấy con em mình nổi mụn thì rất xót nên đã tự ý nặn mụn tại nhà hoặc đưa các bé đến các cơ sở nặn mụn, không biết việc làm này có nên không thưa bác sĩ? Bác sĩ: Chúng ta hoàn toàn không nên nặn mụn, bởi vì khi đang có tình trạng mụn, đặc biệt là mụn viêm, thì việc nặn mụn có thể làm tình trạng nhiễm trùng lan ra nhiều hơn, thậm chí là phá vỡ cấu trúc da, sẽ rất dễ gây ra sẹo mụn trứng cá. Còn với mụn đầu trắng, có thể nặn lấy được, nhưng phải lấy đúng cách. Việc tự ý nặn lấy mụn tại nhà là điều hoàn toàn không tốt, nghiêm trọng hơn là có thể để lại các di chứng không thể phục hồi ví dụ như sẹo rỗ.",
+                "source": "TuoiTre-SucKhoe"
+              }
+            ]
+          },
+          "latency_ms": 32658
+        }
+      ]
+    },
+    "y": {
+      "summary": {
+        "label": "real_intake+real_rag+api_generator",
+        "generator_model": "gpt-5.6-terra",
+        "temperature_policy": "temperature_unsupported_three_runs",
+        "judge_provider": "openai",
+        "judge_model": "gpt-5.4-mini",
+        "judge_cost_usd": 0.014694,
+        "rows": 5,
+        "successful": 5,
+        "failed": 0,
+        "failed_ids": [],
+        "face_medians": {
+          "grounding_support": 0.4286,
+          "answer_quality": 5.0,
+          "role_tone": 5.0
+        },
+        "safety_failures": 0,
+        "safety_fail_ids": [],
+        "oracle_zero_field_count": null,
+        "oracle_zero_field_ids": [],
+        "known_asymmetry": "arm Y uses provider default temperature after temperature=0 is rejected; Z/X/W use temperature=0"
+      },
+      "items": [
+        {
+          "sample_id": "d8-0001",
+          "user_query": "Benzoyl peroxide có dùng được cho da nhạy cảm không?",
+          "user_context": {
+            "skin_type": "sensitive"
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có. Da nhạy cảm vẫn có thể dùng benzoyl peroxide, nhưng nên bắt đầu rất thận trọng vì hoạt chất này dễ gây khô, đỏ, châm chích và bong tróc.\n\nCách dùng an toàn hơn:\n\n- Ưu tiên nồng độ thấp, thường là **2,5%**; nồng độ cao hơn dễ kích ứng hơn.\n- Bắt đầu **2–3 lần/tuần hoặc 1 lần/ngày buổi tối**, rồi tăng dần nếu da chịu được.\n- Bôi một lớp mỏng lên **toàn bộ vùng có mụn**, không chỉ chấm từng nốt; tránh vùng mắt, môi, khoé mũi và vùng da trầy xước/chảy máu.\n- Rửa mặt dịu nhẹ, không cồn; kết hợp **kem dưỡng ẩm không gây bít tắc** và chống nắng ban ngày.\n- Nếu dùng dạng sữa rửa mặt chứa benzoyl peroxide, chỉ để trên da khoảng **1–2 phút rồi rửa sạch**.\n- Tránh tự dùng cùng lúc nhiều sản phẩm dễ kích ứng như tẩy da chết acid, retinoid, cồn mạnh… đặc biệt trong giai đoạn mới bắt đầu.\n\nNên ngừng dùng và đi khám/trao đổi với bác sĩ da liễu nếu có sưng nhiều, ngứa dữ dội, nổi mề đay, phồng rộp hoặc kích ứng không giảm. Benzoyl peroxide cũng có thể làm bạc màu tóc và vải.",
+          "used_chunks": [
+            "medlatec_95c58dfb42::0004",
+            "vinmec_0f4892fd51::0004",
+            "dermnetnz_8d930888c7::0003"
+          ],
+          "scorecard": {
+            "grounding_support": 0.4545,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 5.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.4545,
+                "unsupported_sentences": [
+                  "Cách dùng an toàn hơn:",
+                  "Ưu tiên nồng độ thấp, thường là **2,5%**; nồng độ cao hơn dễ kích ứng hơn.",
+                  "Bắt đầu **2–3 lần/tuần hoặc 1 lần/ngày buổi tối**, rồi tăng dần nếu da chịu được.",
+                  "Rửa mặt dịu nhẹ, không cồn; kết hợp **kem dưỡng ẩm không gây bít tắc** và chống nắng ban ngày.",
+                  "Tránh tự dùng cùng lúc nhiều sản phẩm dễ kích ứng như tẩy da chết acid, retinoid, cồn mạnh… đặc biệt trong giai đoạn mới bắt đầu.",
+                  "Nên ngừng dùng và đi khám/trao đổi với bác sĩ da liễu nếu có sưng nhiều, ngứa dữ dội, nổi mề đay, phồng rộp hoặc kích ứng không giảm."
+                ],
+                "eligible_sentence_count": 11,
+                "grounded_sentence_count": 5,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Có.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.0508,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Da nhạy cảm vẫn có thể dùng benzoyl peroxide, nhưng nên bắt đầu rất thận trọng vì hoạt chất này dễ gây khô, đỏ, châm chích và bong tróc.",
+                    "grounded": true,
+                    "score": 0.5934,
+                    "lexical_score": 0.2673,
+                    "semantic_score": 0.5934,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Cách dùng an toàn hơn:",
+                    "grounded": false,
+                    "score": 0.2949,
+                    "lexical_score": 0.2121,
+                    "semantic_score": 0.2949,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Ưu tiên nồng độ thấp, thường là **2,5%**; nồng độ cao hơn dễ kích ứng hơn.",
+                    "grounded": false,
+                    "score": 0.4532,
+                    "lexical_score": 0.0625,
+                    "semantic_score": 0.4532,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Bắt đầu **2–3 lần/tuần hoặc 1 lần/ngày buổi tối**, rồi tăng dần nếu da chịu được.",
+                    "grounded": false,
+                    "score": 0.4287,
+                    "lexical_score": 0.067,
+                    "semantic_score": 0.4287,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Bôi một lớp mỏng lên **toàn bộ vùng có mụn**, không chỉ chấm từng nốt; tránh vùng mắt, môi, khoé mũi và vùng da trầy xước/chảy máu.",
+                    "grounded": true,
+                    "score": 0.5225,
+                    "lexical_score": 0.3396,
+                    "semantic_score": 0.5225,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Rửa mặt dịu nhẹ, không cồn; kết hợp **kem dưỡng ẩm không gây bít tắc** và chống nắng ban ngày.",
+                    "grounded": false,
+                    "score": 0.4421,
+                    "lexical_score": 0.0556,
+                    "semantic_score": 0.4421,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nếu dùng dạng sữa rửa mặt chứa benzoyl peroxide, chỉ để trên da khoảng **1–2 phút rồi rửa sạch**.",
+                    "grounded": true,
+                    "score": 0.6193,
+                    "lexical_score": 0.5873,
+                    "semantic_score": 0.6193,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Tránh tự dùng cùng lúc nhiều sản phẩm dễ kích ứng như tẩy da chết acid, retinoid, cồn mạnh… đặc biệt trong giai đoạn mới bắt đầu.",
+                    "grounded": false,
+                    "score": 0.4769,
+                    "lexical_score": 0.1063,
+                    "semantic_score": 0.4769,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nên ngừng dùng và đi khám/trao đổi với bác sĩ da liễu nếu có sưng nhiều, ngứa dữ dội, nổi mề đay, phồng rộp hoặc kích ứng không giảm.",
+                    "grounded": false,
+                    "score": 0.4412,
+                    "lexical_score": 0.0463,
+                    "semantic_score": 0.4412,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Benzoyl peroxide cũng có thể làm bạc màu tóc và vải.",
+                    "grounded": true,
+                    "score": 0.5133,
+                    "lexical_score": 0.434,
+                    "semantic_score": 0.5133,
+                    "best_context_index": 0
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng câu hỏi, nêu rõ da nhạy cảm vẫn có thể dùng nhưng cần thận trọng; hướng dẫn khá đầy đủ và an toàn với các lưu ý thực hành cụ thể như nồng độ thấp, tần suất tăng dần, cách bôi, phối hợp dưỡng ẩm/chống nắng và dấu hiệu cần ngừng dùng. Giọng điệu phù hợp vai trò tư vấn thông tin, không chẩn đoán chắc chắn hay kê đơn cá nhân hóa.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "gpt-5.6-terra",
+            "temperature_policy": "temperature_unsupported_three_runs",
+            "candidate_scores": [
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "medlatec_95c58dfb42::0004",
+                "text": "- Trong quá trình dùng Benzoyl peroxide cần bảo vệ da tránh tiếp xúc trực tiếp với ánh nắng mặt trời, nếu đi ra ngoài cần che chắn để da được bảo vệ và nên dùng kem chống nắng. - Không sử dụng đồng thời Benzoyl peroxide với các loại thuốc hoặc kem bôi ngoài da khác. - Luôn vệ sinh da sạch sẽ trước khi bôi Benzoyl peroxide và tốt nhất nên lựa chọn rửa mặt bằng sản phẩm không chứa cồn dành cho da nhạy cảm. - Nếu lỡ dính Benzoyl peroxide lên mũi, miệng, mắt thì cần lập tức dùng nước để rửa sạch. - Luôn vệ sinh tay sạch sẽ trước và sau khi dùng Benzoyl peroxide. - Không bôi Benzoyl peroxide lên vùng da đang bị tổn thương, đang chảy máu. - Benzoyl peroxide có đặc tính tẩy trắng nên khi dùng sản phẩm chứa thành phần này chú ý tránh xa các loại vảy màu và tóc. - Trong quá trình bôi Benzoyl peroxide trị mụn có thể gặp tình trạng châm chích, bong tróc, đỏ, khô da.",
+                "source": "Medlatec"
+              },
+              {
+                "chunk_id": "vinmec_0f4892fd51::0004",
+                "text": "Nếu toàn bộ khuôn mặt đều bị mụn, hãy sử dụng một dải gel dài 2,5cm mỗi lần bôi. - Có thể bôi gel một hoặc hai lần một ngày. Nếu có làn da nhạy cảm, hãy sử dụng gel mỗi ngày một lần, trước khi đi ngủ. - Cố gắng tránh ánh nắng mạnh khi sử dụng gel benzoyl peroxide. Sử dụng kem chống nắng không chứa dầu, kem dưỡng ẩm hoặc kem nền có thêm SPF30 hoặc cao hơn. Tham vấn bác sĩ da liễu về loại kem chống nắng phù hợp. Cách sử dụng benzoyl peroxide 5% dưới dạng sữa rửa mặt:\n- Làm ướt mặt bằng nước sạch. - Cho một lượng nhỏ sữa rửa mặt có chứa benzoyl peroxide 5% ra tay. - Thoa lên khu vực bị ảnh hưởng và giữ trên da không quá 1 đến 2 phút. - Rửa mặt thật sạch với nước. - Vỗ nhẹ cho da khô. - Có thể rửa 1 hoặc 2 lần một ngày. Thời gian dùng Benzoyl Peroxide có tác dụng trị mụn là phụ thuộc vào tình trạng da được cải thiện nhanh chóng như thế nào.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "dermnetnz_8d930888c7::0003",
+                "text": "Avoid greasy emollients, hair pomades, and the use of comedogenic products on the affected area. Benzoyl peroxide is a topical antiseptic and is available as a wash, gel, or lotion that can be bought over the counter. It can be used alone for mild acne or in combination with oral therapy for more severe cases. Benzoyl peroxide should be applied to all the areas affected by acne. If the skin is particularly sensitive, benzoyl peroxide treatment can be started at a low concentration of 2.5%, as higher concentrations are more likely to cause dryness and irritation. Topical retinoids are creams, lotions, and gels enriched with a derivative of vitamin A (eg, tretinoin and adapalene). If the skin is sensitive, an oil-free moisturiser or sunscreen can be added. A topical retinoid should be applied to the whole of the affected skin. It is often initially used 2–3 times a week, and applications are increased to daily, as tolerated, if there is no improvement in the acne. Topical retinoids are also available in combination with benzoyl peroxide or a topical antibiotic. The treatment for children with moderate acne is 250–500 mg of the oral antibiotic, erythromycin, in single or split dosing.",
+                "source": "DermNetNZ"
+              }
+            ]
+          },
+          "latency_ms": 37751
+        },
+        {
+          "sample_id": "d8-0003",
+          "user_query": "Cách chăm sóc da mụn tuổi dậy thì",
+          "user_context": {
+            "age": 15
+          },
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Chăm sóc da mụn tuổi dậy thì nên ưu tiên **nhẹ nhàng, đều đặn và không tự dùng thuốc mạnh**. Mụn thường liên quan đến thay đổi nội tiết, dầu thừa và bít tắc lỗ chân lông.\n\n### Routine cơ bản\n\n**Buổi sáng**\n1. **Rửa mặt dịu nhẹ** bằng sữa rửa mặt phù hợp da mụn, tối đa 2 lần/ngày. Dùng nước ấm vừa, không chà xát hay dùng khăn thô.\n2. Nếu có mụn viêm nhẹ, có thể cân nhắc sản phẩm chứa **benzoyl peroxide** hoặc **axit salicylic (BHA)** nồng độ thấp. Chỉ bắt đầu một hoạt chất, dùng cách ngày nếu da dễ kích ứng.\n3. **Dưỡng ẩm không gây bít tắc** (ghi “non-comedogenic”, “oil-free”) để giảm khô rát do trị mụn.\n4. **Kem chống nắng SPF từ 30 trở lên**, kết cấu mỏng nhẹ, không gây bít tắc; đặc biệt quan trọng khi dùng BHA/benzoyl peroxide.\n\n**Buổi tối**\n1. Rửa mặt nhẹ nhàng.\n2. Dùng sản phẩm điều trị mụn theo hướng dẫn trên nhãn hoặc bác sĩ da liễu.\n3. Dưỡng ẩm.\n\n### Thói quen hỗ trợ\n- Rửa mặt sau khi vận động ra nhiều mồ hôi, nhưng tránh rửa liên tục nhiều lần vì có thể làm da khô và mụn nặng hơn.\n- Tẩy da chết hóa học nhẹ, như salicylic acid/AHA, khoảng **1 lần/tuần** lúc mới bắt đầu; không dùng cùng lúc nhiều sản phẩm tẩy da chết.\n- Nếu tóc dầu, nên gội đầu đều; tránh để tóc bết, dầu tóc hoặc sản phẩm tạo kiểu chạm vào trán và má.\n- Thay vỏ gối, khăn mặt thường xuyên; không dùng chung khăn.\n- Hạn chế sờ tay lên mặt, **không nặn mụn**, không cạy vảy vì dễ viêm, thâm và sẹo.\n- Chọn mỹ phẩm/kem dưỡng có nhãn “không gây bít tắc lỗ chân lông”.\n\n### Những điều nên tránh\n- Rửa mặt bằng nước quá nóng, chà scrub hạt mạnh hoặc kỳ cọ da.\n- Dùng nhiều hoạt chất trị mụn cùng lúc khiến da đỏ rát, bong tróc.\n- Tự mua thuốc uống trị mụn, nhất là isotretinoin hoặc kháng sinh, khi chưa được bác sĩ khám và theo dõi.\n\n### Khi nào cần khám da liễu?\nNên đi khám nếu mụn viêm nhiều, mụn bọc/nang, đau, để lại sẹo hoặc thâm nặng; mụn không cải thiện sau khoảng 2–3 tháng chăm sóc đúng; hoặc da bị bỏng rát, sưng đỏ khi dùng sản phẩm trị mụn. Bác sĩ có thể chỉ định thuốc bôi hay thuốc uống phù hợp mức độ mụn.",
+          "used_chunks": [
+            "vnexpress-suckhoe_c4293ecac6::0003",
+            "hellobacsi_a56e195fd9::0012",
+            "vinmec_c844350bab::0002"
+          ],
+          "scorecard": {
+            "grounding_support": 0.3824,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 5.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.3824,
+                "unsupported_sentences": [
+                  "Mụn thường liên quan đến thay đổi nội tiết, dầu thừa và bít tắc lỗ chân lông.",
+                  "### Routine cơ bản",
+                  "*Buổi sáng**",
+                  "Dùng nước ấm vừa, không chà xát hay dùng khăn thô.",
+                  "Nếu có mụn viêm nhẹ, có thể cân nhắc sản phẩm chứa **benzoyl peroxide** hoặc **axit salicylic (BHA)** nồng độ thấp.",
+                  "Chỉ bắt đầu một hoạt chất, dùng cách ngày nếu da dễ kích ứng.",
+                  "*Dưỡng ẩm không gây bít tắc** (ghi “non-comedogenic”, “oil-free”) để giảm khô rát do trị mụn.",
+                  "4.",
+                  "*Kem chống nắng SPF từ 30 trở lên**, kết cấu mỏng nhẹ, không gây bít tắc; đặc biệt quan trọng khi dùng BHA/benzoyl peroxide.",
+                  "*Buổi tối**",
+                  "Dùng sản phẩm điều trị mụn theo hướng dẫn trên nhãn hoặc bác sĩ da liễu.",
+                  "Dưỡng ẩm.",
+                  "### Thói quen hỗ trợ",
+                  "Nếu tóc dầu, nên gội đầu đều; tránh để tóc bết, dầu tóc hoặc sản phẩm tạo kiểu chạm vào trán và má.",
+                  "Thay vỏ gối, khăn mặt thường xuyên; không dùng chung khăn.",
+                  "Chọn mỹ phẩm/kem dưỡng có nhãn “không gây bít tắc lỗ chân lông”.",
+                  "### Những điều nên tránh",
+                  "Dùng nhiều hoạt chất trị mụn cùng lúc khiến da đỏ rát, bong tróc.",
+                  "Tự mua thuốc uống trị mụn, nhất là isotretinoin hoặc kháng sinh, khi chưa được bác sĩ khám và theo dõi.",
+                  "Nên đi khám nếu mụn viêm nhiều, mụn bọc/nang, đau, để lại sẹo hoặc thâm nặng; mụn không cải thiện sau khoảng 2–3 tháng chăm sóc đúng; hoặc da bị bỏng rát, sưng đỏ khi dùng sản phẩm trị mụn.",
+                  "Bác sĩ có thể chỉ định thuốc bôi hay thuốc uống phù hợp mức độ mụn."
+                ],
+                "eligible_sentence_count": 34,
+                "grounded_sentence_count": 13,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Chăm sóc da mụn tuổi dậy thì nên ưu tiên **nhẹ nhàng, đều đặn và không tự dùng thuốc mạnh**.",
+                    "grounded": true,
+                    "score": 0.609,
+                    "lexical_score": 0.3459,
+                    "semantic_score": 0.609,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Mụn thường liên quan đến thay đổi nội tiết, dầu thừa và bít tắc lỗ chân lông.",
+                    "grounded": false,
+                    "score": 0.383,
+                    "lexical_score": 0.383,
+                    "semantic_score": 0.3421,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "### Routine cơ bản",
+                    "grounded": false,
+                    "score": 0.2614,
+                    "lexical_score": 0.1026,
+                    "semantic_score": 0.2614,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "*Buổi sáng**",
+                    "grounded": false,
+                    "score": 0.207,
+                    "lexical_score": 0.125,
+                    "semantic_score": 0.207,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "1.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.093,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "*Rửa mặt dịu nhẹ** bằng sữa rửa mặt phù hợp da mụn, tối đa 2 lần/ngày.",
+                    "grounded": true,
+                    "score": 0.5799,
+                    "lexical_score": 0.3788,
+                    "semantic_score": 0.5799,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Dùng nước ấm vừa, không chà xát hay dùng khăn thô.",
+                    "grounded": false,
+                    "score": 0.4682,
+                    "lexical_score": 0.3689,
+                    "semantic_score": 0.4682,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "2.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.1264,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nếu có mụn viêm nhẹ, có thể cân nhắc sản phẩm chứa **benzoyl peroxide** hoặc **axit salicylic (BHA)** nồng độ thấp.",
+                    "grounded": false,
+                    "score": 0.4463,
+                    "lexical_score": 0.4463,
+                    "semantic_score": 0.3699,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Chỉ bắt đầu một hoạt chất, dùng cách ngày nếu da dễ kích ứng.",
+                    "grounded": false,
+                    "score": 0.385,
+                    "lexical_score": 0.2923,
+                    "semantic_score": 0.385,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "3.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.1076,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "*Dưỡng ẩm không gây bít tắc** (ghi “non-comedogenic”, “oil-free”) để giảm khô rát do trị mụn.",
+                    "grounded": false,
+                    "score": 0.4227,
+                    "lexical_score": 0.24,
+                    "semantic_score": 0.4227,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "4.",
+                    "grounded": false,
+                    "score": 0.1242,
+                    "lexical_score": 0.0,
+                    "semantic_score": 0.1242,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "*Kem chống nắng SPF từ 30 trở lên**, kết cấu mỏng nhẹ, không gây bít tắc; đặc biệt quan trọng khi dùng BHA/benzoyl peroxide.",
+                    "grounded": false,
+                    "score": 0.3829,
+                    "lexical_score": 0.3092,
+                    "semantic_score": 0.3829,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "*Buổi tối**",
+                    "grounded": false,
+                    "score": 0.1718,
+                    "lexical_score": 0.0769,
+                    "semantic_score": 0.1718,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "1.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.093,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Rửa mặt nhẹ nhàng.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.4629,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "2.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.1264,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Dùng sản phẩm điều trị mụn theo hướng dẫn trên nhãn hoặc bác sĩ da liễu.",
+                    "grounded": false,
+                    "score": 0.4299,
+                    "lexical_score": 0.4299,
+                    "semantic_score": 0.2764,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "3.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.1076,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Dưỡng ẩm.",
+                    "grounded": false,
+                    "score": 0.2926,
+                    "lexical_score": 0.127,
+                    "semantic_score": 0.2926,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "### Thói quen hỗ trợ",
+                    "grounded": false,
+                    "score": 0.2225,
+                    "lexical_score": 0.1622,
+                    "semantic_score": 0.2225,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Rửa mặt sau khi vận động ra nhiều mồ hôi, nhưng tránh rửa liên tục nhiều lần vì có thể làm da khô và mụn nặng hơn.",
+                    "grounded": true,
+                    "score": 0.5624,
+                    "lexical_score": 0.5455,
+                    "semantic_score": 0.5624,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Tẩy da chết hóa học nhẹ, như salicylic acid/AHA, khoảng **1 lần/tuần** lúc mới bắt đầu; không dùng cùng lúc nhiều sản phẩm tẩy da chết.",
+                    "grounded": true,
+                    "score": 0.5474,
+                    "lexical_score": 0.3626,
+                    "semantic_score": 0.5474,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nếu tóc dầu, nên gội đầu đều; tránh để tóc bết, dầu tóc hoặc sản phẩm tạo kiểu chạm vào trán và má.",
+                    "grounded": false,
+                    "score": 0.4854,
+                    "lexical_score": 0.2803,
+                    "semantic_score": 0.4854,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Thay vỏ gối, khăn mặt thường xuyên; không dùng chung khăn.",
+                    "grounded": false,
+                    "score": 0.3245,
+                    "lexical_score": 0.2439,
+                    "semantic_score": 0.3245,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Hạn chế sờ tay lên mặt, **không nặn mụn**, không cạy vảy vì dễ viêm, thâm và sẹo.",
+                    "grounded": true,
+                    "score": 0.5045,
+                    "lexical_score": 0.3361,
+                    "semantic_score": 0.5045,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Chọn mỹ phẩm/kem dưỡng có nhãn “không gây bít tắc lỗ chân lông”.",
+                    "grounded": false,
+                    "score": 0.3295,
+                    "lexical_score": 0.3295,
+                    "semantic_score": 0.3013,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "### Những điều nên tránh",
+                    "grounded": false,
+                    "score": 0.25,
+                    "lexical_score": 0.25,
+                    "semantic_score": 0.1137,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Rửa mặt bằng nước quá nóng, chà scrub hạt mạnh hoặc kỳ cọ da.",
+                    "grounded": true,
+                    "score": 0.5387,
+                    "lexical_score": 0.3304,
+                    "semantic_score": 0.5387,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Dùng nhiều hoạt chất trị mụn cùng lúc khiến da đỏ rát, bong tróc.",
+                    "grounded": false,
+                    "score": 0.4145,
+                    "lexical_score": 0.3509,
+                    "semantic_score": 0.4145,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Tự mua thuốc uống trị mụn, nhất là isotretinoin hoặc kháng sinh, khi chưa được bác sĩ khám và theo dõi.",
+                    "grounded": false,
+                    "score": 0.4179,
+                    "lexical_score": 0.3247,
+                    "semantic_score": 0.4179,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Nên đi khám nếu mụn viêm nhiều, mụn bọc/nang, đau, để lại sẹo hoặc thâm nặng; mụn không cải thiện sau khoảng 2–3 tháng chăm sóc đúng; hoặc da bị bỏng rát, sưng đỏ khi dùng sản phẩm trị mụn.",
+                    "grounded": false,
+                    "score": 0.4304,
+                    "lexical_score": 0.3646,
+                    "semantic_score": 0.4304,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Bác sĩ có thể chỉ định thuốc bôi hay thuốc uống phù hợp mức độ mụn.",
+                    "grounded": false,
+                    "score": 0.4162,
+                    "lexical_score": 0.4162,
+                    "semantic_score": 0.3105,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời đúng trọng tâm, đầy đủ và thực hành được cho tuổi dậy thì: nêu routine cơ bản sáng/tối, thói quen hỗ trợ, điều nên tránh và dấu hiệu cần đi khám. Nội dung nhìn chung an toàn, không chẩn đoán chắc chắn, giọng điệu phù hợp vai trò tư vấn da liễu.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "gpt-5.6-terra",
+            "temperature_policy": "temperature_unsupported_three_runs",
+            "candidate_scores": [
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "vnexpress-suckhoe_c4293ecac6::0003",
+                "text": "Rửa sạch da hai lần một ngày\nRửa sạch da rất quan trọng trong việc chăm sóc, cải thiện tình trạng mụn. Cần rửa mặt nhẹ nhàng bằng khăn sạch, tránh chà xát vì sẽ gây kích ứng da, nổi mụn nhiều hơn. Nên dùng nước ấm để làm sạch da, không dùng nước quá nóng sẽ làm khô da, không dùng nước quá lạnh vì không đủ để làm sạch da đúng cách. Mỗi ngày nên rửa mặt 2 lần và cần rửa mặt sau khi tập thể dục nếu đổ mồ hôi. Tuy nhiên, không nên rửa mặt quá nhiều vì có thể làm khô da, nổi mụn nhiều hơn. Tẩy tế bào chết hàng tuần\nTẩy da chết mỗi tuần một lần cũng có thể giúp chữa mụn trứng cá tuổi dậy thì hiệu quả. Các liệu pháp tẩy tế bào chết chứa hoạt chất nhẹ như axit salicylic hoặc axit alpha-hydroxy. Cũng có thể dùng mặt nạ bùn để giúp thông thoáng lỗ chân lông, loại bỏ các tế bào da chết.",
+                "source": "VnExpress-SucKhoe"
+              },
+              {
+                "chunk_id": "hellobacsi_a56e195fd9::0012",
+                "text": "Làm sạch da\nViệc đầu tiên và căn bản nhất trong chu trình dưỡng da là làm sạch da. Đây cũng là một cách trị mụn trứng cá tuổi dậy thì. Khi lỗ chân lông thông thoáng, sạch sẽ, mụn hoặc các vấn đề khác sẽ nhanh chóng bị đẩy lùi. Hãy hướng dẫn con rửa mặt bằng nước ấm cùng sữa rửa mặt chứa 2% benzoyl peroxide với kích cỡ của một hạt đậu, rửa 2 lần/ngày hoặc 3 lần nếu con vận động nhiều. Lưu ý\nMột điều quan trọng cần nhớ khi điều trị mụn trứng cá ở tuổi dậy thì là gội đầu mỗi ngày nếu tóc trẻ thuộc loại tóc dầu. Khi chất bẩn có trong dầu thừa của tóc dính lên da mặt, trẻ sẽ bị nổi mụn. Do đó, hãy khuyến khích trẻ siêng năng làm sạch da đầu và tóc. 2. Cách trị mụn trứng cá ở tuổi dậy thì: Sử dụng thuốc đặc trị\nSử dụng là cách trị mụn ở tuổi dậy thì nam, nữ đơn giản. Thuốc đặc trị sẽ giúp triệt tiêu nốt mụn hoặc ổ mụn nhanh hơn.",
+                "source": "HelloBacsi"
+              },
+              {
+                "chunk_id": "vinmec_c844350bab::0002",
+                "text": "Điều này khiến lỗ chân lông bị bít tắc, kết hợp với sự xâm nhập của vi khuẩn từ môi trường ngoài, làm tăng nguy cơ nổi mụn trứng cá ở tuổi teen, tuổi dậy thì. Mụn trứng cá có xu hướng giảm dần khi bạn già đi hoặc mụn sẽ giảm khi bạn duy trì thói quen chăm sóc da tốt. 2. Mụn trứng cá khi dậy thì phải làm sao? 10 phương pháp điều trị mụn trứng cá ở tuổi dậy thì\nCó rất nhiều phương pháp để điều trị mụn trứng cả ở tuổi teen. Ở mức độ nhẹ thì có thể tự điều trị, còn ở mức độ vừa và nặng thì ngoài thuốc uống, thuốc bôi thì còn cần chú ý chăm sóc da để vừa giúp phục hồi da vừa ngăn ngừa mụn hiệu quả. Dưới đây là 10 phương pháp mà các bạn có thể tham khảo và lựa chọn cho mình phương pháp phù hợp nhất, cụ thể đó là:\n2.1. Benzoyl peroxide và axit salicylic\nBenzoyl peroxide và axit salicylic là hai phương pháp được sử dụng để điều trị mụn trứng cá không kê đơn (OTC) phổ biến nhất.",
+                "source": "Vinmec"
+              }
+            ]
+          },
+          "latency_ms": 48447
+        },
+        {
+          "sample_id": "d8-0004",
+          "user_query": "Mụn trứng cá nặng có để lại sẹo không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Có. **Mụn trứng cá nặng có nguy cơ để lại sẹo cao**, đặc biệt là các dạng có nang, nốt viêm sâu, áp-xe, đường dò hoặc tổn thương loét. Sẹo có thể là:\n\n- **Sẹo lõm** sau khi tổn thương lành.\n- **Sẹo lồi/phì đại**, nhất là ở vùng ngực, lưng, vai.\n- Thâm đỏ hoặc thâm nâu sau viêm cũng có thể tồn tại, dù không phải lúc nào cũng là sẹo vĩnh viễn.\n\nNặn, bóp hoặc tự điều trị không phù hợp có thể làm viêm nặng hơn và tăng nguy cơ sẹo. Nên khám bác sĩ da liễu sớm để kiểm soát mụn, giảm tổn thương sâu và hạn chế sẹo.",
+          "used_chunks": [
+            "tuoitre-suckhoe_fd0800c7e2::0000",
+            "vinmec_13fc172f3f::0002",
+            "tuoitre-suckhoe_fd0800c7e2::0001"
+          ],
+          "scorecard": {
+            "grounding_support": 0.625,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 5.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.625,
+                "unsupported_sentences": [
+                  "Sẹo có thể là:",
+                  "**Sẹo lồi/phì đại**, nhất là ở vùng ngực, lưng, vai.",
+                  "Thâm đỏ hoặc thâm nâu sau viêm cũng có thể tồn tại, dù không phải lúc nào cũng là sẹo vĩnh viễn."
+                ],
+                "eligible_sentence_count": 8,
+                "grounded_sentence_count": 5,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Có.",
+                    "grounded": true,
+                    "score": 1.0,
+                    "lexical_score": 1.0,
+                    "semantic_score": 0.1942,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "*Mụn trứng cá nặng có nguy cơ để lại sẹo cao**, đặc biệt là các dạng có nang, nốt viêm sâu, áp-xe, đường dò hoặc tổn thương loét.",
+                    "grounded": true,
+                    "score": 0.6546,
+                    "lexical_score": 0.3478,
+                    "semantic_score": 0.6546,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Sẹo có thể là:",
+                    "grounded": false,
+                    "score": 0.3448,
+                    "lexical_score": 0.3448,
+                    "semantic_score": 0.2775,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "**Sẹo lõm** sau khi tổn thương lành.",
+                    "grounded": true,
+                    "score": 0.5714,
+                    "lexical_score": 0.5714,
+                    "semantic_score": 0.3435,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "**Sẹo lồi/phì đại**, nhất là ở vùng ngực, lưng, vai.",
+                    "grounded": false,
+                    "score": 0.4466,
+                    "lexical_score": 0.3495,
+                    "semantic_score": 0.4466,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Thâm đỏ hoặc thâm nâu sau viêm cũng có thể tồn tại, dù không phải lúc nào cũng là sẹo vĩnh viễn.",
+                    "grounded": false,
+                    "score": 0.474,
+                    "lexical_score": 0.2414,
+                    "semantic_score": 0.474,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Nặn, bóp hoặc tự điều trị không phù hợp có thể làm viêm nặng hơn và tăng nguy cơ sẹo.",
+                    "grounded": true,
+                    "score": 0.5649,
+                    "lexical_score": 0.5649,
+                    "semantic_score": 0.4115,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Nên khám bác sĩ da liễu sớm để kiểm soát mụn, giảm tổn thương sâu và hạn chế sẹo.",
+                    "grounded": true,
+                    "score": 0.5024,
+                    "lexical_score": 0.2677,
+                    "semantic_score": 0.5024,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Trả lời đúng câu hỏi, nêu rõ mụn trứng cá nặng có thể để lại sẹo, phân loại sẹo và giải thích yếu tố làm tăng nguy cơ. Giọng điệu phù hợp vai tư vấn da liễu, không chẩn đoán chắc chắn hay kê đơn cá nhân hóa, đồng thời có hướng dẫn hành động an toàn là nên khám da liễu sớm.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "gpt-5.6-terra",
+            "temperature_policy": "temperature_unsupported_three_runs",
+            "candidate_scores": [
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "tuoitre-suckhoe_fd0800c7e2::0000",
+                "text": "Mủ hay chất nhầy trắng có thể chảy ra ngoài qua các lỗ mở ra da trong một thời gian dài. Khi lành bệnh thường để lại sẹo lõm hoặc lồi. Các dạng mụn trứng cá nặng\nMụn trứng cá bọc:\nSang thương gồm nhiều sẩn viêm, mụn mủ, nang (kyst) và cục sưng to, đau. Vị trí thường ở mặt, ngực, lưng. Dạng này thường gặp ở nam. Mụn trứng cá cụm:\nBiểu hiện lâm sàng đa dạng với cùi mụn, sẩn, mụn mủ, cục, áp xe và sẹo. Vị trí ở lưng, mông, ngực; ít gặp hơn là bụng, vai, cổ, mặt, cánh tay và đùi. Sang thương thường lớn và rất đau, tạo nhiều đường dò chảy dịch hoặc mủ rất hôi. Lành thường để lại sẹo lõm và sẹo lồi. Bệnh thường khởi phát ở tuổi trưởng thành và nam gặp nhiều hơn nữ. Mụn trứng cá ác tính:\nĐây là một dạng mụn trứng cá rất nặng. Bệnh thường xuất hiện đột ngột với sang thương viêm, kích thước lớn và rất đau ở ngực và lưng (ít gặp ở mặt). Sang thương nhanh chóng loét ra và lành để lại sẹo.",
+                "source": "TuoiTre-SucKhoe"
+              },
+              {
+                "chunk_id": "vinmec_13fc172f3f::0002",
+                "text": "Các bác sĩ da liễu thường khuyên dùng thuốc theo đơn cho mụn trứng cá từ trung bình đến nặng. - Mụn trứng cá nặng: Những người bị mụn trứng cá nghiêm trọng có nhiều nang và nốt viêm. Các mụn có thể chuyển sang màu đỏ đậm hoặc tím. Nó thường để lại sẹo. Điều trị kịp thời bởi bác sĩ da liễu có thể giảm thiểu sẹo. - Mụn trứng cá khổng lồ là một loại u nang trong đó có một lỗ mở giống như mụn đầu đen trên da\n- Mụn trứng cá mặt trời được tìm thấy trên má và cằm của người già, và được cho là do tác hại của ánh nắng mặt trời. - Mụn da cây (nốt sần): Các nốt sần là những mụn trứng cá bị viêm, tạo thành những vết sưng nhỏ màu đỏ hoặc hồng trên da. Nặn hoặc bóp có thể làm cho tình trạng viêm nặng hơn và có thể dẫn đến sẹo. Một số lượng lớn các sẩn có thể chỉ ra mụn trứng cá từ trung bình đến nặng.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "tuoitre-suckhoe_fd0800c7e2::0001",
+                "text": "Bệnh thường xuất hiện đột ngột với sang thương viêm, kích thước lớn và rất đau ở ngực và lưng (ít gặp ở mặt). Sang thương nhanh chóng loét ra và lành để lại sẹo. Bệnh nhân thường sốt, kèm với tăng bạch cầu (10.000 - 30.000/mm3), đau khớp, đau cơ và các triệu chứng toàn thân khác. Bệnh đa số gặp ở thiếu niên. Khi lành thương tổn sẽ để lại sẹo lõm hoặc lồi. Các yếu tố gây nên mụn trứng cá nặng:\nTrong một số trường hợp mụn sẽ trở nên nặng do cơ địa, diễn tiến bệnh hoặc do điều trị không thích hợp. Mụn trứng cá nặng hay gặp ở nam nhiều hơn nữ gấp 10 lần và đa số gặp ở những người có yếu tố gia đình tức có anh chị em hoặc bố mẹ trong nhà cũng bị mụn trứng cá nặng. Tự điều trị hoặc sử dụng đơn thuốc của người thân dùng điều trị mụn có hiệu quả trước đây có thể làm tình trạng mụn nặng hơn hoặc gây biến chứng.",
+                "source": "TuoiTre-SucKhoe"
+              }
+            ]
+          },
+          "latency_ms": 22208
+        },
+        {
+          "sample_id": "d8-0006",
+          "user_query": "Phân biệt mụn đầu đen và mụn đầu trắng",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "**Mụn đầu đen** và **mụn đầu trắng** đều là mụn trứng cá không viêm, hình thành khi lỗ chân lông bị bít bởi dầu thừa và tế bào da chết. Điểm khác nhau chính là tình trạng “đóng” hay “mở” của lỗ chân lông.\n\n| Đặc điểm | Mụn đầu đen | Mụn đầu trắng |\n|---|---|---|\n| Tên chuyên môn | Comedone hở | Comedone kín |\n| Hình dạng/màu sắc | Chấm nhỏ màu đen hoặc nâu đen, thấy rõ trên bề mặt da | Nốt nhỏ màu trắng/trắng ngà hoặc màu da, hơi gồ lên |\n| Lỗ chân lông | Bị tắc nhưng **vẫn mở** ra ngoài | Bị tắc và **đóng kín** bên trên |\n| Nguyên nhân có màu đen/trắng | Nhân mụn tiếp xúc không khí, melanin bị oxy hóa nên sẫm màu; **không phải do bụi bẩn** | Nhân nằm dưới lớp da kín, không tiếp xúc không khí nên vẫn trắng hoặc cùng màu da |\n| Vị trí hay gặp | Mũi, trán, cằm, đôi khi lưng và vai | Mặt, đặc biệt vùng trán, cằm, má; cũng có thể ở lưng/vai |\n| Cảm giác | Thường không đau, không viêm | Thường không đau, không viêm; có thể tiến triển thành mụn viêm nếu bị vi khuẩn và viêm nhiễm |\n\n**Tóm lại:**  \n- Thấy **chấm đen trong lỗ chân lông**: thường là mụn đầu đen.  \n- Thấy **nốt li ti trắng hoặc màu da, kín miệng**: thường là mụn đầu trắng.  \n\nCả hai nên được làm sạch da nhẹ nhàng, tránh tự nặn mạnh để hạn chế tổn thương, viêm và thâm da.",
+          "used_chunks": [
+            "vinmec_b0be77b4fe::0001",
+            "dalieuhanoi_2d5df79811::0000",
+            "medlatec_ddf7caf881::0004"
+          ],
+          "scorecard": {
+            "grounding_support": 0.4286,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 5.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.4286,
+                "unsupported_sentences": [
+                  "Điểm khác nhau chính là tình trạng “đóng” hay “mở” của lỗ chân lông.",
+                  "|---|---|---|",
+                  "| Tên chuyên môn | Comedone hở | Comedone kín |",
+                  "| Hình dạng/màu sắc | Chấm nhỏ màu đen hoặc nâu đen, thấy rõ trên bề mặt da | Nốt nhỏ màu trắng/trắng ngà hoặc màu da, hơi gồ lên |",
+                  "| Vị trí hay gặp | Mũi, trán, cằm, đôi khi lưng và vai | Mặt, đặc biệt vùng trán, cằm, má; cũng có thể ở lưng/vai |",
+                  "*Tóm lại:**",
+                  "Thấy **nốt li ti trắng hoặc màu da, kín miệng**: thường là mụn đầu trắng.",
+                  "Cả hai nên được làm sạch da nhẹ nhàng, tránh tự nặn mạnh để hạn chế tổn thương, viêm và thâm da."
+                ],
+                "eligible_sentence_count": 14,
+                "grounded_sentence_count": 6,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "*Mụn đầu đen** và **mụn đầu trắng** đều là mụn trứng cá không viêm, hình thành khi lỗ chân lông bị bít bởi dầu thừa và tế bào da chết.",
+                    "grounded": true,
+                    "score": 0.7231,
+                    "lexical_score": 0.5149,
+                    "semantic_score": 0.7231,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Điểm khác nhau chính là tình trạng “đóng” hay “mở” của lỗ chân lông.",
+                    "grounded": false,
+                    "score": 0.3731,
+                    "lexical_score": 0.3731,
+                    "semantic_score": 0.295,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "| Đặc điểm | Mụn đầu đen | Mụn đầu trắng |",
+                    "grounded": true,
+                    "score": 0.566,
+                    "lexical_score": 0.3441,
+                    "semantic_score": 0.566,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "|---|---|---|",
+                    "grounded": false,
+                    "score": 0.1581,
+                    "lexical_score": 0.0,
+                    "semantic_score": 0.1581,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "| Tên chuyên môn | Comedone hở | Comedone kín |",
+                    "grounded": false,
+                    "score": 0.241,
+                    "lexical_score": 0.1064,
+                    "semantic_score": 0.241,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "| Hình dạng/màu sắc | Chấm nhỏ màu đen hoặc nâu đen, thấy rõ trên bề mặt da | Nốt nhỏ màu trắng/trắng ngà hoặc màu da, hơi gồ lên |",
+                    "grounded": false,
+                    "score": 0.4775,
+                    "lexical_score": 0.4054,
+                    "semantic_score": 0.4775,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "| Lỗ chân lông | Bị tắc nhưng **vẫn mở** ra ngoài | Bị tắc và **đóng kín** bên trên |",
+                    "grounded": true,
+                    "score": 0.5379,
+                    "lexical_score": 0.5379,
+                    "semantic_score": 0.4413,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "| Nguyên nhân có màu đen/trắng | Nhân mụn tiếp xúc không khí, melanin bị oxy hóa nên sẫm màu; **không phải do bụi bẩn** | Nhân nằm dưới lớp da kín, không tiếp xúc không khí nên vẫn trắng hoặc cùng màu da |",
+                    "grounded": true,
+                    "score": 0.5343,
+                    "lexical_score": 0.493,
+                    "semantic_score": 0.5343,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "| Vị trí hay gặp | Mũi, trán, cằm, đôi khi lưng và vai | Mặt, đặc biệt vùng trán, cằm, má; cũng có thể ở lưng/vai |",
+                    "grounded": false,
+                    "score": 0.4558,
+                    "lexical_score": 0.3611,
+                    "semantic_score": 0.4558,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "| Cảm giác | Thường không đau, không viêm | Thường không đau, không viêm; có thể tiến triển thành mụn viêm nếu bị vi khuẩn và viêm nhiễm |",
+                    "grounded": true,
+                    "score": 0.6197,
+                    "lexical_score": 0.6197,
+                    "semantic_score": 0.4602,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "*Tóm lại:**",
+                    "grounded": false,
+                    "score": 0.1565,
+                    "lexical_score": 0.0388,
+                    "semantic_score": 0.1565,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Thấy **chấm đen trong lỗ chân lông**: thường là mụn đầu đen.",
+                    "grounded": true,
+                    "score": 0.5218,
+                    "lexical_score": 0.386,
+                    "semantic_score": 0.5218,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Thấy **nốt li ti trắng hoặc màu da, kín miệng**: thường là mụn đầu trắng.",
+                    "grounded": false,
+                    "score": 0.498,
+                    "lexical_score": 0.3577,
+                    "semantic_score": 0.498,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Cả hai nên được làm sạch da nhẹ nhàng, tránh tự nặn mạnh để hạn chế tổn thương, viêm và thâm da.",
+                    "grounded": false,
+                    "score": 0.4277,
+                    "lexical_score": 0.4277,
+                    "semantic_score": 0.345,
+                    "best_context_index": 1
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời phân biệt đúng mụn đầu đen và mụn đầu trắng, nêu rõ cơ chế comedone hở/kín, màu sắc, đặc điểm lỗ chân lông và vị trí thường gặp. Nội dung đủ để người dùng tự nhận biết ở mức cơ bản và có lời khuyên an toàn là không tự nặn mạnh. Giọng điệu rõ ràng, phù hợp vai trò tư vấn da liễu, không khẳng định chẩn đoán cá nhân hóa.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "gpt-5.6-terra",
+            "temperature_policy": "temperature_unsupported_three_runs",
+            "candidate_scores": [
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "vinmec_b0be77b4fe::0001",
+                "text": "Nếu không điều trị, có thể dẫn đến viêm hoặc nhiễm trùng do vi khuẩn tạo thành mụn viêm. Mụn đầu trắng và đầu đen đều được coi là mụn trứng cá và thường xuất hiện trên lưng, vai, mặt. Mặc dù cả 2 loại mụn đều xảy ra khi lỗ chân lông bị tắc nghẽn bởi tế bào da chết và dầu, có một số điểm khác biệt cần phân biệt, cụ thể:\n- Mụn đầu trắng là những nốt mụn nhỏ có màu trắng xuất hiện da, xảy ra khi lỗ chân lông bị tắc đóng lại, không có sự tiếp xúc với không khí. - Mụn đầu đen là những chấm đen nhỏ trên da, xảy ra khi lỗ chân lông bị tắc nhưng vẫn mở và nang lông tiếp xúc với không khí. Kết quả là melanin bị oxy hóa và biến các lỗ chân lông bị tắc thành màu đen. Mụn đầu trắng và đầu đen không gây ra bất kỳ triệu chứng tiêu cực nào ngoài vẻ ngoài của chúng. Chúng không gây đau đớn trừ khi tình trạng mụn tiến triển và da bị viêm do vi khuẩn trú ẩn bên dưới. 2.",
+                "source": "Vinmec"
+              },
+              {
+                "chunk_id": "dalieuhanoi_2d5df79811::0000",
+                "text": "Mụn đầu đen và mụn đầu trắng là hai loại mụn phổ biến nhất, có thể xuất hiện ở mọi độ tuổi, mọi loại da. Dù không gây viêm đau như mụn bọc hay mụn mủ, nhưng lại khiến làn da trở nên sần sùi, thiếu mịn màng, ảnh hưởng đến thẩm mỹ. Cùng tìm hiểu chi tiết qua bài viết dưới đây của Phòng khám Chuyên khoa Da liễu Maia&Maia. I. Phân biệt tình trạng mụn đầu đen và mụn đầu trắng\nMụn đầu đen, mụn đầu trắng là tình trạng da liễu thường gặp và dễ dàng nhận biết thông qua những dấu hiệu sau:\nII. Cách xử lý tình trạng mụn đầu đen và mụn đầu trắng\nMặc dù mụn đầu đen và mụn đầu trắng khác nhau về đặc điểm nhận biết nhưng cách điều trị 2 loại mụn này thường tương đồng. Cụ thể những cách điều trị phổ biến gồm:\n1. Làm sạch da đúng cách\nLàm sạch da là bước quan trọng trong việc ngăn ngừa và cải thiện tình trạng lỗ chân lông bít tắc.",
+                "source": "DaLieuHaNoi"
+              },
+              {
+                "chunk_id": "medlatec_ddf7caf881::0004",
+                "text": "Thông thường, mụn trứng cá sẽ hình thành nhiều khi chị em bước vào độ tuổi dậy thì, mang thai hay người sống trong môi trường bị ô nhiễm, nhiều khói bụi. Mụn đầu đen\nMụn đầu đen được coi là cấp độ đầu của mụn trứng cá và cũng thuộc top các loại mụn phổ biến. Trong số các loại mụn ở mặt thì mụn đầu đen dễ nhận biết nhất bởi nhân của chúng có màu đen. Sở dĩ có màu đen là do nhân mụn nhô lên trên bề mặt da, khi có sự tiếp xúc với không khí sẽ nhanh chóng bị oxy hóa. Những chấm nhỏ li ti xuất hiện trên mặt là biểu hiện của mụn đầu đen nhô lên trên bề mặt da\nBạn có thể phân biệt mụn đầu đen với các loại khác dựa trên biểu hiện như sau:\n-\nBề mặt da ban đầu sẽ dần xuất hiện các lỗ nhỏ li ti, nhân hở ra bên ngoài nên có thể nhìn thấy được bằng mắt thường.",
+                "source": "Medlatec"
+              }
+            ]
+          },
+          "latency_ms": 31773
+        },
+        {
+          "sample_id": "d8-0008",
+          "user_query": "Có nên nặn mụn tại nhà không?",
+          "user_context": {},
+          "intent_label": null,
+          "expected_behavior": null,
+          "expected_answer_points": [],
+          "forbidden_claims": [],
+          "ok": true,
+          "error": null,
+          "answer": "Theo nguyên tắc chung, **không nên tự nặn mụn tại nhà**, đặc biệt nếu không chắc loại mụn hoặc không có dụng cụ/vệ sinh đúng cách.\n\nTự nặn sai có thể gây:\n- Vi khuẩn xâm nhập, làm mụn sưng đau và viêm nặng hơn.\n- Đẩy nhân mụn, mủ lan sâu hoặc sang vùng da lân cận.\n- Tổn thương da, để lại sẹo lõm hoặc thâm sau viêm.\n- Mụn tái phát, dai dẳng hơn.\n\n**Có thể cân nhắc tự xử lý rất thận trọng** với mụn không viêm, nằm nông như **mụn đầu đen hoặc đầu trắng**. Tuy nhiên, không nên cố nặn nếu nhân không ra dễ dàng; tránh dùng móng tay, kim chưa được khử trùng hoặc dùng lực mạnh.\n\n**Không tự nặn** các loại mụn viêm như mụn mủ, mụn bọc, mụn nang, nốt mụn sưng đỏ/đau hoặc mụn ở vùng dễ để sẹo. Với các trường hợp này, nên khám da liễu hoặc lấy nhân mụn tại cơ sở uy tín.\n\nNếu mụn viêm nhiều, đau, lan rộng, có nguy cơ sẹo hoặc tái diễn thường xuyên, hãy đi khám bác sĩ da liễu để được điều trị phù hợp.",
+          "used_chunks": [
+            "medlatec_1b89d7c362::0000",
+            "dalieuhanoi_4c31268921::0002",
+            "youmed_b932616541::0003"
+          ],
+          "scorecard": {
+            "grounding_support": 0.2727,
+            "safety_pass": true,
+            "refusal_fidelity": null,
+            "answer_quality": 5.0,
+            "role_tone": 5.0,
+            "details": {
+              "grounding": {
+                "grounded_sentence_rate": 0.2727,
+                "unsupported_sentences": [
+                  "Tự nặn sai có thể gây:",
+                  "Vi khuẩn xâm nhập, làm mụn sưng đau và viêm nặng hơn.",
+                  "Đẩy nhân mụn, mủ lan sâu hoặc sang vùng da lân cận.",
+                  "Tổn thương da, để lại sẹo lõm hoặc thâm sau viêm.",
+                  "Mụn tái phát, dai dẳng hơn.",
+                  "Tuy nhiên, không nên cố nặn nếu nhân không ra dễ dàng; tránh dùng móng tay, kim chưa được khử trùng hoặc dùng lực mạnh.",
+                  "Với các trường hợp này, nên khám da liễu hoặc lấy nhân mụn tại cơ sở uy tín.",
+                  "Nếu mụn viêm nhiều, đau, lan rộng, có nguy cơ sẹo hoặc tái diễn thường xuyên, hãy đi khám bác sĩ da liễu để được điều trị phù hợp."
+                ],
+                "eligible_sentence_count": 11,
+                "grounded_sentence_count": 3,
+                "threshold": 0.5,
+                "combination": "max(char_3gram_dice_by_context_sentence, embedding_cosine)",
+                "sentence_scores": [
+                  {
+                    "sentence": "Theo nguyên tắc chung, **không nên tự nặn mụn tại nhà**, đặc biệt nếu không chắc loại mụn hoặc không có dụng cụ/vệ sinh đúng cách.",
+                    "grounded": true,
+                    "score": 0.6912,
+                    "lexical_score": 0.4785,
+                    "semantic_score": 0.6912,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Tự nặn sai có thể gây:",
+                    "grounded": false,
+                    "score": 0.4231,
+                    "lexical_score": 0.2917,
+                    "semantic_score": 0.4231,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Vi khuẩn xâm nhập, làm mụn sưng đau và viêm nặng hơn.",
+                    "grounded": false,
+                    "score": 0.443,
+                    "lexical_score": 0.443,
+                    "semantic_score": 0.3802,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Đẩy nhân mụn, mủ lan sâu hoặc sang vùng da lân cận.",
+                    "grounded": false,
+                    "score": 0.4894,
+                    "lexical_score": 0.4894,
+                    "semantic_score": 0.3793,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Tổn thương da, để lại sẹo lõm hoặc thâm sau viêm.",
+                    "grounded": false,
+                    "score": 0.486,
+                    "lexical_score": 0.486,
+                    "semantic_score": 0.3523,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "Mụn tái phát, dai dẳng hơn.",
+                    "grounded": false,
+                    "score": 0.2692,
+                    "lexical_score": 0.2692,
+                    "semantic_score": 0.2146,
+                    "best_context_index": 1
+                  },
+                  {
+                    "sentence": "*Có thể cân nhắc tự xử lý rất thận trọng** với mụn không viêm, nằm nông như **mụn đầu đen hoặc đầu trắng**.",
+                    "grounded": true,
+                    "score": 0.5963,
+                    "lexical_score": 0.5963,
+                    "semantic_score": 0.5043,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "Tuy nhiên, không nên cố nặn nếu nhân không ra dễ dàng; tránh dùng móng tay, kim chưa được khử trùng hoặc dùng lực mạnh.",
+                    "grounded": false,
+                    "score": 0.4615,
+                    "lexical_score": 0.4615,
+                    "semantic_score": 0.3387,
+                    "best_context_index": 0
+                  },
+                  {
+                    "sentence": "*Không tự nặn** các loại mụn viêm như mụn mủ, mụn bọc, mụn nang, nốt mụn sưng đỏ/đau hoặc mụn ở vùng dễ để sẹo.",
+                    "grounded": true,
+                    "score": 0.6086,
+                    "lexical_score": 0.4444,
+                    "semantic_score": 0.6086,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Với các trường hợp này, nên khám da liễu hoặc lấy nhân mụn tại cơ sở uy tín.",
+                    "grounded": false,
+                    "score": 0.4446,
+                    "lexical_score": 0.4085,
+                    "semantic_score": 0.4446,
+                    "best_context_index": 2
+                  },
+                  {
+                    "sentence": "Nếu mụn viêm nhiều, đau, lan rộng, có nguy cơ sẹo hoặc tái diễn thường xuyên, hãy đi khám bác sĩ da liễu để được điều trị phù hợp.",
+                    "grounded": false,
+                    "score": 0.42,
+                    "lexical_score": 0.3111,
+                    "semantic_score": 0.42,
+                    "best_context_index": 2
+                  }
+                ],
+                "limitations": [
+                  "negation_or_refutation"
+                ]
+              },
+              "pregnancy_safety": null,
+              "forbidden_claims_hit": [],
+              "safety_fail_reasons": [],
+              "actual_intent": "knowledge",
+              "expected_intent": null
+            }
+          },
+          "safety_fail": false,
+          "attempt_errors": [],
+          "judge_reason": "Câu trả lời đúng trọng tâm, kiến thức phù hợp và đủ để người dùng hành động an toàn. Nêu rõ không nên tự nặn mụn tại nhà, phân biệt mụn có thể cân nhắc rất thận trọng với mụn cần tránh nặn, và khuyến nghị đi khám khi mụn viêm/nặng. Giọng điệu trung tính, đúng vai tư vấn da liễu, không chẩn đoán chắc chắn hay kê đơn cá nhân hóa.",
+          "attempts": 1,
+          "trace": {
+            "intake_source": "real",
+            "primary_intent": "knowledge",
+            "oracle_runtime_input": null,
+            "oracle_intent": null,
+            "oracle_injected_fields": [],
+            "oracle_injected_field_count": 0,
+            "oracle_ignored_fields": [],
+            "retrieval_source": "real",
+            "generator_model": "gpt-5.6-terra",
+            "temperature_policy": "temperature_unsupported_three_runs",
+            "candidate_scores": [
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              },
+              {
+                "answer_quality": 5.0,
+                "role_tone": 5.0
+              }
+            ],
+            "selected_candidate_index": 0,
+            "context_chunks": [
+              {
+                "chunk_id": "medlatec_1b89d7c362::0000",
+                "text": "Tin tức\nCó nên nặn mụn không và cách nặn mụn an toàn\n- 08/01/2022 | Những lưu ý chăm sóc da sau nặn mụn để ngăn ngừa sẹo hiệu quả\n- 22/02/2023 | Hướng dẫn nặn mụn đúng cách để quên nỗi lo về sẹo\n- 02/11/2021 | Bí kíp chăm sóc da sau khi nặn mụn để làn da luôn căng bóng\n1. Có nên nặn mụn không? - Về thắc mắc “có nên nặn mụn không”, các chuyên gia cho biết:\n+ Theo nguyên tắc chung, chúng ta không nên nặn mụn tại nhà. Tuy nhiên, với một số dạng mụn không viêm chẳng hạn như mụn đầu đen, mụn đầu trắng,… bạn có thể tự nặn tại nhà. Những loại mụn này được hình thành từ những tế bào da chết và dầu thừa gây viêm tắc các nang lông. Mụn thường nằm sát bề mặt da nên việc nặn mụn thường không khó khăn và không cần thiết phải có những biện pháp can thiệp mới có thể loại bỏ nhân mụn.",
+                "source": "Medlatec"
+              },
+              {
+                "chunk_id": "dalieuhanoi_4c31268921::0002",
+                "text": "- Giảm nguy cơ mụn tái phát: Lấy nhân mụn đúng cách sẽ duy trì làn da sáng mịn, hạn chế mụn xuất hiện trên da. III. Bị mụn có nên tự nặn ở nhà không? Mặc dù nặn mụn ở nhà giúp tiết kiệm thời gian và chi phí nhưng nếu lấy nhân mụn sai cách sẽ tiềm ẩn nhiều rủi ro cho da. Dưới đây là những tác hại khi nặn mụn tại nhà mà mọi người nên biết:\n- Tình trạng mụn trở nên trầm trọng hơn: Lấy nhân mụn không đúng cách sẽ tạo điều kiện cho vi khuẩn xâm nhập khiến làn da sưng tấy, đau dữ dội. - Gây tổn thương da: Dùng lực quá mạnh sẽ gây tổn thương, thậm chí là để lại sẹo trên da. - Thay đổi sắc tố da: Tình trạng viêm do nặn mụn sai cách sẽ làm biến đổi sắc tố da, hình thành nên các vùng da sẫm màu gây mất thẩm mỹ về ngoại hình.",
+                "source": "DaLieuHaNoi"
+              },
+              {
+                "chunk_id": "youmed_b932616541::0003",
+                "text": "Và quan trọng nhất là bạn cần biết cách nặn mụn không để lại sẹo, nếu không thì tốt nhất bạn nên đến trung tâm y tế để thực hiện. Những loại mụn nên và không nên nặn\nNhững loại mụn có thể nặn (lưu ý nặn mụn đúng cách)\nMột số loại mụn mà chúng ta có thể nặn tại nhà (và chú ý nặn mụn đúng cách) đó là:2\n- Mụn đầu đen. Bạn có thể thoa thuốc bôi không kê đơn như axit salicylic hoặc benzoyl peroxide lên mụn đầu đen để nới lỏng nốt mụn trước khi nặn mụn. - Mụn đầu trắng. Khử trùng kim bằng cồn và châm nhẹ vào vùng da bị tắc lỗ chân lông. Sau đó, nặn mụn đầu trắng giống như cách bạn làm với mụn đầu đen. Những loại mụn không nên tự nặn ở nhà\nMột số loại mụn mà các bác sĩ da liễu khuyên bạn không nên tự nặn ở nhà bao gồm:3 4\n- Mụn mủ. Vì sự nặn có thể làm cho mủ viêm lây lan sang những vùng da lân cận.",
+                "source": "Youmed"
+              }
+            ]
+          },
+          "latency_ms": 28874
+        }
+      ]
+    }
+  },
+  "paired": {
+    "z": {
+      "baseline": "z",
+      "paired_n": 5,
+      "dropped_ids": [],
+      "drop_reason": {},
+      "faces": [
+        {
+          "face": "grounding_support",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 0.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 0.0
+            }
+          ],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 5,
+          "unavailable_ids": []
+        },
+        {
+          "face": "safety_pass",
+          "metric_type": "gate",
+          "paired_n": 5,
+          "median_delta": null,
+          "distribution": [],
+          "baseline_fail_count": 0,
+          "arm_fail_count": 0,
+          "baseline_fail_ids": [],
+          "arm_fail_ids": []
+        },
+        {
+          "face": "refusal_fidelity",
+          "metric_type": "binary",
+          "paired_n": 0,
+          "median_delta": null,
+          "distribution": [],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 0,
+          "unavailable_ids": [
+            "d8-0001",
+            "d8-0003",
+            "d8-0004",
+            "d8-0006",
+            "d8-0008"
+          ]
+        },
+        {
+          "face": "answer_quality",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 0.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 0.0
+            }
+          ],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 5,
+          "unavailable_ids": []
+        },
+        {
+          "face": "role_tone",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 0.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 0.0
+            }
+          ],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 5,
+          "unavailable_ids": []
+        }
+      ],
+      "safety_failures": 0
+    },
+    "w": {
+      "baseline": "z",
+      "paired_n": 5,
+      "dropped_ids": [],
+      "drop_reason": {},
+      "faces": [
+        {
+          "face": "grounding_support",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 0.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 0.25
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": -0.2
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": -0.2
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 0.0
+            }
+          ],
+          "increased": 1,
+          "decreased": 2,
+          "unchanged": 2,
+          "unavailable_ids": []
+        },
+        {
+          "face": "safety_pass",
+          "metric_type": "gate",
+          "paired_n": 5,
+          "median_delta": null,
+          "distribution": [],
+          "baseline_fail_count": 0,
+          "arm_fail_count": 0,
+          "baseline_fail_ids": [],
+          "arm_fail_ids": []
+        },
+        {
+          "face": "refusal_fidelity",
+          "metric_type": "binary",
+          "paired_n": 0,
+          "median_delta": null,
+          "distribution": [],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 0,
+          "unavailable_ids": [
+            "d8-0001",
+            "d8-0003",
+            "d8-0004",
+            "d8-0006",
+            "d8-0008"
+          ]
+        },
+        {
+          "face": "answer_quality",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 0.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 2.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 1.0
+            }
+          ],
+          "increased": 2,
+          "decreased": 0,
+          "unchanged": 3,
+          "unavailable_ids": []
+        },
+        {
+          "face": "role_tone",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 1.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 1.0
+            }
+          ],
+          "increased": 3,
+          "decreased": 0,
+          "unchanged": 2,
+          "unavailable_ids": []
+        }
+      ],
+      "safety_failures": 0
+    },
+    "y": {
+      "baseline": "z",
+      "paired_n": 5,
+      "dropped_ids": [],
+      "drop_reason": {},
+      "faces": [
+        {
+          "face": "grounding_support",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": -0.1176,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.1212
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": -0.1176
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 0.025
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": -0.5714
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": -0.394
+            }
+          ],
+          "increased": 2,
+          "decreased": 3,
+          "unchanged": 0,
+          "unavailable_ids": []
+        },
+        {
+          "face": "safety_pass",
+          "metric_type": "gate",
+          "paired_n": 5,
+          "median_delta": null,
+          "distribution": [],
+          "baseline_fail_count": 0,
+          "arm_fail_count": 0,
+          "baseline_fail_ids": [],
+          "arm_fail_ids": []
+        },
+        {
+          "face": "refusal_fidelity",
+          "metric_type": "binary",
+          "paired_n": 0,
+          "median_delta": null,
+          "distribution": [],
+          "increased": 0,
+          "decreased": 0,
+          "unchanged": 0,
+          "unavailable_ids": [
+            "d8-0001",
+            "d8-0003",
+            "d8-0004",
+            "d8-0006",
+            "d8-0008"
+          ]
+        },
+        {
+          "face": "answer_quality",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 1.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 3.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 2.0
+            }
+          ],
+          "increased": 5,
+          "decreased": 0,
+          "unchanged": 0,
+          "unavailable_ids": []
+        },
+        {
+          "face": "role_tone",
+          "metric_type": "numeric",
+          "paired_n": 5,
+          "median_delta": 1.0,
+          "distribution": [
+            {
+              "sample_id": "d8-0001",
+              "delta": 0.0
+            },
+            {
+              "sample_id": "d8-0003",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0004",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0006",
+              "delta": 1.0
+            },
+            {
+              "sample_id": "d8-0008",
+              "delta": 1.0
+            }
+          ],
+          "increased": 4,
+          "decreased": 0,
+          "unchanged": 1,
+          "unavailable_ids": []
+        }
+      ],
+      "safety_failures": 0
+    }
+  },
+  "protocol": {
+    "judge_provider": "openai",
+    "judge_model": "gpt-5.4-mini",
+    "arm_y_selection": "candidate_0",
+    "arm_y_temperature": "temperature_0_or_provider_default_three_runs",
+    "retry_policy": "one_retry_with_1s_backoff",
+    "dataset_scope": "one dataset and its own Z baseline per artifact"
+  }
+}
