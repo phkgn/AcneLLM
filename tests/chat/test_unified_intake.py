@@ -163,33 +163,10 @@ def test_nested_unknown_enum_is_dropped_before_pydantic_validation():
         "not json",
         "Here is the answer with no object.",
         "[]",
-        "{}",
-        '{"intent":"advise"}',
-        json.dumps({**_payload(), "intent": "personal_consult"}),
-        json.dumps({**_payload(), "confidence": 1.1}),
-        json.dumps({**_payload(), "extra": "not allowed"}),
-        json.dumps({**_payload(), "context": {"age": _node(22)}}),
-        json.dumps(
-            {
-                **_payload(),
-                "context": {
-                    **_payload()["context"],
-                    "age": _node(["not", "an", "integer"]),
-                },
-            }
-        ),
-        json.dumps(
-            {
-                **_payload(),
-                "clinical": {
-                    **_payload()["clinical"],
-                    "lesion_types": ["papule"],
-                },
-            }
-        ),
     ],
 )
-def test_bad_output_always_becomes_interface_specific_fallback(response: str):
+def test_unparseable_output_becomes_interface_specific_fallback(response: str):
+    """Chỉ còn 1 lý do fallback: model không trả nổi một JSON object."""
     router = UnifiedIntake(_Backend(response=response), "acne-intake", 60.0)
     extractor = UnifiedIntake(_Backend(response=response), "acne-intake", 60.0)
 
@@ -202,6 +179,59 @@ def test_bad_output_always_becomes_interface_specific_fallback(response: str):
             mode="llm_only",
             history=[],
         )
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        "{}",
+        '{"description":"mụn ở má"}',
+        json.dumps({**_payload(), "intent": "personal_consult"}),
+    ],
+)
+def test_unroutable_intent_falls_back_but_extraction_still_runs(response: str):
+    """Intent hỏng thì chỉ route mới fallback; extraction vẫn dùng được JSON."""
+    router = UnifiedIntake(_Backend(response=response), "acne-intake", 60.0)
+    extractor = UnifiedIntake(_Backend(response=response), "acne-intake", 60.0)
+
+    with pytest.raises(RouterFallback):
+        router.classify("mụn ở má", [])
+    extracted = extractor.run(
+        clean_text="mụn ở má",
+        clean_text_no_accent="mun o ma",
+        mode="llm_only",
+        history=[],
+    )
+    assert extracted.user.description == "mụn ở má"
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_age"),
+    [
+        ({"description": "một câu hoàn toàn khác"}, 22),
+        ({"confidence": 1.1}, 22),
+        ({"extra": "not allowed"}, 22),
+        ({"context": {"age": _node(22)}}, 22),
+        ({"context": {**_payload()["context"], "age": _node("nonsense")}}, None),
+        ({"clinical": {**_payload()["clinical"], "lesion_types": ["papule"]}}, 22),
+    ],
+)
+def test_shape_deviations_no_longer_discard_the_inference(
+    mutation: dict, expected_age: int | None
+):
+    message = "em 22 tuổi da dầu bị mụn viêm ở má"
+    payload = {**_payload(message), **mutation}
+    adapter, _ = _adapter(payload)
+
+    assert adapter.classify(message, []).primary_intent == "advise"
+    extracted = adapter.run(
+        clean_text=message,
+        clean_text_no_accent="em 22 tuoi da dau bi mun viem o ma",
+        mode="llm_only",
+        history=[],
+    )
+    assert extracted.user.context.age == expected_age
+    assert extracted.user.description == message
 
 
 @pytest.mark.parametrize("error", [TimeoutError("timeout"), RuntimeError("transport")])
@@ -220,9 +250,9 @@ def test_backend_failures_never_escape_as_raw_exceptions(error: Exception):
         )
 
 
-@pytest.mark.parametrize("clean_text", ["", " ", "x" * 4_001])
-def test_invalid_input_falls_back_without_calling_model(clean_text: str):
-    payload = _empty_payload(clean_text or "valid", "clarify")
+@pytest.mark.parametrize("clean_text", ["", " "])
+def test_empty_input_falls_back_without_calling_model(clean_text: str):
+    payload = _empty_payload("valid", "clarify")
     router_backend = _Backend(json.dumps(payload))
     extractor_backend = _Backend(json.dumps(payload))
     router = UnifiedIntake(router_backend, "acne-intake", 60.0)
@@ -240,6 +270,14 @@ def test_invalid_input_falls_back_without_calling_model(clean_text: str):
 
     assert router_backend.calls == []
     assert extractor_backend.calls == []
+
+
+def test_overlong_input_is_truncated_not_rejected():
+    message = "x" * 4_500
+    adapter, backend = _adapter(_empty_payload("bất kỳ", "clarify"))
+
+    assert adapter.classify(message, []).primary_intent == "clarify"
+    assert len(backend.calls[0]["user"]) == 4_000
 
 
 def test_pydantic_failure_is_converted_to_extractor_fallback():
@@ -325,30 +363,26 @@ def test_real_followup_uses_the_five_message_window():
     assert prompt.endswith(message)
 
 
-def test_malformed_followup_history_falls_back_before_inference():
+def test_untrusted_history_turns_are_skipped_not_fallen_back():
     message = "Vậy còn cái này?"
     backend = _Backend(json.dumps(_empty_payload(message, "knowledge")))
     adapter = UnifiedIntake(backend, "acne-intake", 60.0)
     history = [
         {"role": "assistant", "content": "trước đó", "mode": "clarify"},
         {"role": "tool", "content": "untrusted"},
+        {"role": "user", "content": "   "},
     ]
 
-    with pytest.raises(RouterFallback):
-        adapter.classify(message, history)
+    assert adapter.classify(message, history).primary_intent == "knowledge"
 
-    assert backend.calls == []
-
-
-def test_malformed_recent_history_is_rejected_even_when_not_a_followup():
-    message = "mụn viêm ở má"
-    backend = _Backend(json.dumps(_payload(message)))
-    adapter = UnifiedIntake(backend, "acne-intake", 60.0)
-
-    with pytest.raises(RouterFallback):
-        adapter.classify(message, [{"role": "tool", "content": "untrusted"}])
-
-    assert backend.calls == []
+    prompt = backend.calls[0]["user"]
+    assert "untrusted" not in prompt
+    history_json = prompt.split("FOLLOWUP_HISTORY_JSON:\n", 1)[1].split(
+        "\nCURRENT_TURN:\n", 1
+    )[0]
+    assert json.loads(history_json) == [
+        {"role": "assistant", "content": "trước đó"}
+    ]
 
 
 def test_close_is_idempotent_for_shared_router_extractor_instance():

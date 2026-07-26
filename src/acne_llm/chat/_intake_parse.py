@@ -1,7 +1,7 @@
 """Shared parsing and validation helpers for legacy and unified intake."""
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from dataclasses import dataclass
 import re
 from typing import Any
@@ -139,30 +139,6 @@ def _extract_json(raw: str) -> str:
     return text[start : end + 1]
 
 
-def _mapping(value: Any, path: str) -> Mapping[str, Any]:
-    if not isinstance(value, Mapping):
-        raise ExtractorFallback(f"{path} must be an object")
-    return value
-
-
-def _exact_keys(value: Mapping[str, Any], expected: Sequence[str], path: str) -> None:
-    expected_set = set(expected)
-    actual = set(value)
-    missing = sorted(expected_set - actual)
-    extra = sorted(actual - expected_set)
-    if missing or extra:
-        raise ExtractorFallback(f"{path} keys invalid: missing={missing}, extra={extra}")
-
-
-def _confidence(value: Any, path: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ExtractorFallback(f"{path} must be a number in [0,1]")
-    result = float(value)
-    if not 0.0 <= result <= 1.0:
-        raise ExtractorFallback(f"{path} outside [0,1]")
-    return result
-
-
 def _coerce_conf(raw: Any) -> float:
     try:
         c = float(raw)
@@ -210,132 +186,14 @@ def _sections(data: Mapping[str, Any]) -> tuple[Mapping[str, Any], Mapping[str, 
     )
 
 
-def _validate_contract(data: Any, *, unified: bool = False) -> None:
-    """Validate the common root and, when requested, the unified wire contract.
+def _validate_contract(data: Any) -> None:
+    """Only real crash guard left: the model must return a JSON object.
 
-    The legacy extractor deliberately remains tolerant of partial field output.
-    Unified inference uses the strict branch because routing and extraction
-    share one response and must either both trust it or both fall back.
+    Everything below the root is handled by the tolerant field parsers, which
+    drop unusable values instead of discarding the whole inference.
     """
     if not isinstance(data, Mapping):
         raise ExtractorFallback("extractor root is not a JSON object")
-    if not unified:
-        return
-
-    _exact_keys(
-        data,
-        ("intent", "confidence", "description", "context", "clinical"),
-        "unified root",
-    )
-    if data["intent"] not in _INTENT:
-        raise ExtractorFallback("unified intent is outside the repository enum")
-    _confidence(data["confidence"], "unified confidence")
-    description = data["description"]
-    if not isinstance(description, str) or not 1 <= len(description) <= 4_000:
-        raise ExtractorFallback("unified description must contain 1-4000 characters")
-
-    context = _mapping(data["context"], "unified context")
-    expected_context = (*_CONTEXT_SCALARS, *_CONTEXT_LISTS)
-    if context:
-        _exact_keys(context, expected_context, "unified context")
-        _validate_scalar_wire_node(
-            context["age"], "unified context.age", expected=int, minimum=0, maximum=120
-        )
-        _validate_scalar_wire_node(
-            context["sex"], "unified context.sex", expected=str
-        )
-        _validate_scalar_wire_node(
-            context["skin_type"], "unified context.skin_type", expected=str
-        )
-        _validate_scalar_wire_node(
-            context["is_pregnant"],
-            "unified context.is_pregnant",
-            expected=bool,
-        )
-        _validate_scalar_wire_node(
-            context["is_breastfeeding"],
-            "unified context.is_breastfeeding",
-            expected=bool,
-        )
-        _validate_scalar_wire_node(
-            context["duration_weeks"],
-            "unified context.duration_weeks",
-            expected=int,
-            minimum=0,
-        )
-        for key in _CONTEXT_LISTS:
-            _validate_list_wire_nodes(
-                context[key], f"unified context.{key}", expected=str
-            )
-
-    clinical = data["clinical"]
-    if clinical is None:
-        return
-    clinical_obj = _mapping(clinical, "unified clinical")
-    expected_clinical = ("lesion_types", "inflammation_level", "lesion_distribution")
-    _exact_keys(clinical_obj, expected_clinical, "unified clinical")
-    _validate_list_wire_nodes(
-        clinical_obj["lesion_types"],
-        "unified clinical.lesion_types",
-        expected=str,
-    )
-    _validate_scalar_wire_node(
-        clinical_obj["inflammation_level"],
-        "unified clinical.inflammation_level",
-        nullable=False,
-        expected=str,
-    )
-    _validate_list_wire_nodes(
-        clinical_obj["lesion_distribution"],
-        "unified clinical.lesion_distribution",
-        expected=str,
-    )
-
-
-def _validate_scalar_wire_node(
-    node: Any,
-    path: str,
-    *,
-    nullable: bool = True,
-    expected: type | None = None,
-    minimum: int | None = None,
-    maximum: int | None = None,
-) -> None:
-    if node is None and nullable:
-        return
-    value = _mapping(node, path)
-    _exact_keys(value, ("value", "confidence"), path)
-    _confidence(value["confidence"], f"{path}.confidence")
-    raw = value["value"]
-    if expected is int:
-        valid_type = isinstance(raw, int) and not isinstance(raw, bool)
-    else:
-        valid_type = expected is None or isinstance(raw, expected)
-    if not valid_type:
-        expected_name = expected.__name__ if expected is not None else "valid"
-        raise ExtractorFallback(f"{path}.value must be {expected_name}")
-    if minimum is not None and raw < minimum:
-        raise ExtractorFallback(f"{path}.value is below {minimum}")
-    if maximum is not None and raw > maximum:
-        raise ExtractorFallback(f"{path}.value is above {maximum}")
-
-
-def _validate_list_wire_nodes(
-    value: Any, path: str, *, expected: type | None = None
-) -> None:
-    if not isinstance(value, list):
-        raise ExtractorFallback(f"{path} must be a list")
-    for index, node in enumerate(value):
-        item_path = f"{path}[{index}]"
-        _validate_scalar_wire_node(
-            node,
-            item_path,
-            nullable=False,
-            expected=expected,
-        )
-        raw = node["value"]
-        if expected is str and not raw.strip():
-            raise ExtractorFallback(f"{item_path}.value must be non-empty")
 
 
 def _enum_fr(
