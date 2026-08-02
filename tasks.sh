@@ -249,10 +249,9 @@ case "$TASK" in
 
     eval)
         activate_venv
-        n="${ARG:-20}"
-        info "Running eval (n=$n)..."
+        info "Running full evaluation (4 khau)..."
         start_ollama_serve 11434
-        python -m scripts.run_eval --n "$n"
+        python -m evaluation.full_evaluation ${ARG:+--limit "$ARG"}
         ;;
 
     suggest-eval-labels)

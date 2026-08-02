@@ -26,12 +26,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from evaluation.datasets.generate_drafts import (  # noqa: E402
+from datagen.contamination import (  # noqa: E402
     ContaminationHit,
     DuplicateGuard,
     iter_ngrams,
-    normalized_tokens,
     normalized_text,
+    normalized_tokens,
 )
 from evaluation.metrics.grounding import (  # noqa: E402
     GroundingScorer,
