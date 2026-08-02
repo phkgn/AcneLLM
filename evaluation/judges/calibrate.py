@@ -1,4 +1,19 @@
-"""Export blind judge rows and import human correctness labels."""
+"""Cohen's κ giữa người và LLM judge — kiểm tra dụng cụ đo trước khi tin số.
+
+Khâu 3 và 4 đều dựa trên một LLM judge. Không có κ thì mọi con số ablation
+không phòng thủ được. Quy trình 3 bước:
+
+    1. --export   lấy ngẫu nhiên N câu đã judge, ghi phiếu KHÔNG kèm điểm judge
+                  (tránh anchor) + file khoá riêng
+    2. người chấm điền human_answer_quality / human_role_tone (1-5)
+    3. --import   ghép lại, tính κ thường + κ có trọng số bậc hai + Spearman
+
+Usage:
+    python -m evaluation.judges.calibrate --export \\
+        --results evaluation/reports/full_eval/ablation/results.json --size 50
+    # → calibration_sheet.jsonl (đưa người chấm) + calibration_key.jsonl (đừng mở)
+    python -m evaluation.judges.calibrate --import <sheet đã chấm>
+"""
 from __future__ import annotations
 
 import argparse
@@ -14,10 +29,22 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULT = ROOT / "evaluation/reports/judge_calibration.json"
+# Phải khớp từng chữ với rubric trong run_ablation._judge_prompt. Lệch rubric thì
+# κ đo độ lệch đề bài, không đo chất lượng judge.
+AXES = ("answer_quality", "role_tone")
 RUBRIC = {
-    "axis": "correctness",
-    "scale": "1-5 integer",
-    "instruction": "Chấm độ đúng của câu trả lời so với câu hỏi, độc lập với độ dài/văn phong.",
+    "scale": "số nguyên 1-5 cho cả hai trục",
+    "answer_quality": (
+        "trả lời đúng ý, đúng kiến thức và đủ để người dùng hành động an toàn"
+    ),
+    "role_tone": (
+        "đúng vai trợ lý thông tin da liễu, rõ ràng, không chẩn đoán chắc chắn, "
+        "không kê đơn cá nhân hoá, giọng điệu phù hợp"
+    ),
+    "khong_cham": (
+        "KHÔNG chấm độ bám tài liệu, an toàn hay từ chối trong hai trục này — "
+        "ba mặt đó đo bằng metric độc lập"
+    ),
 }
 
 
@@ -33,6 +60,14 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
 def _relative(path: Path) -> str:
     try:
         return path.resolve().relative_to(ROOT).as_posix()
@@ -40,72 +75,68 @@ def _relative(path: Path) -> str:
         return str(path.resolve())
 
 
-def _result_index(path: Path) -> dict[tuple[str, str], dict[str, Any]]:
-    if not path.exists():
-        return {}
-    index: dict[tuple[str, str], dict[str, Any]] = {}
-    for row in _read_jsonl(path):
-        key = (str(row.get("system_id") or ""), str(row.get("sample_id") or ""))
-        # Resume logs may append a later failed retry after an earlier valid
-        # answer. Judged files necessarily refer to the valid answer, so never
-        # let the failed retry hide it during the blind join.
-        if row.get("ok") or key not in index:
-            index[key] = row
-    return index
+def collect_judged(results_path: Path) -> list[dict[str, Any]]:
+    """Mọi câu đã có điểm judge, từ mọi arm trong artifact ablation."""
+    report = json.loads(results_path.read_text(encoding="utf-8"))
+    rows: list[dict[str, Any]] = []
+    for arm, payload in (report.get("arms") or {}).items():
+        for item in payload.get("items") or []:
+            scorecard = item.get("scorecard")
+            if not item.get("ok") or not isinstance(scorecard, dict):
+                continue
+            if any(
+                not isinstance(scorecard.get(axis), (int, float)) for axis in AXES
+            ):
+                continue
+            rows.append(
+                {
+                    "arm": arm,
+                    "sample_id": str(item.get("sample_id") or ""),
+                    "query": str(item.get("user_query") or ""),
+                    "answer": str(item.get("answer") or ""),
+                    "judge": {axis: int(scorecard[axis]) for axis in AXES},
+                }
+            )
+    return [row for row in rows if row["sample_id"] and row["answer"]]
 
 
 def export_sheet(
-    run_dir: Path,
-    output_path: Path,
+    results_path: Path,
+    sheet_path: Path,
+    key_path: Path,
     *,
     size: int = 50,
     seed: int = 42,
 ) -> list[dict[str, Any]]:
-    candidates: list[dict[str, Any]] = []
-    for judged_path in sorted(run_dir.glob("*.judged.jsonl")):
-        results = _result_index(
-            judged_path.with_name(judged_path.name.replace(".judged.jsonl", ".results.jsonl"))
-        )
-        for judged in _read_jsonl(judged_path):
-            pointwise = judged.get("pointwise")
-            if not isinstance(pointwise, dict) or not isinstance(
-                pointwise.get("correctness"), (int, float)
-            ):
-                continue
-            sample_id = str(judged.get("sample_id") or "")
-            system_id = str(judged.get("system_id") or "")
-            result = results.get((system_id, sample_id), {})
-            trace = result.get("trace") if isinstance(result.get("trace"), dict) else {}
-            query = (
-                trace.get("prepared_clean_text")
-                or trace.get("query")
-                or result.get("user_query")
-                or ""
-            )
-            answer = result.get("answer") or ""
-            if not sample_id or not system_id or not query or not answer:
-                continue
-            candidates.append(
-                {
-                    "sample_id": sample_id,
-                    "system_id": system_id,
-                    "query": str(query),
-                    "answer": str(answer),
-                    "rubric": RUBRIC,
-                    "human_score": None,
-                    "judge_file": _relative(judged_path),
-                }
-            )
+    candidates = collect_judged(results_path)
     if not candidates:
-        raise ValueError(f"No joined judged rows found in {run_dir}")
+        raise ValueError(f"Không có dòng nào đã judge trong {results_path}")
     rng = random.Random(seed)
     rng.shuffle(candidates)
     selected = candidates[: min(size, len(candidates))]
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in selected),
-        encoding="utf-8",
-    )
+
+    # Phiếu cho người: không điểm judge, không mã arm. Biết arm là biết
+    # "cái này của model API" → thiên vị ngay.
+    _write_jsonl(sheet_path, [
+        {
+            "row_id": index,
+            "query": row["query"],
+            "answer": row["answer"],
+            "rubric": RUBRIC,
+            "human_answer_quality": None,
+            "human_role_tone": None,
+        }
+        for index, row in enumerate(selected)
+    ])
+    _write_jsonl(key_path, [
+        {
+            "row_id": index,
+            "arm": row["arm"],
+            "sample_id": row["sample_id"],
+            "judge": row["judge"],
+        }
+        for index, row in enumerate(selected)
+    ])
     return selected
 
 
@@ -132,68 +163,123 @@ def _spearman(left: Sequence[float], right: Sequence[float]) -> float:
     return round(float(np.corrcoef(left_ranks, right_ranks)[0, 1]), 4)
 
 
-def _cohen_kappa(left: Sequence[int], right: Sequence[int]) -> float:
+def _cohen_kappa(
+    left: Sequence[int],
+    right: Sequence[int],
+    *,
+    weighted: bool = False,
+) -> float:
+    """κ thường (weighted=False) hoặc κ trọng số bậc hai (weighted=True).
+
+    Thang 1-5 là thang thứ tự: lệch 4 vs 5 nhẹ hơn nhiều so với 1 vs 5, nhưng κ
+    thường coi hai cái như nhau. Báo cả hai; κ trọng số mới là số nên trích dẫn.
+    """
     if len(left) != len(right) or not left:
-        raise ValueError("Cohen kappa needs equal non-empty label arrays")
+        raise ValueError("Cohen kappa cần hai mảng nhãn cùng độ dài, khác rỗng")
     labels = sorted(set(left) | set(right))
-    observed = sum(a == b for a, b in zip(left, right)) / len(left)
+    if len(labels) == 1:
+        return 1.0
+    span = (len(labels) - 1) ** 2
+    position = {label: index for index, label in enumerate(labels)}
+
+    def distance(a: int, b: int) -> float:
+        if not weighted:
+            return 0.0 if a == b else 1.0
+        return (position[a] - position[b]) ** 2 / span
+
+    n = len(left)
+    observed = sum(distance(a, b) for a, b in zip(left, right)) / n
     expected = sum(
-        (left.count(label) / len(left)) * (right.count(label) / len(right))
-        for label in labels
+        (left.count(a) / n) * (right.count(b) / n) * distance(a, b)
+        for a in labels
+        for b in labels
     )
-    if expected == 1.0:
-        return 1.0 if observed == 1.0 else 0.0
-    return round((observed - expected) / (1.0 - expected), 4)
+    if expected == 0.0:
+        return 1.0 if observed == 0.0 else 0.0
+    return round(1.0 - observed / expected, 4)
 
 
-def import_labels(labeled_path: Path, output_path: Path) -> dict[str, Any]:
-    human_scores: list[int] = []
-    judge_scores: list[int] = []
-    judge_cache: dict[Path, dict[tuple[str, str], dict[str, Any]]] = {}
-    for row in _read_jsonl(labeled_path):
-        human = row.get("human_score")
-        if not isinstance(human, int) or isinstance(human, bool) or not 1 <= human <= 5:
-            raise ValueError(f"{row.get('sample_id')}: human_score must be an integer 1..5")
-        raw_judge_path = row.get("judge_file")
-        if not isinstance(raw_judge_path, str) or not raw_judge_path:
-            raise ValueError(f"{row.get('sample_id')}: missing judge_file")
-        judge_path = Path(raw_judge_path)
-        judge_path = judge_path if judge_path.is_absolute() else ROOT / judge_path
-        judge_path = judge_path.resolve()
-        if ROOT.resolve() not in (judge_path, *judge_path.parents):
-            raise ValueError("judge_file must stay inside the repository")
-        if judge_path not in judge_cache:
-            judge_cache[judge_path] = {
-                (str(item.get("system_id") or ""), str(item.get("sample_id") or "")): item
-                for item in _read_jsonl(judge_path)
-            }
-        key = (str(row.get("system_id") or ""), str(row.get("sample_id") or ""))
-        judged = judge_cache[judge_path].get(key)
-        pointwise = judged.get("pointwise") if judged else None
-        judge = pointwise.get("correctness") if isinstance(pointwise, dict) else None
-        if not isinstance(judge, int) or isinstance(judge, bool) or not 1 <= judge <= 5:
-            raise ValueError(f"{key}: missing integer judge correctness 1..5")
-        human_scores.append(human)
-        judge_scores.append(judge)
+def _interpret(kappa: float) -> str:
+    """Landis & Koch 1977."""
+    for threshold, label in (
+        (0.81, "gần như hoàn toàn đồng thuận"),
+        (0.61, "đồng thuận đáng kể"),
+        (0.41, "đồng thuận vừa phải"),
+        (0.21, "đồng thuận yếu"),
+        (0.01, "đồng thuận rất yếu"),
+    ):
+        if kappa >= threshold:
+            return label
+    return "không hơn ngẫu nhiên"
+
+
+def import_labels(
+    sheet_path: Path,
+    key_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    key = {row["row_id"]: row for row in _read_jsonl(key_path)}
+    human: dict[str, list[int]] = {axis: [] for axis in AXES}
+    judge: dict[str, list[int]] = {axis: [] for axis in AXES}
+    for row in _read_jsonl(sheet_path):
+        row_id = row.get("row_id")
+        if row_id not in key:
+            raise ValueError(f"row_id {row_id} không có trong file khoá")
+        for axis in AXES:
+            value = row.get(f"human_{axis}")
+            if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 5:
+                raise ValueError(
+                    f"row_id {row_id}: human_{axis} phải là số nguyên 1..5 "
+                    f"(đang là {value!r}) — chấm hết trước khi import"
+                )
+            human[axis].append(value)
+            judge[axis].append(int(key[row_id]["judge"][axis]))
+
     artifact = {
-        "schema_version": 1,
-        "source": _relative(labeled_path),
-        "n": len(human_scores),
-        "cohen_kappa": _cohen_kappa(human_scores, judge_scores),
-        "spearman": _spearman(human_scores, judge_scores),
-        "human_score_distribution": {
-            str(score): human_scores.count(score) for score in range(1, 6)
-        },
-        "judge_score_distribution": {
-            str(score): judge_scores.count(score) for score in range(1, 6)
+        "schema_version": 2,
+        "source": _relative(sheet_path),
+        "n": len(human[AXES[0]]),
+        "axes": {
+            axis: {
+                "cohen_kappa": _cohen_kappa(human[axis], judge[axis]),
+                "cohen_kappa_quadratic": _cohen_kappa(
+                    human[axis], judge[axis], weighted=True
+                ),
+                "interpretation": _interpret(
+                    _cohen_kappa(human[axis], judge[axis], weighted=True)
+                ),
+                "spearman": _spearman(human[axis], judge[axis]),
+                "human_distribution": {
+                    str(score): human[axis].count(score) for score in range(1, 6)
+                },
+                "judge_distribution": {
+                    str(score): judge[axis].count(score) for score in range(1, 6)
+                },
+                "mean_human_minus_judge": round(
+                    float(np.mean(human[axis]) - np.mean(judge[axis])), 4
+                ),
+            }
+            for axis in AXES
         },
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
+        json.dumps(artifact, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     return artifact
+
+
+def demo() -> None:
+    assert _cohen_kappa([1, 2, 3], [1, 2, 3]) == 1.0
+    # Lệch 1 bậc trên thang thứ tự: κ trọng số phải cao hơn κ thường.
+    near = ([1, 2, 3, 4, 5], [1, 2, 3, 4, 4])
+    assert _cohen_kappa(*near, weighted=True) > _cohen_kappa(*near)
+    # Lệch tối đa: κ trọng số phải tệ hơn hẳn.
+    far = ([1, 1, 5, 5], [5, 5, 1, 1])
+    assert _cohen_kappa(*far, weighted=True) < 0
+    assert _interpret(0.85).startswith("gần như")
+    assert _spearman([1, 2, 3], [1, 2, 3]) == 1.0
+    print("calibrate demo OK")
 
 
 def main(argv: Sequence[str] | None = None) -> dict[str, Any] | list[dict[str, Any]]:
@@ -201,29 +287,39 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any] | list[dict[str, A
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--export", action="store_true")
     mode.add_argument("--import", dest="import_path")
-    parser.add_argument("--run-dir", type=Path)
+    mode.add_argument("--demo", action="store_true")
+    parser.add_argument("--results", type=Path, help="ablation/results.json")
+    parser.add_argument("--sheet", type=Path)
+    parser.add_argument("--key", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--size", type=int, default=50)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args(argv)
     if args.size < 1:
-        parser.error("--size must be positive")
+        parser.error("--size phải dương")
+
+    def _abs(path: Path) -> Path:
+        return (path if path.is_absolute() else ROOT / path).resolve()
+
+    if args.demo:
+        demo()
+        return {}
 
     if args.export:
-        if args.run_dir is None:
-            parser.error("--export requires --run-dir")
-        run_dir = args.run_dir if args.run_dir.is_absolute() else ROOT / args.run_dir
-        output = args.output or run_dir / "calibration_sheet.jsonl"
-        output = output if output.is_absolute() else ROOT / output
-        result = export_sheet(run_dir.resolve(), output.resolve(), size=args.size, seed=args.seed)
-        print(f"Exported {len(result)} blind rows to {_relative(output)}")
-        return result
+        if args.results is None:
+            parser.error("--export cần --results <ablation/results.json>")
+        results = _abs(args.results)
+        sheet = _abs(args.sheet) if args.sheet else results.parent / "calibration_sheet.jsonl"
+        key = _abs(args.key) if args.key else results.parent / "calibration_key.jsonl"
+        rows = export_sheet(results, sheet, key, size=args.size, seed=args.seed)
+        print(f"Xuất {len(rows)} dòng mù → {_relative(sheet)}")
+        print(f"File khoá (ĐỪNG MỞ trước khi chấm xong) → {_relative(key)}")
+        return rows
 
-    labeled = Path(args.import_path)
-    labeled = labeled if labeled.is_absolute() else ROOT / labeled
-    output = args.output or DEFAULT_RESULT
-    output = output if output.is_absolute() else ROOT / output
-    artifact = import_labels(labeled.resolve(), output.resolve())
+    sheet = _abs(Path(args.import_path))
+    key = _abs(args.key) if args.key else sheet.with_name("calibration_key.jsonl")
+    output = _abs(args.output) if args.output else DEFAULT_RESULT
+    artifact = import_labels(sheet, key, output)
     print(json.dumps(artifact, ensure_ascii=False, indent=2))
     return artifact
 
