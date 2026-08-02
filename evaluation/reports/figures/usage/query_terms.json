@@ -1,0 +1,137 @@
+{
+  "id": "query_terms",
+  "title": "Top anonymized production query terms",
+  "chart_type": "bar",
+  "data": [
+    {
+      "term": "đầu",
+      "count": 222
+    },
+    {
+      "term": "trị",
+      "count": 194
+    },
+    {
+      "term": "mặt",
+      "count": 191
+    },
+    {
+      "term": "nhiều",
+      "count": 168
+    },
+    {
+      "term": "viêm",
+      "count": 143
+    },
+    {
+      "term": "lại",
+      "count": 143
+    },
+    {
+      "term": "đen",
+      "count": 128
+    },
+    {
+      "term": "lưng",
+      "count": 125
+    },
+    {
+      "term": "tuổi",
+      "count": 123
+    },
+    {
+      "term": "dầu",
+      "count": 114
+    },
+    {
+      "term": "má",
+      "count": 113
+    },
+    {
+      "term": "đau",
+      "count": 111
+    },
+    {
+      "term": "điều",
+      "count": 106
+    },
+    {
+      "term": "isotretinoin",
+      "count": 103
+    },
+    {
+      "term": "thai",
+      "count": 102
+    },
+    {
+      "term": "tháng",
+      "count": 99
+    },
+    {
+      "term": "cằm",
+      "count": 95
+    },
+    {
+      "term": "uống",
+      "count": 89
+    },
+    {
+      "term": "thể",
+      "count": 89
+    },
+    {
+      "term": "đỏ",
+      "count": 88
+    },
+    {
+      "term": "thấy",
+      "count": 86
+    },
+    {
+      "term": "khoảng",
+      "count": 85
+    },
+    {
+      "term": "mà",
+      "count": 85
+    },
+    {
+      "term": "hợp",
+      "count": 84
+    },
+    {
+      "term": "mang",
+      "count": 83
+    },
+    {
+      "term": "tại",
+      "count": 83
+    },
+    {
+      "term": "hiện",
+      "count": 82
+    },
+    {
+      "term": "khác",
+      "count": 78
+    },
+    {
+      "term": "vậy",
+      "count": 76
+    },
+    {
+      "term": "con",
+      "count": 76
+    }
+  ],
+  "x_key": "term",
+  "x_label": "Masked, stopword-filtered term",
+  "y_label": "Occurrences",
+  "pii_masked": true,
+  "series": [
+    {
+      "key": "count",
+      "label": "Occurrences"
+    }
+  ]
+}

@@ -277,7 +277,7 @@ def validate_runtime(
             })
         retrieval_diff = {
             "production": production["retrieval"],
-            "t3_s3": {
+            "generation_production_config": {
                 "retrieve_top_k": s3.get("retrieve_top_k"),
                 "rerank_top_k": s3.get("rerank_top_k"),
             },

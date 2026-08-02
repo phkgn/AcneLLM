@@ -121,15 +121,15 @@ def _load_audit_rows(path: Path) -> list[dict[str, Any]]:
 
 def _eval_intent_counts(root: Path) -> Counter[str]:
     counts: Counter[str] = Counter()
-    for path in (root / "evaluation" / "datasets" / "v1").glob("t1_*.jsonl"):
-        for row in iter_jsonl(path):
-            label = row.get("intent_label")
-            if label:
-                counts[str(label)] += 1
+    path = root / "evaluation" / "datasets" / "v1" / "dev_tuning.jsonl"
+    for row in iter_jsonl(path):
+        label = row.get("intent_label")
+        if label:
+            counts[str(label)] += 1
     return counts
 
 
-def _d1_route_distribution(
+def _route_distribution(
     builder: ManifestBuilder,
     root: Path,
     turns: list[dict[str, Any]],
@@ -167,7 +167,7 @@ def _d1_route_distribution(
         for label in labels
     ]
     builder.add_chart(
-        figure_id="d1_route_distribution",
+        figure_id="route_distribution",
         title="Production route vs eval composition",
         chart_type="bar",
         payload={
@@ -181,8 +181,8 @@ def _d1_route_distribution(
                 {"key": "evaluation_pct", "label": "Eval dataset"},
             ],
         },
-        caption="Production route share compared with labeled T1 intent composition.",
-        source_data="data/sessions.db + data/audit.db + evaluation/datasets/v1/t1_*.jsonl",
+        caption="Production route share compared with labeled dev-tuning intent composition.",
+        source_data="data/sessions.db + data/audit.db + evaluation/datasets/v1/dev_tuning.jsonl",
     )
 
 
@@ -192,7 +192,7 @@ def _week(timestamp: float) -> str:
     return f"{iso_year}-W{iso_week:02d}"
 
 
-def _d2_weekly_rates(
+def _weekly_rates(
     builder: ManifestBuilder,
     turns: list[dict[str, Any]],
     audit: list[dict[str, Any]],
@@ -237,7 +237,7 @@ def _d2_weekly_rates(
         for week, counts in sorted(weekly.items())
     ]
     builder.add_chart(
-        figure_id="d2_weekly_refusal_clarify",
+        figure_id="weekly_refusal_clarify",
         title="Weekly refusal and clarify rate",
         chart_type="line",
         payload={
@@ -256,7 +256,7 @@ def _d2_weekly_rates(
     )
 
 
-def _d3_turns_per_session(
+def _turns_per_session(
     builder: ManifestBuilder,
     turns: list[dict[str, Any]],
 ) -> None:
@@ -267,7 +267,7 @@ def _d3_turns_per_session(
         raise ValueError("No session turns found.")
     rows = histogram([float(value) for value in counts.values()], bins=min(20, max(5, len(counts))))
     builder.add_chart(
-        figure_id="d3_turns_per_session",
+        figure_id="turns_per_session",
         title="Turns per session",
         chart_type="hist",
         payload={
@@ -295,7 +295,7 @@ def _tokens(text: str) -> list[str]:
     ]
 
 
-def _d4_query_terms(
+def _query_terms(
     builder: ManifestBuilder,
     turns: list[dict[str, Any]],
     audit: list[dict[str, Any]],
@@ -319,7 +319,7 @@ def _d4_query_terms(
     if re.search(r"\b(?:\+84|0)[3-9]\d{8}\b", artifact_text):
         raise ValueError("PII validation failed: phone-like token remained.")
     builder.add_chart(
-        figure_id="d4_query_terms",
+        figure_id="query_terms",
         title="Top anonymized production query terms",
         chart_type="bar",
         payload={
@@ -370,28 +370,28 @@ def generate(
 
     specs = [
         (
-            "d1_route_distribution",
+            "route_distribution",
             "Production route vs eval composition",
             "bar",
-            lambda: _d1_route_distribution(builder, root, turns, audit),
+            lambda: _route_distribution(builder, root, turns, audit),
         ),
         (
-            "d2_weekly_refusal_clarify",
+            "weekly_refusal_clarify",
             "Weekly refusal and clarify rate",
             "line",
-            lambda: _d2_weekly_rates(builder, turns, audit),
+            lambda: _weekly_rates(builder, turns, audit),
         ),
         (
-            "d3_turns_per_session",
+            "turns_per_session",
             "Turns per session",
             "hist",
-            lambda: _d3_turns_per_session(builder, turns),
+            lambda: _turns_per_session(builder, turns),
         ),
         (
-            "d4_query_terms",
+            "query_terms",
             "Top anonymized production query terms",
             "bar",
-            lambda: _d4_query_terms(builder, turns, audit),
+            lambda: _query_terms(builder, turns, audit),
         ),
     ]
     for figure_id, title, chart_type, function in specs:

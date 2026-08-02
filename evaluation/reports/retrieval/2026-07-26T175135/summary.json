@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-07-26T17:51:35.662913+00:00",
+  "dataset": "evaluation/datasets/v1/retrieval_test.jsonl",
+  "raw_query": true,
+  "n_queries": 100,
+  "needs_relabel": 100,
+  "modes": {
+    "hybrid_mmr_rerank": {
+      "hit@1": 0.06,
+      "recall@1": 0.0075,
+      "precision@1": 0.06,
+      "ndcg@1": 0.04,
+      "hit@3": 0.16,
+      "recall@3": 0.0225,
+      "precision@3": 0.06,
+      "ndcg@3": 0.0448,
+      "hit@5": 0.26,
+      "recall@5": 0.04,
+      "precision@5": 0.064,
+      "ndcg@5": 0.0522,
+      "hit@10": 0.5,
+      "recall@10": 0.0975,
+      "precision@10": 0.078,
+      "ndcg@10": 0.0817,
+      "mrr@10": 0.1567,
+      "map@10": 0.0318,
+      "irrelevant@5": 0.936,
+      "dup_rate": 0.008,
+      "latency_ms_mean": 6851
+    }
+  },
+  "run_meta": {
+    "timestamp": "2026-07-26T18:03:09.508722+00:00",
+    "git_commit": "807ac5b2b88627123c2769f6337ce44f5a2a0c45",
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "nt",
+    "bm25_sha256": "6b7c324ba970a8f92d62b49c459934b9255efd17d4a9416740168d33fa5067b0",
+    "chroma_fingerprint": "cde149055cd117661e0cbf3909a0a131fb819f89b2d4d563e3d6462927665c51",
+    "chroma_num_files": 6
+  }
+}

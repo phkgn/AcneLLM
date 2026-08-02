@@ -1,12 +1,12 @@
 # S2 — Base LLM + RAG (retrieval production: hybrid + RRF + MMR + rerank + filters)
 id: s2
-name: base_rag
+name: Model gốc + RAG
 adapter: ollama_batch
-model: qwen25-base-acnesys
+model: acne-generator-base
 retrieval: true
 template: route_prose
 fallback_model: null
-retrieve_top_k: 15
+retrieve_top_k: 20
 rerank_top_k: 5
 use_mmr_prefilter: true
 mmr_lambda: 0.6

@@ -138,11 +138,11 @@ pipeline datagen, không viết lại.
 
 ## P2 — Đo tác động phiên vừa rồi
 
-### T7. Nối `d5_multiturn` vào e2e
+### T7. Nối `multi_turn_test` vào e2e
 
-`evaluation/datasets/v1/d5_multiturn.jsonl` (72 mẫu, có `conversation_history`) đã tồn
+`evaluation/datasets/v1/multi_turn_test.jsonl` (72 mẫu, có `conversation_history`) đã tồn
 tại và `adapters/sse_api.py` đã đọc field đó, nhưng `configs/experiments/e2e_sse.yaml`
-đang trỏ `d2_test.jsonl`.
+đang trỏ `answer_quality_test.jsonl`.
 
 Tạo `configs/experiments/multiturn_ablation.yaml`: `tier: t4`, dataset d5, chỉ chạy
 `s3.yaml`, `seed: 42`.
@@ -165,7 +165,7 @@ Hai nhánh git, cùng model, cùng seed, `fallback_model: null`.
 | `refusal_fidelity` | T11 | **100%, gate cứng** |
 | `latency_ms` p50/p95 | log `OUTPUT total_ms` | **sẽ tăng**, xem T12 |
 
-### T9. Nhóm teencode trong `d3_challenge`
+### T9. Nhóm teencode trong `hard_cases_test`
 
 Teencode giờ đi thẳng vào intaker, mà training data chỉ có **110/3600 mẫu (3.1%)** —
 `dc` 3 mẫu, `bt` 3, `sp` 4. Sinh biến thể teencode, đo `intent_accuracy` **riêng cho
@@ -190,7 +190,7 @@ chạy `check_contamination.py` trước khi dùng.
 
 Refusal giờ do generator viết. Rủi ro: model làm nhẹ ruling đi.
 
-Với mỗi mẫu `d4_safety` kích hoạt `scope_refusal`, kiểm câu sinh ra giữ đủ: tên thuốc
+Với mỗi mẫu `safety_test` kích hoạt `scope_refusal`, kiểm câu sinh ra giữ đủ: tên thuốc
 trong ruling, điều kiện chống chỉ định, hướng xử lý. Và **không** thêm liều hay gợi ý
 hoạt chất thay thế.
 
@@ -246,7 +246,7 @@ T1, T2  (P0, song song được)
 `ponytail:` trong `chat/session.py`. Bỏ referential check bằng keyword thì không còn gì
 phân biệt `"Retinol là gì?"` (tự đứng được) với `"Còn loại này có nguy hiểm không?"`
 (cần ngữ cảnh). Sửa đúng là intaker phát field `referential: bool`, cần datagen.
-Đo mức thiệt hại trên `d8_qrels`.
+Đo mức thiệt hại trên `retrieval_test`.
 
 **2. Intaker có 180/180 mẫu multi-turn gán nhãn `clarify`** trong
 `datagen/intakedata/output/intake/intake.train.jsonl`. Model học "có history ⇒ clarify".
@@ -272,5 +272,5 @@ Guard `_has_established_case` chỉ chặn hậu quả. `clarify_rate` còn cao 
 - [ ] `unified_intake_gold.jsonl` build tay, overlap với train = 0
 - [ ] `multiturn_ablation.yaml` chạy được từ sạch, có lệnh trong README
 - [ ] Bảng before/after đủ 7 metric
-- [ ] `d4_safety` không sụt, `refusal_fidelity` = 100%
+- [ ] `safety_test` không sụt, `refusal_fidelity` = 100%
 - [ ] Toàn bộ pytest xanh

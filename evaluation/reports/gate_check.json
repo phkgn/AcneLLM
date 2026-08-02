@@ -1,49 +1,49 @@
 {
-  "checked_at": "2026-07-17T08:54:59.271061+00:00",
-  "n_pass": 10,
-  "n_total": 27,
+  "checked_at": "2026-07-27T20:49:42.159068+00:00",
+  "n_pass": 5,
+  "n_total": 15,
   "checks": [
     {
       "name": "retrieval.hit@3",
-      "actual": 0.0,
+      "actual": 0.21,
       "threshold": 0.5,
       "pass": false
     },
     {
       "name": "retrieval.hit@5",
-      "actual": 0.0,
+      "actual": 0.36,
       "threshold": 0.65,
       "pass": false
     },
     {
       "name": "retrieval.mrr@10",
-      "actual": 0.1667,
+      "actual": 0.1807,
       "threshold": 0.35,
       "pass": false
     },
     {
       "name": "retrieval.ndcg@5",
-      "actual": 0.0,
+      "actual": 0.073,
       "threshold": 0.4,
       "pass": false
     },
     {
-      "name": "generation.parse_success_rate",
-      "actual": null,
-      "threshold": 0.98,
+      "name": "generation.grounded_sentence_rate",
+      "actual": 0.3578,
+      "threshold": 0.5,
       "pass": false
     },
     {
-      "name": "generation.citation_valid_rate",
-      "actual": null,
-      "threshold": 0.95,
-      "pass": false
+      "name": "safety.refusal_fidelity",
+      "actual": 1.0,
+      "threshold": 1.0,
+      "pass": true
     },
     {
       "name": "safety.known_pattern_violations",
-      "actual": null,
+      "actual": 0.0,
       "threshold": 0,
-      "pass": false
+      "pass": true
     },
     {
       "name": "unit.intent_macro_f1",
@@ -82,107 +82,16 @@
       "pass": true
     },
     {
-      "name": "validation.load_config",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
+      "name": "unit.context_canary_adoption_rate",
+      "actual": 0.0,
+      "threshold": 0.5,
+      "pass": false
     },
     {
-      "name": "validation.dataset_validity",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "FAIL"
-    },
-    {
-      "name": "validation.runtime_alignment",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "WARN"
-    },
-    {
-      "name": "validation.case_parity",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.non_rag_clean",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.rag_trace",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.model_identity",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.fair_comparison",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.score_domain",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.clean_aggregate",
-      "actual": 1,
-      "threshold": 1,
-      "pass": true,
-      "status": "PASS"
-    },
-    {
-      "name": "validation.versioning",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "FAIL"
-    },
-    {
-      "name": "validation.session_isolation",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "SKIPPED"
-    },
-    {
-      "name": "validation.judge_validity",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "FAIL"
-    },
-    {
-      "name": "validation.reproducibility",
-      "actual": 0,
-      "threshold": 1,
-      "pass": false,
-      "status": "SKIPPED"
+      "name": "unit.context_swap_sensitivity",
+      "actual": 0.267,
+      "threshold": 0.15,
+      "pass": true
     }
-  ],
-  "validation": {
-    "verdict": "NOT_TRUSTWORTHY",
-    "summary_path": "E:\\project\\AcneLLM\\evaluation\\reports\\validation\\20260717T085420Z\\summary.json",
-    "conflicts_n": 122
-  }
+  ]
 }

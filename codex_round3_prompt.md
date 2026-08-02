@@ -80,7 +80,7 @@ regenerate full. Ablation trên D1, ≤ 10 case, Ollama local:
 
 Nhãn tay hiện chỉ 15 câu — quá mỏng để tin threshold 0.50. Mở rộng lên ~60–80 câu
 D1 (ưu tiên negation/refutation, số/liều, câu hành động ngắn — đúng danh sách
-weakness vòng 2), lưu vào `evaluation/configs/grounding_d1_manual_labels.json`
+weakness vòng 2), lưu vào `evaluation/configs/grounding_d1_dev_seed_manual_labels.json`
 theo format sẵn có. Re-sweep threshold, báo precision/recall/F1 mới. Nếu
 threshold đổi, cập nhật gate provisional + ghi rõ lịch sử đổi.
 

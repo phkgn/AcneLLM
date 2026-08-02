@@ -1,10 +1,10 @@
 # S4 — RAG-only extractive baseline: trả top chunks sau rerank, KHÔNG gọi LLM
 id: s4
-name: rag_extractive
+name: RAG trích xuất (không LLM)
 adapter: extractive
 model: null
 retrieval: true
-retrieve_top_k: 15
+retrieve_top_k: 20
 rerank_top_k: 3
 use_mmr_prefilter: true
 mmr_lambda: 0.6

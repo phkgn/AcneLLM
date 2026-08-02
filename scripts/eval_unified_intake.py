@@ -38,11 +38,11 @@ from acne_llm.chat.preprocess import prepare_user_text  # noqa: E402
 from acne_llm.chat.unified_intake import UnifiedIntake  # noqa: E402
 from acne_llm.config import Settings  # noqa: E402
 from acne_llm.llm.ollama_backend import OllamaBackend  # noqa: E402
+from acne_llm.utils.fuzzy_match import best_match  # noqa: E402
 from evaluation.metrics.intake import (  # noqa: E402
     canonicalization_hit,
     enum_validity,
     expected_calibration_error,
-    intent_prf,
     list_prf,
     negation_leak,
 )
@@ -50,7 +50,7 @@ from evaluation.metrics.intake import (  # noqa: E402
 
 DEFAULT_EVAL = Path("datagen/intakedata/output/intake/intake.val.jsonl")
 DEFAULT_TRAIN = Path("datagen/intakedata/output/intake/intake.train.jsonl")
-DEFAULT_OUTPUT = Path("reports/intake_unified_eval.json")
+DEFAULT_OUTPUT = Path("evaluation/reports/intake_eval/report.json")
 CONTEXT_SCALARS = (
     "age",
     "sex",
@@ -62,6 +62,245 @@ CONTEXT_SCALARS = (
 CONTEXT_LISTS = ("allergies", "current_products", "medications")
 CLINICAL_SCALARS = ("inflammation_level",)
 CLINICAL_LISTS = ("lesion_types", "lesion_distribution")
+INTENT_LABELS = ("advise", "knowledge", "clarify", "reject")
+FUZZY_FIELDS = {"context.current_products", "context.medications"}
+FUZZY_THRESHOLD = 0.8
+
+
+def _ratio(numerator: int | float, denominator: int | float) -> float:
+    return round(numerator / denominator, 4) if denominator else 0.0
+
+
+def _prf(tp: int, fp: int, fn: int) -> dict[str, Any]:
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return {
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1": round(f1, 4),
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+    }
+
+
+def _valid_confidence(value: Any) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(float(value))
+        and 0.0 <= float(value) <= 1.0
+    )
+
+
+def _validate_node(
+    node: Any,
+    *,
+    value_type: type | tuple[type, ...],
+    allowed: set[str] | frozenset[str] | None = None,
+    minimum: int | None = None,
+    maximum: int | None = None,
+) -> bool:
+    if node is None:
+        return True
+    if not isinstance(node, Mapping) or set(node) != {"value", "confidence"}:
+        return False
+    value = node.get("value")
+    if value is None or isinstance(value, bool) != (value_type is bool):
+        return False
+    if not isinstance(value, value_type) or not _valid_confidence(node.get("confidence")):
+        return False
+    if allowed is not None and value not in allowed:
+        return False
+    if minimum is not None and value < minimum:
+        return False
+    if maximum is not None and value > maximum:
+        return False
+    return True
+
+
+def _validate_list_node(
+    value: Any,
+    *,
+    allowed: set[str] | frozenset[str] | None = None,
+) -> bool:
+    return isinstance(value, list) and all(
+        _validate_node(item, value_type=str, allowed=allowed) for item in value
+    )
+
+
+def validate_payload_schema(payload: Any, expected_description: str) -> list[str]:
+    """Validate the generated wire payload without importing a second schema package."""
+    violations: list[str] = []
+    if not isinstance(payload, Mapping):
+        return ["root must be an object"]
+    root_keys = {"intent", "confidence", "description", "context", "clinical"}
+    if set(payload) != root_keys:
+        violations.append("root keys")
+    if payload.get("intent") not in INTENT_LABELS:
+        violations.append("intent")
+    if not _valid_confidence(payload.get("confidence")):
+        violations.append("confidence")
+    description = payload.get("description")
+    if (
+        not isinstance(description, str)
+        or not 1 <= len(description) <= 4_000
+        or description != expected_description
+    ):
+        violations.append("description")
+
+    context = payload.get("context")
+    context_keys = set(CONTEXT_SCALARS) | set(CONTEXT_LISTS)
+    if not isinstance(context, Mapping) or not set(context).issubset(context_keys):
+        violations.append("context")
+        context = {}
+    scalar_rules = {
+        "age": (int, None, 0, 120),
+        "sex": (str, _SEX, None, None),
+        "skin_type": (str, _SKIN, None, None),
+        "is_pregnant": (bool, None, None, None),
+        "is_breastfeeding": (bool, None, None, None),
+        "duration_weeks": (int, None, 0, None),
+    }
+    for key, (kind, allowed, minimum, maximum) in scalar_rules.items():
+        if key in context and not _validate_node(
+            context[key],
+            value_type=kind,
+            allowed=allowed,
+            minimum=minimum,
+            maximum=maximum,
+        ):
+            violations.append(f"context.{key}")
+    for key in CONTEXT_LISTS:
+        if key in context and not _validate_list_node(context[key]):
+            violations.append(f"context.{key}")
+
+    clinical = payload.get("clinical")
+    clinical_keys = {"lesion_types", "inflammation_level", "lesion_distribution"}
+    if clinical is not None:
+        if not isinstance(clinical, Mapping) or set(clinical) != clinical_keys:
+            violations.append("clinical")
+            clinical = {}
+        if "lesion_types" in clinical and not _validate_list_node(
+            clinical["lesion_types"], allowed=_LESION
+        ):
+            violations.append("clinical.lesion_types")
+        if "inflammation_level" in clinical and not _validate_node(
+            clinical["inflammation_level"], value_type=str, allowed=_INFLAMMATION
+        ):
+            violations.append("clinical.inflammation_level")
+        if "lesion_distribution" in clinical and not _validate_list_node(
+            clinical["lesion_distribution"], allowed=_DISTRIBUTION
+        ):
+            violations.append("clinical.lesion_distribution")
+    return violations
+
+
+def _is_parse_failure(exc: BaseException) -> bool:
+    current: BaseException | None = exc
+    while current is not None:
+        if isinstance(current, json.JSONDecodeError):
+            return True
+        message = str(current).casefold()
+        if "does not contain a json object" in message or "empty non-text" in message:
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
+def _percentile(values: Sequence[float], percentile: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * percentile
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    if lower == upper:
+        return round(ordered[lower], 2)
+    interpolated = ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+    return round(interpolated, 2)
+
+
+def _matched_list_counts(
+    gold: Sequence[str], pred: Sequence[str], *, fuzzy: bool
+) -> tuple[int, int, int]:
+    unmatched = list(gold)
+    true_positive = 0
+    for predicted in pred:
+        match_index: int | None = None
+        if predicted in unmatched:
+            match_index = unmatched.index(predicted)
+        elif fuzzy and unmatched:
+            hit = best_match(predicted, tuple(unmatched))
+            if hit is not None and hit.similarity >= FUZZY_THRESHOLD:
+                match_index = unmatched.index(hit.canonical)
+        if match_index is not None:
+            true_positive += 1
+            unmatched.pop(match_index)
+    return true_positive, len(pred) - true_positive, len(unmatched)
+
+
+def _extraction_metrics(
+    scalar_gold: Mapping[str, Sequence[Any]],
+    scalar_pred: Mapping[str, Sequence[Any]],
+    list_gold: Mapping[str, Sequence[Sequence[str]]],
+    list_pred: Mapping[str, Sequence[Sequence[str]]],
+) -> dict[str, Any]:
+    per_field: dict[str, dict[str, Any]] = {}
+    total_tp = total_fp = total_fn = 0
+    hallucinated_fields = predicted_fields = 0
+
+    for field, gold_values in scalar_gold.items():
+        tp = fp = fn = 0
+        for gold, pred in zip(gold_values, scalar_pred[field]):
+            if pred is not None:
+                predicted_fields += 1
+                hallucinated_fields += gold is None
+            if gold is None and pred is None:
+                continue
+            if gold == pred:
+                tp += 1
+            else:
+                fp += pred is not None
+                fn += gold is not None
+        per_field[field] = {"match": "exact", **_prf(tp, fp, fn)}
+        total_tp += tp
+        total_fp += fp
+        total_fn += fn
+
+    for field, gold_rows in list_gold.items():
+        tp = fp = fn = 0
+        fuzzy = field in FUZZY_FIELDS
+        for gold, pred in zip(gold_rows, list_pred[field]):
+            if pred:
+                predicted_fields += 1
+                hallucinated_fields += not gold
+            row_tp, row_fp, row_fn = _matched_list_counts(gold, pred, fuzzy=fuzzy)
+            tp += row_tp
+            fp += row_fp
+            fn += row_fn
+        per_field[field] = {"match": "fuzzy" if fuzzy else "exact", **_prf(tp, fp, fn)}
+        total_tp += tp
+        total_fp += fp
+        total_fn += fn
+
+    macro = {
+        metric: round(
+            sum(float(values[metric]) for values in per_field.values()) / len(per_field),
+            4,
+        )
+        for metric in ("precision", "recall", "f1")
+    }
+    return {
+        "per_field": per_field,
+        "micro": _prf(total_tp, total_fp, total_fn),
+        "macro": macro,
+        "hallucinated_field_rate": _ratio(hallucinated_fields, predicted_fields),
+        "hallucinated_fields": hallucinated_fields,
+        "predicted_fields": predicted_fields,
+        "fuzzy_threshold": FUZZY_THRESHOLD,
+    }
 
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -176,6 +415,33 @@ def _metric_set(metric: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _intent_metrics(gold: Sequence[str], pred: Sequence[str]) -> dict[str, Any]:
+    per_class: dict[str, dict[str, Any]] = {}
+    matrix = {
+        label: {predicted: 0 for predicted in (*INTENT_LABELS, "__failure__")}
+        for label in INTENT_LABELS
+    }
+    for expected, actual in zip(gold, pred):
+        if expected in matrix:
+            matrix[expected][actual if actual in INTENT_LABELS else "__failure__"] += 1
+    for label in INTENT_LABELS:
+        tp = sum(g == label and p == label for g, p in zip(gold, pred))
+        fp = sum(g != label and p == label for g, p in zip(gold, pred))
+        fn = sum(g == label and p != label for g, p in zip(gold, pred))
+        per_class[label] = {**_prf(tp, fp, fn), "support": tp + fn}
+    return {
+        "accuracy": _ratio(sum(g == p for g, p in zip(gold, pred)), len(gold)),
+        "macro_f1": round(
+            sum(float(per_class[label]["f1"]) for label in INTENT_LABELS)
+            / len(INTENT_LABELS),
+            4,
+        ),
+        "reject_recall": per_class["reject"]["recall"],
+        "per_class": per_class,
+        "confusion_matrix": matrix,
+    }
+
+
 def evaluate_rows(
     rows: Sequence[dict[str, Any]],
     infer: Callable[[str], dict[str, Any]],
@@ -196,6 +462,10 @@ def evaluate_rows(
     enum_predictions: dict[str, list[str | None]] = defaultdict(list)
     negation_pairs: list[tuple[set[str], set[str]]] = []
     canonical_pairs: list[tuple[str, str | None]] = []
+    latencies_ms: list[float] = []
+    schema_valid = 0
+    parse_failures = 0
+    schema_violations = 0
     started = time.perf_counter()
 
     for record in rows:
@@ -210,14 +480,30 @@ def evaluate_rows(
 
         sample_id = str(record.get("id") or f"row-{len(samples) + 1}")
         error: str | None = None
+        format_error: str | None = None
+        inference_started = time.perf_counter()
         try:
             predicted = infer(text)
             if not isinstance(predicted, dict):
                 raise TypeError("inference did not return an object")
+            violations = validate_payload_schema(predicted, text)
+            if violations:
+                schema_violations += 1
+                format_error = ", ".join(violations)
+            else:
+                schema_valid += 1
         except Exception as exc:
             predicted = {}
             failures += 1
             error = f"{type(exc).__name__}: {exc}"
+            if _is_parse_failure(exc):
+                parse_failures += 1
+                format_error = "parse failure"
+            else:
+                schema_violations += 1
+                format_error = "inference/schema failure"
+        finally:
+            latencies_ms.append((time.perf_counter() - inference_started) * 1_000)
 
         gold_intent = str(gold.get("intent") or "__missing__")
         pred_intent = str(predicted.get("intent") or "__failure__")
@@ -312,6 +598,8 @@ def evaluate_rows(
                 "case_type": meta.get("case_type"),
                 "ok": error is None,
                 "error": error,
+                "schema_valid": format_error is None,
+                "format_error": format_error,
                 "gold_intent": gold_intent,
                 "pred_intent": pred_intent,
             }
@@ -329,6 +617,13 @@ def evaluate_rows(
         "clinical.lesion_distribution": _DISTRIBUTION,
     }
     fallback_rate = round(failures / len(samples), 4)
+    intake_intent = _intent_metrics(gold_intents, pred_intents)
+    extraction = _extraction_metrics(
+        scalar_gold,
+        scalar_pred,
+        list_gold,
+        list_pred,
+    )
     return {
         "rows_input": len(rows),
         "rows_evaluated": len(samples),
@@ -344,7 +639,22 @@ def evaluate_rows(
         ),
         "elapsed_seconds": round(time.perf_counter() - started, 2),
         "metrics": {
-            "intent": intent_prf(gold_intents, pred_intents),
+            "format": {
+                "schema_valid_rate": _ratio(schema_valid, len(samples)),
+                "parse_fail_rate": _ratio(parse_failures, len(samples)),
+                "schema_violation_rate": _ratio(schema_violations, len(samples)),
+                "schema_valid": schema_valid,
+                "parse_failures": parse_failures,
+                "schema_violations": schema_violations,
+                "n": len(samples),
+            },
+            "intent": intake_intent,
+            "extraction": extraction,
+            "latency": {
+                "p50_ms": _percentile(latencies_ms, 0.50),
+                "p95_ms": _percentile(latencies_ms, 0.95),
+                "n": len(latencies_ms),
+            },
             "scalar_accuracy": {
                 field: round(sum(g == p for g, p in zip(values, scalar_pred[field])) / len(values), 4)
                 for field, values in scalar_gold.items()

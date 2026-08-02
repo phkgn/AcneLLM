@@ -490,15 +490,14 @@ def _a7_ood_distance(
     centroid = np.asarray(centroid_payload.get("centroid"), dtype=np.float32)
     if centroid.ndim != 1 or not len(centroid):
         raise ValueError("config/ood_centroid.json is missing a centroid vector.")
-    queries: list[str] = []
-    for path in sorted((root / "evaluation" / "datasets" / "v1").glob("t1_*.jsonl")):
-        queries.extend(
-            text
-            for row in iter_jsonl(path)
-            if (text := _query_text(row))
-        )
+    dataset_path = root / "evaluation" / "datasets" / "v1" / "dev_tuning.jsonl"
+    queries = [
+        text
+        for row in iter_jsonl(dataset_path)
+        if (text := _query_text(row))
+    ]
     if not queries:
-        raise ValueError("No t1_*.jsonl query text found.")
+        raise ValueError("No dev_tuning.jsonl query text found.")
     print(f"[figures_kb] embedding {len(queries):,} OOD probe queries…", flush=True)
     embedder = Embedder()
     vectors = embedder.embed_passages(queries)
@@ -523,8 +522,8 @@ def _a7_ood_distance(
             "threshold": distance_threshold,
             "threshold_label": f"OOD boundary ({distance_threshold:.2f})",
         },
-        caption="T1 queries embedded with the production embedder; the line marks the current similarity threshold converted to distance.",
-        source_data="config/ood_centroid.json + evaluation/datasets/v1/t1_*.jsonl",
+        caption="Dev-tuning queries embedded with the production embedder; the line marks the current similarity threshold converted to distance.",
+        source_data="config/ood_centroid.json + evaluation/datasets/v1/dev_tuning.jsonl",
     )
 
 
@@ -776,13 +775,13 @@ def _contamination_path(root: Path) -> Path | None:
         / "evaluation"
         / "datasets"
         / "v1"
-        / "d2_test.contamination.json"
+        / "answer_quality_test.contamination.json"
     )
     return path if path.exists() else None
 
 
 def _ensure_contamination(root: Path) -> Path | None:
-    test_path = root / "evaluation" / "datasets" / "v1" / "d2_test.jsonl"
+    test_path = root / "evaluation" / "datasets" / "v1" / "answer_quality_test.jsonl"
     train_path = root / "data" / "finetune" / "clean" / "acne_chat_response.train.jsonl"
     if not test_path.exists() or not train_path.exists():
         return None
@@ -1032,8 +1031,8 @@ def generate(
         kb,
         figure_id="a7_ood_distance",
         title="Query distance to OOD centroid",
-        caption="T1 query distance from the production OOD centroid.",
-        source_data="config/ood_centroid.json + evaluation/datasets/v1/t1_*.jsonl",
+        caption="Dev-tuning query distance from the production OOD centroid.",
+        source_data="config/ood_centroid.json + evaluation/datasets/v1/dev_tuning.jsonl",
         chart_type="hist",
         kind="chart",
         function=lambda: _a7_ood_distance(kb, root),

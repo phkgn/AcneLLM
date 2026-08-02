@@ -39,7 +39,7 @@ Ba module CLI, mỗi cái xuất vào `evaluation/reports/figures/<group>/` gồ
   import read-only) → heatmap PNG + JSON.
 - A6 tuổi tài liệu nếu metadata có ngày (không có → status=skipped kèm lý do).
 - A7 histogram khoảng cách query→OOD centroid (`config/ood_centroid.json`, embedder,
-  queries lấy từ `evaluation/datasets/v1/t1_*.jsonl`), vẽ đường threshold hiện tại.
+  queries lấy từ `evaluation/datasets/v1/dev_tuning.jsonl`), vẽ đường threshold hiện tại.
 - A8 top-30 BM25 terms → bar JSON.
 - B1 độ dài prompt/response train vs test (`data/finetune/clean/*.jsonl`) → hist chồng.
 - B2 thành phần dataset theo file/case_type → stacked bar.
@@ -50,11 +50,11 @@ Ba module CLI, mỗi cái xuất vào `evaluation/reports/figures/<group>/` gồ
 
 ### `figures_eval.py` — nhóm C (model) + F (eval results)
 Input `--run-dir` (mặc định run mới nhất có report.json):
-- F1 bar S0–S4 × 6 trục judge + error bar CI (bootstrap từ judged.jsonl, tái dùng
+- F1 bar năm cấu hình hệ thống × 6 trục judge + error bar CI (bootstrap từ judged.jsonl, tái dùng
   `analysis/stats.paired_bootstrap`).
 - F2 forest plot 4 cặp pre-registered (Δmean + CI, đường 0) → PNG matplotlib
   (forest khó vẽ đẹp bằng recharts).
-- F3 retrieval curves hit@k/recall@k theo k per mode (T2 summary mới nhất).
+- F3 retrieval curves hit@k/recall@k theo k per mode (đánh giá retrieval summary mới nhất).
 - F4 heatmap task_type × system (correctness mean) → JSON heatmap.
 - F5 error Pareto stacked (đã có bar đơn trong /results — nâng thành stacked per system).
 - F6 normalizer per-field F1 (reports/unit/normalizer).
@@ -70,10 +70,10 @@ Input `--run-dir` (mặc định run mới nhất có report.json):
 ### `figures_usage.py` — nhóm D (production usage, audit.db/sessions.db)
 - **BẮT BUỘC ẩn danh**: mọi text query phải qua `mask_pii` (import từ
   `acne_llm.guardrails.ood_detector`, read-only) trước khi ghi ra artifact.
-- D1 intent/route distribution từ audit.db → bar (so cạnh composition dataset eval).
-- D2 refusal/clarify rate theo tuần → line.
-- D3 phân phối số turn/session → hist.
-- D4 top-30 từ khóa query thật (sau mask, bỏ stopword) → bar (không word-cloud lib).
+- Bộ dev intent/route distribution từ audit.db → bar (so cạnh composition dataset eval).
+- Bộ chất lượng câu trả lời refusal/clarify rate theo tuần → line.
+- Bộ ca khó phân phối số turn/session → hist.
+- Bộ an toàn top-30 từ khóa query thật (sau mask, bỏ stopword) → bar (không word-cloud lib).
 - DB không tồn tại/rỗng → mọi figure status=skipped, KHÔNG crash.
 
 ## 2. Dashboard — trang `/figures`
@@ -86,7 +86,7 @@ Input `--run-dir` (mặc định run mới nhất có report.json):
 - Figure `status=skipped` → card xám hiện `skip_reason`.
 - Tab Diagrams (E): render 2 sơ đồ mermaid client-side (import mermaid): E2 pipeline
   8-task trước RAG/LLM + fork intent (vẽ theo `docs/EVAL_BLUEPRINT.md` §2.2), E3 eval
-  4 tầng + ma trận S0–S4; kèm link mở `acnellm_pipeline.html`, `pipeline_simulator.html`
+  4 tầng + ma trận năm cấu hình hệ thống; kèm link mở `acnellm_pipeline.html`, `pipeline_simulator.html`
   có sẵn (serve qua /api/files với content-type html — chỉ 2 file này, whitelist path).
 - Nút "Export all PNG+PDF" → chạy generators với flag `--pdf` (matplotlib xuất kèm
   .pdf cho LaTeX).

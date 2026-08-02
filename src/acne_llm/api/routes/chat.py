@@ -72,7 +72,7 @@ async def debug_trace(
     c = request.app.state.container
     from ...chat.preprocess import prepare_user_text
     from ...chat._retrieval import source_data
-    from ...chat.extraction_confidence import extract_with_confidence
+    from ...chat.fallback.rule_extractor import extract_with_confidence
 
     t0 = time.perf_counter()
 

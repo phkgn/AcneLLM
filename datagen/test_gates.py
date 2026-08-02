@@ -48,7 +48,7 @@ def test_duplicate_guard_rejects_accentless_duplicate() -> None:
 
 
 def test_evaluation_index_reads_user_query_and_accentless_8gram(tmp_path) -> None:
-    source = tmp_path / "d2_test.jsonl"
+    source = tmp_path / "answer_quality_test.jsonl"
     source.write_text(
         '{"sample_id":"x","user_query":"Da mình nổi nhiều nốt đỏ đau ở vùng cằm mấy hôm nay"}\n',
         encoding="utf-8",

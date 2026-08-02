@@ -6,7 +6,7 @@ sys.path.insert(0, 'src')
 import json
 from collections import defaultdict
 
-from acne_llm.chat.extraction_confidence import extract_with_confidence
+from acne_llm.chat.fallback.rule_extractor import extract_with_confidence
 
 def _norm_infl(v):
     if v in (None, "none", "unknown"):

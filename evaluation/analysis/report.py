@@ -2,7 +2,7 @@
 
 Usage:
     python -m evaluation.analysis.report --run-dir evaluation/reports/main_2x2_t3 \
-        --dataset evaluation/datasets/v1/d2_test.jsonl \
+        --dataset evaluation/datasets/v1/answer_quality_test.jsonl \
         [--comparisons s0:s1,s0:s2,s1:s3,s2:s3]
 """
 from __future__ import annotations

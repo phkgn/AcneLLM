@@ -22,12 +22,12 @@ khi thấy mâu thuẫn:
   (RULE-BASED, micro-classifier đã gỡ) → fork theo intent (reject dừng ngay; clarify
   không RAG) → retrieve_for_chat → stream_user.j2 → llm.stream_text (PROSE + [N])`.
 - **Batch path** (`pipeline/hybrid.py`, `pipeline/llm_only.py`) = JSON `AdviseOutput`,
-  KHÁC production. Harness cố ý dùng batch cho T3 (chấm structured) và SSE cho T4
-  (thực trạng repo). **Kết quả T4 là kết quả chính mô tả thực trạng; T3/T1/T2 chỉ để
+  KHÁC production. Harness cố ý dùng batch cho sinh câu trả lời batch (chấm structured) và SSE cho SSE end-to-end
+  (thực trạng repo). **Kết quả SSE end-to-end là kết quả chính mô tả thực trạng; sinh câu trả lời batch/kiểm thử module/đánh giá retrieval chỉ để
   giải thích nguyên nhân** — nếu report nào đang trình bày ngược, sửa lại cách trình bày.
-- **Scenario = S0–S4** định nghĩa tại `evaluation/configs/systems/s*.yaml` (đọc file,
-  không đoán từ tên): S0 base+SYSTEM-prompt-đồng-nhất, S1 finetune only, S2 base+RAG,
-  S3 finetune+RAG (production), S4 extractive không LLM. Base model là
+- **Scenario = năm cấu hình hệ thống** định nghĩa tại `evaluation/configs/systems/s*.yaml` (đọc file,
+  không đoán từ tên): Model gốc base+SYSTEM-prompt-đồng-nhất, Model tinh chỉnh finetune only, Model gốc + RAG base+RAG,
+  Model tinh chỉnh + RAG finetune+RAG (production), RAG trích xuất extractive không LLM. Base model là
   `qwen25-base-acnesys` build từ `evaluation/modelfiles/` để kiểm soát confound
   system-prompt (R1).
 - Harness đã có sẵn (VERIFY + EXTEND, không viết lại): trace per-sample trong
@@ -41,9 +41,9 @@ khi thấy mâu thuẫn:
   chống-fallback (`FALLBACK DETECTED` trong `adapters/ollama_batch.py`).
 - Lỗi đã biết và ĐÃ SỬA (đừng báo lại như phát hiện mới): faithfulness placeholder
   context, pregnancy-window false positive, comparisons không render, cold-load
-  latency T2. Lỗi đã biết CHƯA sửa (của repo, không phải của eval): router không
+  latency đánh giá retrieval. Lỗi đã biết CHƯA sửa (của repo, không phải của eval): router không
   reject/clarify, guardrails lọt "act as" + vùng ngoài phạm vi (scope_mode=soft),
-  base model dồn nội dung vào field `disclaimer`. Qrels D8 đang `needs_relabel`
+  base model dồn nội dung vào field `disclaimer`. Qrels Bộ retrieval đang `needs_relabel`
   (bm25-biased) — mọi số retrieval hiện tại chỉ tham khảo.
 
 ## 1. Nhiệm vụ chính: module `evaluation/validate/`
@@ -73,13 +73,13 @@ Loop thực hiện tuần tự, mỗi bước ghi kết quả vào
 ## 2. Invariants bắt buộc (implement thành checks, mỗi check 1 hàm + 1 unit test)
 
 Case-parity: mọi system trong run-dir có CÙNG tập sample_id; thiếu/thừa/trùng → FAIL.
-Non-RAG sạch: record của S0/S1 không được có `used_chunks`/`context_chunks`.
-RAG có trace: record của S2/S3/S4 thiếu retrieval trace hợp lệ → FAIL.
-Model đúng: `model_name` mỗi record == model trong system yaml; S0/S2 không bao giờ
+Non-RAG sạch: record của Model gốc/Model tinh chỉnh không được có `used_chunks`/`context_chunks`.
+RAG có trace: record của Model gốc + RAG/Model tinh chỉnh + RAG/RAG trích xuất thiếu retrieval trace hợp lệ → FAIL.
+Model đúng: `model_name` mỗi record == model trong system yaml; Model gốc/Model gốc + RAG không bao giờ
 là `acnellm-v2-q4`; digest từ `ollama show` được lưu vào run_meta.
 Fair-comparison: sampling params trong mọi system yaml giống hệt nhau (trừ IV);
 prompt template chỉ khác theo thiết kế (llm_only vs hybrid); diff SYSTEM prompt giữa
-S0 và S1 phải rỗng (đọc từ Modelfile — R1).
+Model gốc và Model tinh chỉnh phải rỗng (đọc từ Modelfile — R1).
 Score domain: pointwise ∈ {1..5}, faithfulness ∈ [0,1], confidence ∈ [0,1]; judge
 JSON parse-fail không được thành 0/default — phải là `invalid` và bị loại khỏi
 aggregate, có đếm riêng.
@@ -90,7 +90,7 @@ templates *.j2) + corpus hash phải có mặt trong run_meta và khớp giữa 
 Reproducibility: cùng seed + config, chạy lại subset → judge score lệch trung bình
 ≤ 0.5 điểm/trục và deterministic metrics lệch = 0; ghi rõ Ollama không đảm bảo
 bit-exact (đo và báo cáo variance, không im lặng).
-Session isolation (T4): mỗi case session_id mới; multi-turn phải cùng session theo
+Session isolation (SSE end-to-end): mỗi case session_id mới; multi-turn phải cùng session theo
 kịch bản.
 
 ## 3. Conflict detector (per-case, output JSONL để dashboard/human review)
@@ -106,7 +106,7 @@ average để che xung đột.
 
 ## 4. Audit một lần (mỗi mục 1 file markdown trong reports/validation/)
 
-- `runtime_vs_eval.md`: bảng từng bước runtime SSE vs T4 adapter vs T3 batch — bước
+- `runtime_vs_eval.md`: bảng từng bước runtime SSE vs SSE end-to-end adapter vs sinh câu trả lời batch batch — bước
   nào eval bỏ qua/khác production, ảnh hưởng gì đến diễn giải kết quả.
 - `dataset_audit.md`: chạy validate + contamination trên mọi file trong
   `datasets/v1/`; tìm nhãn mâu thuẫn (cùng query ≈ nhau nhưng intent_label khác),
@@ -134,9 +134,9 @@ average để che xung đột.
 - Windows-safe paths; mỗi check phải chạy được offline (không API) trừ bước judge
   validation; bước nào cần Ollama/API phải degrade gracefully thành SKIPPED có ghi chú.
 - Lỗi runtime không bao giờ thành điểm 0 âm thầm — luôn vào bucket riêng.
-- Đăng ký lệnh mới vào hệ sinh thái dashboard: thêm dòng `validation_loop` vào bảng
+- Đăng ký lệnh mới vào hệ sinh thái dashboard: thêm dòng `trust_audit` vào bảng
   whitelist trong `docs/EVAL_DASHBOARD_PROMPT.md`, và nếu app
-  `evaluation/dashboard/` đã tồn tại thì thêm commandId `validation_loop` vào
+  `evaluation/dashboard/` đã tồn tại thì thêm commandId `trust_audit` vào
   whitelist của app + watch file `evaluation/reports/validation/**/summary.json`.
 - Mọi kết luận trong báo cáo phải trỏ về case_id + trace + file code cụ thể; chưa
   xác minh thì ghi "chưa xác minh". Ưu tiên trung thực hơn điểm đẹp: nếu phát hiện
@@ -155,7 +155,7 @@ average để che xung đột.
    summary thật vào báo cáo.
 6. Báo cáo cuối trả lời đúng 1 câu: *"Kết quả eval hiện tại tin được đến mức nào,
    ở khía cạnh nào chưa, và cần gì để nâng mức tin cậy"* — kèm bảng verdict per-tier
-   (T1/T2/T3/T4/judge/data).
+   (kiểm thử module/đánh giá retrieval/sinh câu trả lời batch/SSE end-to-end/judge/data).
 
 Thứ tự làm: đọc §0 → viết invariant checks (test được offline ngay với run smoke)
 → conflict detector → audits → loop wiring + gate → chạy demo → báo cáo. Commit nhỏ.

@@ -11,7 +11,7 @@ Covers:
 Run: pytest tests/test_normalizer_regression.py -v
 """
 import pytest
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 
 
 def norm(text: str, mode: str = "auto"):

@@ -717,7 +717,7 @@ def run_eval(args: argparse.Namespace) -> bool:
     # production cũng không gọi planner cho knowledge intent đơn giản.
     try:
         from acne_llm.chat.preprocess import prepare_user_text
-        from acne_llm.chat.normalizer import normalize_chat_message
+        from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
         from acne_llm.utils.retrieval_query import build_retrieval_query_from_user
         _pipeline_preprocess = True
         print("  Pipeline preprocess: ON (① prepare_user_text + ② normalize_chat_message + ③ build_retrieval_query_from_user)")

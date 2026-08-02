@@ -123,3 +123,28 @@ class ListFieldResult(Generic[T]):
     @classmethod
     def empty(cls) -> "ListFieldResult[T]":
         return cls(items=())
+
+
+@dataclass
+class ExtractionConfidence:
+    """Map field -> FieldResult, kênh phụ cho completeness/router."""
+
+    skin_type: FieldResult[str] = field(default_factory=FieldResult.none)
+    sex: FieldResult[str] = field(default_factory=FieldResult.none)
+    age: FieldResult[int] = field(default_factory=FieldResult.none)
+    duration_weeks: FieldResult[int] = field(default_factory=FieldResult.none)
+    is_pregnant: FieldResult[bool] = field(default_factory=FieldResult.none)
+    is_breastfeeding: FieldResult[bool] = field(default_factory=FieldResult.none)
+    inflammation: FieldResult[str] = field(default_factory=FieldResult.none)
+    lesion_types: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    distribution: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    products: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    medications: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    allergies: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    scarring_signs: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    hormonal_factors: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    treatment_goals: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    red_flags: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+
+    def field(self, name: str) -> FieldResult | ListFieldResult:
+        return getattr(self, name)

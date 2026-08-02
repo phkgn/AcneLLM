@@ -1,0 +1,89 @@
+{
+  "timestamp": "2026-07-27T16:24:57.577516+00:00",
+  "git_commit": "807ac5b2b88627123c2769f6337ce44f5a2a0c45",
+  "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+  "platform": "nt",
+  "bm25_sha256": "6b7c324ba970a8f92d62b49c459934b9255efd17d4a9416740168d33fa5067b0",
+  "chroma_fingerprint": "cde149055cd117661e0cbf3909a0a131fb819f89b2d4d563e3d6462927665c51",
+  "chroma_num_files": 6,
+  "experiment": {
+    "name": "main_2x2_t3",
+    "tier": "t3",
+    "dataset": "evaluation/datasets/v1/answer_quality_test.jsonl",
+    "systems": [
+      "evaluation/configs/systems/s0.yaml",
+      "evaluation/configs/systems/s1.yaml",
+      "evaluation/configs/systems/s2.yaml",
+      "evaluation/configs/systems/s3.yaml",
+      "evaluation/configs/systems/s4.yaml"
+    ],
+    "comparisons": [
+      [
+        "s0",
+        "s1"
+      ],
+      [
+        "s0",
+        "s2"
+      ],
+      [
+        "s1",
+        "s3"
+      ],
+      [
+        "s2",
+        "s3"
+      ]
+    ],
+    "seed": 42,
+    "max_retries": 1,
+    "request_timeout_s": 180
+  },
+  "n_samples": 140,
+  "systems": [
+    "s0",
+    "s1",
+    "s2",
+    "s3",
+    "s4"
+  ],
+  "dataset": "evaluation/datasets/v1/answer_quality_test.jsonl",
+  "dataset_sha256": "2b7e667d0dbcb3023c3831725070423c3811b21c8241d33b56fb578f482b6225",
+  "dataset_manifest_sha256": "cfa7473b45144a776d485ebd9dccf3af134384dd875484c7832a8e894ce003a4",
+  "experiment_config_sha256": "4843c767f324cf6b6f2804d49b584134b60f4679c2dbdf6709e8e01e9ca0c454",
+  "system_config_hashes": {
+    "s0": "1f3685d6118c753b17d1ee4422000719963b78a7513d01b08977e8025d94aba9",
+    "s1": "fb9e2408c73a7db6fa68925c5b38a19d773fd9ec8c8cd2e4ca1c5fe9b0333897",
+    "s2": "0184cb88e224a3efee39c365eba79a7216fa1e07399363862c349599a6b9f0c5",
+    "s3": "7b92e5d971681241a21dbc9e9fd57499c53e19163a15e47b2c30684089b946ec",
+    "s4": "a426d45d9407ffad9b5e7cb41bbf30c454e78736ef70865c06b1851147d00e09"
+  },
+  "prompt_hashes": {
+    "templates": {
+      "config/prompts/clarify_user.j2": "5ca5dff4845f44f583a6896ef47e95c13a8e2cc869727884005625bc955baefd",
+      "config/prompts/knowledge_user.j2": "ff0d3303c0421be4c5793a06fbf10db5851fd4c8ebf4e6726488ca6b629be326",
+      "config/prompts/refuse_user.j2": "4a339e1206ee897862f35079f774a116f4d37d7a8f7cf87fd066e2392a187a02",
+      "config/prompts/reject_user.j2": "851e973002eb37db9be36b1d59107417165fb6968f6107074453dae8f10ab615",
+      "config/prompts/stream_user.j2": "0a4f0f766979b96d4ebdeacda91a632810292ae97d05b18307e58f79790e33bb"
+    },
+    "judge_prompts": {
+      "evaluation/judges/prompts/claim_extract.md": "8db0e44e433f441f528335197882cec9426e1ece7dd5d40f9fa18f7697fec2ab",
+      "evaluation/judges/prompts/entailment.md": "c09ca8a87a74fb2094e850d09c566d3f0ba6d420340fd4e93a487925b86c1064",
+      "evaluation/judges/prompts/error_classify.md": "551d897a7587b0256e9c702508f9864b285b57f30277d3152abc2c6af6f2097c",
+      "evaluation/judges/prompts/pairwise.md": "1ecfee0114a9e1aa1f08ecd04f85a85b7235dbaf47b544ff9f392d6e60fc95fb",
+      "evaluation/judges/prompts/pointwise.md": "1541398c866e94fe17ad4b029d764dbbbf1b61de1d02239e14fc278710b8d0e7"
+    },
+    "system_prompts": {
+      "s0": "cbff97d20b09486243fa541380871ecda3123e879686c7dd263d1885a7a691e7",
+      "s1": "cbff97d20b09486243fa541380871ecda3123e879686c7dd263d1885a7a691e7",
+      "s2": "cbff97d20b09486243fa541380871ecda3123e879686c7dd263d1885a7a691e7",
+      "s3": "cbff97d20b09486243fa541380871ecda3123e879686c7dd263d1885a7a691e7"
+    }
+  },
+  "model_digests": {
+    "acnellm-v2-q4": "fd947e9524367cc8e63bbc4341a8935ec42225e008711db8fb6ddf9a9ab07110",
+    "qwen25-base-acnesys": "eaeefaef4171b571c354f7b04b9b10b6c92ef3fa3f7a357d4bcdc4dee4d33325"
+  },
+  "model_metadata_status": "CAPTURED",
+  "model_metadata_note": null
+}

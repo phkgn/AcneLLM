@@ -1,8 +1,8 @@
 # S1 — Finetuned LLM only (QLoRA merged, Q4_K_M)
 id: s1
-name: finetuned_only
+name: Model tinh chỉnh
 adapter: ollama_batch
-model: acnellm-v2-q4
+model: acne-generator
 retrieval: false
 template: route_prose
 fallback_model: null

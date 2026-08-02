@@ -1,10 +1,10 @@
 """Sinh seed datasets v1 từ dữ liệu có sẵn trong repo (một lần, rồi duyệt tay).
 
-- d8_qrels_seed.jsonl  ← data/eval_labels/approved_eval_queries.jsonl
+- retrieval_test.jsonl  ← data/eval_labels/approved_eval_queries.jsonl
     CẢNH BÁO: nhãn gốc suggestion_mode=bm25 → pooling bias (R2 blueprint).
     Mọi row đánh dấu annotation_status="needs_relabel"; phải relabel bằng pooled
     candidates (BM25 ∪ dense ∪ hybrid) trước khi dùng làm qrels chính thức.
-- d1_dev_seed.jsonl    ← data/sample_queries.jsonl (dev only, không báo cáo kết quả)
+- dev_tuning.jsonl    ← data/sample_queries.jsonl (dev only, không báo cáo kết quả)
 
 Usage: python -m evaluation.datasets.build_seeds
 """
@@ -39,8 +39,8 @@ def build_qrels_seed() -> None:
             "annotation_status": "needs_relabel",
             "human_notes": "seed từ nhãn bm25-biased; relabel bằng pooled candidates",
         })
-    write_jsonl(V1 / "d8_qrels_seed.jsonl", rows)
-    print(f"d8_qrels_seed.jsonl: {len(rows)} rows (TẤT CẢ needs_relabel)")
+    write_jsonl(V1 / "retrieval_test.jsonl", rows)
+    print(f"retrieval_test.jsonl: {len(rows)} rows (TẤT CẢ needs_relabel)")
 
 
 def build_dev_seed() -> None:
@@ -57,8 +57,8 @@ def build_dev_seed() -> None:
             "user_context": old.get("user_context", {}),
             "annotation_status": "draft",
         })
-    write_jsonl(V1 / "d1_dev_seed.jsonl", rows)
-    print(f"d1_dev_seed.jsonl: {len(rows)} rows")
+    write_jsonl(V1 / "dev_tuning.jsonl", rows)
+    print(f"dev_tuning.jsonl: {len(rows)} rows")
 
 
 if __name__ == "__main__":

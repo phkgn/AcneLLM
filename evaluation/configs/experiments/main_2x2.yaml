@@ -1,7 +1,7 @@
 # Main experiment: 2x2 factorial (Finetune × RAG) + extractive floor, tier T3 prose batch
 name: main_2x2_t3
 tier: t3                      # t3 = prose batch | t4 = SSE API e2e
-dataset: evaluation/datasets/v1/d2_test.jsonl
+dataset: evaluation/datasets/v1/answer_quality_test.jsonl
 systems:
   - evaluation/configs/systems/s0.yaml
   - evaluation/configs/systems/s1.yaml

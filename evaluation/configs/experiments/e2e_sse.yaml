@@ -3,7 +3,7 @@
 # runner chạy TỪNG system một và dừng chờ xác nhận backend đúng model (kiểm tra /health).
 name: main_e2e_t4
 tier: t4
-dataset: evaluation/datasets/v1/d2_test.jsonl
+dataset: evaluation/datasets/v1/answer_quality_test.jsonl
 api_url: http://localhost:8000
 chat_mode: auto
 systems:

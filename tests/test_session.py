@@ -14,7 +14,7 @@ from acne_llm.chat.session import (
     snapshot_from_user,
     select_relevant_history,
 )
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

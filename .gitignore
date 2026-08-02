@@ -76,3 +76,8 @@ src/acne_llm/_archive/
 
 # Temp files from editor
 *.tmp
+
+# Guideline: giu SCRIPT + manifest, bo DU LIEU (80MB PDF/txt, tai lai bang TAI-PDF.bat)
+guideline_docs/*_docs/
+# Tesseract language data 26MB - tai lai tu tessdata_best, xem pdf_to_text.py
+tessdata/

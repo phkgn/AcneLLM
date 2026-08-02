@@ -7,6 +7,7 @@ from scripts.eval_bottleneck import (
     _paired_summary,
     _select_candidate,
     main,
+    summarize_report,
 )
 
 
@@ -136,3 +137,34 @@ def test_paired_summary_drops_failed_id_from_every_arm_and_lists_five_faces():
             "answer_quality",
             "role_tone",
         ]
+
+
+def test_summarize_report_adds_bootstrap_ci_and_keeps_safety_separate():
+    report = {
+        "schema_version": 2,
+        "experiment": "paired_bottleneck_xyzw",
+        "dataset": "d8.jsonl",
+        "arms": {
+            "z": {
+                "items": [_row("a", 2), _row("b", 3), _row("c", 4)],
+                "summary": {"safety_failures": 0},
+            },
+            "w": {
+                "items": [_row("a", 3), _row("b", 4), _row("c", 5)],
+                "summary": {"safety_failures": 0},
+            },
+        },
+    }
+
+    summary = summarize_report(report, bootstrap_samples=100, seed=7)
+
+    quality = summary["arms"]["w"]["quality"]["answer_quality"]
+    assert quality["mean_delta"] == 1.0
+    assert quality["bootstrap_95_ci_mean"] == [1.0, 1.0]
+    assert summary["arms"]["w"]["safety"] == {
+        "paired_n": 3,
+        "baseline_fail_count": 0,
+        "arm_fail_count": 0,
+        "baseline_fail_ids": [],
+        "arm_fail_ids": [],
+    }

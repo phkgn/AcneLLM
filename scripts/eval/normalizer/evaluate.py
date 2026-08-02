@@ -1,6 +1,6 @@
 """Evaluate the rule-based pipeline normalizer against the gold test-set.
 
-Runs ``acne_llm.chat.normalizer.normalize_chat_message`` on every raw user
+Runs ``acne_llm.chat.fallback.rule_normalizer.normalize_chat_message`` on every raw user
 message in the test-set, projects both prediction and gold into a shared
 canonical label space (see ``taxonomy.py``), and reports a diverse set of
 metrics per field:
@@ -51,7 +51,7 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(HERE))
 
 import taxonomy as tx  # noqa: E402
-from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #

@@ -76,7 +76,7 @@ def test_figures_usage_masks_pii_and_empty_db_is_graceful(
 ) -> None:
     _write_sessions(tmp_path / "data" / "sessions.db")
     _write_audit(tmp_path / "data" / "audit.db")
-    dataset = tmp_path / "evaluation" / "datasets" / "v1" / "t1_intent.jsonl"
+    dataset = tmp_path / "evaluation" / "datasets" / "v1" / "dev_tuning.jsonl"
     dataset.parent.mkdir(parents=True, exist_ok=True)
     dataset.write_text(
         json.dumps({"sample_id": "1", "intent_label": "knowledge"}) + "\n",
@@ -97,7 +97,7 @@ def test_figures_usage_masks_pii_and_empty_db_is_graceful(
     assert all(
         figure["status"] == "ok" for figure in manifest["figures"]
     )
-    terms_path = tmp_path / "artifacts" / "usage" / "d4_query_terms.json"
+    terms_path = tmp_path / "artifacts" / "usage" / "query_terms.json"
     terms = terms_path.read_text(encoding="utf-8")
     assert "test@example.com" not in terms
     assert "0912345678" not in terms

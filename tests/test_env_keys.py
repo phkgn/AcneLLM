@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 
@@ -31,3 +32,34 @@ def test_settings_thang_hang_so_module():
     from acne_llm.rag import retriever
 
     assert retriever._DENSE_MAX_DISTANCE == settings.dense_max_distance
+
+
+_GETATTR_SETTINGS = re.compile(
+    r'getattr\(\s*[A-Za-z_][A-Za-z0-9_.]*settings[A-Za-z0-9_.]*\s*,\s*'
+    r'["\']([a-z_][a-z0-9_]*)["\']',
+    re.IGNORECASE,
+)
+
+
+def test_getattr_settings_khong_tro_vao_field_ma():
+    """``getattr(settings, "ten_sai", default)`` nuốt lỗi y hệt extra='ignore'.
+
+    Đã dính một lần thật: ``chat_min_chunk_score`` không tồn tại trong Settings
+    nên ``chat/_retrieval.py`` luôn rơi về hằng số 0.25 và mọi lần tune ngưỡng
+    lọc chunk nhiễu đều vô tác dụng.
+    """
+    from acne_llm.config import Settings
+
+    fields = set(Settings.model_fields)
+    src = Path(__file__).resolve().parents[1] / "src" / "acne_llm"
+    orphans: list[str] = []
+    for path in src.rglob("*.py"):
+        if "__pycache__" in path.parts or ".bak" in path.name:
+            continue
+        for lineno, line in enumerate(
+            path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1
+        ):
+            for match in _GETATTR_SETTINGS.finditer(line):
+                if match.group(1) not in fields:
+                    orphans.append(f"{path.name}:{lineno} -> {match.group(1)}")
+    assert not orphans, "getattr(settings, ...) trỏ vào field không tồn tại: " + "; ".join(orphans)

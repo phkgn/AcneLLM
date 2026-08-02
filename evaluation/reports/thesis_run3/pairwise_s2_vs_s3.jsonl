@@ -1,0 +1,6 @@
+{"sample_id": "d2-0001", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "B", "backward": "A", "verdict": "B", "judge_status": "valid"}
+{"sample_id": "d2-0001-typo29", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "B", "backward": "A", "verdict": "B", "judge_status": "valid"}
+{"sample_id": "d2-0002", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "A", "backward": "B", "verdict": "A", "judge_status": "valid"}
+{"sample_id": "d2-0002-typo2", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "A", "backward": "B", "verdict": "A", "judge_status": "valid"}
+{"sample_id": "d2-0003", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "B", "backward": "tie", "verdict": "tie", "judge_status": "valid"}
+{"sample_id": "d2-0003-typo10", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "A", "backward": "B", "verdict": "A", "judge_status": "valid"}

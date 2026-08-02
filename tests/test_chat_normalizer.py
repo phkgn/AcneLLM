@@ -1,4 +1,4 @@
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 from acne_llm.chat.preprocess import expand_teencode_for_retrieval, prepare_user_text, preprocess_user_text
 
 

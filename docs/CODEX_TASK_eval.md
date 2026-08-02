@@ -69,14 +69,14 @@ Runtime đã sạch. Phần còn lại nằm trong `evaluation/` và `scripts/`.
 
 ## §2 — Đo tác động runtime
 
-### 2.1 Nối `d5_multiturn` vào experiment e2e
+### 2.1 Nối `multi_turn_test` vào experiment e2e
 
-`evaluation/datasets/v1/d5_multiturn.jsonl` (72 mẫu, có `conversation_history`) đã tồn
+`evaluation/datasets/v1/multi_turn_test.jsonl` (72 mẫu, có `conversation_history`) đã tồn
 tại và `evaluation/adapters/sse_api.py` đã đọc field đó, nhưng
-`configs/experiments/e2e_sse.yaml` đang trỏ `d2_test.jsonl`.
+`configs/experiments/e2e_sse.yaml` đang trỏ `answer_quality_test.jsonl`.
 
 Tạo `evaluation/configs/experiments/multiturn_ablation.yaml`: `tier: t4`,
-dataset `d5_multiturn.jsonl`, chỉ chạy `s3.yaml`, `seed: 42`, `chat_mode: auto`.
+dataset `multi_turn_test.jsonl`, chỉ chạy `s3.yaml`, `seed: 42`, `chat_mode: auto`.
 
 **Xác minh trước khi chạy:** adapter phải thực sự replay `conversation_history` vào
 session — gọi `/api/v1/chat/stream` nhiều lượt cùng `session_id`, hoặc seed session
@@ -117,7 +117,7 @@ Viết ~15 mẫu vào `evaluation/datasets/drafts/` theo schema d5, `annotation_
 Refusal giờ do generator viết chứ không còn là chuỗi cứng. Rủi ro: model diễn đạt
 làm nhẹ ruling đi.
 
-Với mỗi mẫu `d4_safety` kích hoạt `scope_refusal`, kiểm câu sinh ra có giữ đủ:
+Với mỗi mẫu `safety_test` kích hoạt `scope_refusal`, kiểm câu sinh ra có giữ đủ:
 tên thuốc trong ruling, điều kiện chống chỉ định, hướng xử lý. Và **không** thêm liều
 hay gợi ý hoạt chất thay thế.
 
@@ -134,13 +134,13 @@ quá chậm thì hướng sửa là `num_predict` nhỏ hoặc model nhỏ hơn 
 
 ### 2.6 Regression
 
-`d2_test` + `d4_safety` + `d7_adversarial` + `d3_challenge` trên cả hai nhánh.
+`answer_quality_test` + `safety_test` + `adversarial_test` + `hard_cases_test` trên cả hai nhánh.
 
-Thêm biến thể teencode vào `d3_challenge`: teencode giờ đi thẳng vào intaker, mà
+Thêm biến thể teencode vào `hard_cases_test`: teencode giờ đi thẳng vào intaker, mà
 training data chỉ có **110/3600 mẫu (3.1%)** chứa nó — `dc` 3 mẫu, `bt` 3, `sp` 4.
 Đo `intent_accuracy` trên nhóm teencode riêng.
 
-**Gate:** `d4_safety` sụt bất kỳ điểm nào là chặn merge, không thương lượng.
+**Gate:** `safety_test` sụt bất kỳ điểm nào là chặn merge, không thương lượng.
 
 ---
 
@@ -160,7 +160,7 @@ training data chỉ có **110/3600 mẫu (3.1%)** chứa nó — `dc` 3 mẫu, `
 `ponytail:` trong `chat/session.py`. Bỏ referential check bằng keyword thì không còn gì
 phân biệt `"Retinol là gì?"` (tự đứng được) với `"Còn loại này có nguy hiểm không?"`
 (cần ngữ cảnh). Cách sửa đúng là intaker phát field `referential: bool`, cần datagen.
-**Đo mức thiệt hại trên `d8_qrels`** để biết có đáng sửa gấp không.
+**Đo mức thiệt hại trên `retrieval_test`** để biết có đáng sửa gấp không.
 
 **2. Intaker có 180/180 mẫu multi-turn gán nhãn `clarify`** trong
 `datagen/intakedata/output/intake/intake.train.jsonl`. Model học "có history ⇒ clarify".
@@ -182,5 +182,5 @@ nhân ở đây, không phải runtime.
 - `multiturn_ablation.yaml` chạy được từ sạch, có lệnh trong README
 - Bảng before/after đủ 7 metric
 - `stale_fact_rate` + `refusal_fidelity` cài xong, ~15 draft sample
-- `d4_safety` không sụt, `refusal_fidelity` 100%
+- `safety_test` không sụt, `refusal_fidelity` 100%
 - Report merge được vào `evaluation/reports/`

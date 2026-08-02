@@ -8,9 +8,9 @@ from typing import Any
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 from ..schemas.extraction import FieldResult, ListFieldResult
-from . import extraction_confidence as legacy_confidence
-from . import normalizer as legacy_rules
-from .extraction_confidence import ExtractionConfidence
+from .fallback import rule_extractor as legacy_confidence
+from .fallback import rule_normalizer as legacy_rules
+from ..schemas.extraction import ExtractionConfidence
 from .preprocess import strip_accents
 
 
@@ -62,9 +62,14 @@ _CLINICAL_LISTS = (
     "hormonal_factors",
     "treatment_goals",
 )
-# A: Confidence KHÔNG còn do LLM sinh (giảm ~50% kích thước JSON + độ phức tạp
-# grammar → decode nhanh, ít truncate/timeout). Confidence thật đã tính riêng ở
-# extraction_confidence.py; field có value coi như đủ tin (_DEFAULT_CONF).
+# CHỈ áp cho đường LEGACY (fallback/llm_extractor.py + _OLLAMA_JSON_SCHEMA phẳng):
+# ở đó confidence không do model sinh, field có value coi như đủ tin.
+#
+# Đường UNIFIED thì NGƯỢC LẠI: acne-intaker được fine-tune sinh nested
+# {"value":...,"confidence":...} (xem datagen/intakedata/output/intake/
+# intake.train.jsonl), khớp _RUNTIME_SYSTEM, và _scalar_node đọc đúng confidence
+# đó. Nên ECE trên đường unified là đo thật, không đo hằng số.
+# _DEFAULT_CONF chỉ là giá trị dùng khi node ở dạng phẳng/thiếu confidence.
 _DEFAULT_CONF = 0.8
 
 

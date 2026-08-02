@@ -76,3 +76,16 @@ def prepare_user_text(text: str) -> PreparedText:
         clean_text_no_accent=strip_accents(clean_text),
         teencode_replaced=[],
     )
+
+
+def light_normalize(message: str) -> str:
+    """Normalize tối thiểu cho LLM: NFC + bỏ control chars nguy hiểm.
+
+    Giữ nguyên dấu câu, emoji, emphasis (!!!), whitespace tự nhiên.
+    Không collapse repeated punctuation, không lowercase.
+    """
+    text = unicodedata.normalize("NFC", message)
+    # Bỏ invisible/control chars; giữ punctuation và whitespace người dùng gõ.
+    text = _ZERO_WIDTH_RE.sub("", text)
+    text = _CONTROL_RE.sub("", text)
+    return text.strip()

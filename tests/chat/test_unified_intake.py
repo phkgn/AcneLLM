@@ -491,3 +491,20 @@ def test_unified_remains_default_and_legacy_adapters_live_in_fallback_package():
     assert Settings.model_fields["intake_mode"].default == "unified"
     assert LLMExtractor.__module__ == "acne_llm.chat.fallback.llm_extractor"
     assert LLMRouter.__module__ == "acne_llm.chat.fallback.llm_router"
+
+
+def test_unified_route_van_co_route_flags():
+    """UnifiedIntake.classify() không sinh route_flags.
+
+    Nếu intake không gắn bù, ``urgency_red_flag`` mất -> cảnh báo khẩn cấp ở
+    ``_safety`` và guidance an toàn ở ``prompt_builder`` chết im lặng khi
+    ``intake_mode=unified``.
+    """
+    message = "mụn mủ sưng lớn, đau nhiều và lan rộng khắp mặt em"
+    adapter, _backend = _adapter(_payload(message, intent="advise"))
+
+    result = run_intake(_container(adapter), message)
+
+    assert result.route_decision is not None
+    assert result.route_decision.reason_code == "unified_intake"
+    assert "urgency_red_flag" in result.route_decision.route_flags

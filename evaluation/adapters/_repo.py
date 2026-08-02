@@ -56,7 +56,7 @@ def build_eval_container(model: str | None, sampling: dict | None):
 def normalize_query(container, sample: dict):
     """Production preprocessing: raw text → UserInput (đúng path chat)."""
     from acne_llm.chat.preprocess import prepare_user_text
-    from acne_llm.chat.normalizer import normalize_chat_message
+    from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 
     raw = sample["user_query"]
     prepared = prepare_user_text(raw)

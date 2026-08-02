@@ -380,7 +380,7 @@ def test_resume_recovers_prior_task_type_reject_without_api_call(tmp_path):
     )
     drafts = tmp_path / "drafts"
     drafts.mkdir()
-    rejected = drafts / "d2.rejected.audit.jsonl"
+    rejected = drafts / "answer_quality_test.rejected.audit.jsonl"
     rejected.write_text(
         json.dumps(
             {

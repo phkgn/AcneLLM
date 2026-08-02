@@ -5,6 +5,8 @@ import {
   DATASET_CONFIG,
   DATASET_KEYS,
   type DatasetKey,
+  migrateDatasetKey,
+  validateRetrievalReviewCandidate,
 } from "@/lib/dataset-review-catalog";
 import { readJsonl } from "@/lib/files";
 import {
@@ -232,12 +234,14 @@ export function validateReviewCandidate(
   if (!String(row.sample_id ?? "").trim()) errors.push("Thiếu sample_id.");
   if (!String(row.user_query ?? "").trim()) errors.push("user_query không được rỗng.");
   if (!String(row.task_type ?? "").trim()) errors.push("task_type không được rỗng.");
-  if (!String(row.expected_behavior ?? "").trim()) {
-    errors.push("expected_behavior không được rỗng.");
+  if (datasetKey !== "retrieval") {
+    if (!String(row.expected_behavior ?? "").trim()) {
+      errors.push("expected_behavior không được rỗng.");
+    }
+    validateStringArray(row, "expected_answer_points", errors, true);
+    validateStringArray(row, "forbidden_claims", errors);
+    validateStringArray(row, "scenario_tags", errors);
   }
-  validateStringArray(row, "expected_answer_points", errors, true);
-  validateStringArray(row, "forbidden_claims", errors);
-  validateStringArray(row, "scenario_tags", errors);
 
   const risk = row.clinical_risk_level;
   if (risk !== null && risk !== undefined && !VALID_RISKS.has(String(risk))) {
@@ -258,57 +262,59 @@ export function validateReviewCandidate(
     errors.push((error as Error).message);
   }
 
-  if (datasetKey === "d1") {
+  if (datasetKey === "dev_tuning") {
     if (
       !["advise", "clarify", "knowledge", "safety"].includes(
         String(row.task_type),
       )
     ) {
       errors.push(
-        "D1 task_type phải là advise, clarify, knowledge hoặc safety.",
+        "Bộ dev task_type phải là advise, clarify, knowledge hoặc safety.",
       );
     }
-  } else if (datasetKey === "d2") {
+  } else if (datasetKey === "answer_quality") {
     if (!["advise", "clarify", "knowledge"].includes(String(row.task_type))) {
-      errors.push("D2 task_type phải là advise, clarify hoặc knowledge.");
+      errors.push("Bộ chất lượng câu trả lời cần task_type advise, clarify hoặc knowledge.");
     }
-  } else if (datasetKey === "d3") {
+  } else if (datasetKey === "hard_cases") {
     if (!["advise", "clarify", "knowledge"].includes(String(row.task_type))) {
-      errors.push("D3 task_type phải là advise, clarify hoặc knowledge.");
+      errors.push("Bộ ca khó cần task_type advise, clarify hoặc knowledge.");
     }
-    if (row.difficulty !== "hard") errors.push("D3 difficulty phải là hard.");
+    if (row.difficulty !== "hard") errors.push("Ca khó cần difficulty=hard.");
     if (
       !Array.isArray(row.expected_answer_points) ||
       row.expected_answer_points.length < 3
     ) {
-      errors.push("D3 expected_answer_points cần ít nhất 3 ý.");
+      errors.push("Ca khó cần ít nhất 3 expected_answer_points.");
     }
     if (!Array.isArray(row.forbidden_claims) || row.forbidden_claims.length < 1) {
-      errors.push("D3 forbidden_claims không được rỗng.");
+      errors.push("Ca khó cần forbidden_claims không rỗng.");
     }
     if (!Array.isArray(row.scenario_tags) || row.scenario_tags.length < 2) {
-      errors.push("D3 cần ít nhất 2 challenge dimensions trong scenario_tags.");
+      errors.push("Ca khó cần ít nhất 2 challenge dimensions trong scenario_tags.");
     }
-  } else if (datasetKey === "d4") {
-    if (row.task_type !== "safety") errors.push("D4 task_type phải là safety.");
+  } else if (datasetKey === "safety") {
+    if (row.task_type !== "safety") errors.push("Bộ an toàn cần task_type=safety.");
     if (!["high", "critical"].includes(String(risk))) {
-      errors.push("D4 clinical_risk_level phải là high hoặc critical.");
+      errors.push("Bộ an toàn cần clinical_risk_level high hoặc critical.");
     }
-  } else if (datasetKey === "d5") {
+  } else if (datasetKey === "multi_turn") {
     if (row.task_type !== "multi_turn") {
-      errors.push("D5 task_type phải là multi_turn.");
+      errors.push("Bộ nhiều lượt cần task_type=multi_turn.");
     }
     if (!Array.isArray(row.conversation_history) || row.conversation_history.length === 0) {
-      errors.push("D5 cần conversation_history không rỗng.");
+      errors.push("Bộ nhiều lượt cần conversation_history không rỗng.");
     }
-  } else if (datasetKey === "d6") {
-    if (row.task_type !== "ood") errors.push("D6 task_type phải là ood.");
-    if (row.intent_label !== "reject") errors.push("D6 intent_label phải là reject.");
-  } else if (datasetKey === "d7") {
+  } else if (datasetKey === "out_of_scope") {
+    if (row.task_type !== "ood") errors.push("Bộ ngoài phạm vi cần task_type=ood.");
+    if (row.intent_label !== "reject") errors.push("Bộ ngoài phạm vi cần intent_label=reject.");
+  } else if (datasetKey === "adversarial") {
     if (row.task_type !== "adversarial") {
-      errors.push("D7 task_type phải là adversarial.");
+      errors.push("Bộ đối kháng cần task_type=adversarial.");
     }
-    if (row.intent_label !== "reject") errors.push("D7 intent_label phải là reject.");
+    if (row.intent_label !== "reject") errors.push("Bộ đối kháng cần intent_label=reject.");
+  } else if (datasetKey === "retrieval") {
+    errors.push(...validateRetrievalReviewCandidate(row));
   }
   return errors;
 }
@@ -321,10 +327,22 @@ async function readStore(): Promise<ReviewStore> {
     if (parsed.version !== 1 || !isRecord(parsed.decisions)) {
       throw new Error("Sai schema review store.");
     }
+    const decisions = Object.fromEntries(
+      Object.entries(parsed.decisions).map(([sampleId, rawDecision]) => {
+        if (!isRecord(rawDecision)) {
+          throw new Error(`Quyết định review ${sampleId} không hợp lệ.`);
+        }
+        const datasetKey = migrateDatasetKey(rawDecision.datasetKey);
+        if (!datasetKey) {
+          throw new Error(`datasetKey của ${sampleId} không hợp lệ.`);
+        }
+        return [sampleId, { ...rawDecision, datasetKey } as ReviewDecision];
+      }),
+    );
     return {
       version: 1,
       updatedAt: String(parsed.updatedAt ?? new Date(0).toISOString()),
-      decisions: parsed.decisions as Record<string, ReviewDecision>,
+      decisions,
     };
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;

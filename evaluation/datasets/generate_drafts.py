@@ -79,12 +79,20 @@ MODEL_PRICES_USD_PER_MILLION: dict[str, tuple[float, float]] = {
 }
 
 OUTPUT_NAMES = {
-    "d2": "d2_test.draft.jsonl",
-    "d3": "d3_challenge.draft.jsonl",
-    "d4": "d4_safety.draft.jsonl",
-    "d5": "d5_multiturn.draft.jsonl",
-    "d6": "d6_ood.draft.jsonl",
-    "d7": "d7_adversarial.draft.jsonl",
+    "d2": "answer_quality_test.draft.jsonl",
+    "d3": "hard_cases_test.draft.jsonl",
+    "d4": "safety_test.draft.jsonl",
+    "d5": "multi_turn_test.draft.jsonl",
+    "d6": "out_of_scope_test.draft.jsonl",
+    "d7": "adversarial_test.draft.jsonl",
+}
+AUDIT_PREFIXES = {
+    "d2": "answer_quality_test",
+    "d3": "hard_cases_test",
+    "d4": "safety_test",
+    "d5": "multi_turn_test",
+    "d6": "out_of_scope_test",
+    "d7": "adversarial_test",
 }
 SPLIT_NAMES = {
     "d2": "test",
@@ -1497,8 +1505,9 @@ def generate_split(
     max_output_tokens: int = 6000,
 ) -> dict[str, Any]:
     output_path = out_dir / OUTPUT_NAMES[split_id]
-    reject_path = out_dir / f"{split_id}.rejected.audit.jsonl"
-    recovery_path = out_dir / f"{split_id}.recovery.audit.jsonl"
+    audit_prefix = AUDIT_PREFIXES[split_id]
+    reject_path = out_dir / f"{audit_prefix}.rejected.audit.jsonl"
+    recovery_path = out_dir / f"{audit_prefix}.recovery.audit.jsonl"
     existing = read_jsonl(output_path) if resume and output_path.exists() else []
     if not resume:
         for path in (output_path, reject_path, recovery_path):

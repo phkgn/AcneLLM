@@ -1,160 +1,320 @@
 {
-  "generated_at": "2026-07-16T15:57:28.682915+00:00",
-  "run_dir": "evaluation\\reports\\main_2x2_t3",
+  "generated_at": "2026-07-26T18:03:12.341839+00:00",
+  "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\main_2x2_t3",
   "n_systems": 5,
+  "retrieval": {
+    "artifact": "E:\\project\\AcneLLM\\evaluation\\reports\\retrieval\\2026-07-26T173708\\summary.json",
+    "dataset": "evaluation/datasets/v1/retrieval_test.jsonl",
+    "n_queries": 100,
+    "raw_query": false,
+    "modes": {
+      "sparse": {
+        "hit@1": 0.19,
+        "recall@1": 0.0238,
+        "precision@1": 0.19,
+        "ndcg@1": 0.1567,
+        "hit@3": 0.5,
+        "recall@3": 0.0737,
+        "precision@3": 0.1967,
+        "ndcg@3": 0.1603,
+        "hit@5": 0.58,
+        "recall@5": 0.1062,
+        "precision@5": 0.17,
+        "ndcg@5": 0.1715,
+        "hit@10": 0.74,
+        "recall@10": 0.1775,
+        "precision@10": 0.142,
+        "ndcg@10": 0.1924,
+        "mrr@10": 0.3564,
+        "map@10": 0.084,
+        "irrelevant@5": 0.83,
+        "dup_rate": 0.0,
+        "latency_ms_mean": 54
+      },
+      "dense": {
+        "hit@1": 0.02,
+        "recall@1": 0.0025,
+        "precision@1": 0.02,
+        "ndcg@1": 0.0133,
+        "hit@3": 0.08,
+        "recall@3": 0.0112,
+        "precision@3": 0.03,
+        "ndcg@3": 0.0121,
+        "hit@5": 0.1,
+        "recall@5": 0.0163,
+        "precision@5": 0.026,
+        "ndcg@5": 0.0152,
+        "hit@10": 0.14,
+        "recall@10": 0.0238,
+        "precision@10": 0.019,
+        "ndcg@10": 0.0185,
+        "mrr@10": 0.0523,
+        "map@10": 0.0091,
+        "irrelevant@5": 0.954,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 184
+      },
+      "hybrid": {
+        "hit@1": 0.11,
+        "recall@1": 0.0138,
+        "precision@1": 0.11,
+        "ndcg@1": 0.07,
+        "hit@3": 0.25,
+        "recall@3": 0.0325,
+        "precision@3": 0.0867,
+        "ndcg@3": 0.0666,
+        "hit@5": 0.31,
+        "recall@5": 0.0475,
+        "precision@5": 0.076,
+        "ndcg@5": 0.0692,
+        "hit@10": 0.52,
+        "recall@10": 0.0938,
+        "precision@10": 0.075,
+        "ndcg@10": 0.0923,
+        "mrr@10": 0.2074,
+        "map@10": 0.0376,
+        "irrelevant@5": 0.924,
+        "dup_rate": 0.016,
+        "latency_ms_mean": 247
+      },
+      "hybrid_rerank": {
+        "hit@1": 0.06,
+        "recall@1": 0.0075,
+        "precision@1": 0.06,
+        "ndcg@1": 0.04,
+        "hit@3": 0.21,
+        "recall@3": 0.0312,
+        "precision@3": 0.0833,
+        "ndcg@3": 0.0566,
+        "hit@5": 0.36,
+        "recall@5": 0.0563,
+        "precision@5": 0.09,
+        "ndcg@5": 0.073,
+        "hit@10": 0.52,
+        "recall@10": 0.1013,
+        "precision@10": 0.081,
+        "ndcg@10": 0.0899,
+        "mrr@10": 0.1807,
+        "map@10": 0.038,
+        "irrelevant@5": 0.91,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 7187
+      },
+      "hybrid_mmr_rerank": {
+        "hit@1": 0.06,
+        "recall@1": 0.0075,
+        "precision@1": 0.06,
+        "ndcg@1": 0.04,
+        "hit@3": 0.21,
+        "recall@3": 0.0312,
+        "precision@3": 0.0833,
+        "ndcg@3": 0.0566,
+        "hit@5": 0.36,
+        "recall@5": 0.0563,
+        "precision@5": 0.09,
+        "ndcg@5": 0.073,
+        "hit@10": 0.52,
+        "recall@10": 0.1013,
+        "precision@10": 0.081,
+        "ndcg@10": 0.0899,
+        "mrr@10": 0.1807,
+        "map@10": 0.038,
+        "irrelevant@5": 0.91,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 259
+      }
+    }
+  },
   "systems": {
     "s0": {
-      "n": 10,
+      "contract": "legacy_structured_json",
+      "n": 0,
+      "n_generation_valid": 0,
       "n_attempted": 10,
       "buckets": {
-        "valid": 10,
+        "valid": 0,
         "runtime_failure": 0,
         "judge_failure": 0,
         "metric_failure": 0,
-        "skipped": 90
+        "skipped": 140
       },
       "ok_rate": 1.0,
-      "parse_success_rate": 1.0,
-      "vacuous_answer_rate": 1.0,
-      "citation_valid_rate": null,
-      "pregnancy_safety_rate": 1.0,
-      "forbidden_claim_rate": 0.0,
-      "judge_means": {
-        "correctness": 1.0,
-        "completeness": 1.0,
-        "safety": 2.8,
-        "relevance": 1.0,
-        "fluency": 3.0,
-        "instruction_following": 2.6
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
       },
+      "refusal_fidelity": null,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": null,
+      "vietnamese_ratio_mean": null,
+      "answer_chars": {
+        "p50": null,
+        "mean": null
+      },
+      "judge_means": {},
       "faithfulness_mean": null,
       "latency_ms": {
-        "p50": 16983,
-        "mean": 16835
+        "p50": null,
+        "mean": null
       },
-      "error_pareto": []
-    },
-    "s1": {
-      "n": 10,
-      "n_attempted": 10,
-      "buckets": {
-        "valid": 10,
-        "runtime_failure": 0,
-        "judge_failure": 0,
-        "metric_failure": 0,
-        "skipped": 90
-      },
-      "ok_rate": 1.0,
-      "parse_success_rate": 1.0,
-      "vacuous_answer_rate": 0.8,
-      "citation_valid_rate": null,
-      "pregnancy_safety_rate": 1.0,
-      "forbidden_claim_rate": 0.0,
-      "judge_means": {
-        "correctness": 2.5,
-        "completeness": 2.1,
-        "safety": 3.9,
-        "relevance": 3.6,
-        "fluency": 3.6,
-        "instruction_following": 3.0
-      },
-      "faithfulness_mean": null,
-      "latency_ms": {
-        "p50": 14973,
-        "mean": 16008
-      },
-      "error_pareto": []
-    },
-    "s2": {
-      "n": 10,
-      "n_attempted": 10,
-      "buckets": {
-        "valid": 10,
-        "runtime_failure": 0,
-        "judge_failure": 0,
-        "metric_failure": 0,
-        "skipped": 90
-      },
-      "ok_rate": 1.0,
-      "parse_success_rate": 1.0,
-      "vacuous_answer_rate": 1.0,
-      "citation_valid_rate": null,
-      "pregnancy_safety_rate": 1.0,
-      "forbidden_claim_rate": 0.0,
-      "judge_means": {
-        "correctness": 1.8,
-        "completeness": 1.7,
-        "safety": 3.0,
-        "relevance": 2.0,
-        "fluency": 2.9,
-        "instruction_following": 2.2
-      },
-      "faithfulness_mean": 0.0,
-      "latency_ms": {
-        "p50": 41701,
-        "mean": 43500
-      },
-      "error_pareto": []
-    },
-    "s3": {
-      "n": 10,
-      "n_attempted": 10,
-      "buckets": {
-        "valid": 10,
-        "runtime_failure": 0,
-        "judge_failure": 0,
-        "metric_failure": 0,
-        "skipped": 90
-      },
-      "ok_rate": 1.0,
-      "parse_success_rate": 1.0,
-      "vacuous_answer_rate": 0.2,
-      "citation_valid_rate": 1.0,
-      "pregnancy_safety_rate": 1.0,
-      "forbidden_claim_rate": 0.0,
-      "judge_means": {
-        "correctness": 3.8,
-        "completeness": 2.9,
-        "safety": 4.3,
-        "relevance": 4.8,
-        "fluency": 3.9,
-        "instruction_following": 4.0
-      },
-      "faithfulness_mean": 0.0,
-      "latency_ms": {
-        "p50": 53514,
-        "mean": 55697
-      },
-      "error_pareto": []
-    },
-    "s4": {
-      "n": 10,
-      "n_attempted": 10,
-      "buckets": {
-        "valid": 10,
-        "runtime_failure": 0,
-        "judge_failure": 0,
-        "metric_failure": 0,
-        "skipped": 90
-      },
-      "ok_rate": 1.0,
+      "error_pareto": [],
       "parse_success_rate": null,
       "vacuous_answer_rate": null,
-      "citation_valid_rate": 1.0,
-      "pregnancy_safety_rate": 1.0,
-      "forbidden_claim_rate": 0.0,
-      "judge_means": {
-        "correctness": 4.3,
-        "completeness": 3.7,
-        "safety": 4.6,
-        "relevance": 4.8,
-        "fluency": 3.7,
-        "instruction_following": 4.2
+      "legacy_structured_metrics": true
+    },
+    "s1": {
+      "contract": "legacy_structured_json",
+      "n": 0,
+      "n_generation_valid": 0,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 140
       },
-      "faithfulness_mean": 0.0,
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": null,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": null,
+      "vietnamese_ratio_mean": null,
+      "answer_chars": {
+        "p50": null,
+        "mean": null
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
       "latency_ms": {
-        "p50": 12589,
-        "mean": 12931
+        "p50": null,
+        "mean": null
+      },
+      "error_pareto": [],
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "legacy_structured_metrics": true
+    },
+    "s2": {
+      "contract": "legacy_structured_json",
+      "n": 0,
+      "n_generation_valid": 0,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 140
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": null,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": null,
+      "vietnamese_ratio_mean": null,
+      "answer_chars": {
+        "p50": null,
+        "mean": null
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": null,
+        "mean": null
+      },
+      "error_pareto": [],
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "legacy_structured_metrics": true
+    },
+    "s3": {
+      "contract": "legacy_structured_json",
+      "n": 0,
+      "n_generation_valid": 0,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 140
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": null,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": null,
+      "vietnamese_ratio_mean": null,
+      "answer_chars": {
+        "p50": null,
+        "mean": null
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": null,
+        "mean": null
+      },
+      "error_pareto": [],
+      "parse_success_rate": null,
+      "vacuous_answer_rate": null,
+      "legacy_structured_metrics": true
+    },
+    "s4": {
+      "contract": "prose",
+      "n": 0,
+      "n_generation_valid": 0,
+      "n_attempted": 10,
+      "buckets": {
+        "valid": 0,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 140
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": null,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": null,
+      "vietnamese_ratio_mean": null,
+      "answer_chars": {
+        "p50": null,
+        "mean": null
+      },
+      "judge_means": {},
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": null,
+        "mean": null
       },
       "error_pareto": []
     }
@@ -207,11 +367,6 @@
           "tie": 3,
           "loss": 0
         }
-      },
-      "pregnancy_safety_mcnemar": {
-        "n01": 0,
-        "n10": 0,
-        "p_value": 1.0
       }
     },
     "s0:s2": {
@@ -261,11 +416,6 @@
           "tie": 8,
           "loss": 1
         }
-      },
-      "pregnancy_safety_mcnemar": {
-        "n01": 0,
-        "n10": 0,
-        "p_value": 1.0
       }
     },
     "s1:s3": {
@@ -315,11 +465,6 @@
           "tie": 4,
           "loss": 1
         }
-      },
-      "pregnancy_safety_mcnemar": {
-        "n01": 0,
-        "n10": 0,
-        "p_value": 1.0
       }
     },
     "s2:s3": {
@@ -369,11 +514,6 @@
           "tie": 2,
           "loss": 0
         }
-      },
-      "pregnancy_safety_mcnemar": {
-        "n01": 0,
-        "n10": 0,
-        "p_value": 1.0
       }
     }
   },

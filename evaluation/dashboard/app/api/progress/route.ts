@@ -8,6 +8,7 @@ import {
   resolveEvaluationPath,
   toEvaluationRelative,
 } from "@/lib/paths";
+import { loadSystemLabels } from "@/lib/systems";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
     );
     const datasetRaw =
       url.searchParams.get("dataset") ??
-      "evaluation/datasets/v1/d2_test.jsonl";
+      "evaluation/datasets/v1/answer_quality_test.jsonl";
     const datasetPath = resolveEvaluationPath(datasetRaw);
     const relativeDataset = path.relative(
       path.join(EVALUATION_ROOT, "datasets"),
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
         ? Math.min(datasetRows, limit)
         : datasetRows;
 
+    const systemLabels = loadSystemLabels();
     const progress = await Promise.all(
       systems.map(async (system) => {
         const resultPath = path.join(
@@ -78,6 +80,7 @@ export async function GET(request: Request) {
         const remaining = Math.max(total - completed, 0);
         return {
           system,
+          systemLabel: systemLabels[system] ?? system,
           completed,
           total,
           percent: total ? Math.min(100, (completed / total) * 100) : 0,

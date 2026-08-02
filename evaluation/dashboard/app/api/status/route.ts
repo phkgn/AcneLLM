@@ -50,9 +50,11 @@ export async function GET() {
   const hasJudgeKey =
     Boolean(process.env.OPENAI_API_KEY?.trim()) ||
     /^\s*OPENAI_API_KEY\s*=\s*[^#\s].*$/m.test(env);
-  const d2FinalExists = await exists("evaluation/datasets/v1/d2_test.jsonl");
-  const d2DraftExists = await exists(
-    "evaluation/datasets/drafts/v1/d2_test.draft.jsonl",
+  const answerQualityFinalExists = await exists(
+    "evaluation/datasets/v1/answer_quality_test.jsonl",
+  );
+  const answerQualityDraftExists = await exists(
+    "evaluation/datasets/drafts/v1/answer_quality_test.draft.jsonl",
   );
   const checks: Check[] = [
     {
@@ -97,38 +99,24 @@ export async function GET() {
       fix: "python scripts/build_kb.py --step bm25",
     },
     {
-      id: "dataset_intent",
-      label: "T1 intent dataset",
-      ok: await exists("evaluation/datasets/v1/t1_intent_seed.jsonl"),
-      detail: "evaluation/datasets/v1/t1_intent_seed.jsonl",
-      fix: "python -m evaluation.datasets.build_seeds",
-    },
-    {
-      id: "dataset_guardrails",
-      label: "T1 guardrails dataset",
-      ok: await exists("evaluation/datasets/v1/t1_guardrails_seed.jsonl"),
-      detail: "evaluation/datasets/v1/t1_guardrails_seed.jsonl",
-      fix: "python -m evaluation.datasets.build_seeds",
-    },
-    {
       id: "dataset_qrels",
-      label: "T2 qrels dataset",
-      ok: await exists("evaluation/datasets/v1/d8_qrels_seed.jsonl"),
-      detail: "evaluation/datasets/v1/d8_qrels_seed.jsonl",
+      label: "Bộ test tìm kiếm tài liệu",
+      ok: await exists("evaluation/datasets/v1/retrieval_test.jsonl"),
+      detail: "evaluation/datasets/v1/retrieval_test.jsonl",
       fix: "python -m evaluation.datasets.build_seeds",
     },
     {
       id: "dataset_t3",
-      label: "T3 main dataset",
-      ok: d2FinalExists,
-      detail: d2FinalExists
-        ? "evaluation/datasets/v1/d2_test.jsonl"
-        : d2DraftExists
-          ? "D2 draft đã có nhưng chưa export/promote sang datasets/v1"
-          : "Chưa có D2 draft hoặc D2 final; smoke có thể dùng D1",
-      fix: d2DraftExists
-        ? "Dataset review → chọn D2 → Export thành evaluation/datasets/v1/d2_test.jsonl"
-        : "Sinh D2 draft, human-review rồi export sang evaluation/datasets/v1/d2_test.jsonl",
+      label: "Bộ test chất lượng câu trả lời",
+      ok: answerQualityFinalExists,
+      detail: answerQualityFinalExists
+        ? "evaluation/datasets/v1/answer_quality_test.jsonl"
+        : answerQualityDraftExists
+          ? "Draft chất lượng câu trả lời đã có nhưng chưa export sang datasets/v1"
+          : "Chưa có draft hoặc bản final; smoke có thể dùng bộ dev",
+      fix: answerQualityDraftExists
+        ? "Dataset review → chọn Chất lượng câu trả lời → Export"
+        : "Sinh draft, human-review rồi export bộ chất lượng câu trả lời",
     },
     {
       id: "judge_key",

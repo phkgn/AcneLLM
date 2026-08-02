@@ -5,7 +5,7 @@ Query construction: production (build_retrieval_query_from_user) hoặc --raw-qu
 
 Usage:
     python -m evaluation.runners.run_retrieval \
-        --dataset evaluation/datasets/v1/d8_qrels_seed.jsonl \
+        --dataset evaluation/datasets/v1/retrieval_test.jsonl \
         [--modes sparse,dense,hybrid,hybrid_rerank,hybrid_mmr_rerank] \
         [--raw-query] [--top-k 10] [--limit N]
 """
@@ -56,7 +56,7 @@ def retrieve_ids(container, mode: str, query: str, top_k: int) -> tuple[list[str
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset", default="evaluation/datasets/v1/d8_qrels_seed.jsonl")
+    ap.add_argument("--dataset", default="evaluation/datasets/v1/retrieval_test.jsonl")
     ap.add_argument("--modes", default=",".join(ALL_MODES))
     ap.add_argument("--raw-query", action="store_true",
                     help="A4 ablation: dùng raw text thay vì constructed query")

@@ -1,0 +1,72 @@
+{
+  "run_id": "thesis_followup_smoke_20260726",
+  "out_dir": "evaluation/reports/thesis_followup_smoke_20260726",
+  "started_at": "2026-07-26T12:37:07.621056+00:00",
+  "finished_at": "2026-07-26T12:37:08.904874+00:00",
+  "current_step": null,
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Preflight",
+      "status": "ok",
+      "started_at": "2026-07-26T12:37:07.623594+00:00",
+      "finished_at": "2026-07-26T12:37:07.628159+00:00",
+      "duration_s": 0.0,
+      "detail": ""
+    },
+    {
+      "id": "intake_eval",
+      "label": "Intake eval",
+      "status": "skipped",
+      "started_at": "2026-07-26T12:37:07.630537+00:00",
+      "finished_at": "2026-07-26T12:37:07.633733+00:00",
+      "duration_s": 0.0,
+      "detail": "--skip intake"
+    },
+    {
+      "id": "rag_eval",
+      "label": "RAG eval",
+      "status": "skipped",
+      "started_at": "2026-07-26T12:37:07.635752+00:00",
+      "finished_at": "2026-07-26T12:37:07.638762+00:00",
+      "duration_s": 0.0,
+      "detail": "--skip rag"
+    },
+    {
+      "id": "t3_generation",
+      "label": "T3 generation",
+      "status": "skipped",
+      "started_at": "2026-07-26T12:37:07.641788+00:00",
+      "finished_at": "2026-07-26T12:37:07.644627+00:00",
+      "duration_s": 0.0,
+      "detail": "--skip t3"
+    },
+    {
+      "id": "judge_report",
+      "label": "Judge + report",
+      "status": "ok",
+      "started_at": "2026-07-26T12:37:07.648154+00:00",
+      "finished_at": "2026-07-26T12:37:08.893651+00:00",
+      "duration_s": 1.2,
+      "detail": ""
+    },
+    {
+      "id": "bottleneck",
+      "label": "Bottleneck Z/X/W/Y",
+      "status": "skipped",
+      "started_at": "2026-07-26T12:37:08.896757+00:00",
+      "finished_at": "2026-07-26T12:37:08.898757+00:00",
+      "duration_s": 0.0,
+      "detail": "Smoke mode."
+    },
+    {
+      "id": "figures",
+      "label": "Figures",
+      "status": "skipped",
+      "started_at": "2026-07-26T12:37:08.900932+00:00",
+      "finished_at": "2026-07-26T12:37:08.903374+00:00",
+      "duration_s": 0.0,
+      "detail": "Smoke mode."
+    }
+  ]
+}

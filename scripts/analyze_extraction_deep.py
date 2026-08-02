@@ -21,7 +21,7 @@ print(f"=" * 80)
 print(f"PHÂN TÍCH EXTRACTION ISSUES - {len(rows)} samples")
 print(f"=" * 80)
 
-from acne_llm.chat.extraction_confidence import extract_with_confidence
+from acne_llm.chat.fallback.rule_extractor import extract_with_confidence
 
 # ============ 1. PRODUCTS ANALYSIS ============
 print("\n" + "=" * 80)

@@ -42,14 +42,20 @@ type MetaResponse = {
 
 type ResultsResponse = {
   experiment: string;
+  systemLabels: Record<string, string>;
   report: JsonRecord | null;
   runMeta: JsonRecord | null;
-  units: Record<string, JsonRecord | null>;
+  intake: JsonRecord | null;
   retrieval: { name: string; summary: JsonRecord } | null;
   bottleneck: {
     question_ids?: string[];
     arms?: Record<string, unknown>;
     paired?: Record<string, unknown>;
+  } | null;
+  judgeCalibration: {
+    n?: number;
+    cohen_kappa?: number;
+    spearman?: number;
   } | null;
   validation: {
     name: string;
@@ -165,6 +171,7 @@ export function ResultsClient() {
   }, [load]);
 
   const reportSystems = record(data?.report?.systems);
+  const systemLabels = data?.systemLabels ?? {};
   const systemIds = ["s0", "s1", "s2", "s3", "s4"].filter(
     (system) => Object.keys(record(reportSystems[system])).length,
   );
@@ -188,14 +195,14 @@ export function ResultsClient() {
   const retrievalModes = record(data?.retrieval?.summary.modes);
   const bottleneckArms = record(data?.bottleneck?.arms);
   const bottleneckPaired = record(data?.bottleneck?.paired);
-  const bottleneckArmIds = ["z", "x", "y", "w"];
+  const bottleneckArmIds = ["z", "x", "w", "y"];
 
   return (
     <>
       <PageHeader
         eyebrow="Analysis"
-        title="Kết quả và so sánh S0–S4"
-        description="Đọc report thật từ harness, hiển thị paired statistics, Pareto lỗi, T1 unit reports và T2 retrieval summary mới nhất."
+        title="Kết quả và so sánh các cấu hình"
+        description="Đọc report thật từ harness, hiển thị paired statistics, Intake, calibration và kết quả tìm kiếm tài liệu mới nhất."
         actions={
           <div className="flex gap-2">
             <select
@@ -243,6 +250,26 @@ export function ResultsClient() {
             </p>
           </div>
         </div>
+      ) : null}
+
+      {data?.judgeCalibration ? (
+        <Card className="mb-5 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
+                Human vs judge calibration
+              </p>
+              <h2 className="mt-1 text-xl font-black">Cohen κ</h2>
+            </div>
+            <div className="flex gap-2">
+              <Pill tone="info">κ {data.judgeCalibration.cohen_kappa ?? "—"}</Pill>
+              <Pill tone="neutral">
+                Spearman {data.judgeCalibration.spearman ?? "—"}
+              </Pill>
+              <Pill tone="neutral">n={data.judgeCalibration.n ?? "—"}</Pill>
+            </div>
+          </div>
+        </Card>
       ) : null}
 
       {data?.validation ? (
@@ -331,7 +358,7 @@ export function ResultsClient() {
                       key={system}
                       className="border-b border-line px-5 py-3 text-center text-xs font-black uppercase tracking-[0.12em]"
                     >
-                      {system}
+                      {systemLabels[system] ?? system}
                       <span className="mt-1 block text-[10px] normal-case tracking-normal text-ink/38">
                         n={String(record(reportSystems[system]).n ?? "—")}
                       </span>
@@ -366,7 +393,7 @@ export function ResultsClient() {
           <div className="p-6">
             <EmptyState
               title={loading ? "Đang đọc report…" : "Chưa có report.json"}
-              description="Chạy T3 generation, judge (nếu cần) và command report. Dashboard không tạo metric giả khi artifact chưa tồn tại."
+              description="Chạy sinh câu trả lời, chấm điểm bằng LLM (nếu cần) và tổng hợp báo cáo. Dashboard không tạo metric giả khi artifact chưa tồn tại."
             />
           </div>
         )}
@@ -376,11 +403,11 @@ export function ResultsClient() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-6">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
-              Paired bottleneck
+              Phân tích nút thắt theo cặp
             </p>
-            <h2 className="mt-1 text-xl font-black">Bốn arm Z / X / Y / W</h2>
+            <h2 className="mt-1 text-xl font-black">Bốn cấu hình can thiệp</h2>
             <p className="mt-1 text-xs text-ink/45">
-              Delta chất lượng theo từng câu so với Z; safety luôn hiển thị riêng.
+              Delta chất lượng theo từng câu so với baseline; safety luôn hiển thị riêng.
             </p>
           </div>
           {data?.bottleneck?.question_ids?.length ? (
@@ -392,8 +419,8 @@ export function ResultsClient() {
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr className="bg-canvas/55 text-left text-[10px] font-black uppercase tracking-[0.1em] text-ink/42">
-                  <th className="border-b border-line px-5 py-3">Arm</th>
-                  <th className="border-b border-line px-3 py-3 text-right">Median Δ vs Z</th>
+                  <th className="border-b border-line px-5 py-3">Cấu hình</th>
+                  <th className="border-b border-line px-3 py-3 text-right">Median Δ vs baseline</th>
                   <th className="border-b border-line px-3 py-3 text-right">Tăng</th>
                   <th className="border-b border-line px-3 py-3 text-right">Giảm</th>
                   <th className="border-b border-line px-3 py-3 text-right">Không đổi</th>
@@ -408,8 +435,13 @@ export function ResultsClient() {
                   const paired = record(bottleneckPaired[arm]);
                   return (
                     <tr key={arm}>
-                      <td className="border-b border-line px-5 py-3.5 font-black uppercase">
-                        {arm}
+                      <td className="border-b border-line px-5 py-3.5 font-black">
+                        {{
+                          z: "Thực tế (baseline)",
+                          x: "Intake hoàn hảo",
+                          w: "RAG hoàn hảo",
+                          y: "Generator mạnh (API)",
+                        }[arm] ?? arm}
                       </td>
                       <td className="border-b border-line px-3 py-3.5 text-right font-bold tabular-nums">
                         {formatMetric(paired.median_delta)}
@@ -464,7 +496,12 @@ export function ResultsClient() {
               return (
                 <details key={arm} className="rounded-2xl border border-line bg-canvas/45 p-4">
                   <summary className="cursor-pointer font-black uppercase">
-                    Arm {arm}: paired delta từng câu
+                    {{
+                      z: "Thực tế (baseline)",
+                      x: "Intake hoàn hảo",
+                      w: "RAG hoàn hảo",
+                      y: "Generator mạnh (API)",
+                    }[arm] ?? arm}: paired delta từng câu
                   </summary>
                   <div className="mt-3 max-h-56 overflow-y-auto">
                     {distribution.map((rawItem, index) => {
@@ -572,7 +609,7 @@ export function ResultsClient() {
                       : "border border-line bg-[#211f1b] text-ink/45"
                   }`}
                 >
-                  {system}
+                  {systemLabels[system] ?? system}
                 </button>
               ))}
             </div>
@@ -619,17 +656,14 @@ export function ResultsClient() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
-                Tier 1
+                Intake
               </p>
-              <h2 className="mt-1 text-xl font-black">Unit reports</h2>
+              <h2 className="mt-1 text-xl font-black">Unified intake report</h2>
             </div>
             <ShieldCheck size={22} className="text-moss" />
           </div>
           <div className="mt-5 space-y-3">
-            <UnitSummary name="Intent router" report={data?.units.intent_router} />
-            <UnitSummary name="Query planner" report={data?.units.query_planner} />
-            <UnitSummary name="Guardrails" report={data?.units.guardrails} />
-            <UnitSummary name="Normalizer" report={data?.units.normalizer} />
+            <UnitSummary name="Format · intent · extraction" report={data?.intake} />
           </div>
         </Card>
 
@@ -694,7 +728,7 @@ export function ResultsClient() {
             <div className="mt-5">
               <EmptyState
                 title="Chưa có retrieval summary"
-                description="Chạy T2 retrieval để tạo reports/retrieval/<timestamp>/summary.json."
+                description="Chạy đánh giá tìm kiếm tài liệu để tạo reports/retrieval/<timestamp>/summary.json."
               />
             </div>
           )}

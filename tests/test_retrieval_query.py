@@ -1,4 +1,4 @@
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 from acne_llm.chat.preprocess import prepare_user_text
 from acne_llm.chat.session import ConversationTurn
 from acne_llm.utils.retrieval_query import build_current_turn_query, build_retrieval_query_from_user

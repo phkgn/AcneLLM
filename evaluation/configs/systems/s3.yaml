@@ -1,12 +1,12 @@
 # S3 — Finetuned LLM + RAG (production hiện tại)
 id: s3
-name: finetuned_rag
+name: Model tinh chỉnh + RAG
 adapter: ollama_batch
-model: acnellm-v2-q4
+model: acne-generator
 retrieval: true
 template: route_prose
 fallback_model: null
-retrieve_top_k: 15
+retrieve_top_k: 20
 rerank_top_k: 5
 use_mmr_prefilter: true
 mmr_lambda: 0.6

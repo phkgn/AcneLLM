@@ -5,7 +5,7 @@ pairwise 2 chiều (swap) cho các cặp pre-registered trong experiment config.
 
 Usage:
     python -m evaluation.judges.run_judge --run-dir evaluation/reports/main_2x2_t3 \
-        --dataset evaluation/datasets/v1/d2_test.jsonl \
+        --dataset evaluation/datasets/v1/answer_quality_test.jsonl \
         [--provider openai] [--pairs s0:s1,s2:s3] [--limit 50]
 """
 from __future__ import annotations

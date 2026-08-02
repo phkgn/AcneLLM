@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const lastRun = await readJsonFile<Record<string, unknown>>(
-    path.join(REPORTS_ROOT, "run_all_last.json"),
+    path.join(REPORTS_ROOT, "full_evaluation_last.json"),
   );
   const judgeCacheBytes = await fs
     .stat(path.join(REPORTS_ROOT, "judge_cache.sqlite"))

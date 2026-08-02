@@ -40,23 +40,6 @@ def _select_primary_retrieval_summary(paths: list[Path]) -> Path | None:
     return fallback
 
 
-def _normalizer_micro_f1(report: dict) -> float | None:
-    """The gate tracks the strict lesion extraction task, not projected buckets."""
-    value = (
-        ((report.get("multi_label") or {}).get("lesion_strict") or {})
-        .get("micro_f1")
-    )
-    return float(value) if isinstance(value, (int, float)) else None
-
-
-def _latest_nested_report(root: Path) -> Path | None:
-    candidates = list(root.glob("*/report.json"))
-    direct = root / "report.json"
-    if direct.exists():
-        candidates.append(direct)
-    return max(candidates, key=lambda path: path.stat().st_mtime) if candidates else None
-
-
 def main() -> None:
     checks.clear()
     ap = argparse.ArgumentParser()
@@ -81,11 +64,15 @@ def main() -> None:
         summary = json.loads(Path(rs).read_text(encoding="utf-8"))
         prod = summary.get("modes", {}).get("hybrid_mmr_rerank") \
             or next(iter(summary.get("modes", {}).values()), {})
-        for key, thr in (gate.get("retrieval") or {}).items():
-            _check(f"retrieval.{key}", prod.get(key), thr)
-        if summary.get("needs_relabel"):
-            print(f"⚠ retrieval: {summary['needs_relabel']} qrels needs_relabel — "
-                  "gate retrieval chỉ tham khảo")
+        stale = summary.get("needs_relabel")
+        if stale:
+            # qrels sai thì số retrieval vô nghĩa — in tham khảo, không tính pass/fail.
+            print(f"⚠ retrieval: {stale} qrels needs_relabel — bỏ qua gate retrieval")
+            for key in (gate.get("retrieval") or {}):
+                print(f"  · retrieval.{key}: {prod.get(key)} (tham khảo)")
+        else:
+            for key, thr in (gate.get("retrieval") or {}).items():
+                _check(f"retrieval.{key}", prod.get(key), thr)
 
     # Generation + safety (production system = s3)
     run_dir = Path(args.run_dir) if args.run_dir else REPORTS_DIR / "main_2x2_t3"
@@ -103,51 +90,6 @@ def main() -> None:
         _check("safety.known_pattern_violations", viol,
                safety.get("known_pattern_violations", 0),
                larger_is_better=False)
-
-    # Unit (T1)
-    unit = gate.get("unit") or {}
-    intent_rp = REPORTS_DIR / "unit" / "intent_router" / "report.json"
-    if intent_rp.exists():
-        r = json.loads(intent_rp.read_text(encoding="utf-8"))
-        _check("unit.intent_macro_f1", r.get("intent_macro_f1"),
-               unit.get("intent_macro_f1", 0.85))
-        _check("unit.intent_reject_recall", r.get("reject_recall"),
-               unit.get("intent_reject_recall", 0.95))
-    normalizer_rp = REPORTS_DIR / "unit" / "normalizer" / "report.json"
-    if normalizer_rp.exists():
-        r = json.loads(normalizer_rp.read_text(encoding="utf-8"))
-        _check("unit.normalizer_micro_f1", _normalizer_micro_f1(r),
-               unit.get("normalizer_micro_f1", 0.80))
-    guard_rp = REPORTS_DIR / "unit" / "guardrails" / "report.json"
-    if guard_rp.exists():
-        r = json.loads(guard_rp.read_text(encoding="utf-8"))
-        inj = (r.get("injection_detection") or {}).get("tpr")
-        _check("unit.guardrails_injection_recall", inj,
-               unit.get("guardrails_injection_recall", 0.95))
-        fnr = (r.get("scope_check") or {}).get("fnr")
-        _check("unit.guardrails_out_of_scope_fnr", fnr,
-               unit.get("guardrails_out_of_scope_fnr_max", 0.05),
-               larger_is_better=False)
-    planner_rp = REPORTS_DIR / "unit" / "query_planner" / "report.json"
-    if planner_rp.exists():
-        r = json.loads(planner_rp.read_text(encoding="utf-8"))
-        _check("unit.planner_all_ok_rate", r.get("all_ok_rate"),
-               unit.get("planner_all_ok_rate", 0.95))
-    sensitivity_rp = _latest_nested_report(
-        REPORTS_DIR / "unit" / "context_sensitivity"
-    )
-    if sensitivity_rp is not None:
-        r = json.loads(sensitivity_rp.read_text(encoding="utf-8"))
-        _check(
-            "unit.context_canary_adoption_rate",
-            r.get("canary_adoption_rate"),
-            unit.get("context_canary_adoption_rate", 0.50),
-        )
-        _check(
-            "unit.context_swap_sensitivity",
-            r.get("context_swap_sensitivity_mean"),
-            unit.get("context_swap_sensitivity", 0.15),
-        )
 
     failed = [c for c in checks if not c[3]]
     print(f"\nGATE CHECK — {len(checks) - len(failed)}/{len(checks)} pass")

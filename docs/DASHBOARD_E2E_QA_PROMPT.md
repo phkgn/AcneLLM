@@ -16,11 +16,11 @@ ghi lại MỌI lỗi gặp được, sửa theo root cause, lặp đến khi c�
   `/api/jobs/:id/logs/stream` (SSE), `/api/files`. **Lưu ý đã biết: port 3100 có thể
   đang chạy server CŨ → việc đầu tiên là kill process cũ và start lại.**
 - Harness: whitelist lệnh trong `docs/EVAL_DASHBOARD_PROMPT.md` (16 lệnh, gồm
-  `validation_loop`). Validation verdict gần nhất: T3 NOT_TRUSTWORTHY vì data/judge —
+  `trust_audit`). Validation verdict gần nhất: sinh câu trả lời batch NOT_TRUSTWORTHY vì data/judge —
   ĐÓ KHÔNG PHẢI LỖI CẦN SỬA trong QA này; QA này chỉ kiểm tra **cơ chế chạy**, không
   kiểm tra chất lượng model.
-- Trạng thái biết trước (không được coi là bug mới): D1/D8 có duplicate và
-  `needs_relabel`; judge cần `DEEPSEEK_API_KEY` trong `.env`; T3 cần Ollama chạy +
+- Trạng thái biết trước (không được coi là bug mới): Bộ dev/Bộ retrieval có duplicate và
+  `needs_relabel`; judge cần `DEEPSEEK_API_KEY` trong `.env`; sinh câu trả lời batch cần Ollama chạy +
   2 model `acnellm-v2-q4`, `qwen25-base-acnesys`; Ollama generation ~15–55s/câu.
 
 ## 1. Kịch bản E2E — chạy qua DASHBOARD (không chạy tay CLI trừ khi debug)
@@ -32,16 +32,16 @@ tương ứng render đúng.
 
 | # | Bước qua dashboard | Kiểm tra pass |
 |---|---|---|
-| 1 | Trang `/` — preflight | Mỗi mục ✓/✗ đúng thực tế (so tay với `python -m evaluation.run_all --smoke --skip t1,t2,t3,judge,report` output); nếu Ollama tắt → hiển thị ✗ kèm lệnh sửa, KHÔNG crash |
+| 1 | Trang `/` — preflight | Mỗi mục ✓/✗ đúng thực tế (so tay với `python -m evaluation.full_evaluation --smoke --skip t1,t2,t3,judge,report` output); nếu Ollama tắt → hiển thị ✗ kèm lệnh sửa, KHÔNG crash |
 | 2 | `/runs` chạy `tests` | pytest stream live, exit ✓, highlight hoạt động |
-| 3 | `/runs` chạy `t1_intent` với `--limit 1` | log live, xong → `/results` hiện report.json unit mới (kiểm tra timestamp đổi) |
-| 4 | `/runs` chạy `t2_retrieval` `--modes sparse --limit 1` | banner cảnh báo needs_relabel hiển thị; summary render |
-| 5 | `/runs` chạy `t3_generation` `--systems s1 --limit 1` (không resume, out-dir mới `evaluation/reports/qa_1case`) | progress bar 0→1/1, ETA hiển thị, record có `model_name=acnellm-v2-q4`, không FALLBACK |
+| 3 | `/runs` chạy `intake_eval` với `--limit 1` | log live, xong → `/results` hiện report Intake mới (kiểm tra timestamp đổi) |
+| 4 | `/runs` chạy `retrieval_eval` `--modes sparse --limit 1` | banner cảnh báo needs_relabel hiển thị; summary render |
+| 5 | `/runs` chạy `answer_generation` `--systems s1 --limit 1` (không resume, out-dir mới `evaluation/reports/qa_1case`) | progress bar 0→1/1, ETA hiển thị, record có `model_name=acnellm-v2-q4`, không FALLBACK |
 | 6 | Giữa lúc 1 job khác đang chạy (chạy lại bước 5 với s0): bấm **Kill** | process chết thật trên Windows (taskkill /T), status=killed, không zombie python |
 | 7 | `/runs` chạy `judge` `--limit 1` trên `qa_1case` (nếu có DEEPSEEK_API_KEY; không có → xác nhận job fail có message rõ ràng, không treo) | judged.jsonl xuất hiện, cost log hiển thị |
 | 8 | `/runs` chạy `report` trên `qa_1case` | `/results` render bảng per-system + n_attempted/buckets đúng schema mới |
 | 9 | `/inspect` chọn qa_1case/s1/sample | thấy answer + structured + trace (context_chunks) + judge scores; diff view với s0 nếu đã chạy bước 6 |
-| 10 | `/runs` chạy `check_gate` rồi `validation_loop` trên `qa_1case` | gate badges cập nhật từ `gate_check.json`; validation summary hiện verdict; banner "judge chưa calibrated" hiển thị đúng điều kiện |
+| 10 | `/runs` chạy `check_gate` rồi `trust_audit` trên `qa_1case` | gate badges cập nhật từ `gate_check.json`; validation summary hiện verdict; banner "judge chưa calibrated" hiển thị đúng điều kiện |
 | 11 | **Refresh trang giữa lúc 1 job đang chạy** | job vẫn hiện running, log tiếp tục stream (registry persistence) |
 | 12 | Path traversal: `GET /api/files?path=../../.env` và `path=..%2F..%2F.env` | bị chặn 403, không lộ nội dung |
 

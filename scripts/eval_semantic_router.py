@@ -29,7 +29,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from acne_llm.chat.fallback.intent_router import route_intent  # noqa: E402
-from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message  # noqa: E402
 from acne_llm.chat.fallback.semantic_router import (  # noqa: E402
     SemanticPrediction,
     SemanticRouter,

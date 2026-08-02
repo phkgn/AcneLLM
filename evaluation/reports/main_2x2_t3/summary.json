@@ -1,0 +1,72 @@
+{
+  "run_id": "main_2x2_t3",
+  "out_dir": "evaluation/reports/main_2x2_t3",
+  "started_at": "2026-07-26T17:25:31.371922+00:00",
+  "finished_at": "2026-07-26T20:48:27.762640+00:00",
+  "current_step": null,
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Kiểm tra môi trường",
+      "status": "ok",
+      "started_at": "2026-07-26T17:25:31.371922+00:00",
+      "finished_at": "2026-07-26T17:25:31.443410+00:00",
+      "duration_s": 0.1,
+      "detail": ""
+    },
+    {
+      "id": "intake_eval",
+      "label": "Đánh giá Intake",
+      "status": "ok",
+      "started_at": "2026-07-26T17:25:31.445425+00:00",
+      "finished_at": "2026-07-26T17:36:40.927767+00:00",
+      "duration_s": 669.5,
+      "detail": ""
+    },
+    {
+      "id": "rag_eval",
+      "label": "Đánh giá RAG",
+      "status": "ok",
+      "started_at": "2026-07-26T17:36:40.930071+00:00",
+      "finished_at": "2026-07-26T18:03:11.194212+00:00",
+      "duration_s": 1590.2,
+      "detail": ""
+    },
+    {
+      "id": "answer_generation",
+      "label": "Sinh câu trả lời",
+      "status": "fail",
+      "started_at": "2026-07-26T18:03:11.195405+00:00",
+      "finished_at": "2026-07-26T18:03:11.489789+00:00",
+      "duration_s": 0.3,
+      "detail": "FAIL(2)"
+    },
+    {
+      "id": "scoring_report",
+      "label": "Chấm điểm + báo cáo",
+      "status": "fail",
+      "started_at": "2026-07-26T18:03:11.489789+00:00",
+      "finished_at": "2026-07-26T18:03:13.386725+00:00",
+      "duration_s": 1.9,
+      "detail": "Failed: llm_scoring, quality_gate"
+    },
+    {
+      "id": "bottleneck",
+      "label": "Phân tích nút thắt",
+      "status": "ok",
+      "started_at": "2026-07-26T18:03:13.391244+00:00",
+      "finished_at": "2026-07-26T20:47:12.266306+00:00",
+      "duration_s": 9838.9,
+      "detail": ""
+    },
+    {
+      "id": "figures",
+      "label": "Biểu đồ",
+      "status": "ok",
+      "started_at": "2026-07-26T20:47:12.282025+00:00",
+      "finished_at": "2026-07-26T20:48:27.760277+00:00",
+      "duration_s": 75.5,
+      "detail": ""
+    }
+  ]
+}

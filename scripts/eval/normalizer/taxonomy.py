@@ -1,7 +1,7 @@
 """Taxonomy alignment between the *gold* labels shipped in the finetune data
 (``data/finetune/cleanv3_gen.jsonl`` — synthetic labels produced by an LLM) and
 the *predicted* labels emitted by the rule-based pipeline normalizer
-(``acne_llm.chat.normalizer.normalize_chat_message``).
+(``acne_llm.chat.fallback.rule_normalizer.normalize_chat_message``).
 
 Why this module exists
 ----------------------

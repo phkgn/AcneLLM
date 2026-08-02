@@ -30,15 +30,15 @@ Trả lời hai câu, bằng số:
 
 ## Việc cần làm
 
-### 1. Nối `d5_multiturn` vào experiment e2e
+### 1. Nối `multi_turn_test` vào experiment e2e
 
-`evaluation/datasets/v1/d5_multiturn.jsonl` (72 mẫu, có `conversation_history`)
+`evaluation/datasets/v1/multi_turn_test.jsonl` (72 mẫu, có `conversation_history`)
 đã tồn tại và `evaluation/adapters/sse_api.py:65` đã đọc field đó, nhưng
-`evaluation/configs/experiments/e2e_sse.yaml` đang trỏ `d2_test.jsonl`.
+`evaluation/configs/experiments/e2e_sse.yaml` đang trỏ `answer_quality_test.jsonl`.
 
 Tạo `evaluation/configs/experiments/multiturn_ablation.yaml`:
 
-- `tier: t4`, `dataset: evaluation/datasets/v1/d5_multiturn.jsonl`
+- `tier: t4`, `dataset: evaluation/datasets/v1/multi_turn_test.jsonl`
 - chỉ chạy `s3.yaml` (production), không cần S0–S2 — đây là ablation runtime, không phải so model
 - `seed: 42`, `chat_mode: auto`
 
@@ -85,8 +85,8 @@ trước khi dùng.
 
 ### 4. Regression single-turn
 
-Chạy `d2_test` + `d4_safety` + `d7_adversarial` trên cả hai nhánh. Đây là gate:
-**bất kỳ sụt nào ở `d4_safety` là chặn merge**, không thương lượng — vừa gỡ một
+Chạy `answer_quality_test` + `safety_test` + `adversarial_test` trên cả hai nhánh. Đây là gate:
+**bất kỳ sụt nào ở `safety_test` là chặn merge**, không thương lượng — vừa gỡ một
 rule từng ép clarify, nên phải chứng minh không mở đường cho câu unsafe.
 
 ### 5. Báo cáo
@@ -112,7 +112,7 @@ rule từng ép clarify, nên phải chứng minh không mở đường cho câu
    keyword thì không còn gì phân biệt "Retinol là gì?" (tự đứng được) với
    "Còn loại này có nguy hiểm không?" (cần ngữ cảnh). Cách sửa đúng là intaker
    phát một field `referential: bool`, cần datagen hỗ trợ.
-   **Đo giúp mức thiệt hại trên `d8_qrels`** để biết có đáng sửa gấp không.
+   **Đo giúp mức thiệt hại trên `retrieval_test`** để biết có đáng sửa gấp không.
 
 2. **Intaker 3B có 180/180 mẫu multi-turn gán nhãn `clarify`** trong
    `datagen/intakedata/output/intake/intake.train.jsonl`. Model học "có history
@@ -124,5 +124,5 @@ rule từng ép clarify, nên phải chứng minh không mở đường cho câu
 - `multiturn_ablation.yaml` chạy được từ sạch, có lệnh trong README
 - Bảng before/after đủ 6 metric
 - `stale_fact_rate` cài xong + ~15 draft sample
-- `d4_safety` không sụt
+- `safety_test` không sụt
 - Report merge được vào `evaluation/reports/`

@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-07-16T18:55:31.283019+00:00",
-  "generation_id": "20260716T185531283019Z-300391c66c",
+  "generated_at": "2026-07-27T20:49:42.473475+00:00",
+  "generation_id": "20260727T204942473475Z-6b8ff1e403",
   "generator": "evaluation.generate_figures",
   "artifact_policy": "fresh_compute_no_figure_reuse",
   "figure_inputs_used": false,
   "sample": 8000,
-  "pdf": true,
+  "pdf": false,
   "groups": [
     {
       "group": "kb",
       "manifest": "kb/manifest.json",
-      "ok": 6,
-      "skipped": 1
+      "ok": 5,
+      "skipped": 2
     },
     {
       "group": "finetune",
@@ -53,7 +53,7 @@
       "path": "data/chroma_db/chroma.sqlite3",
       "exists": true,
       "size": 176066560,
-      "modified_at": "2026-07-16T18:55:37.941094+00:00"
+      "modified_at": "2026-07-27T20:49:50.173300+00:00"
     },
     {
       "path": "data/bm25_index.pkl",
@@ -82,20 +82,20 @@
     {
       "path": "data/audit.db",
       "exists": true,
-      "size": 2723840,
-      "modified_at": "2026-07-14T06:17:19.134183+00:00"
+      "size": 49152,
+      "modified_at": "2026-07-25T18:07:35.812888+00:00"
     },
     {
       "path": "data/sessions.db",
       "exists": true,
-      "size": 3297280,
-      "modified_at": "2026-07-14T06:17:19.131847+00:00"
+      "size": 3383296,
+      "modified_at": "2026-07-25T17:59:41.350323+00:00"
     },
     {
       "path": "config/ood_centroid.json",
       "exists": true,
-      "size": 22736,
-      "modified_at": "2026-07-13T15:31:55.306571+00:00"
+      "size": 64,
+      "modified_at": "2026-07-19T08:09:26.865475+00:00"
     }
   ]
 }

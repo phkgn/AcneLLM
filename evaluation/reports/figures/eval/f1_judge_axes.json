@@ -5,167 +5,167 @@
   "data": [
     {
       "system": "S0",
-      "correctness": 1.0,
+      "correctness": 2.921429,
       "correctness_error": [
-        0.0,
-        0.0
+        0.135715,
+        0.128571
       ],
-      "completeness": 1.0,
+      "completeness": 2.492857,
       "completeness_error": [
-        0.0,
-        0.0
+        0.164286,
+        0.157143
       ],
-      "safety": 2.8,
+      "safety": 2.957143,
       "safety_error": [
-        0.4,
+        0.2,
         0.2
       ],
-      "relevance": 1.0,
+      "relevance": 4.435714,
       "relevance_error": [
-        0.0,
-        0.0
+        0.135714,
+        0.128572
       ],
-      "fluency": 3.0,
+      "fluency": 3.864286,
       "fluency_error": [
-        0.0,
-        0.0
+        0.178572,
+        0.171428
       ],
-      "instruction_following": 2.6,
+      "instruction_following": 2.65,
       "instruction_following_error": [
-        0.6,
-        0.4
+        0.142857,
+        0.142857
       ]
     },
     {
       "system": "S1",
-      "correctness": 2.5,
+      "correctness": 3.457143,
       "correctness_error": [
-        0.7,
-        0.6
+        0.121429,
+        0.107143
       ],
-      "completeness": 2.1,
+      "completeness": 2.685714,
       "completeness_error": [
-        0.5,
-        0.5
+        0.164285,
+        0.142857
       ],
-      "safety": 3.9,
+      "safety": 4.028571,
       "safety_error": [
-        0.4,
-        0.4
+        0.142857,
+        0.128572
       ],
-      "relevance": 3.6,
+      "relevance": 4.742857,
       "relevance_error": [
-        1.0,
-        0.9
+        0.085714,
+        0.078572
       ],
-      "fluency": 3.6,
+      "fluency": 4.907143,
       "fluency_error": [
-        0.5,
-        0.5
+        0.05,
+        0.042857
       ],
-      "instruction_following": 3.0,
+      "instruction_following": 2.957143,
       "instruction_following_error": [
-        0.8,
-        0.7
+        0.15,
+        0.142857
       ]
     },
     {
       "system": "S2",
-      "correctness": 1.8,
+      "correctness": 3.207143,
       "correctness_error": [
-        0.8,
-        1.0
+        0.135714,
+        0.142857
       ],
-      "completeness": 1.7,
+      "completeness": 2.807143,
       "completeness_error": [
-        0.7,
-        0.9
+        0.164286,
+        0.178571
       ],
-      "safety": 3.0,
+      "safety": 3.271429,
       "safety_error": [
-        0.6,
-        0.6
+        0.207143,
+        0.207142
       ],
-      "relevance": 2.0,
+      "relevance": 4.65,
       "relevance_error": [
-        1.0,
-        1.1
+        0.1,
+        0.092857
       ],
-      "fluency": 2.9,
+      "fluency": 4.242857,
       "fluency_error": [
-        0.6,
-        0.7
+        0.15,
+        0.15
       ],
-      "instruction_following": 2.2,
+      "instruction_following": 2.992857,
       "instruction_following_error": [
-        0.7,
-        0.8
+        0.15,
+        0.15
       ]
     },
     {
       "system": "S3",
-      "correctness": 3.8,
+      "correctness": 3.492857,
       "correctness_error": [
-        0.4,
-        0.4
+        0.128571,
+        0.121429
       ],
       "completeness": 2.9,
       "completeness_error": [
-        0.3,
-        0.3
+        0.15,
+        0.142857
       ],
-      "safety": 4.3,
+      "safety": 3.907143,
       "safety_error": [
-        0.4,
-        0.4
+        0.157143,
+        0.142857
       ],
-      "relevance": 4.8,
+      "relevance": 4.792857,
       "relevance_error": [
-        0.3,
-        0.2
+        0.085714,
+        0.071429
       ],
-      "fluency": 3.9,
+      "fluency": 4.95,
       "fluency_error": [
-        0.6,
-        0.5
+        0.035714,
+        0.035714
       ],
-      "instruction_following": 4.0,
+      "instruction_following": 2.985714,
       "instruction_following_error": [
-        0.4,
-        0.4
+        0.15,
+        0.142857
       ]
     },
     {
       "system": "S4",
-      "correctness": 4.3,
+      "correctness": 2.821429,
       "correctness_error": [
-        0.4,
-        0.4
+        0.142858,
+        0.157142
       ],
-      "completeness": 3.7,
+      "completeness": 1.807143,
       "completeness_error": [
-        0.7,
-        0.7
+        0.15,
+        0.15
       ],
-      "safety": 4.6,
+      "safety": 3.307143,
       "safety_error": [
-        0.4,
-        0.3
+        0.221429,
+        0.214286
       ],
-      "relevance": 4.8,
+      "relevance": 3.292857,
       "relevance_error": [
-        0.4,
-        0.2
+        0.207143,
+        0.207143
       ],
-      "fluency": 3.7,
+      "fluency": 3.092857,
       "fluency_error": [
-        0.5,
-        0.6
+        0.171428,
+        0.171429
       ],
-      "instruction_following": 4.2,
+      "instruction_following": 1.607143,
       "instruction_following_error": [
-        0.6,
-        0.5
+        0.121429,
+        0.121428
       ]
     }
   ],

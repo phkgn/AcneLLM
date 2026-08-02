@@ -16,7 +16,7 @@ của commit đó được ghi riêng trong phần correction v2 bên dưới.
 nghiệm.** Phần evidence refactor ở tài liệu này vẫn có giá trị, nhưng không được
 dùng các số v1 để kết luận generator, intake hay retrieval là nút thắt:
 
-- Arm X chạy trên D8 không có `intent_label`; code đã ép mọi mẫu thành
+- Arm X chạy trên Bộ retrieval không có `intent_label`; code đã ép mọi mẫu thành
   `knowledge`, chỉ 2/5 mẫu có bất kỳ `user_context` nào. X chưa từng đo oracle
   intake mà đo tác hại của intent suy đoán và context hầu như rỗng.
 - Arm Y v1 sinh ba candidate rồi dùng chính `quality_score` của judge để chọn
@@ -25,9 +25,9 @@ dùng các số v1 để kết luận generator, intake hay retrieval là nút t
 - W có n=4 do timeout còn các arm khác n=5; paired analysis v1 không dùng cùng
   một tập ID thành công.
 
-Harness v2 đã sửa ba lỗi trên và rerun Z/W/Y trên cùng 5 ID D8. Kết quả mới chỉ
+Harness v2 đã sửa ba lỗi trên và rerun Z/W/Y trên cùng 5 ID Bộ retrieval. Kết quả mới chỉ
 là tín hiệu định hướng: Y tăng answer quality nhưng giảm grounding; W tăng
-role/tone nhưng grounding không có hướng tăng nhất quán. D8 không có nhãn intake
+role/tone nhưng grounding không có hướng tăng nhất quán. Bộ retrieval không có nhãn intake
 nên X fail-fast và mặt refusal fidelity không đo được. Chưa có file chấm tay 40
 mẫu, vì vậy các mặt do judge chấm **chưa đủ điều kiện để ra kết luận nút thắt**.
 Không chạy full trước khi B3 có nhãn intake và judge agreement đạt ngưỡng.
@@ -77,7 +77,7 @@ evaluation/dashboard/scripts/run_preliminary_d2.py +5/-6
 evaluation/judges/bias_tests.py +4/-5
 evaluation/judges/clients.py +10/-3
 evaluation/judges/run_judge.py +5/-6
-evaluation/run_all.py +3/-4
+evaluation/full_evaluation.py +3/-4
 evaluation/tests/test_judge_openai.py +14/-7
 ```
 
@@ -184,7 +184,7 @@ cache sinh tự động lẫn vào diff.
 ## Bottleneck experiment correction v2
 
 - Harness commit: `467136f`; runtime checkout khi rerun: `f51a710`.
-- Dataset: `evaluation/datasets/v1/d8_qrels_seed.jsonl`, đúng 5 ID
+- Dataset: `evaluation/datasets/v1/retrieval_test.jsonl`, đúng 5 ID
   `d8-0001,d8-0003,d8-0004,d8-0006,d8-0008`.
 - Question fingerprint giữ nguyên:
   `fae85439bbf04b3ac56d1e1d1f9b4828a0d41b216badc571b83756c6d7c8a92b`.
@@ -197,7 +197,7 @@ cache sinh tự động lẫn vào diff.
   mặc định nhưng luôn lấy `candidate[0]`; cả 15 candidate-score pairs vẫn được
   giữ trong trace.
 - Z/W/Y đều 5/5, không mẫu nào cần retry, `paired_n=5`, `dropped_ids=[]`, và
-  không arm nào fail safety. X trên D8 dừng trước model/judge, exit code 1 và
+  không arm nào fail safety. X trên Bộ retrieval dừng trước model/judge, exit code 1 và
   không tạo artifact.
 
 | Arm | Grounding median | Answer quality median | Role/tone median | Safety fail | Median latency |
@@ -219,7 +219,7 @@ Paired delta theo từng mặt:
 | Y−Z | role/tone | +1.0 | 4/0/1 | 5 |
 | Y−Z | safety gate | không lấy trung bình | fail 0→0 | 5 |
 
-Mặt refusal fidelity có `paired_n=0` ở cả ba arm vì D8 không có
+Mặt refusal fidelity có `paired_n=0` ở cả ba arm vì Bộ retrieval không có
 `intent_label`; harness không suy đoán nhãn thay thế. `judge_agreement.py` đã
 được test với 40 dòng chia đều 10 dòng mỗi arm, xuất blind review + key riêng và
 báo cáo overall/Y riêng. Chưa có nhãn người thật, nên agreement thực tế vẫn chờ.
@@ -242,10 +242,10 @@ này cần được xử lý riêng, ngoài phạm vi brief thí nghiệm.
 
 ## Bottleneck protocol và artifact v1 — lịch sử, đã vô hiệu
 
-- Dataset: `evaluation/datasets/v1/d8_qrels_seed.jsonl`.
+- Dataset: `evaluation/datasets/v1/retrieval_test.jsonl`.
 - Stable IDs: `d8-0001,d8-0003,d8-0004,d8-0006,d8-0008`.
 - Lý do chọn: cả ba qrel chunk của từng mẫu còn tồn tại trong KB hiện tại.
-  D8 tổng thể có nhãn cũ/stale; chỉ 24/100 mẫu có toàn bộ qrel IDs trong Chroma,
+  Bộ retrieval tổng thể có nhãn cũ/stale; chỉ 24/100 mẫu có toàn bộ qrel IDs trong Chroma,
   nên không được chọn 5 dòng đầu một cách mù quáng.
 - Question fingerprint:
   `fae85439bbf04b3ac56d1e1d1f9b4828a0d41b216badc571b83756c6d7c8a92b`.

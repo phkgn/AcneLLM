@@ -47,13 +47,13 @@ def main() -> None:
         "--artifact", default="evaluation/reports/main_2x2_t3/s3.results.jsonl"
     )
     parser.add_argument(
-        "--dataset", default="evaluation/datasets/v1/d1_dev_seed.jsonl"
+        "--dataset", default="evaluation/datasets/v1/dev_tuning.jsonl"
     )
     parser.add_argument("--out-dir", default=None)
     args = parser.parse_args()
     artifact = (ROOT / args.artifact).resolve()
     dataset_path = (ROOT / args.dataset).resolve()
-    if dataset_path.name != "d1_dev_seed.jsonl":
+    if dataset_path.name != "dev_tuning.jsonl":
         parser.error("legacy grounding recompute is restricted to D1")
 
     source_meta_path = artifact.parent / "run_meta.json"

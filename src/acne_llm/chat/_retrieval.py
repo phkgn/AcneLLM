@@ -125,6 +125,45 @@ def _has_medical_safety_terms(safety_terms: list[str]) -> bool:
 
 # -- Main retrieve entry point ------------------------------------------------
 
+def _source_key(chunk: RetrievedChunk) -> str:
+    meta = chunk.metadata or {}
+    return str(meta.get("url") or meta.get("source") or chunk.source or chunk.chunk_id)
+
+
+def cap_per_source(
+    output: RetrievalOutput, max_per_source: int, limit: int
+) -> RetrievalOutput:
+    """Giữ tối đa `max_per_source` chunk mỗi tài liệu, rồi cắt còn `limit`.
+
+    Chunker chồng lấn 40 token nên hai chunk kề nhau trong CÙNG một bài chia sẻ
+    phần lớn nội dung; near-dedup lúc build không bắt được vì chúng vẫn khác nhau
+    đủ nhiều. Đến lúc trả lời thì chúng chiếm hai ô trong năm và đẩy tài liệu khác
+    ra ngoài — mất đa dạng nguồn mà không thêm thông tin nào.
+
+    Chunk bị loại được giữ lại làm dự phòng: nếu sau khi cap mà chưa đủ `limit`
+    thì lấp lại theo đúng thứ tự cũ, nên không bao giờ trả về ít chunk hơn trước.
+    """
+    kept: list[RetrievedChunk] = []
+    spill: list[RetrievedChunk] = []
+    seen: dict[str, int] = {}
+    for chunk in output.chunks:
+        key = _source_key(chunk)
+        if seen.get(key, 0) < max_per_source:
+            seen[key] = seen.get(key, 0) + 1
+            kept.append(chunk)
+        else:
+            spill.append(chunk)
+    if len(kept) < limit:
+        kept.extend(spill[: limit - len(kept)])
+    kept = kept[:limit]
+    if len(kept) < len(output.chunks):
+        logger.debug(
+            "[retrieval] cap_per_source: {} -> {} chunks ({} nguồn, tối đa {}/nguồn)",
+            len(output.chunks), len(kept), len(seen), max_per_source,
+        )
+    return output.model_copy(update={"chunks": kept, "num_chunks": len(kept)})
+
+
 def retrieve_for_chat(
     c: "Container",
     user: UserInput,
@@ -147,7 +186,14 @@ def retrieve_for_chat(
     query = normalized_query.strip() if normalized_query else user.description.strip()
     _cache_safety_terms = tuple(sorted(safety_terms))
     _cache_key = (
-        "chat-query-v2",
+        # PHAI TANG version moi khi doi LOGIC retrieval (pass moi, bo loc, nguong).
+        # Khoa cache chi gom query + vai tham so, khong phan anh code -> sua code
+        # xong ma quen tang version thi cache tra ket qua CU va ban tuong nhu
+        # thay doi khong co tac dung.
+        # v3: them guideline pass chay cho moi truy van.
+        # v4: bo sigmoid lan hai trong reranker -> score doi thang do hoan toan.
+        # v5: cap_per_source sau rerank -> thanh phan chunk cuoi cung doi.
+        "chat-query-v5",
         query,
         top_k,
         getattr(settings, "chat_rerank_top_k", 3),
@@ -186,6 +232,25 @@ def retrieve_for_chat(
         # (pregnancy, isotretinoin, khang sinh...) — khong chay voi generic
         # ingredient terms tu product_safety_check de tranh extra embed +
         # Chroma query khong can thiet (~50-100ms/request).
+        # Guideline pass — chay cho MOI truy van, khong doi safety term.
+        # Ly do: dense+BM25 tren toan corpus luon uu ai bai pho thong tieng Viet
+        # (ty le ap dao + trung token), nen NICE/EuroGuiDerm khong bao gio vao
+        # duoc top-k du KB co san. Pass nay dense retrieve GIOI HAN trong 973
+        # chunk khuyen cao chinh thuc roi merge vao pool -> cross-encoder duoc
+        # nhin thay chung va tu quyet dinh. Khong ep chunk nao vao cau tra loi.
+        if hasattr(c.retriever, "retrieve_safety_pass"):
+            guideline = c.retriever.retrieve_safety_pass(
+                rerank_query,
+                safety_terms=None,
+                top_k=getattr(settings, "chat_guideline_top_k", 5),
+                source_types=getattr(
+                    c.retriever, "GUIDELINE_SOURCE_TYPES",
+                    ("nice_guideline", "aad_guideline", "clinical_textbook"),
+                ),
+            )
+            if guideline.chunks:
+                ret = merge_retrieval_outputs([ret, guideline], combined_query=rerank_query)
+
         all_safety_terms = list(dict.fromkeys(
             safety_terms
         ))
@@ -205,10 +270,18 @@ def retrieve_for_chat(
         if c.reranker is None:
             return _full_filter(ret, rerank_query)
         try:
+            # Rerank pool rộng hơn rồi mới cap: nếu cap sau khi đã cắt còn 5 thì
+            # ô bị loại bỏ trống, không có tài liệu khác lấp vào. Cap chạy TRƯỚC
+            # OOD guard để guard vẫn tính avg/max trên đúng 5 chunk như cũ.
             reranked = c.reranker.rerank(
                 rerank_query,
                 ret,
-                top_k=effective_rerank_top_k,
+                top_k=effective_rerank_top_k * 3,
+            )
+            reranked = cap_per_source(
+                reranked,
+                max_per_source=int(getattr(settings, "chat_max_chunks_per_source", 1)),
+                limit=effective_rerank_top_k,
             )
             # OOD guard: nếu reranker không tìm được chunk nào liên quan
             # (avg sigmoid thấp + max score gần 0.5 = random logit),
@@ -257,7 +330,14 @@ def source_data(chunk: RetrievedChunk) -> dict:
         "title": meta.get("title", ""),
         "url": meta.get("url", ""),
         "score": round(chunk.score, 4),
-        "text": chunk.text[:220],
+        # Gui TOAN VAN. Truoc day cat [:220] o day nen modal "Xem toan bo" cung chi
+        # co 220 ky tu -- frontend khong bao gio nhan du de ma hien. The card da
+        # cat bang CSS (line-clamp-2) roi nen khong can cat o backend.
+        # Chunk trung vi 836 ky tu, max 2178 -> 5 chunk ~4KB, khong dang ke qua SSE.
+        # Quan trong voi viec danh gia RAG: xem truoc bi cat tung khien ca nguoi
+        # doc lan reviewer ket luan nham rang chunk khong tra loi duoc cau hoi,
+        # trong khi cau tra loi nam ngay sau cho bi cat.
+        "text": chunk.text,
     }
 
 
@@ -266,17 +346,25 @@ def source_data(chunk: RetrievedChunk) -> dict:
 def compute_evidence_quality(retrieval) -> str:
     """Tinh muc do tin cay dua tren avg reranker score cua cac chunks.
 
+    Score la XAC SUAT lien quan tu CrossEncoder.predict() (da sigmoid san).
+
+    Nguong cu 0.65/0.40 duoc chinh khi reranker con sigmoid LAN HAI, tuc moi diem
+    bi nen vao [0.500, 0.731]. Tren thang do, 0.65 tuong ung xac suat that ~0.62
+    va 0.40 thi KHONG BAO GIO dat toi -> nhan "weak" la dead code, va gan nhu moi
+    cau tra loi deu duoc gan "Bang chung tot". Chinh lai theo xac suat that:
+        bge-reranker-v2-m3: dung chu de ~0.95-0.999 | lac de < 0.1
+
     Returns:
-        "strong"     -- avg score >= 0.65  (nhieu bang chung chat luong cao)
-        "moderate"   -- avg score 0.40-0.65
-        "weak"       -- avg score < 0.40   (it hoac bang chung kem chat luong)
+        "strong"     -- avg >= 0.90
+        "moderate"   -- avg 0.50-0.90
+        "weak"       -- avg < 0.50
         "unverified" -- khong co retrieval (llm_only mode)
     """
     if retrieval is None or not retrieval.chunks:
         return "unverified"
     avg = sum(c.score for c in retrieval.chunks) / len(retrieval.chunks)
-    if avg >= 0.65:
+    if avg >= 0.90:
         return "strong"
-    if avg >= 0.40:
+    if avg >= 0.50:
         return "moderate"
     return "weak"

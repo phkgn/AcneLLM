@@ -17,13 +17,9 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 
 | id | Lệnh | Ghi chú |
 |----|------|---------|
-| `run_all` | `python -m evaluation.run_all [--smoke] [--skip <csv>] [--dataset <path>] [--yes]` | orchestrator T1→T2→T3→judge→report |
-| `t1_normalizer` | `python -m evaluation.unit.eval_normalizer` | |
-| `t1_intent` | `python -m evaluation.unit.eval_intent_router --dataset evaluation/datasets/v1/t1_intent_seed.jsonl [--limit N]` | |
-| `t1_planner` | `python -m evaluation.unit.eval_query_planner --dataset evaluation/datasets/v1/t1_intent_seed.jsonl [--limit N]` | |
-| `t1_guardrails` | `python -m evaluation.unit.eval_guardrails --dataset evaluation/datasets/v1/t1_guardrails_seed.jsonl [--limit N]` | |
-| `t2_retrieval` | `python -m evaluation.runners.run_retrieval --dataset evaluation/datasets/v1/d8_qrels_seed.jsonl [--modes <csv>] [--raw-query] [--limit N]` | |
-| `t3_generation` | `python -m evaluation.runners.run_experiment --experiment evaluation/configs/experiments/main_2x2.yaml [--systems <csv>] [--limit N] --resume` | chạy LÂU (giờ), resume được |
+| `full_evaluation` | `python -m evaluation.full_evaluation [--smoke] [--skip <csv>] [--dataset <path>] [--yes]` | orchestrator kiểm thử module→đánh giá retrieval→sinh câu trả lời batch→judge→report |
+| `retrieval_eval` | `python -m evaluation.runners.run_retrieval --dataset evaluation/datasets/v1/retrieval_test.jsonl [--modes <csv>] [--raw-query] [--limit N]` | |
+| `answer_generation` | `python -m evaluation.runners.run_experiment --experiment evaluation/configs/experiments/main_2x2.yaml [--systems <csv>] [--limit N] --resume` | chạy LÂU (giờ), resume được |
 | `judge` | `python -m evaluation.judges.run_judge --run-dir evaluation/reports/main_2x2_t3 --dataset <path> [--pairs <csv>] [--provider deepseek\|openai] [--limit N]` | tốn API $; tự chạy error_classify cho record điểm ≤2 |
 | `judge_bias_tests` | `python -m evaluation.judges.bias_tests --run-dir <dir> --dataset <path> [--n N]` | position/length/consistency bias — output `evaluation/reports/judge_bias_tests.json` |
 | `report` | `python -m evaluation.analysis.report --run-dir evaluation/reports/main_2x2_t3 --dataset <path>` | |
@@ -32,7 +28,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 | `build_seeds` | `python -m evaluation.datasets.build_seeds` | |
 | `freeze_datasets` | `python -m evaluation.datasets.registry freeze evaluation/datasets/v1` | |
 | `tests` | `python -m pytest evaluation/tests -q` | |
-| `validation_loop` | `python -m evaluation.validate.loop --run-dir <dir> --dataset <path> [--repro-subset N] [--strict]` | evaluation validation loop (xem docs/EVAL_VALIDATION_LOOP_PROMPT.md) — watch `evaluation/reports/validation/**/summary.json`; `--repro-subset 0` bỏ qua rerun tốn thời gian |
+| `trust_audit` | `python -m evaluation.validate.loop --run-dir <dir> --dataset <path> [--repro-subset N] [--strict]` | evaluation validation loop (xem docs/EVAL_VALIDATION_LOOP_PROMPT.md) — watch `evaluation/reports/validation/**/summary.json`; `--repro-subset 0` bỏ qua rerun tốn thời gian |
 | `figures_kb` | `python -m evaluation.analysis.figures_kb [--sample 8000] [--pdf]` | A: KB/corpus + B: finetune data |
 | `figures_eval` | `python -m evaluation.analysis.figures_eval [--run-dir <dir>] [--pdf]` | C: model/latency + F: eval results |
 | `figures_usage` | `python -m evaluation.analysis.figures_usage [--pdf]` | D: anonymized production usage |
@@ -46,7 +42,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
   - `evaluation/reports/<experiment>/run_meta.json`, `report.json`, `report.md`
   - `evaluation/reports/unit/{normalizer,intent_router,query_planner,guardrails}/report.json` + `per_sample.jsonl` + `failures.jsonl`
   - `evaluation/reports/retrieval/<timestamp>/summary.json` + `<mode>.per_query.jsonl`
-  - `evaluation/reports/run_all_last.json` — kết quả orchestrator lần cuối
+  - `evaluation/reports/full_evaluation_last.json` — kết quả orchestrator lần cuối
   - `evaluation/reports/figures/manifest.json` + `*/manifest.json` — một fresh
     snapshot có chung `generation_id`; generator dựng trong staging rồi thay toàn
     bộ output, nên JSON/PNG/PDF cũ không bao giờ được dùng làm input hoặc để sót.
@@ -60,7 +56,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 - Ngưỡng pass/fail: `evaluation/configs/gate.yaml` (yaml, keys: retrieval/generation/safety/unit)
 - System configs: `evaluation/configs/systems/s0..s4.yaml`; experiment: `evaluation/configs/experiments/*.yaml`
 - Datasets: `evaluation/datasets/v1/*.jsonl` (+ `MANIFEST.json` nếu đã freeze)
-- Tiến độ 1 run T3 = số dòng trong `results.jsonl` / số dòng dataset jsonl.
+- Tiến độ 1 run sinh câu trả lời batch = số dòng trong `results.jsonl` / số dòng dataset jsonl.
 - STDOUT của các runner in progress dạng `[s1] 20/300 d2-0019 OK 21540ms` — parse được.
 
 ## 1. Kiến trúc bắt buộc
@@ -81,7 +77,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
     resolve + kiểm tra prefix), hỗ trợ `?tail=200` cho jsonl lớn.
   - `GET /api/files/watch?path=` — SSE đẩy nội dung mới của jsonl đang grow
     (dùng chung logic tail-file với logs).
-  - `GET /api/status` — preflight giống `evaluation/run_all.py::preflight`: ping
+  - `GET /api/status` — preflight giống `evaluation/full_evaluation.py::preflight`: ping
     `http://localhost:11434/api/tags` (models có `acnellm-v2-q4`, `qwen25-base-acnesys`?),
     tồn tại `data/chroma_db`, `data/bm25_index.pkl`, datasets, `DEEPSEEK_API_KEY` trong `.env`
     (chỉ trả bool, KHÔNG trả giá trị key).
@@ -92,7 +88,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 - Preflight checklist (từ `/api/status`) — mỗi mục ✓/✗ kèm lệnh sửa.
 - Nút chạy nhanh: "Smoke run all", "Run all full", "Run tests" + jobs đang chạy
   (spinner, elapsed, nút Kill, link log).
-- Tóm tắt lần chạy cuối từ `run_all_last.json` + gate status: chạy lệnh `check_gate`
+- Tóm tắt lần chạy cuối từ `full_evaluation_last.json` + gate status: chạy lệnh `check_gate`
   rồi đọc `evaluation/reports/gate_check.json` → badge xanh/đỏ per check (KHÔNG tự
   implement lại logic gate trong dashboard — single source of truth là harness).
 - Banner judge-calibration: nếu `judge_bias_tests.json` chưa có hoặc pass=false →
@@ -108,10 +104,10 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 
 ### `/results` Xem kết quả
 - Bảng từ `report.json`: per-system metrics (ok_rate, parse, citation, pregnancy_safety,
-  faithfulness, judge means, p50 latency) — cột so sánh S0–S4 cạnh nhau.
+  faithfulness, judge means, p50 latency) — cột so sánh năm cấu hình hệ thống cạnh nhau.
 - Section comparisons: p-value + Holm significant badge, win/tie/loss.
 - Error Pareto bar chart (dùng recharts) per system.
-- Unit reports (T1) + retrieval summary (T2): render bảng modes × metrics.
+- Unit reports (kiểm thử module) + retrieval summary (đánh giá retrieval): render bảng modes × metrics.
 
 ### `/inspect` Debug từng sample
 - Chọn experiment + system → load `results.jsonl` (paginate 50), search theo sample_id/text.
@@ -136,7 +132,7 @@ production, chạy port 3000). Dashboard là app MỚI, độc lập.
 
 1. `npm run dev -p 3100` chạy được từ `evaluation/dashboard/`.
 2. Bấm "Run tests" → thấy log pytest stream live → status ✓ khi exit 0.
-3. Chạy `t1_intent --limit 5` từ UI → progress + log live → `/results` hiện report.json mới.
+3. Chạy `intake_eval --limit 5` từ UI → progress + log live → `/results` hiện report mới.
 4. Kill job đang chạy hoạt động trên Windows.
 5. `/api/files?path=../../.env` bị chặn (path traversal test).
 6. Refresh trang giữa lúc job chạy → job vẫn hiển thị running + log tiếp tục stream.

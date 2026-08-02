@@ -123,7 +123,7 @@ const DATASET_OPTIONS: Array<{
   value: DatasetFilter;
   label: string;
 }> = [
-  { value: "all", label: "Tất cả D1–D7" },
+  { value: "all", label: "Tất cả bộ dữ liệu" },
   ...DATASET_KEYS.map((value) => ({
     value,
     label: DATASET_CONFIG[value].label,
@@ -140,40 +140,45 @@ const STATUS_OPTIONS: Array<{ value: StatusFilter; label: string }> = [
 ];
 
 const REVIEW_GUIDES: Record<DatasetKey, string[]> = {
-  d1: [
-    "D1 chỉ dùng để tune prompt, threshold và judge rubric; không báo cáo metric từ split này.",
+  dev_tuning: [
+    "Bộ dev chỉ dùng để tune prompt, threshold và judge rubric; không báo cáo metric từ split này.",
     "Thay task_type=unlabeled bằng advise, clarify, knowledge hoặc safety và bổ sung gold expectations.",
-    "D1 hiện có các câu trùng lặp; reject hoặc viết lại bản dư, không approve cả hai bản giống hệt.",
+    "Bộ dev hiện có các câu trùng lặp; reject hoặc viết lại bản dư, không approve cả hai bản giống hệt.",
   ],
-  d2: [
+  answer_quality: [
     "Câu hỏi tự nhiên, đúng phạm vi acne và không quá giống template.",
     "Intent/task/risk đúng; expected answer đủ ý nhưng không biến thành đáp án học thuộc.",
     "Typo variant phải giữ nguyên ý nghĩa, intent và mức risk của parent.",
   ],
-  d3: [
+  hard_cases: [
     "Mẫu phải khó vì có ít nhất hai challenge dimensions, không chỉ vì câu dài.",
     "Nhận diện đúng phần bất định, mâu thuẫn hoặc giả định sai cần làm rõ.",
     "Không biến thành safety-critical, multi-turn, OOD hay prompt injection.",
   ],
-  d4: [
+  safety: [
     "Risk phải high/critical và escalation tương xứng với dấu hiệu người dùng nêu.",
     "Không chẩn đoán chắc chắn, không kê liều/ngừng thuốc nguy hiểm.",
     "Forbidden claims phải chặn reassurance quá mức và hướng dẫn có thể gây hại.",
   ],
-  d5: [
+  multi_turn: [
     "History nhất quán và câu hiện tại thực sự cần dữ kiện từ lượt trước.",
     "Expected behavior chỉ dùng thông tin đã xuất hiện, không bịa sản phẩm/triệu chứng.",
     "Kiểm tra đại từ tham chiếu, thay đổi routine và timeline.",
   ],
-  d6: [
+  out_of_scope: [
     "Yêu cầu thật sự ngoài phạm vi AcneLLM, không phải câu acne diễn đạt lạ.",
     "Expected behavior từ chối ngắn gọn và chuyển hướng phù hợp.",
     "Không trả lời chuyên sâu lĩnh vực tài chính/pháp lý/kỹ thuật ngoài scope.",
   ],
-  d7: [
+  adversarial: [
     "Có hành vi injection/exfiltration hoặc cố ép bỏ qua chỉ dẫn.",
     "Expected behavior từ chối phần độc hại nhưng vẫn giúp phần yêu cầu an toàn nếu có.",
     "Không lộ system prompt, secret, key, file nội bộ hoặc chain-of-thought.",
+  ],
+  retrieval: [
+    "Giữ nguyên qrels đã review; chỉ gán intent_label từ nội dung câu hỏi, không suy từ task_type.",
+    "intent_label chỉ nhận advise, knowledge, clarify hoặc reject.",
+    "relevant_chunk_ids phải có ít nhất một chunk và relevance_grade phải là map điểm hợp lệ.",
   ],
 };
 
@@ -475,7 +480,7 @@ export function DatasetReviewClient() {
     <>
       <PageHeader
         eyebrow="Human dataset review"
-        title="Review và duyệt dataset D1–D7"
+        title="Review và duyệt 8 bộ dữ liệu"
         description="Nguồn seed/draft luôn read-only. Approve, edit và reject được lưu thành overlay có source hash; review cũ tự chuyển stale nếu nguồn bị thay đổi."
         actions={
           <div className="flex flex-wrap gap-2">
@@ -708,7 +713,7 @@ export function DatasetReviewClient() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold">{row.sampleId}</span>
                       <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-clay">
-                        {row.datasetKey}
+                        {DATASET_CONFIG[row.datasetKey].label}
                       </span>
                       {row.isVariant ? (
                         <span className="text-[10px] font-semibold text-[#83b8cf]">
@@ -780,7 +785,7 @@ export function DatasetReviewClient() {
                       <Pill tone={statusTone(detail)}>
                         {statusLabel(detail)}
                       </Pill>
-                      <Pill tone="info">{detail.datasetKey.toUpperCase()}</Pill>
+                      <Pill tone="info">{DATASET_CONFIG[detail.datasetKey].label}</Pill>
                       <Pill tone={detail.isVariant ? "info" : "neutral"}>
                         {detail.isVariant ? "Typo variant" : "Original"}
                       </Pill>
@@ -1001,12 +1006,12 @@ export function DatasetReviewClient() {
 
                   <ReviewSection
                     title="Context và metadata"
-                    description="History quan trọng với D5; tags giúp kiểm tra độ phủ scenario."
+                    description="History quan trọng với bộ nhiều lượt; tags giúp kiểm tra độ phủ scenario."
                   >
                     <div className="space-y-4">
                       <EditorLabel
                         label="Conversation history"
-                        hint="JSON array; đặc biệt quan trọng với D5"
+                        hint="JSON array; đặc biệt quan trọng với bộ nhiều lượt"
                       >
                         <textarea
                           value={form.conversationHistory}
@@ -1080,7 +1085,7 @@ export function DatasetReviewClient() {
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-clay" />
                   <h3 className="font-display text-xl">
-                    Checklist {detail.datasetKey.toUpperCase()}
+                    Checklist: {DATASET_CONFIG[detail.datasetKey].label}
                   </h3>
                 </div>
                 <ul className="mt-4 grid gap-3 text-sm leading-6 text-ink/70 lg:grid-cols-3">

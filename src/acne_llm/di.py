@@ -135,7 +135,7 @@ def build_container(settings) -> Container:
 
     intake_mode = getattr(settings, "intake_mode", "legacy")
     if intake_mode == "unified":
-        intake_model = getattr(settings, "intake_model", "acne-intake")
+        intake_model = getattr(settings, "intake_model", "acne-intaker")
         intake_timeout = float(getattr(settings, "intake_timeout", 60.0))
         intake_backend = OllamaBackend(
             base_url=settings.ollama_url,

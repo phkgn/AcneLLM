@@ -22,6 +22,8 @@ import urllib.error
 import urllib.request
 import uuid
 
+import numpy as np
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -31,9 +33,9 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from acne_llm.chat._intake_parse import LLMExtractResult  # noqa: E402
-from acne_llm.chat.extraction_confidence import extract_with_confidence  # noqa: E402
+from acne_llm.chat.fallback.rule_extractor import extract_with_confidence  # noqa: E402
 from acne_llm.chat.fallback.intent_router import RouteDecision  # noqa: E402
-from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message  # noqa: E402
 from acne_llm.chat.session import ConversationTurn  # noqa: E402
 from acne_llm.chat.unified_intake import (  # noqa: E402
     _build_user_prompt,
@@ -53,8 +55,8 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 )
 
 
-DEFAULT_DATASET = Path("evaluation/datasets/v1/d8_qrels_seed.jsonl")
-DEFAULT_OUTPUT = Path("evaluation/reports/bottleneck/results_v2.json")
+DEFAULT_DATASET = Path("evaluation/datasets/v1/retrieval_test.jsonl")
+DEFAULT_OUTPUT = Path("evaluation/reports/bottleneck/results.json")
 ARM_Y_MODEL = "gpt-5.6-terra"
 DEFAULT_JUDGE_MODEL = "gpt-5.4-mini"
 ARM_LABELS = {
@@ -87,7 +89,7 @@ class _OracleIntake:
         raise ValueError(
             f"arm X yêu cầu intent_label vàng; mẫu {self.sample.get('sample_id')} "
             f"chỉ có task_type={self.sample.get('task_type')!r}. "
-            "Dùng dataset có nhãn intake gán tay (B3), không phải d8_qrels."
+            "Dùng bộ retrieval có nhãn intake gán tay (B3), không phải qrels chưa gán intent."
         )
 
     def classify(self, clean_text: str, history: list) -> RouteDecision:
@@ -685,29 +687,36 @@ def _paired_summary(arms: Mapping[str, Any]) -> dict[str, Any]:
         for arm, payload in arms.items()
     }
     all_ids = list(baseline_rows)
-    drop_reason: dict[str, list[str]] = {}
-    safety_ids: set[str] = set()
-    common_success_ids: list[str] = []
-    for sample_id in all_ids:
-        reasons: list[str] = []
-        for arm, rows in arm_rows.items():
-            row = rows.get(sample_id)
-            if row is None:
-                reasons.append(f"{arm}:missing")
-            elif not row.get("ok"):
-                reasons.append(f"{arm}:{row.get('error') or 'failed'}")
-            elif row.get("safety_fail"):
-                safety_ids.add(sample_id)
-                reasons.append(f"{arm}:safety_fail")
-        if reasons:
-            drop_reason[sample_id] = reasons
-        else:
-            common_success_ids.append(sample_id)
 
-    paired_ids = [sample_id for sample_id in common_success_ids if sample_id not in safety_ids]
-    dropped_ids = [sample_id for sample_id in all_ids if sample_id not in paired_ids]
+    def _pairable(arm: str) -> tuple[list[str], dict[str, list[str]]]:
+        """Ghép cặp RIÊNG từng arm với Z.
+
+        Ceiling analysis so từng arm với baseline một cách độc lập; một arm hỏng
+        (ví dụ W thiếu oracle chunk) không được phép rút mẫu của các arm khác.
+        """
+        rows = arm_rows.get(arm, {})
+        ids: list[str] = []
+        reasons: dict[str, list[str]] = {}
+        for sample_id in all_ids:
+            why: list[str] = []
+            for side, table in (("z", baseline_rows), (arm, rows)):
+                row = table.get(sample_id)
+                if row is None:
+                    why.append(f"{side}:missing")
+                elif not row.get("ok"):
+                    why.append(f"{side}:{row.get('error') or 'failed'}")
+                elif row.get("safety_fail"):
+                    why.append(f"{side}:safety_fail")
+            if why:
+                reasons[sample_id] = why
+            else:
+                ids.append(sample_id)
+        return ids, reasons
+
     for arm, payload in arms.items():
         rows = arm_rows[arm]
+        paired_ids, drop_reason = _pairable(arm)
+        dropped_ids = [sample_id for sample_id in all_ids if sample_id not in paired_ids]
         face_rows: list[dict[str, Any]] = []
         for face in SCORECARD_FACES:
             if face == "safety_pass":
@@ -787,6 +796,115 @@ def _paired_summary(arms: Mapping[str, Any]) -> dict[str, Any]:
     return summaries
 
 
+def summarize_report(
+    report: Mapping[str, Any],
+    *,
+    bootstrap_samples: int = 2_000,
+    seed: int = 42,
+) -> dict[str, Any]:
+    """Build a compact paired Z-baseline summary with deterministic CIs."""
+    if report.get("schema_version") != 2:
+        raise ValueError("bottleneck results must use schema_version 2")
+    arms = report.get("arms")
+    if not isinstance(arms, Mapping) or "z" not in arms:
+        raise ValueError("bottleneck results need arm Z")
+    if bootstrap_samples < 1:
+        raise ValueError("bootstrap_samples must be positive")
+
+    paired = _paired_summary(arms)
+    rng = np.random.default_rng(seed)
+    summaries: dict[str, Any] = {}
+    for arm in ("x", "w", "y"):
+        payload = paired.get(arm)
+        if not isinstance(payload, Mapping):
+            continue
+        quality: dict[str, Any] = {}
+        safety: dict[str, Any] | None = None
+        for face in payload.get("faces", []):
+            if not isinstance(face, Mapping):
+                continue
+            face_name = str(face.get("face") or "")
+            if face_name == "safety_pass":
+                safety = {
+                    "paired_n": face.get("paired_n", 0),
+                    "baseline_fail_count": face.get("baseline_fail_count", 0),
+                    "arm_fail_count": face.get("arm_fail_count", 0),
+                    "baseline_fail_ids": face.get("baseline_fail_ids", []),
+                    "arm_fail_ids": face.get("arm_fail_ids", []),
+                }
+                continue
+            deltas = np.asarray(
+                [
+                    float(item["delta"])
+                    for item in face.get("distribution", [])
+                    if isinstance(item, Mapping)
+                    and isinstance(item.get("delta"), (int, float))
+                ],
+                dtype=float,
+            )
+            if deltas.size:
+                draws = rng.choice(
+                    deltas,
+                    size=(bootstrap_samples, deltas.size),
+                    replace=True,
+                ).mean(axis=1)
+                confidence_interval = [
+                    round(float(np.quantile(draws, 0.025)), 4),
+                    round(float(np.quantile(draws, 0.975)), 4),
+                ]
+                mean_delta: float | None = round(float(deltas.mean()), 4)
+            else:
+                confidence_interval = [None, None]
+                mean_delta = None
+            quality[face_name] = {
+                "paired_n": int(deltas.size),
+                "mean_delta": mean_delta,
+                "median_delta": face.get("median_delta"),
+                "bootstrap_95_ci_mean": confidence_interval,
+                "increased": face.get("increased", 0),
+                "decreased": face.get("decreased", 0),
+                "unchanged": face.get("unchanged", 0),
+                "unavailable_ids": face.get("unavailable_ids", []),
+            }
+        summaries[arm] = {
+            "baseline": "z",
+            "paired_n": payload.get("paired_n", 0),
+            "dropped_ids": payload.get("dropped_ids", []),
+            "quality": quality,
+            "safety": safety,
+        }
+    return {
+        "schema_version": 1,
+        "experiment": report.get("experiment"),
+        "dataset": report.get("dataset"),
+        "baseline": "z",
+        "generated_at": utcnow(),
+        "bootstrap": {"samples": bootstrap_samples, "seed": seed},
+        "arms": summaries,
+    }
+
+
+def summarize_file(
+    results_path: Path,
+    summary_path: Path,
+    *,
+    bootstrap_samples: int = 2_000,
+    seed: int = 42,
+) -> dict[str, Any]:
+    report = json.loads(results_path.read_text(encoding="utf-8"))
+    summary = summarize_report(
+        report,
+        bootstrap_samples=bootstrap_samples,
+        seed=seed,
+    )
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return summary
+
+
 def _fingerprint(samples: Sequence[Mapping[str, Any]]) -> str:
     payload = [
         {"sample_id": sample.get("sample_id"), "user_query": sample.get("user_query")}
@@ -834,15 +952,20 @@ def _validate_oracle_dataset(samples: Sequence[Mapping[str, Any]]) -> None:
         raise ValueError(
             "arm X yêu cầu intent_label vàng cho mọi mẫu; thiếu ở "
             f"{len(missing)} mẫu ({preview}{suffix}). Dùng dataset intake gán tay "
-            "(B3), không phải d8_qrels. Không mẫu nào đã được chạy."
+            "(B3), không phải qrels chưa gán intent. Không mẫu nào đã được chạy."
         )
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--arm", required=True, choices=("z", "x", "w", "y"))
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--arm", choices=("z", "x", "w", "y"))
+    mode.add_argument("--summarize", action="store_true")
     parser.add_argument("--dataset", default=str(DEFAULT_DATASET))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
+    parser.add_argument("--summary-output", default="")
+    parser.add_argument("--bootstrap-samples", type=int, default=2_000)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--offset", type=int, default=0)
     parser.add_argument("--limit", type=int, default=0, help="0 = all rows")
     parser.add_argument(
@@ -863,6 +986,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         parser.error("--oracle-top-k must be positive")
     if not args.judge_model.strip():
         parser.error("--judge-model must be non-empty")
+    if args.bootstrap_samples < 1:
+        parser.error("--bootstrap-samples must be positive")
     return args
 
 
@@ -870,6 +995,26 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
     args = parse_args(argv)
     dataset_path = _path(args.dataset).resolve()
     output_path = _path(args.output).resolve()
+    if args.summarize:
+        summary_path = (
+            _path(args.summary_output).resolve()
+            if args.summary_output
+            else output_path.with_name("summary.json")
+        )
+        summary = summarize_file(
+            output_path,
+            summary_path,
+            bootstrap_samples=args.bootstrap_samples,
+            seed=args.seed,
+        )
+        print(
+            json.dumps(
+                {"arms": sorted(summary["arms"]), "output": _relative_to_root(summary_path)},
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return summary
     all_samples = read_jsonl(dataset_path)
     requested_ids = [value.strip() for value in args.sample_ids.split(",") if value.strip()]
     if requested_ids:

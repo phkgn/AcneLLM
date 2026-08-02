@@ -265,6 +265,40 @@ def _has_any_clinical_fact(user: UserInput) -> bool:
     )
 
 
+def compute_route_flags(
+    message: str,
+    user: UserInput | None = None,
+    history: list[ConversationTurn] | None = None,
+) -> list[str]:
+    """Cờ tín hiệu văn bản, độc lập với việc router nào chọn intent.
+
+    ``UnifiedIntake.classify()`` và semantic router trả ``RouteDecision`` không
+    có ``route_flags``, nên mọi guardrail phụ thuộc cờ (cảnh báo khẩn cấp ở
+    ``_safety``, guidance ở ``prompt_builder``) chết im lặng khi chạy hai đường
+    đó. Hàm này để ``intake`` gắn cùng bộ cờ cho MỌI đường router.
+
+    Chỉ dùng khớp mẫu trên text + clinical đã có. Không gọi model.
+    """
+    lowered = message.lower()
+    flags: list[str] = []
+    if history is not None and is_repeated_question(message, history):
+        flags.append("repeated_question")
+    if _contains_any(lowered, _EMOTIONAL_TERMS):
+        flags.append("emotional_distress")
+    if _contains_any(lowered, _CRISIS_TERMS):
+        flags.append("crisis_signal")
+    if _contains_product_safety_term(lowered):
+        flags.append("product_safety_check")
+    has_red_flags = bool(user is not None and user.clinical and user.clinical.red_flags_input)
+    if _contains_any(lowered, _URGENCY_TERMS) or has_red_flags:
+        flags.append("urgency_red_flag")
+    if _contains_any(lowered, _PROGRESS_TERMS):
+        flags.append("progress_followup")
+    if _contains_any(lowered, _MULTI_CONDITION_TERMS):
+        flags.append("multi_condition")
+    return flags
+
+
 def _rule_decision(
     message: str,
     user: UserInput,
@@ -273,7 +307,7 @@ def _rule_decision(
 ) -> RouteDecision:
     lowered = message.lower()
     detected_language = detect_language_heuristic(message)
-    flags: list[str] = []
+    flags: list[str] = compute_route_flags(message, user, history)
 
     def _decision(
         primary_intent: PrimaryIntent,
@@ -285,21 +319,6 @@ def _rule_decision(
             confidence=confidence,
             **kwargs,
         )
-
-    if is_repeated_question(message, history):
-        flags.append("repeated_question")
-    if _contains_any(lowered, _EMOTIONAL_TERMS):
-        flags.append("emotional_distress")
-    if _contains_any(lowered, _CRISIS_TERMS):
-        flags.append("crisis_signal")
-    if _contains_product_safety_term(lowered):
-        flags.append("product_safety_check")
-    if _contains_any(lowered, _URGENCY_TERMS) or (user.clinical and user.clinical.red_flags_input):
-        flags.append("urgency_red_flag")
-    if _contains_any(lowered, _PROGRESS_TERMS):
-        flags.append("progress_followup")
-    if _contains_any(lowered, _MULTI_CONDITION_TERMS):
-        flags.append("multi_condition")
 
     # I1: Detect follow-up turns in an active session.
     # Không giới hạn cứng 6 từ vì nhiều continuation hợp lệ dài hơn
@@ -514,7 +533,7 @@ def route_intent(
     # Luat degrade an toan: routing duoi nguong tin cay -> clarify thay vi doan.
     # Chi ap cho advise/knowledge (reject/clarify giu nguyen). Khong goi LLM.
     try:
-        from ..config import Settings as _S
+        from ...config import Settings as _S
         _route_min = _S().route_min_confidence
     except Exception:
         _route_min = 0.55

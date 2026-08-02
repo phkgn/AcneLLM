@@ -11,16 +11,14 @@ import {
   RefreshCw,
   TestTube2,
   X,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
-  PRELIMINARY_LIMIT_MAX,
-  PRELIMINARY_LIMIT_MIN,
-  isValidPreliminaryLimitInput,
-  parsePreliminaryLimit,
-} from "@/lib/preliminary";
+  parseRunAllSummaryText,
+  runAllStepPosition,
+  runAllSummaryPath,
+} from "@/lib/run-all";
 import type { CommandId, JobRecord } from "@/lib/types";
 import {
   Button,
@@ -29,7 +27,6 @@ import {
   PageHeader,
   Pill,
   formatBytes,
-  inputClass,
 } from "./ui";
 
 type StatusResponse = {
@@ -67,6 +64,12 @@ type OverviewResponse = {
   judgeCacheBytes: number;
 };
 
+type RunAllMiniStatus = {
+  currentStep: string;
+  position: number;
+  total: number;
+};
+
 function elapsed(startedAt: string) {
   const seconds = Math.max(
     0,
@@ -81,13 +84,12 @@ export function DashboardClient() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [overview, setOverview] = useState<OverviewResponse | null>(null);
   const [jobs, setJobs] = useState<JobRecord[]>([]);
+  const [runAllStatuses, setRunAllStatuses] = useState<
+    Record<string, RunAllMiniStatus>
+  >({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [preliminaryLimit, setPreliminaryLimit] = useState(
-    String(PRELIMINARY_LIMIT_MAX),
-  );
   const [, tick] = useState(0);
-  const preliminaryLimitValid = isValidPreliminaryLimitInput(preliminaryLimit);
 
   const refresh = useCallback(async () => {
     const [statusRes, overviewRes, jobsRes] = await Promise.all([
@@ -100,12 +102,48 @@ export function DashboardClient() {
     if (jobsRes.ok) {
       const body = (await jobsRes.json()) as { jobs: JobRecord[] };
       setJobs(body.jobs);
+      const entries = await Promise.all(
+        body.jobs
+          .filter(
+            (job) =>
+              job.commandId === "full_evaluation" &&
+              ["running", "stopping"].includes(job.status),
+          )
+          .map(async (job) => {
+            const summaryPath = runAllSummaryPath(job.args?.outDir);
+            if (!summaryPath) return null;
+            try {
+              const response = await fetch(
+                `/api/files?path=${encodeURIComponent(summaryPath)}`,
+                { cache: "no-store" },
+              );
+              if (!response.ok) return null;
+              const file = (await response.json()) as { content?: string };
+              const summary = parseRunAllSummaryText(file.content ?? "");
+              const position = summary ? runAllStepPosition(summary) : null;
+              if (!summary?.current_step || position === null) return null;
+              return [
+                job.jobId,
+                {
+                  currentStep: summary.current_step,
+                  position,
+                  total: summary.steps.length,
+                },
+              ] as const;
+            } catch {
+              return null;
+            }
+          }),
+      );
+      setRunAllStatuses(
+        Object.fromEntries(entries.filter((entry) => entry !== null)),
+      );
     }
   }, []);
 
   useEffect(() => {
     void refresh();
-    const poll = setInterval(() => void refresh(), 1500);
+    const poll = setInterval(() => void refresh(), 10_000);
     const clock = setInterval(() => tick((value) => value + 1), 1000);
     return () => {
       clearInterval(poll);
@@ -136,28 +174,6 @@ export function DashboardClient() {
     } finally {
       setBusy(null);
     }
-  }
-
-  function launchPreliminaryD2() {
-    if (!preliminaryLimitValid) {
-      setError(
-        `Quick Run limit phải là số nguyên từ ${PRELIMINARY_LIMIT_MIN} đến ${PRELIMINARY_LIMIT_MAX}.`,
-      );
-      return;
-    }
-    const selectedLimit = parsePreliminaryLimit(preliminaryLimit);
-    const confirmed = window.confirm(
-      [
-        `Quick preliminary D2 sẽ chạy ${selectedLimit} mẫu qua S0–S4,`,
-        "sau đó gọi judge đã cấu hình và tạo report.",
-        "",
-        "Judge có thể phát sinh chi phí API.",
-        "D8 và regression gate không nằm trong run provisional này.",
-        "",
-        "Tiếp tục?",
-      ].join("\n"),
-    );
-    if (confirmed) void launch("preliminary_d2", { limit: selectedLimit });
   }
 
   async function kill(jobId: string) {
@@ -281,69 +297,26 @@ export function DashboardClient() {
             </p>
             <h2 className="mt-1 text-xl font-black">Bắt đầu một run</h2>
             <div className="mt-5 grid gap-3">
-              <div className="rounded-xl border border-[#514027] bg-[#332719]/70 p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-black text-[#f0c57d]">
-                      Preliminary synthetic-only
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-ink/50">
-                      D2 × {preliminaryLimitValid ? preliminaryLimit : "—"} · S0–S4
-                      → Judge → Report · run directory mới.
-                    </p>
-                  </div>
-                  <Pill tone="warn">không gate</Pill>
-                </div>
-                <label className="mt-3 block text-xs font-black uppercase tracking-[0.12em] text-ink/50">
-                  Số mẫu ({PRELIMINARY_LIMIT_MIN}–{PRELIMINARY_LIMIT_MAX})
-                  <input
-                    aria-label="Quick Run sample limit"
-                    type="number"
-                    min={PRELIMINARY_LIMIT_MIN}
-                    max={PRELIMINARY_LIMIT_MAX}
-                    step={1}
-                    value={preliminaryLimit}
-                    onChange={(event) => setPreliminaryLimit(event.target.value)}
-                    className={`${inputClass} mt-2`}
-                  />
-                </label>
-                {!preliminaryLimitValid ? (
-                  <p className="mt-2 text-xs font-bold text-ember">
-                    Nhập số nguyên từ {PRELIMINARY_LIMIT_MIN} đến{" "}
-                    {PRELIMINARY_LIMIT_MAX}.
-                  </p>
-                ) : null}
-                <Button
-                  className="mt-3 w-full"
-                  variant="secondary"
-                  disabled={busy !== null || !preliminaryLimitValid}
-                  onClick={launchPreliminaryD2}
-                >
-                  <Zap size={17} />
-                  {busy === "preliminary_d2"
-                    ? "Đang tạo run…"
-                    : "Quick preliminary D2"}
-                </Button>
-              </div>
               <Button
                 variant="secondary"
                 disabled={busy !== null}
                 onClick={() =>
-                  void launch("run_all", {
+                  void launch("full_evaluation", {
                     smoke: true,
-                    dataset: "evaluation/datasets/v1/d1_dev_seed.jsonl",
+                    dataset: "evaluation/datasets/v1/dev_tuning.jsonl",
+                    yes: true,
                   })
                 }
               >
                 <TestTube2 size={17} />
-                Smoke run all
+                Chạy smoke toàn bộ
               </Button>
               <Button
                 disabled={busy !== null}
-                onClick={() => void launch("run_all")}
+                onClick={() => void launch("full_evaluation")}
               >
                 <Play size={17} />
-                Run all full
+                Chạy toàn bộ
               </Button>
               <Button
                 variant="ghost"
@@ -355,8 +328,8 @@ export function DashboardClient() {
               </Button>
             </div>
             <p className="mt-4 text-xs leading-5 text-ink/45">
-              Quick preliminary yêu cầu xác nhận một lần trước bước có phí. Artifact
-              được cô lập và gắn notice, không ghi đè run chính thức.
+              Smoke chạy 10 mẫu mỗi bước miễn phí phù hợp và bỏ bottleneck/figures;
+              run full dùng cost gate chung trước judge và arm Y.
             </p>
           </Card>
 
@@ -385,6 +358,13 @@ export function DashboardClient() {
                         <Clock3 size={13} />
                         {elapsed(job.startedAt)} · PID {job.pid}
                       </p>
+                      {runAllStatuses[job.jobId] ? (
+                        <p className="mt-1.5 text-xs font-bold text-clay">
+                          bước {runAllStatuses[job.jobId].position}/
+                          {runAllStatuses[job.jobId].total} ·{" "}
+                          {runAllStatuses[job.jobId].currentStep}
+                        </p>
+                      ) : null}
                     </div>
                     <span
                       className={`mt-1 h-2.5 w-2.5 shrink-0 animate-pulse-soft rounded-full ${
@@ -476,7 +456,7 @@ export function DashboardClient() {
               <div className="sm:col-span-2 xl:col-span-3">
                 <EmptyState
                   title="Chưa có gate data"
-                  description="Chạy T1/T2/T3 và report để dashboard có metric thật để so với gate."
+                  description="Chạy Intake, RAG, sinh câu trả lời và tổng hợp báo cáo để dashboard có metric thật."
                 />
               </div>
             ) : null}
@@ -487,7 +467,7 @@ export function DashboardClient() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-ink/40">
             Last orchestrator run
           </p>
-          <h2 className="mt-1 text-xl font-black">run_all_last.json</h2>
+          <h2 className="mt-1 text-xl font-black">full_evaluation_last.json</h2>
           {overview?.lastRun ? (
             <>
               <div className="mt-5 space-y-2">
@@ -515,7 +495,7 @@ export function DashboardClient() {
             <div className="mt-5">
               <EmptyState
                 title="Chưa có orchestrator run"
-                description="File evaluation/reports/run_all_last.json sẽ xuất hiện sau lần chạy run_all đầu tiên."
+                description="File evaluation/reports/full_evaluation_last.json sẽ xuất hiện sau lần đánh giá đầy đủ đầu tiên."
               />
             </div>
           )}

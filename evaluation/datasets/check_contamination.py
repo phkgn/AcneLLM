@@ -3,7 +3,7 @@ finetune train data. Mẫu trùng → gắn cờ, cân nhắc loại khỏi D2.
 
 Usage:
     python -m evaluation.datasets.check_contamination \
-        --test evaluation/datasets/v1/d2_test.jsonl \
+        --test evaluation/datasets/v1/answer_quality_test.jsonl \
         [--train data/finetune/clean/acne_chat_response.train.jsonl] \
         [--ngram 8] [--threshold 0.5]
 """

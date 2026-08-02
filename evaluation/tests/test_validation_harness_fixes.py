@@ -12,7 +12,7 @@ from evaluation.analysis.check_gate import (
     _normalizer_micro_f1,
     _select_primary_retrieval_summary,
 )
-from evaluation import run_all
+from evaluation import full_evaluation
 from evaluation.runners.run_experiment import merge_run_meta, validate_output_state
 from evaluation.validate.checks.invariants import POINTWISE_AXES
 
@@ -197,7 +197,7 @@ def test_gate_prefers_primary_retrieval_and_reads_strict_normalizer(tmp_path):
     }) == 0.75
 
 
-def test_run_all_executes_gate_step(tmp_path, monkeypatch):
+def test_full_evaluation_executes_quality_gate_step(tmp_path, monkeypatch):
     dataset = tmp_path / "dataset.jsonl"
     dataset.write_text("{}\n", encoding="utf-8")
     run_dir = tmp_path / "reports" / "main_2x2_t3"
@@ -210,36 +210,41 @@ def test_run_all_executes_gate_step(tmp_path, monkeypatch):
     }
     calls: list[tuple[str, list[str]]] = []
 
-    monkeypatch.setattr(run_all, "REPORTS_DIR", tmp_path / "reports")
-    monkeypatch.setattr(run_all, "load_yaml", lambda _path: dict(config))
-    monkeypatch.setattr(run_all, "preflight", lambda _cfg, _skip: [])
+    monkeypatch.setattr(full_evaluation, "REPORTS_DIR", tmp_path / "reports")
+    monkeypatch.setattr(full_evaluation, "load_yaml", lambda _path: dict(config))
+    monkeypatch.setattr(full_evaluation, "preflight", lambda _cfg, _skip: [])
+    monkeypatch.setattr(
+        full_evaluation,
+        "_cost_gate",
+        lambda **_kwargs: (True, ""),
+    )
 
     def fake_sh(step: str, command: list[str], results: dict) -> bool:
         calls.append((step, command))
         results[step] = "OK"
         return True
 
-    monkeypatch.setattr(run_all, "sh", fake_sh)
+    monkeypatch.setattr(full_evaluation, "sh", fake_sh)
     monkeypatch.setattr(
         sys,
         "argv",
         [
-            "run_all",
+            "full_evaluation",
             "--skip",
-            "t1,t2,t3,judge,report",
+            "intake,rag,generation,bottleneck,figures",
             "--dataset",
             str(dataset),
         ],
     )
-    run_all.main()
-    gate_calls = [command for step, command in calls if step == "gate"]
+    full_evaluation.main()
+    gate_calls = [command for step, command in calls if step == "quality_gate"]
     assert len(gate_calls) == 1
     assert gate_calls[0][-2:] == ["--run-dir", str(run_dir)]
 
 
 def _resume_state(system_hash: str = "hash-s1") -> dict:
     return {
-        "dataset": "evaluation/datasets/v1/d2_test.jsonl",
+        "dataset": "evaluation/datasets/v1/answer_quality_test.jsonl",
         "dataset_sha256": "dataset-hash",
         "experiment_config_sha256": "experiment-hash",
         "system_config_hashes": {"s1": system_hash},

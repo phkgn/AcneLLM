@@ -1,0 +1,11 @@
+{
+  "started": "2026-07-27T16:24:56.802533+00:00",
+  "finished": "2026-07-27T20:50:57.751705+00:00",
+  "results": {
+    "answer_generation": "OK",
+    "llm_scoring": "FAIL(1)",
+    "build_report": "OK",
+    "quality_gate": "FAIL(1)",
+    "figures": "OK"
+  }
+}

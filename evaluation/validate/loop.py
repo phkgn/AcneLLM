@@ -66,7 +66,7 @@ def _confidence_notes(
         notes.append(
             f"Run has only {n_cases} cases per system; effect estimates are smoke-level and underpowered."
         )
-    if context.dataset_path.name.startswith("d1_"):
+    if context.dataset_path.name == "dev_tuning.jsonl":
         notes.append(
             "The run used D1 dev seed rather than the frozen D2 main test set."
         )
@@ -85,7 +85,7 @@ def _tier_verdicts(
 ) -> dict[str, dict[str, str]]:
     by_name = {check.name: check for check in checks}
     unit_root = REPORTS_DIR / "unit"
-    t1_present = all(
+    unit_artifacts_present = all(
         (unit_root / name / file).exists()
         for name, file in (
             ("normalizer", "report.json"),
@@ -111,10 +111,10 @@ def _tier_verdicts(
     data = by_name.get("dataset_validity")
     return {
         "T1": {
-            "verdict": "PARTIAL" if t1_present else "NOT_VERIFIED",
+            "verdict": "PARTIAL" if unit_artifacts_present else "NOT_VERIFIED",
             "reason": (
                 "Unit artifacts exist, but seed labels/gates still limit conclusions."
-                if t1_present else "Required unit artifacts are missing."
+                if unit_artifacts_present else "Required unit artifacts are missing."
             ),
         },
         "T2": {

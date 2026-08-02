@@ -21,7 +21,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message  # noqa: E402
 from acne_llm.chat.preprocess import preprocess_user_text  # noqa: E402
 
 

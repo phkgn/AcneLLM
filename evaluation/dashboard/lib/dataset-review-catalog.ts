@@ -1,14 +1,32 @@
 export const DATASET_KEYS = [
-  "d1",
-  "d2",
-  "d3",
-  "d4",
-  "d5",
-  "d6",
-  "d7",
+  "dev_tuning",
+  "answer_quality",
+  "hard_cases",
+  "safety",
+  "multi_turn",
+  "out_of_scope",
+  "adversarial",
+  "retrieval",
 ] as const;
 
 export type DatasetKey = (typeof DATASET_KEYS)[number];
+
+const LEGACY_DATASET_KEYS: Record<string, DatasetKey> = {
+  d1: "dev_tuning",
+  d2: "answer_quality",
+  d3: "hard_cases",
+  d4: "safety",
+  d5: "multi_turn",
+  d6: "out_of_scope",
+  d7: "adversarial",
+  d8: "retrieval",
+};
+
+export function migrateDatasetKey(value: unknown): DatasetKey | null {
+  const key = String(value ?? "");
+  if (DATASET_KEYS.includes(key as DatasetKey)) return key as DatasetKey;
+  return LEGACY_DATASET_KEYS[key] ?? null;
+}
 
 export type DatasetConfig = {
   label: string;
@@ -18,55 +36,97 @@ export type DatasetConfig = {
   description: string;
 };
 
+export function validateRetrievalReviewCandidate(
+  row: Record<string, unknown>,
+): string[] {
+  const errors: string[] = [];
+  if (!new Set(["advise", "knowledge", "clarify", "reject"]).has(String(row.intent_label))) {
+    errors.push("Retrieval intent_label phải là advise, knowledge, clarify hoặc reject.");
+  }
+  const chunkIds = row.relevant_chunk_ids;
+  if (
+    !Array.isArray(chunkIds) ||
+    chunkIds.length === 0 ||
+    chunkIds.some((item) => typeof item !== "string" || !item.trim())
+  ) {
+    errors.push("relevant_chunk_ids phải là mảng string không rỗng.");
+  }
+  const grades = row.relevance_grade;
+  if (
+    !grades ||
+    typeof grades !== "object" ||
+    Array.isArray(grades) ||
+    Object.keys(grades).length === 0 ||
+    Object.entries(grades).some(
+      ([chunkId, grade]) =>
+        !chunkId.trim() ||
+        typeof grade !== "number" ||
+        !Number.isInteger(grade) ||
+        grade < 0,
+    )
+  ) {
+    errors.push("Retrieval relevance_grade phải là map chunk_id -> số nguyên không âm.");
+  }
+  return errors;
+}
+
 export const DATASET_CONFIG: Record<DatasetKey, DatasetConfig> = {
-  d1: {
-    label: "D1 · Development",
+  dev_tuning: {
+    label: "Bộ dev để tinh chỉnh",
     sourceArea: "v1",
-    sourceFile: "d1_dev_seed.jsonl",
-    targetFile: "d1_dev_seed.jsonl",
+    sourceFile: "dev_tuning.jsonl",
+    targetFile: "dev_tuning.jsonl",
     description:
       "Dev-only set để chỉnh prompt, threshold và judge rubric; không báo cáo metric.",
   },
-  d2: {
-    label: "D2 · Main test",
+  answer_quality: {
+    label: "Chất lượng câu trả lời",
     sourceArea: "drafts",
-    sourceFile: "d2_test.draft.jsonl",
-    targetFile: "d2_test.jsonl",
+    sourceFile: "answer_quality_test.draft.jsonl",
+    targetFile: "answer_quality_test.jsonl",
     description: "Câu hỏi acne chính: advise, clarify và knowledge.",
   },
-  d3: {
-    label: "D3 · Challenge",
+  hard_cases: {
+    label: "Ca khó",
     sourceArea: "drafts",
-    sourceFile: "d3_challenge.draft.jsonl",
-    targetFile: "d3_challenge.jsonl",
+    sourceFile: "hard_cases_test.draft.jsonl",
+    targetFile: "hard_cases_test.jsonl",
     description: "Hard cases để phân tích giới hạn; không dùng làm gate.",
   },
-  d4: {
-    label: "D4 · Safety",
+  safety: {
+    label: "An toàn",
     sourceArea: "drafts",
-    sourceFile: "d4_safety.draft.jsonl",
-    targetFile: "d4_safety.jsonl",
+    sourceFile: "safety_test.draft.jsonl",
+    targetFile: "safety_test.jsonl",
     description: "Tình huống high/critical risk và hành vi triage an toàn.",
   },
-  d5: {
-    label: "D5 · Multi-turn",
+  multi_turn: {
+    label: "Hội thoại nhiều lượt",
     sourceArea: "drafts",
-    sourceFile: "d5_multiturn.draft.jsonl",
-    targetFile: "d5_multiturn.jsonl",
+    sourceFile: "multi_turn_test.draft.jsonl",
+    targetFile: "multi_turn_test.jsonl",
     description: "Câu hỏi cần dùng đúng lịch sử hội thoại.",
   },
-  d6: {
-    label: "D6 · OOD",
+  out_of_scope: {
+    label: "Ngoài phạm vi",
     sourceArea: "drafts",
-    sourceFile: "d6_ood.draft.jsonl",
-    targetFile: "d6_ood.jsonl",
+    sourceFile: "out_of_scope_test.draft.jsonl",
+    targetFile: "out_of_scope_test.jsonl",
     description: "Yêu cầu ngoài phạm vi AcneLLM và expected reject.",
   },
-  d7: {
-    label: "D7 · Adversarial",
+  adversarial: {
+    label: "Đối kháng",
     sourceArea: "drafts",
-    sourceFile: "d7_adversarial.draft.jsonl",
-    targetFile: "d7_adversarial.jsonl",
+    sourceFile: "adversarial_test.draft.jsonl",
+    targetFile: "adversarial_test.jsonl",
     description: "Prompt injection, extraction và yêu cầu đối kháng.",
+  },
+  retrieval: {
+    label: "Tìm kiếm tài liệu",
+    sourceArea: "drafts",
+    sourceFile: "retrieval_test.draft.jsonl",
+    targetFile: "retrieval_test.jsonl",
+    description:
+      "Qrels retrieval hiện có, bổ sung intent_label do người review gán tay cho arm X.",
   },
 };

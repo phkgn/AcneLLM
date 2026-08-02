@@ -5,23 +5,23 @@
   "data": [
     {
       "k": 1,
-      "sparse_hit": 0.0,
-      "sparse_recall": 0.0
+      "hybrid_mmr_rerank_hit": 0.06,
+      "hybrid_mmr_rerank_recall": 0.0075
     },
     {
       "k": 3,
-      "sparse_hit": 0.0,
-      "sparse_recall": 0.0
+      "hybrid_mmr_rerank_hit": 0.16,
+      "hybrid_mmr_rerank_recall": 0.0225
     },
     {
       "k": 5,
-      "sparse_hit": 0.0,
-      "sparse_recall": 0.0
+      "hybrid_mmr_rerank_hit": 0.26,
+      "hybrid_mmr_rerank_recall": 0.04
     },
     {
       "k": 10,
-      "sparse_hit": 1.0,
-      "sparse_recall": 0.125
+      "hybrid_mmr_rerank_hit": 0.5,
+      "hybrid_mmr_rerank_recall": 0.0975
     }
   ],
   "x_key": "k",
@@ -33,12 +33,12 @@
   ],
   "series": [
     {
-      "key": "sparse_hit",
-      "label": "sparse hit@k"
+      "key": "hybrid_mmr_rerank_hit",
+      "label": "hybrid_mmr_rerank hit@k"
     },
     {
-      "key": "sparse_recall",
-      "label": "sparse recall@k"
+      "key": "hybrid_mmr_rerank_recall",
+      "label": "hybrid_mmr_rerank recall@k"
     }
   ]
 }

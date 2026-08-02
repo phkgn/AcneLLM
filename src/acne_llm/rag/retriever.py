@@ -17,12 +17,16 @@ from .sparse import BM25Index
 # Source-type specific boost — granular hơn trust_level 3-tier.
 # Áp dụng sau RRF fusion để guideline sources nổi lên mà không cần
 # nhúng từ "guideline" vào query text.
+# TRAN CUNG ~1.67: boost nhan vao score TRUOC khi tinh nguong prune
+# (relative_threshold = max_score * _MIN_FUSION_SCORE_RELATIVE). Vuot 1.67 thi
+# moi chunk chi co mat o MOT trong hai list (dense hoac bm25) bi cat sach,
+# tuc vo hieu hoa hybrid retrieval. Muon vuot phai ha _MIN_FUSION_SCORE_RELATIVE.
 _SOURCE_TYPE_BOOST: dict[str, float] = {
-    "nice_guideline":    1.50,
-    "aad_guideline":     1.50,
+    "nice_guideline":    1.60,
+    "aad_guideline":     1.60,
     "jid_paper":         1.30,
     "pubmed_review":     1.20,
-    "clinical_textbook": 1.20,
+    "clinical_textbook": 1.50,  # EuroGuiDerm, BYT, JDA, CMAJ — tham quyen ngang NICE
     "vi_medical_site":   1.00,
     "forum_post":        0.80,
     "blog":              0.70,
@@ -348,32 +352,49 @@ class HybridRetriever:
             avg_score=avg,
         )
 
+    # Tang khuyen cao CHINH THUC. Hep hon SAFETY_SOURCE_TYPES vi bo pubmed_review
+    # (4825 chunk abstract PubMed trong corpus web se ap dao) va jid_paper.
+    # Con lai 973 chunk: NICE, AAD, EuroGuiDerm, JDA, BYT, CMAJ.
+    GUIDELINE_SOURCE_TYPES = ("nice_guideline", "aad_guideline", "clinical_textbook")
+    # Rong hon cho safety pass: du lieu thai ky / tuong tac thuoc hay nam trong
+    # nghien cuu goc chu khong chi trong khuyen cao.
+    SAFETY_SOURCE_TYPES = ("nice_guideline", "aad_guideline", "jid_paper",
+                           "pubmed_review", "clinical_textbook")
+
     def retrieve_safety_pass(
         self,
         query: str,
-        safety_terms: list[str],
+        safety_terms: list[str] | None = None,
         top_k: int = 5,
+        source_types: tuple[str, ...] | None = None,
     ) -> RetrievalOutput:
-        """Second retrieve pass cho context an toan y te (thai ky, thuoc).
+        """Second retrieve pass: dense retrieve GIOI HAN theo source_type.
 
-        Filter Chroma chi lay guideline source_types, sau do dense retrieve.
-        Duoc goi tu pipeline khi safety_terms khong rong.
+        Hai che do dung chung ham nay:
+          - guideline pass  : safety_terms=None, source_types=GUIDELINE_SOURCE_TYPES
+                              -> chay cho MOI truy van, bao dam khuyen cao chinh
+                              thuc vao duoc pool rerank.
+          - safety pass     : safety_terms=[...], source_types=SAFETY_SOURCE_TYPES
+                              -> nhu cu, cho thai ky / thuoc ke don.
+
+        Truoc day ham bat buoc co safety_terms nen guideline chi lot vao pool khi
+        truy van tinh co nhac thuoc ke don; truy van thuong tra ve 100% bai pho
+        thong du KB co san NICE/EuroGuiDerm.
         """
         _EMPTY = RetrievalOutput(
             query=query, chunks=[], retrieval_mode="hybrid",
             num_chunks=0, avg_score=0.0,
         )
-        if not safety_terms or not self.embedder:
+        if not self.embedder or not query.strip():
             return _EMPTY
 
-        deduped_terms = list(dict.fromkeys(t.strip() for t in safety_terms if t and t.strip()))
-        safety_query = (query + " " + " ".join(deduped_terms[:20])).strip()
+        safety_query = query.strip()
+        if safety_terms:
+            deduped_terms = list(dict.fromkeys(t.strip() for t in safety_terms if t and t.strip()))
+            safety_query = (query + " " + " ".join(deduped_terms[:20])).strip()
         if len(safety_query) > 1200:
             safety_query = safety_query[:1200].rsplit(" ", 1)[0].strip()
-        allowed_source_types = [
-            "nice_guideline", "aad_guideline", "jid_paper",
-            "pubmed_review", "clinical_textbook",
-        ]
+        allowed_source_types = list(source_types or self.SAFETY_SOURCE_TYPES)
         domain_filter = {"source_type": {"$in": allowed_source_types}}
 
         try:

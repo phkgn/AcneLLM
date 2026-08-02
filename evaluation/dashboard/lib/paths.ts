@@ -12,7 +12,7 @@ export class EvaluationPathAccessError extends Error {
 function locateRepoRoot(): string {
   let current = path.resolve(process.cwd());
   for (let depth = 0; depth < 6; depth += 1) {
-    if (fs.existsSync(path.join(current, "evaluation", "run_all.py"))) {
+    if (fs.existsSync(path.join(current, "evaluation", "full_evaluation.py"))) {
       return current;
     }
     const parent = path.dirname(current);

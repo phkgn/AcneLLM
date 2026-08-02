@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-16T18:59:44.704618+00:00",
-  "generation_id": "20260716T185944704618Z-0362e3fc33",
+  "generated_at": "2026-07-27T20:49:42.473475+00:00",
+  "generation_id": "20260727T204942473475Z-6b8ff1e403",
   "generator": "evaluation.analysis.figures_kb",
   "artifact_policy": "fresh_compute_no_figure_reuse",
   "group": "kb",
@@ -71,13 +71,13 @@
       "id": "a7_ood_distance",
       "title": "Query distance to OOD centroid",
       "kind": "chart",
-      "file": "a7_ood_distance.json",
+      "file": null,
       "pdf_file": null,
       "chart_type": "hist",
-      "caption": "T1 queries embedded with the production embedder; the line marks the current similarity threshold converted to distance.",
-      "source_data": "config/ood_centroid.json + evaluation/datasets/v1/t1_*.jsonl",
-      "status": "ok",
-      "skip_reason": null
+      "caption": "Dev-tuning query distance from the production OOD centroid.",
+      "source_data": "config/ood_centroid.json + evaluation/datasets/v1/dev_tuning.jsonl",
+      "status": "skipped",
+      "skip_reason": "ValueError: Centroid dim=4 but embedder dim=1024."
     },
     {
       "id": "a8_bm25_terms",

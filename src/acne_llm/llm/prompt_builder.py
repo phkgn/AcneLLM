@@ -160,6 +160,15 @@ class PromptBuilder:
         "jid_paper":         "[JID Paper]",
         "pubmed_review":     "[PubMed Review]",
         "clinical_textbook": "[Textbook]",
+        # Tầng thấp PHẢI có nhãn. Trước đây chúng nhận "" nên khi cả 5 chunk đều là
+        # trang tin phổ thông — trường hợp thường gặp, xem log rerank — generator
+        # thấy 5 nguồn không nhãn, ngang hàng nhau, và không có cơ sở nào để xếp
+        # hạng bằng chứng. Nó xử lý "uống ít nước" ngang với "tuyến bã nhờn hoạt
+        # động mạnh" rồi kết luận "các nguồn chưa thống nhất". Nhãn không ép chunk
+        # nào vào câu trả lời, chỉ thôi giấu thứ bậc đi.
+        "vi_medical_site":   "[Trang tin sức khỏe]",
+        "forum_post":        "[Diễn đàn — độ tin cậy thấp]",
+        "blog":              "[Blog — độ tin cậy thấp]",
     }
 
     def _context_block(

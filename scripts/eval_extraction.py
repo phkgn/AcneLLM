@@ -29,13 +29,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from acne_llm.chat.extraction_confidence import (  # noqa: E402
+from acne_llm.chat.fallback.rule_extractor import (  # noqa: E402
     ExtractionConfidence,
     extract_with_confidence,
 )
 from acne_llm.chat.fallback.intent_router import RouteDecision, route_intent  # noqa: E402
 from acne_llm.chat.fallback.llm_extractor import LLMExtractor  # noqa: E402
-from acne_llm.chat.normalizer import normalize_chat_message  # noqa: E402
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message  # noqa: E402
 from acne_llm.chat.preprocess import prepare_user_text  # noqa: E402
 from acne_llm.chat.unified_intake import UnifiedIntake  # noqa: E402
 from acne_llm.config import Settings  # noqa: E402

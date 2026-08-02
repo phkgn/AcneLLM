@@ -31,26 +31,3 @@ export async function latestRetrievalResult() {
     return null;
   }
 }
-
-export async function readUnitReports() {
-  const units = [
-    ["normalizer", "summary.json"],
-    ["intent_router", "report.json"],
-    ["query_planner", "report.json"],
-    ["guardrails", "report.json"],
-  ] as const;
-  const reports: Record<string, Record<string, unknown> | null> = {};
-  await Promise.all(
-    units.map(async ([name, file]) => {
-      reports[name] = await readJsonFile<Record<string, unknown>>(
-        path.join(REPORTS_ROOT, "unit", name, file),
-      );
-      if (!reports[name] && name === "normalizer") {
-        reports[name] = await readJsonFile<Record<string, unknown>>(
-          path.join(REPORTS_ROOT, "unit", name, "report.json"),
-        );
-      }
-    }),
-  );
-  return reports;
-}

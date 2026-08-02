@@ -1,0 +1,755 @@
+{
+  "generated_at": "2026-07-27T20:49:36.909613+00:00",
+  "run_dir": "E:\\project\\AcneLLM\\evaluation\\reports\\thesis_run3",
+  "n_systems": 5,
+  "retrieval": {
+    "artifact": "E:\\project\\AcneLLM\\evaluation\\reports\\retrieval\\2026-07-26T173708\\summary.json",
+    "dataset": "evaluation/datasets/v1/retrieval_test.jsonl",
+    "n_queries": 100,
+    "raw_query": false,
+    "modes": {
+      "sparse": {
+        "hit@1": 0.19,
+        "recall@1": 0.0238,
+        "precision@1": 0.19,
+        "ndcg@1": 0.1567,
+        "hit@3": 0.5,
+        "recall@3": 0.0737,
+        "precision@3": 0.1967,
+        "ndcg@3": 0.1603,
+        "hit@5": 0.58,
+        "recall@5": 0.1062,
+        "precision@5": 0.17,
+        "ndcg@5": 0.1715,
+        "hit@10": 0.74,
+        "recall@10": 0.1775,
+        "precision@10": 0.142,
+        "ndcg@10": 0.1924,
+        "mrr@10": 0.3564,
+        "map@10": 0.084,
+        "irrelevant@5": 0.83,
+        "dup_rate": 0.0,
+        "latency_ms_mean": 54
+      },
+      "dense": {
+        "hit@1": 0.02,
+        "recall@1": 0.0025,
+        "precision@1": 0.02,
+        "ndcg@1": 0.0133,
+        "hit@3": 0.08,
+        "recall@3": 0.0112,
+        "precision@3": 0.03,
+        "ndcg@3": 0.0121,
+        "hit@5": 0.1,
+        "recall@5": 0.0163,
+        "precision@5": 0.026,
+        "ndcg@5": 0.0152,
+        "hit@10": 0.14,
+        "recall@10": 0.0238,
+        "precision@10": 0.019,
+        "ndcg@10": 0.0185,
+        "mrr@10": 0.0523,
+        "map@10": 0.0091,
+        "irrelevant@5": 0.954,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 184
+      },
+      "hybrid": {
+        "hit@1": 0.11,
+        "recall@1": 0.0138,
+        "precision@1": 0.11,
+        "ndcg@1": 0.07,
+        "hit@3": 0.25,
+        "recall@3": 0.0325,
+        "precision@3": 0.0867,
+        "ndcg@3": 0.0666,
+        "hit@5": 0.31,
+        "recall@5": 0.0475,
+        "precision@5": 0.076,
+        "ndcg@5": 0.0692,
+        "hit@10": 0.52,
+        "recall@10": 0.0938,
+        "precision@10": 0.075,
+        "ndcg@10": 0.0923,
+        "mrr@10": 0.2074,
+        "map@10": 0.0376,
+        "irrelevant@5": 0.924,
+        "dup_rate": 0.016,
+        "latency_ms_mean": 247
+      },
+      "hybrid_rerank": {
+        "hit@1": 0.06,
+        "recall@1": 0.0075,
+        "precision@1": 0.06,
+        "ndcg@1": 0.04,
+        "hit@3": 0.21,
+        "recall@3": 0.0312,
+        "precision@3": 0.0833,
+        "ndcg@3": 0.0566,
+        "hit@5": 0.36,
+        "recall@5": 0.0563,
+        "precision@5": 0.09,
+        "ndcg@5": 0.073,
+        "hit@10": 0.52,
+        "recall@10": 0.1013,
+        "precision@10": 0.081,
+        "ndcg@10": 0.0899,
+        "mrr@10": 0.1807,
+        "map@10": 0.038,
+        "irrelevant@5": 0.91,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 7187
+      },
+      "hybrid_mmr_rerank": {
+        "hit@1": 0.06,
+        "recall@1": 0.0075,
+        "precision@1": 0.06,
+        "ndcg@1": 0.04,
+        "hit@3": 0.21,
+        "recall@3": 0.0312,
+        "precision@3": 0.0833,
+        "ndcg@3": 0.0566,
+        "hit@5": 0.36,
+        "recall@5": 0.0563,
+        "precision@5": 0.09,
+        "ndcg@5": 0.073,
+        "hit@10": 0.52,
+        "recall@10": 0.1013,
+        "precision@10": 0.081,
+        "ndcg@10": 0.0899,
+        "mrr@10": 0.1807,
+        "map@10": 0.038,
+        "irrelevant@5": 0.91,
+        "dup_rate": 0.01,
+        "latency_ms_mean": 259
+      }
+    }
+  },
+  "systems": {
+    "s0": {
+      "contract": "prose",
+      "n": 140,
+      "n_generation_valid": 140,
+      "n_attempted": 140,
+      "buckets": {
+        "valid": 140,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 0
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": 1.0,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 929,
+        "mean": 927
+      },
+      "judge_means": {
+        "correctness": 2.921,
+        "completeness": 2.493,
+        "safety": 2.957,
+        "relevance": 4.436,
+        "fluency": 3.864,
+        "instruction_following": 2.65
+      },
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 45037,
+        "mean": 45745
+      },
+      "error_pareto": [
+        [
+          "E14",
+          61
+        ],
+        [
+          "E11",
+          31
+        ],
+        [
+          "E18",
+          27
+        ],
+        [
+          "E20",
+          12
+        ],
+        [
+          "E15",
+          12
+        ],
+        [
+          "E16",
+          11
+        ],
+        [
+          "E12",
+          2
+        ],
+        [
+          "E17",
+          1
+        ]
+      ]
+    },
+    "s1": {
+      "contract": "prose",
+      "n": 140,
+      "n_generation_valid": 140,
+      "n_attempted": 140,
+      "buckets": {
+        "valid": 140,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 0
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": null,
+      "grounding_counts": {
+        "records_applicable": 0,
+        "eligible_sentences": 0,
+        "grounded_sentences": 0,
+        "unsupported_sentences": 0
+      },
+      "refusal_fidelity": 1.0,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 383,
+        "mean": 384
+      },
+      "judge_means": {
+        "correctness": 3.457,
+        "completeness": 2.686,
+        "safety": 4.029,
+        "relevance": 4.743,
+        "fluency": 4.907,
+        "instruction_following": 2.957
+      },
+      "faithfulness_mean": null,
+      "latency_ms": {
+        "p50": 25032,
+        "mean": 25085
+      },
+      "error_pareto": [
+        [
+          "E14",
+          17
+        ],
+        [
+          "E18",
+          9
+        ],
+        [
+          "E16",
+          7
+        ],
+        [
+          "E11",
+          6
+        ],
+        [
+          "E15",
+          2
+        ],
+        [
+          "E12",
+          1
+        ]
+      ]
+    },
+    "s2": {
+      "contract": "prose",
+      "n": 140,
+      "n_generation_valid": 140,
+      "n_attempted": 140,
+      "buckets": {
+        "valid": 140,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 0
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.4371,
+      "grounding_counts": {
+        "records_applicable": 135,
+        "eligible_sentences": 2402,
+        "grounded_sentences": 1050,
+        "unsupported_sentences": 1352
+      },
+      "refusal_fidelity": 1.0,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 1126,
+        "mean": 1113
+      },
+      "judge_means": {
+        "correctness": 3.207,
+        "completeness": 2.807,
+        "safety": 3.271,
+        "relevance": 4.65,
+        "fluency": 4.243,
+        "instruction_following": 2.993
+      },
+      "faithfulness_mean": 0.3458,
+      "latency_ms": {
+        "p50": 59333,
+        "mean": 58894
+      },
+      "error_pareto": [
+        [
+          "E14",
+          45
+        ],
+        [
+          "E11",
+          28
+        ],
+        [
+          "E18",
+          28
+        ],
+        [
+          "E15",
+          18
+        ],
+        [
+          "E16",
+          12
+        ],
+        [
+          "E20",
+          10
+        ],
+        [
+          "E12",
+          9
+        ],
+        [
+          "E14 incomplete_answer",
+          1
+        ],
+        [
+          "E18 poor_uncertainty",
+          1
+        ],
+        [
+          "E20 language_format_error",
+          1
+        ]
+      ]
+    },
+    "s3": {
+      "contract": "prose",
+      "n": 140,
+      "n_generation_valid": 140,
+      "n_attempted": 140,
+      "buckets": {
+        "valid": 140,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 0
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.3578,
+      "grounding_counts": {
+        "records_applicable": 135,
+        "eligible_sentences": 626,
+        "grounded_sentences": 224,
+        "unsupported_sentences": 402
+      },
+      "refusal_fidelity": 1.0,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 427,
+        "mean": 438
+      },
+      "judge_means": {
+        "correctness": 3.493,
+        "completeness": 2.9,
+        "safety": 3.907,
+        "relevance": 4.793,
+        "fluency": 4.95,
+        "instruction_following": 2.986
+      },
+      "faithfulness_mean": 0.2494,
+      "latency_ms": {
+        "p50": 32297,
+        "mean": 32519
+      },
+      "error_pareto": [
+        [
+          "E14",
+          21
+        ],
+        [
+          "E18",
+          14
+        ],
+        [
+          "E16",
+          11
+        ],
+        [
+          "E11",
+          7
+        ],
+        [
+          "E15",
+          4
+        ],
+        [
+          "E19",
+          1
+        ],
+        [
+          "E12",
+          1
+        ],
+        [
+          "E20",
+          1
+        ]
+      ]
+    },
+    "s4": {
+      "contract": "prose",
+      "n": 140,
+      "n_generation_valid": 140,
+      "n_attempted": 140,
+      "buckets": {
+        "valid": 140,
+        "runtime_failure": 0,
+        "judge_failure": 0,
+        "metric_failure": 0,
+        "skipped": 0
+      },
+      "ok_rate": 1.0,
+      "grounded_sentence_rate": 0.8934,
+      "grounding_counts": {
+        "records_applicable": 140,
+        "eligible_sentences": 3424,
+        "grounded_sentences": 3059,
+        "unsupported_sentences": 365
+      },
+      "refusal_fidelity": 1.0,
+      "pregnancy_safety_rate": null,
+      "forbidden_claim_rate": 0.0,
+      "vietnamese_ratio_mean": 1.0,
+      "answer_chars": {
+        "p50": 2255,
+        "mean": 2251
+      },
+      "judge_means": {
+        "correctness": 2.821,
+        "completeness": 1.807,
+        "safety": 3.307,
+        "relevance": 3.293,
+        "fluency": 3.093,
+        "instruction_following": 1.607
+      },
+      "faithfulness_mean": 0.8571,
+      "latency_ms": {
+        "p50": 10139,
+        "mean": 9999
+      },
+      "error_pareto": [
+        [
+          "E14",
+          71
+        ],
+        [
+          "E18",
+          28
+        ],
+        [
+          "E20",
+          22
+        ],
+        [
+          "E16",
+          11
+        ],
+        [
+          "E11",
+          9
+        ],
+        [
+          "E15",
+          4
+        ],
+        [
+          "E19",
+          1
+        ]
+      ]
+    }
+  },
+  "comparisons": {
+    "s0:s1": {
+      "n_common": 140,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 0.535714,
+          "ci95": [
+            0.378571,
+            0.692857
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 83,
+          "w_plus": 2959.0,
+          "z": 5.8193,
+          "p_value": 0.0
+        },
+        "cliffs_delta": 0.3465,
+        "wtl_b_vs_a": {
+          "win": 66,
+          "tie": 57,
+          "loss": 17
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 1.071429,
+          "ci95": [
+            0.842857,
+            1.3
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 97,
+          "w_plus": 4373.0,
+          "z": 7.3001,
+          "p_value": 0.0
+        },
+        "cliffs_delta": 0.4813,
+        "wtl_b_vs_a": {
+          "win": 83,
+          "tie": 43,
+          "loss": 14
+        }
+      }
+    },
+    "s0:s2": {
+      "n_common": 140,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 0.285714,
+          "ci95": [
+            0.114286,
+            0.464286
+          ],
+          "p_value": 0.002,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 90,
+          "w_plus": 2748.5,
+          "z": 3.0185,
+          "p_value": 0.00254
+        },
+        "cliffs_delta": 0.1674,
+        "wtl_b_vs_a": {
+          "win": 59,
+          "tie": 50,
+          "loss": 31
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 0.314286,
+          "ci95": [
+            0.057143,
+            0.571429
+          ],
+          "p_value": 0.02,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 100,
+          "w_plus": 3147.5,
+          "z": 2.1824,
+          "p_value": 0.029081
+        },
+        "cliffs_delta": 0.1416,
+        "wtl_b_vs_a": {
+          "win": 61,
+          "tie": 40,
+          "loss": 39
+        }
+      }
+    },
+    "s1:s3": {
+      "n_common": 140,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 0.035714,
+          "ci95": [
+            -0.107143,
+            0.178571
+          ],
+          "p_value": 0.6512,
+          "significant": false,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 72,
+          "w_plus": 1389.0,
+          "z": 0.4564,
+          "p_value": 0.648077
+        },
+        "cliffs_delta": 0.0274,
+        "wtl_b_vs_a": {
+          "win": 39,
+          "tie": 68,
+          "loss": 33
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": -0.121429,
+          "ci95": [
+            -0.285714,
+            0.042857
+          ],
+          "p_value": 0.1586,
+          "significant": false,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 65,
+          "w_plus": 880.5,
+          "z": -1.3268,
+          "p_value": 0.18458
+        },
+        "cliffs_delta": -0.065,
+        "wtl_b_vs_a": {
+          "win": 29,
+          "tie": 75,
+          "loss": 36
+        }
+      }
+    },
+    "s2:s3": {
+      "n_common": 140,
+      "correctness": {
+        "bootstrap": {
+          "mean_diff": 0.285714,
+          "ci95": [
+            0.128571,
+            0.442857
+          ],
+          "p_value": 0.0008,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 85,
+          "w_plus": 2535.0,
+          "z": 3.3089,
+          "p_value": 0.000937
+        },
+        "cliffs_delta": 0.1896,
+        "wtl_b_vs_a": {
+          "win": 57,
+          "tie": 55,
+          "loss": 28
+        }
+      },
+      "safety": {
+        "bootstrap": {
+          "mean_diff": 0.635714,
+          "ci95": [
+            0.392857,
+            0.871429
+          ],
+          "p_value": 0.0,
+          "significant": true,
+          "n": 140
+        },
+        "wilcoxon": {
+          "n": 100,
+          "w_plus": 3887.5,
+          "z": 4.773,
+          "p_value": 2e-06
+        },
+        "cliffs_delta": 0.2763,
+        "wtl_b_vs_a": {
+          "win": 70,
+          "tie": 40,
+          "loss": 30
+        }
+      }
+    }
+  },
+  "errors": {},
+  "holm_correction": {
+    "s0:s1:correctness": {
+      "p": 0.0,
+      "threshold": 0.00625,
+      "significant": true
+    },
+    "s0:s1:safety": {
+      "p": 0.0,
+      "threshold": 0.007143,
+      "significant": true
+    },
+    "s2:s3:safety": {
+      "p": 2e-06,
+      "threshold": 0.008333,
+      "significant": true
+    },
+    "s2:s3:correctness": {
+      "p": 0.000937,
+      "threshold": 0.01,
+      "significant": true
+    },
+    "s0:s2:correctness": {
+      "p": 0.00254,
+      "threshold": 0.0125,
+      "significant": true
+    },
+    "s0:s2:safety": {
+      "p": 0.029081,
+      "threshold": 0.016667,
+      "significant": false
+    },
+    "s1:s3:safety": {
+      "p": 0.18458,
+      "threshold": 0.025,
+      "significant": false
+    },
+    "s1:s3:correctness": {
+      "p": 0.648077,
+      "threshold": 0.05,
+      "significant": false
+    }
+  }
+}

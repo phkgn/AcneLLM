@@ -5,7 +5,7 @@ lưu file riêng — KHÔNG mở trước khi chấm xong.
 
 Usage:
     python -m evaluation.annotations.export_blind --run-dir evaluation/reports/main_2x2_t3 \
-        --dataset evaluation/datasets/v1/d2_test.jsonl [--sample-frac 0.2] [--risk-all high]
+        --dataset evaluation/datasets/v1/answer_quality_test.jsonl [--sample-frac 0.2] [--risk-all high]
 Output: <run_dir>/annotation/blind_tasks.csv + SECRET_mapping.json
 """
 from __future__ import annotations

@@ -897,7 +897,7 @@ function DiagramsTab() {
             <Pill tone="info">E3</Pill>
             <h2 className="font-display mt-3 text-2xl">Evaluation architecture</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Four evaluation tiers applied across the S0–S4 system matrix.
+              Các bước đánh giá áp dụng trên năm cấu hình hệ thống có tên rõ nghĩa.
             </p>
           </div>
           <div className="overflow-x-auto p-5">
@@ -1010,31 +1010,31 @@ flowchart TD
 
 const evaluationDiagram = String.raw`
 flowchart LR
-  subgraph T["Evaluation tiers"]
-    T1["T1: module unit tests"]
-    T2["T2: retrieval"]
-    T3["T3: controlled generation"]
-    T4["T4: end-to-end SSE"]
-    T1 --> T2 --> T3 --> T4
+  subgraph T["Các bước đánh giá"]
+    UNIT["Kiểm thử module"]
+    RETRIEVAL["Đánh giá tìm kiếm tài liệu"]
+    GENERATION["Sinh câu trả lời có kiểm soát"]
+    E2E["Đánh giá end-to-end qua SSE"]
+    UNIT --> RETRIEVAL --> GENERATION --> E2E
   end
-  subgraph M["System matrix"]
-    S0["S0 Base only"]
-    S1["S1 Finetuned only"]
-    S2["S2 Base + RAG"]
-    S3["S3 Finetuned + RAG"]
-    S4["S4 Extractive RAG"]
+  subgraph M["Các cấu hình hệ thống"]
+    BASE["Model gốc"]
+    TUNED["Model tinh chỉnh"]
+    BASE_RAG["Model gốc + RAG"]
+    TUNED_RAG["Model tinh chỉnh + RAG"]
+    EXTRACTIVE["RAG trích xuất (không LLM)"]
   end
-  T1 -.-> S0
-  T2 -.-> S2
-  T2 -.-> S3
-  T2 -.-> S4
-  T3 -.-> S0
-  T3 -.-> S1
-  T3 -.-> S2
-  T3 -.-> S3
-  T3 -.-> S4
-  T4 -.-> S0
-  T4 -.-> S1
-  T4 -.-> S2
-  T4 -.-> S3
+  UNIT -.-> BASE
+  RETRIEVAL -.-> BASE_RAG
+  RETRIEVAL -.-> TUNED_RAG
+  RETRIEVAL -.-> EXTRACTIVE
+  GENERATION -.-> BASE
+  GENERATION -.-> TUNED
+  GENERATION -.-> BASE_RAG
+  GENERATION -.-> TUNED_RAG
+  GENERATION -.-> EXTRACTIVE
+  E2E -.-> BASE
+  E2E -.-> TUNED
+  E2E -.-> BASE_RAG
+  E2E -.-> TUNED_RAG
 `;

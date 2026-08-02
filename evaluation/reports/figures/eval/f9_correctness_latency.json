@@ -4,353 +4,4903 @@
   "chart_type": "scatter",
   "data": [
     {
-      "sample_id": "d1-0000",
+      "sample_id": "d2-0001",
       "system": "S0",
-      "latency_ms": 24605.0,
-      "correctness": 1.0,
+      "latency_ms": 13716.0,
+      "correctness": 2.0,
       "size": 10
     },
     {
-      "sample_id": "d1-0001",
+      "sample_id": "d2-0002",
       "system": "S0",
-      "latency_ms": 16714.0,
+      "latency_ms": 55852.0,
       "correctness": 1.0,
-      "size": 10
+      "size": 37.7
     },
     {
-      "sample_id": "d1-0002",
+      "sample_id": "d2-0003",
       "system": "S0",
-      "latency_ms": 14916.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0003",
-      "system": "S0",
-      "latency_ms": 15859.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0004",
-      "system": "S0",
-      "latency_ms": 12495.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0005",
-      "system": "S0",
-      "latency_ms": 17253.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0006",
-      "system": "S0",
-      "latency_ms": 10999.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0007",
-      "system": "S0",
-      "latency_ms": 18499.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0008",
-      "system": "S0",
-      "latency_ms": 18351.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0009",
-      "system": "S0",
-      "latency_ms": 18660.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0000",
-      "system": "S1",
-      "latency_ms": 32979.0,
+      "latency_ms": 58512.0,
       "correctness": 3.0,
-      "size": 14.05
+      "size": 34.6
     },
     {
-      "sample_id": "d1-0001",
+      "sample_id": "d2-0004",
+      "system": "S0",
+      "latency_ms": 48783.0,
+      "correctness": 3.0,
+      "size": 56.35
+    },
+    {
+      "sample_id": "d2-0005",
+      "system": "S0",
+      "latency_ms": 22000.0,
+      "correctness": 2.0,
+      "size": 13.75
+    },
+    {
+      "sample_id": "d2-0006",
+      "system": "S0",
+      "latency_ms": 28332.0,
+      "correctness": 3.0,
+      "size": 24.75
+    },
+    {
+      "sample_id": "d2-0007",
+      "system": "S0",
+      "latency_ms": 43157.0,
+      "correctness": 1.0,
+      "size": 14.35
+    },
+    {
+      "sample_id": "d2-0008",
+      "system": "S0",
+      "latency_ms": 43694.0,
+      "correctness": 3.0,
+      "size": 52.6
+    },
+    {
+      "sample_id": "d2-0009",
+      "system": "S0",
+      "latency_ms": 59498.0,
+      "correctness": 3.0,
+      "size": 64.1
+    },
+    {
+      "sample_id": "d2-0010",
+      "system": "S0",
+      "latency_ms": 40480.0,
+      "correctness": 2.0,
+      "size": 41.3
+    },
+    {
+      "sample_id": "d2-0011",
+      "system": "S0",
+      "latency_ms": 42107.0,
+      "correctness": 2.0,
+      "size": 46.05
+    },
+    {
+      "sample_id": "d2-0012",
+      "system": "S0",
+      "latency_ms": 34179.0,
+      "correctness": 2.0,
+      "size": 32.95
+    },
+    {
+      "sample_id": "d2-0013",
+      "system": "S0",
+      "latency_ms": 50849.0,
+      "correctness": 4.0,
+      "size": 58.65
+    },
+    {
+      "sample_id": "d2-0014",
+      "system": "S0",
+      "latency_ms": 56179.0,
+      "correctness": 3.0,
+      "size": 74.75
+    },
+    {
+      "sample_id": "d2-0015",
+      "system": "S0",
+      "latency_ms": 56005.0,
+      "correctness": 3.0,
+      "size": 59.65
+    },
+    {
+      "sample_id": "d2-0016",
+      "system": "S0",
+      "latency_ms": 50170.0,
+      "correctness": 2.0,
+      "size": 57.55
+    },
+    {
+      "sample_id": "d2-0017",
+      "system": "S0",
+      "latency_ms": 25756.0,
+      "correctness": 2.0,
+      "size": 20.35
+    },
+    {
+      "sample_id": "d2-0018",
+      "system": "S0",
+      "latency_ms": 58369.0,
+      "correctness": 3.0,
+      "size": 69.3
+    },
+    {
+      "sample_id": "d2-0019",
+      "system": "S0",
+      "latency_ms": 38921.0,
+      "correctness": 2.0,
+      "size": 40.2
+    },
+    {
+      "sample_id": "d2-0020",
+      "system": "S0",
+      "latency_ms": 58761.0,
+      "correctness": 3.0,
+      "size": 66.85
+    },
+    {
+      "sample_id": "d2-0021",
+      "system": "S0",
+      "latency_ms": 74527.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0022",
+      "system": "S0",
+      "latency_ms": 36552.0,
+      "correctness": 3.0,
+      "size": 37.9
+    },
+    {
+      "sample_id": "d2-0023",
+      "system": "S0",
+      "latency_ms": 53998.0,
+      "correctness": 3.0,
+      "size": 57.4
+    },
+    {
+      "sample_id": "d2-0024",
+      "system": "S0",
+      "latency_ms": 41141.0,
+      "correctness": 4.0,
+      "size": 50.25
+    },
+    {
+      "sample_id": "d2-0025",
+      "system": "S0",
+      "latency_ms": 40546.0,
+      "correctness": 3.0,
+      "size": 46.65
+    },
+    {
+      "sample_id": "d2-0026",
+      "system": "S0",
+      "latency_ms": 42500.0,
+      "correctness": 3.0,
+      "size": 47.45
+    },
+    {
+      "sample_id": "d2-0027",
+      "system": "S0",
+      "latency_ms": 47939.0,
+      "correctness": 2.0,
+      "size": 52.55
+    },
+    {
+      "sample_id": "d2-0028",
+      "system": "S0",
+      "latency_ms": 39611.0,
+      "correctness": 3.0,
+      "size": 45.5
+    },
+    {
+      "sample_id": "d2-0029",
+      "system": "S0",
+      "latency_ms": 49582.0,
+      "correctness": 2.0,
+      "size": 55.5
+    },
+    {
+      "sample_id": "d2-0030",
+      "system": "S0",
+      "latency_ms": 33944.0,
+      "correctness": 3.0,
+      "size": 37.25
+    },
+    {
+      "sample_id": "d2-0031",
+      "system": "S0",
+      "latency_ms": 30248.0,
+      "correctness": 2.0,
+      "size": 24.85
+    },
+    {
+      "sample_id": "d2-0032",
+      "system": "S0",
+      "latency_ms": 33730.0,
+      "correctness": 3.0,
+      "size": 37.1
+    },
+    {
+      "sample_id": "d2-0033",
+      "system": "S0",
+      "latency_ms": 48480.0,
+      "correctness": 4.0,
+      "size": 56.0
+    },
+    {
+      "sample_id": "d2-0034",
+      "system": "S0",
+      "latency_ms": 58962.0,
+      "correctness": 3.0,
+      "size": 72.1
+    },
+    {
+      "sample_id": "d2-0035",
+      "system": "S0",
+      "latency_ms": 25915.0,
+      "correctness": 3.0,
+      "size": 20.45
+    },
+    {
+      "sample_id": "d2-0036",
+      "system": "S0",
+      "latency_ms": 40823.0,
+      "correctness": 3.0,
+      "size": 46.7
+    },
+    {
+      "sample_id": "d2-0037",
+      "system": "S0",
+      "latency_ms": 63734.0,
+      "correctness": 3.0,
+      "size": 71.5
+    },
+    {
+      "sample_id": "d2-0038",
+      "system": "S0",
+      "latency_ms": 65576.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0039",
+      "system": "S0",
+      "latency_ms": 35410.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0040",
+      "system": "S0",
+      "latency_ms": 43154.0,
+      "correctness": 4.0,
+      "size": 45.35
+    },
+    {
+      "sample_id": "d2-0041",
+      "system": "S0",
+      "latency_ms": 40357.0,
+      "correctness": 4.0,
+      "size": 47.8
+    },
+    {
+      "sample_id": "d2-0042",
+      "system": "S0",
+      "latency_ms": 40968.0,
+      "correctness": 3.0,
+      "size": 43.15
+    },
+    {
+      "sample_id": "d2-0043",
+      "system": "S0",
+      "latency_ms": 30565.0,
+      "correctness": 2.0,
+      "size": 28.8
+    },
+    {
+      "sample_id": "d2-0044",
+      "system": "S0",
+      "latency_ms": 39167.0,
+      "correctness": 4.0,
+      "size": 41.6
+    },
+    {
+      "sample_id": "d2-0045",
+      "system": "S0",
+      "latency_ms": 48645.0,
+      "correctness": 4.0,
+      "size": 61.75
+    },
+    {
+      "sample_id": "d2-0046",
+      "system": "S0",
+      "latency_ms": 46803.0,
+      "correctness": 4.0,
+      "size": 57.25
+    },
+    {
+      "sample_id": "d2-0047",
+      "system": "S0",
+      "latency_ms": 51030.0,
+      "correctness": 3.0,
+      "size": 63.15
+    },
+    {
+      "sample_id": "d2-0048",
+      "system": "S0",
+      "latency_ms": 28637.0,
+      "correctness": 3.0,
+      "size": 26.7
+    },
+    {
+      "sample_id": "d2-0049",
+      "system": "S0",
+      "latency_ms": 45576.0,
+      "correctness": 2.0,
+      "size": 44.65
+    },
+    {
+      "sample_id": "d2-0050",
+      "system": "S0",
+      "latency_ms": 48100.0,
+      "correctness": 3.0,
+      "size": 55.8
+    },
+    {
+      "sample_id": "d2-0051",
+      "system": "S0",
+      "latency_ms": 29887.0,
+      "correctness": 3.0,
+      "size": 23.45
+    },
+    {
+      "sample_id": "d2-0052",
+      "system": "S0",
+      "latency_ms": 15926.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0053",
+      "system": "S0",
+      "latency_ms": 37419.0,
+      "correctness": 4.0,
+      "size": 41.25
+    },
+    {
+      "sample_id": "d2-0054",
+      "system": "S0",
+      "latency_ms": 15234.0,
+      "correctness": 2.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0055",
+      "system": "S0",
+      "latency_ms": 31023.0,
+      "correctness": 3.0,
+      "size": 29.5
+    },
+    {
+      "sample_id": "d2-0056",
+      "system": "S0",
+      "latency_ms": 25550.0,
+      "correctness": 2.0,
+      "size": 22.7
+    },
+    {
+      "sample_id": "d2-0057",
+      "system": "S0",
+      "latency_ms": 47015.0,
+      "correctness": 3.0,
+      "size": 51.55
+    },
+    {
+      "sample_id": "d2-0058",
+      "system": "S0",
+      "latency_ms": 53281.0,
+      "correctness": 3.0,
+      "size": 61.45
+    },
+    {
+      "sample_id": "d2-0059",
+      "system": "S0",
+      "latency_ms": 50451.0,
+      "correctness": 2.0,
+      "size": 54.7
+    },
+    {
+      "sample_id": "d2-0060",
+      "system": "S0",
+      "latency_ms": 29442.0,
+      "correctness": 3.0,
+      "size": 27.75
+    },
+    {
+      "sample_id": "d2-0061",
+      "system": "S0",
+      "latency_ms": 45361.0,
+      "correctness": 2.0,
+      "size": 49.9
+    },
+    {
+      "sample_id": "d2-0062",
+      "system": "S0",
+      "latency_ms": 33101.0,
+      "correctness": 3.0,
+      "size": 33.35
+    },
+    {
+      "sample_id": "d2-0063",
+      "system": "S0",
+      "latency_ms": 38399.0,
+      "correctness": 4.0,
+      "size": 39.95
+    },
+    {
+      "sample_id": "d2-0064",
+      "system": "S0",
+      "latency_ms": 45033.0,
+      "correctness": 3.0,
+      "size": 45.25
+    },
+    {
+      "sample_id": "d2-0065",
+      "system": "S0",
+      "latency_ms": 53590.0,
+      "correctness": 4.0,
+      "size": 62.55
+    },
+    {
+      "sample_id": "d2-0066",
+      "system": "S0",
+      "latency_ms": 37110.0,
+      "correctness": 3.0,
+      "size": 35.05
+    },
+    {
+      "sample_id": "d2-0067",
+      "system": "S0",
+      "latency_ms": 63810.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0068",
+      "system": "S0",
+      "latency_ms": 49802.0,
+      "correctness": 2.0,
+      "size": 53.8
+    },
+    {
+      "sample_id": "d2-0069",
+      "system": "S0",
+      "latency_ms": 34812.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0070",
+      "system": "S0",
+      "latency_ms": 38895.0,
+      "correctness": 4.0,
+      "size": 39.9
+    },
+    {
+      "sample_id": "d2-0071",
+      "system": "S0",
+      "latency_ms": 36547.0,
+      "correctness": 4.0,
+      "size": 33.95
+    },
+    {
+      "sample_id": "d2-0072",
+      "system": "S0",
+      "latency_ms": 53277.0,
+      "correctness": 2.0,
+      "size": 65.65
+    },
+    {
+      "sample_id": "d2-0073",
+      "system": "S0",
+      "latency_ms": 43239.0,
+      "correctness": 4.0,
+      "size": 46.0
+    },
+    {
+      "sample_id": "d2-0074",
+      "system": "S0",
+      "latency_ms": 64931.0,
+      "correctness": 1.0,
+      "size": 53.25
+    },
+    {
+      "sample_id": "d2-0075",
+      "system": "S0",
+      "latency_ms": 68826.0,
+      "correctness": 4.0,
+      "size": 51.75
+    },
+    {
+      "sample_id": "d2-0076",
+      "system": "S0",
+      "latency_ms": 64386.0,
+      "correctness": 3.0,
+      "size": 46.2
+    },
+    {
+      "sample_id": "d2-0077",
+      "system": "S0",
+      "latency_ms": 74988.0,
+      "correctness": 3.0,
+      "size": 60.0
+    },
+    {
+      "sample_id": "d2-0078",
+      "system": "S0",
+      "latency_ms": 50088.0,
+      "correctness": 2.0,
+      "size": 34.1
+    },
+    {
+      "sample_id": "d2-0079",
+      "system": "S0",
+      "latency_ms": 59798.0,
+      "correctness": 4.0,
+      "size": 43.2
+    },
+    {
+      "sample_id": "d2-0080",
+      "system": "S0",
+      "latency_ms": 64603.0,
+      "correctness": 2.0,
+      "size": 49.45
+    },
+    {
+      "sample_id": "d2-0025-typo1",
+      "system": "S0",
+      "latency_ms": 76199.0,
+      "correctness": 3.0,
+      "size": 59.1
+    },
+    {
+      "sample_id": "d2-0002-typo2",
+      "system": "S0",
+      "latency_ms": 45105.0,
+      "correctness": 4.0,
+      "size": 35.05
+    },
+    {
+      "sample_id": "d2-0007-typo3",
+      "system": "S0",
+      "latency_ms": 41624.0,
+      "correctness": 4.0,
+      "size": 35.95
+    },
+    {
+      "sample_id": "d2-0016-typo4",
+      "system": "S0",
+      "latency_ms": 44437.0,
+      "correctness": 4.0,
+      "size": 37.25
+    },
+    {
+      "sample_id": "d2-0048-typo5",
+      "system": "S0",
+      "latency_ms": 29812.0,
+      "correctness": 3.0,
+      "size": 19.5
+    },
+    {
+      "sample_id": "d2-0076-typo6",
+      "system": "S0",
+      "latency_ms": 59300.0,
+      "correctness": 3.0,
+      "size": 52.75
+    },
+    {
+      "sample_id": "d2-0052-typo7",
+      "system": "S0",
+      "latency_ms": 52461.0,
+      "correctness": 2.0,
+      "size": 40.45
+    },
+    {
+      "sample_id": "d2-0067-typo8",
+      "system": "S0",
+      "latency_ms": 73928.0,
+      "correctness": 2.0,
+      "size": 74.15
+    },
+    {
+      "sample_id": "d2-0037-typo9",
+      "system": "S0",
+      "latency_ms": 66361.0,
+      "correctness": 3.0,
+      "size": 60.7
+    },
+    {
+      "sample_id": "d2-0003-typo10",
+      "system": "S0",
+      "latency_ms": 45041.0,
+      "correctness": 4.0,
+      "size": 37.65
+    },
+    {
+      "sample_id": "d2-0068-typo11",
+      "system": "S0",
+      "latency_ms": 65687.0,
+      "correctness": 2.0,
+      "size": 57.2
+    },
+    {
+      "sample_id": "d2-0009-typo12",
+      "system": "S0",
+      "latency_ms": 49203.0,
+      "correctness": 3.0,
+      "size": 40.55
+    },
+    {
+      "sample_id": "d2-0034-typo13",
+      "system": "S0",
+      "latency_ms": 80134.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0065-typo14",
+      "system": "S0",
+      "latency_ms": 46950.0,
+      "correctness": 4.0,
+      "size": 49.0
+    },
+    {
+      "sample_id": "d2-0040-typo15",
+      "system": "S0",
+      "latency_ms": 65410.0,
+      "correctness": 4.0,
+      "size": 76.9
+    },
+    {
+      "sample_id": "d2-0011-typo16",
+      "system": "S0",
+      "latency_ms": 38794.0,
+      "correctness": 3.0,
+      "size": 41.4
+    },
+    {
+      "sample_id": "d2-0071-typo17",
+      "system": "S0",
+      "latency_ms": 30294.0,
+      "correctness": 1.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0022-typo18",
+      "system": "S0",
+      "latency_ms": 39868.0,
+      "correctness": 4.0,
+      "size": 42.3
+    },
+    {
+      "sample_id": "d2-0069-typo19",
+      "system": "S0",
+      "latency_ms": 48973.0,
+      "correctness": 3.0,
+      "size": 53.7
+    },
+    {
+      "sample_id": "d2-0005-typo20",
+      "system": "S0",
+      "latency_ms": 21659.0,
+      "correctness": 3.0,
+      "size": 13.2
+    },
+    {
+      "sample_id": "d2-0072-typo21",
+      "system": "S0",
+      "latency_ms": 47140.0,
+      "correctness": 2.0,
+      "size": 57.9
+    },
+    {
+      "sample_id": "d2-0019-typo22",
+      "system": "S0",
+      "latency_ms": 43350.0,
+      "correctness": 2.0,
+      "size": 44.7
+    },
+    {
+      "sample_id": "d2-0050-typo23",
+      "system": "S0",
+      "latency_ms": 52981.0,
+      "correctness": 3.0,
+      "size": 64.6
+    },
+    {
+      "sample_id": "d2-0038-typo24",
+      "system": "S0",
+      "latency_ms": 45906.0,
+      "correctness": 4.0,
+      "size": 50.55
+    },
+    {
+      "sample_id": "d2-0004-typo25",
+      "system": "S0",
+      "latency_ms": 41415.0,
+      "correctness": 2.0,
+      "size": 47.05
+    },
+    {
+      "sample_id": "d2-0031-typo26",
+      "system": "S0",
+      "latency_ms": 46736.0,
+      "correctness": 2.0,
+      "size": 51.95
+    },
+    {
+      "sample_id": "d2-0041-typo27",
+      "system": "S0",
+      "latency_ms": 49297.0,
+      "correctness": 3.0,
+      "size": 61.3
+    },
+    {
+      "sample_id": "d2-0008-typo28",
+      "system": "S0",
+      "latency_ms": 48090.0,
+      "correctness": 4.0,
+      "size": 57.95
+    },
+    {
+      "sample_id": "d2-0001-typo29",
+      "system": "S0",
+      "latency_ms": 15444.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0024-typo30",
+      "system": "S0",
+      "latency_ms": 51025.0,
+      "correctness": 3.0,
+      "size": 62.8
+    },
+    {
+      "sample_id": "d2-0039-typo31",
+      "system": "S0",
+      "latency_ms": 51231.0,
+      "correctness": 2.0,
+      "size": 25.3
+    },
+    {
+      "sample_id": "d2-0062-typo32",
+      "system": "S0",
+      "latency_ms": 43813.0,
+      "correctness": 4.0,
+      "size": 46.25
+    },
+    {
+      "sample_id": "d2-0074-typo33",
+      "system": "S0",
+      "latency_ms": 50550.0,
+      "correctness": 2.0,
+      "size": 56.4
+    },
+    {
+      "sample_id": "d2-0032-typo34",
+      "system": "S0",
+      "latency_ms": 35467.0,
+      "correctness": 4.0,
+      "size": 37.55
+    },
+    {
+      "sample_id": "d2-0080-typo35",
+      "system": "S0",
+      "latency_ms": 40684.0,
+      "correctness": 3.0,
+      "size": 40.5
+    },
+    {
+      "sample_id": "d2-0056-typo36",
+      "system": "S0",
+      "latency_ms": 44798.0,
+      "correctness": 4.0,
+      "size": 54.65
+    },
+    {
+      "sample_id": "d2-0070-typo37",
+      "system": "S0",
+      "latency_ms": 42702.0,
+      "correctness": 4.0,
+      "size": 50.25
+    },
+    {
+      "sample_id": "d2-0063-typo38",
+      "system": "S0",
+      "latency_ms": 39489.0,
+      "correctness": 3.0,
+      "size": 40.7
+    },
+    {
+      "sample_id": "d2-0066-typo39",
+      "system": "S0",
+      "latency_ms": 25538.0,
+      "correctness": 4.0,
+      "size": 20.2
+    },
+    {
+      "sample_id": "d2-0030-typo40",
+      "system": "S0",
+      "latency_ms": 37542.0,
+      "correctness": 4.0,
+      "size": 42.05
+    },
+    {
+      "sample_id": "d2-0006-typo41",
+      "system": "S0",
+      "latency_ms": 29958.0,
+      "correctness": 2.0,
+      "size": 29.8
+    },
+    {
+      "sample_id": "d2-0035-typo42",
+      "system": "S0",
+      "latency_ms": 37788.0,
+      "correctness": 3.0,
+      "size": 37.5
+    },
+    {
+      "sample_id": "d2-0028-typo43",
+      "system": "S0",
+      "latency_ms": 35615.0,
+      "correctness": 4.0,
+      "size": 40.75
+    },
+    {
+      "sample_id": "d2-0018-typo44",
+      "system": "S0",
+      "latency_ms": 64660.0,
+      "correctness": 3.0,
+      "size": 74.95
+    },
+    {
+      "sample_id": "d2-0033-typo45",
+      "system": "S0",
+      "latency_ms": 46857.0,
+      "correctness": 4.0,
+      "size": 53.9
+    },
+    {
+      "sample_id": "d2-0010-typo46",
+      "system": "S0",
+      "latency_ms": 43988.0,
+      "correctness": 2.0,
+      "size": 45.7
+    },
+    {
+      "sample_id": "d2-0049-typo47",
+      "system": "S0",
+      "latency_ms": 53525.0,
+      "correctness": 2.0,
+      "size": 52.35
+    },
+    {
+      "sample_id": "d2-0021-typo48",
+      "system": "S0",
+      "latency_ms": 66796.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0059-typo49",
+      "system": "S0",
+      "latency_ms": 45026.0,
+      "correctness": 2.0,
+      "size": 46.65
+    },
+    {
+      "sample_id": "d2-0020-typo50",
+      "system": "S0",
+      "latency_ms": 43341.0,
+      "correctness": 3.0,
+      "size": 44.4
+    },
+    {
+      "sample_id": "d2-0012-typo51",
+      "system": "S0",
+      "latency_ms": 41069.0,
+      "correctness": 2.0,
+      "size": 41.8
+    },
+    {
+      "sample_id": "d2-0058-typo52",
+      "system": "S0",
+      "latency_ms": 55124.0,
+      "correctness": 2.0,
+      "size": 62.75
+    },
+    {
+      "sample_id": "d2-0053-typo53",
+      "system": "S0",
+      "latency_ms": 46141.0,
+      "correctness": 4.0,
+      "size": 54.45
+    },
+    {
+      "sample_id": "d2-0014-typo54",
+      "system": "S0",
+      "latency_ms": 43549.0,
+      "correctness": 2.0,
+      "size": 53.45
+    },
+    {
+      "sample_id": "d2-0046-typo55",
+      "system": "S0",
+      "latency_ms": 42188.0,
+      "correctness": 3.0,
+      "size": 45.85
+    },
+    {
+      "sample_id": "d2-0051-typo56",
+      "system": "S0",
+      "latency_ms": 41576.0,
+      "correctness": 3.0,
+      "size": 38.95
+    },
+    {
+      "sample_id": "d2-0023-typo57",
+      "system": "S0",
+      "latency_ms": 54857.0,
+      "correctness": 3.0,
+      "size": 59.0
+    },
+    {
+      "sample_id": "d2-0079-typo58",
+      "system": "S0",
+      "latency_ms": 46952.0,
+      "correctness": 4.0,
+      "size": 51.45
+    },
+    {
+      "sample_id": "d2-0057-typo59",
+      "system": "S0",
+      "latency_ms": 66630.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0073-typo60",
+      "system": "S0",
+      "latency_ms": 56865.0,
+      "correctness": 4.0,
+      "size": 68.35
+    },
+    {
+      "sample_id": "d2-0001",
       "system": "S1",
       "latency_ms": 19660.0,
       "correctness": 3.0,
-      "size": 14.6
-    },
-    {
-      "sample_id": "d1-0002",
-      "system": "S1",
-      "latency_ms": 14928.0,
-      "correctness": 3.0,
       "size": 10
     },
     {
-      "sample_id": "d1-0003",
+      "sample_id": "d2-0002",
       "system": "S1",
-      "latency_ms": 11705.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0004",
-      "system": "S1",
-      "latency_ms": 15224.0,
-      "correctness": 3.0,
-      "size": 11.0
-    },
-    {
-      "sample_id": "d1-0005",
-      "system": "S1",
-      "latency_ms": 15018.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0006",
-      "system": "S1",
-      "latency_ms": 9645.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0007",
-      "system": "S1",
-      "latency_ms": 11482.0,
-      "correctness": 3.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0008",
-      "system": "S1",
-      "latency_ms": 13682.0,
+      "latency_ms": 21973.0,
       "correctness": 4.0,
-      "size": 10
+      "size": 15.5
     },
     {
-      "sample_id": "d1-0009",
+      "sample_id": "d2-0003",
       "system": "S1",
-      "latency_ms": 15757.0,
+      "latency_ms": 28274.0,
       "correctness": 3.0,
-      "size": 12.0
+      "size": 22.6
     },
     {
-      "sample_id": "d1-0000",
-      "system": "S2",
-      "latency_ms": 53828.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0001",
-      "system": "S2",
-      "latency_ms": 38949.0,
-      "correctness": 3.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0002",
-      "system": "S2",
-      "latency_ms": 48154.0,
-      "correctness": 5.0,
-      "size": 11.0
-    },
-    {
-      "sample_id": "d1-0003",
-      "system": "S2",
-      "latency_ms": 39478.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0004",
-      "system": "S2",
-      "latency_ms": 38550.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0005",
-      "system": "S2",
-      "latency_ms": 43924.0,
-      "correctness": 3.0,
-      "size": 10.8
-    },
-    {
-      "sample_id": "d1-0006",
-      "system": "S2",
-      "latency_ms": 45527.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0007",
-      "system": "S2",
-      "latency_ms": 36918.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0008",
-      "system": "S2",
-      "latency_ms": 38169.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0009",
-      "system": "S2",
-      "latency_ms": 51504.0,
-      "correctness": 1.0,
-      "size": 10
-    },
-    {
-      "sample_id": "d1-0000",
-      "system": "S3",
-      "latency_ms": 54343.0,
-      "correctness": 3.0,
-      "size": 19.4
-    },
-    {
-      "sample_id": "d1-0001",
-      "system": "S3",
-      "latency_ms": 61263.0,
+      "sample_id": "d2-0004",
+      "system": "S1",
+      "latency_ms": 25273.0,
       "correctness": 4.0,
-      "size": 18.5
+      "size": 22.5
     },
     {
-      "sample_id": "d1-0002",
-      "system": "S3",
-      "latency_ms": 46751.0,
-      "correctness": 5.0,
+      "sample_id": "d2-0005",
+      "system": "S1",
+      "latency_ms": 22390.0,
+      "correctness": 2.0,
       "size": 15.6
     },
     {
-      "sample_id": "d1-0003",
-      "system": "S3",
-      "latency_ms": 77119.0,
-      "correctness": 3.0,
-      "size": 35.75
+      "sample_id": "d2-0006",
+      "system": "S1",
+      "latency_ms": 20475.0,
+      "correctness": 4.0,
+      "size": 14.85
     },
     {
-      "sample_id": "d1-0004",
-      "system": "S3",
-      "latency_ms": 30369.0,
+      "sample_id": "d2-0007",
+      "system": "S1",
+      "latency_ms": 28157.0,
+      "correctness": 4.0,
+      "size": 26.4
+    },
+    {
+      "sample_id": "d2-0008",
+      "system": "S1",
+      "latency_ms": 27761.0,
+      "correctness": 5.0,
+      "size": 23.0
+    },
+    {
+      "sample_id": "d2-0009",
+      "system": "S1",
+      "latency_ms": 23839.0,
+      "correctness": 3.0,
+      "size": 17.5
+    },
+    {
+      "sample_id": "d2-0010",
+      "system": "S1",
+      "latency_ms": 28081.0,
+      "correctness": 2.0,
+      "size": 22.75
+    },
+    {
+      "sample_id": "d2-0011",
+      "system": "S1",
+      "latency_ms": 26737.0,
+      "correctness": 4.0,
+      "size": 19.75
+    },
+    {
+      "sample_id": "d2-0012",
+      "system": "S1",
+      "latency_ms": 22285.0,
+      "correctness": 2.0,
+      "size": 15.55
+    },
+    {
+      "sample_id": "d2-0013",
+      "system": "S1",
+      "latency_ms": 23718.0,
+      "correctness": 4.0,
+      "size": 19.55
+    },
+    {
+      "sample_id": "d2-0014",
+      "system": "S1",
+      "latency_ms": 26598.0,
+      "correctness": 4.0,
+      "size": 25.55
+    },
+    {
+      "sample_id": "d2-0015",
+      "system": "S1",
+      "latency_ms": 28286.0,
+      "correctness": 4.0,
+      "size": 19.1
+    },
+    {
+      "sample_id": "d2-0016",
+      "system": "S1",
+      "latency_ms": 26382.0,
+      "correctness": 2.0,
+      "size": 20.35
+    },
+    {
+      "sample_id": "d2-0017",
+      "system": "S1",
+      "latency_ms": 21185.0,
+      "correctness": 3.0,
+      "size": 13.95
+    },
+    {
+      "sample_id": "d2-0018",
+      "system": "S1",
+      "latency_ms": 25037.0,
+      "correctness": 3.0,
+      "size": 17.5
+    },
+    {
+      "sample_id": "d2-0019",
+      "system": "S1",
+      "latency_ms": 23159.0,
+      "correctness": 2.0,
+      "size": 15.15
+    },
+    {
+      "sample_id": "d2-0020",
+      "system": "S1",
+      "latency_ms": 25323.0,
+      "correctness": 4.0,
+      "size": 17.7
+    },
+    {
+      "sample_id": "d2-0021",
+      "system": "S1",
+      "latency_ms": 29055.0,
+      "correctness": 4.0,
+      "size": 26.45
+    },
+    {
+      "sample_id": "d2-0022",
+      "system": "S1",
+      "latency_ms": 19949.0,
+      "correctness": 3.0,
+      "size": 10.35
+    },
+    {
+      "sample_id": "d2-0023",
+      "system": "S1",
+      "latency_ms": 27427.0,
+      "correctness": 3.0,
+      "size": 16.7
+    },
+    {
+      "sample_id": "d2-0024",
+      "system": "S1",
+      "latency_ms": 25031.0,
+      "correctness": 3.0,
+      "size": 22.4
+    },
+    {
+      "sample_id": "d2-0025",
+      "system": "S1",
+      "latency_ms": 27766.0,
+      "correctness": 4.0,
+      "size": 25.35
+    },
+    {
+      "sample_id": "d2-0026",
+      "system": "S1",
+      "latency_ms": 28235.0,
+      "correctness": 4.0,
+      "size": 22.75
+    },
+    {
+      "sample_id": "d2-0027",
+      "system": "S1",
+      "latency_ms": 27206.0,
+      "correctness": 4.0,
+      "size": 21.75
+    },
+    {
+      "sample_id": "d2-0028",
+      "system": "S1",
+      "latency_ms": 22258.0,
+      "correctness": 4.0,
+      "size": 17.6
+    },
+    {
+      "sample_id": "d2-0029",
+      "system": "S1",
+      "latency_ms": 25034.0,
+      "correctness": 2.0,
+      "size": 20.3
+    },
+    {
+      "sample_id": "d2-0030",
+      "system": "S1",
+      "latency_ms": 23404.0,
+      "correctness": 2.0,
+      "size": 19.8
+    },
+    {
+      "sample_id": "d2-0031",
+      "system": "S1",
+      "latency_ms": 22501.0,
+      "correctness": 3.0,
+      "size": 13.15
+    },
+    {
+      "sample_id": "d2-0032",
+      "system": "S1",
+      "latency_ms": 24803.0,
+      "correctness": 4.0,
+      "size": 22.9
+    },
+    {
+      "sample_id": "d2-0033",
+      "system": "S1",
+      "latency_ms": 28444.0,
+      "correctness": 4.0,
+      "size": 26.35
+    },
+    {
+      "sample_id": "d2-0034",
+      "system": "S1",
+      "latency_ms": 22334.0,
+      "correctness": 3.0,
+      "size": 18.35
+    },
+    {
+      "sample_id": "d2-0035",
+      "system": "S1",
+      "latency_ms": 26759.0,
+      "correctness": 4.0,
+      "size": 21.05
+    },
+    {
+      "sample_id": "d2-0036",
+      "system": "S1",
+      "latency_ms": 21648.0,
+      "correctness": 2.0,
+      "size": 14.4
+    },
+    {
+      "sample_id": "d2-0037",
+      "system": "S1",
+      "latency_ms": 26821.0,
+      "correctness": 4.0,
+      "size": 20.85
+    },
+    {
+      "sample_id": "d2-0038",
+      "system": "S1",
+      "latency_ms": 25030.0,
+      "correctness": 3.0,
+      "size": 20.45
+    },
+    {
+      "sample_id": "d2-0039",
+      "system": "S1",
+      "latency_ms": 24272.0,
+      "correctness": 4.0,
+      "size": 17.15
+    },
+    {
+      "sample_id": "d2-0040",
+      "system": "S1",
+      "latency_ms": 25675.0,
+      "correctness": 3.0,
+      "size": 18.0
+    },
+    {
+      "sample_id": "d2-0041",
+      "system": "S1",
+      "latency_ms": 22609.0,
+      "correctness": 4.0,
+      "size": 18.25
+    },
+    {
+      "sample_id": "d2-0042",
+      "system": "S1",
+      "latency_ms": 25171.0,
+      "correctness": 3.0,
+      "size": 18.8
+    },
+    {
+      "sample_id": "d2-0043",
+      "system": "S1",
+      "latency_ms": 23837.0,
+      "correctness": 3.0,
+      "size": 15.45
+    },
+    {
+      "sample_id": "d2-0044",
+      "system": "S1",
+      "latency_ms": 25577.0,
+      "correctness": 4.0,
+      "size": 21.55
+    },
+    {
+      "sample_id": "d2-0045",
+      "system": "S1",
+      "latency_ms": 20149.0,
+      "correctness": 3.0,
+      "size": 14.7
+    },
+    {
+      "sample_id": "d2-0046",
+      "system": "S1",
+      "latency_ms": 24458.0,
+      "correctness": 4.0,
+      "size": 19.7
+    },
+    {
+      "sample_id": "d2-0047",
+      "system": "S1",
+      "latency_ms": 20364.0,
+      "correctness": 2.0,
+      "size": 13.5
+    },
+    {
+      "sample_id": "d2-0048",
+      "system": "S1",
+      "latency_ms": 20875.0,
+      "correctness": 4.0,
+      "size": 15.95
+    },
+    {
+      "sample_id": "d2-0049",
+      "system": "S1",
+      "latency_ms": 30465.0,
+      "correctness": 4.0,
+      "size": 21.35
+    },
+    {
+      "sample_id": "d2-0050",
+      "system": "S1",
+      "latency_ms": 26182.0,
+      "correctness": 4.0,
+      "size": 19.75
+    },
+    {
+      "sample_id": "d2-0051",
+      "system": "S1",
+      "latency_ms": 28795.0,
+      "correctness": 3.0,
+      "size": 14.7
+    },
+    {
+      "sample_id": "d2-0052",
+      "system": "S1",
+      "latency_ms": 22594.0,
       "correctness": 3.0,
       "size": 10
     },
     {
-      "sample_id": "d1-0005",
-      "system": "S3",
-      "latency_ms": 74729.0,
+      "sample_id": "d2-0053",
+      "system": "S1",
+      "latency_ms": 24022.0,
       "correctness": 4.0,
-      "size": 17.2
+      "size": 16.35
     },
     {
-      "sample_id": "d1-0006",
-      "system": "S3",
-      "latency_ms": 46913.0,
-      "correctness": 4.0,
-      "size": 19.85
+      "sample_id": "d2-0054",
+      "system": "S1",
+      "latency_ms": 23395.0,
+      "correctness": 2.0,
+      "size": 17.75
     },
     {
-      "sample_id": "d1-0007",
-      "system": "S3",
-      "latency_ms": 82354.0,
+      "sample_id": "d2-0055",
+      "system": "S1",
+      "latency_ms": 23701.0,
       "correctness": 4.0,
-      "size": 40.0
+      "size": 16.5
     },
     {
-      "sample_id": "d1-0008",
-      "system": "S3",
-      "latency_ms": 30444.0,
-      "correctness": 4.0,
-      "size": 10
+      "sample_id": "d2-0056",
+      "system": "S1",
+      "latency_ms": 24890.0,
+      "correctness": 2.0,
+      "size": 23.2
     },
     {
-      "sample_id": "d1-0009",
-      "system": "S3",
-      "latency_ms": 52686.0,
+      "sample_id": "d2-0057",
+      "system": "S1",
+      "latency_ms": 25132.0,
+      "correctness": 3.0,
+      "size": 18.15
+    },
+    {
+      "sample_id": "d2-0058",
+      "system": "S1",
+      "latency_ms": 27529.0,
+      "correctness": 4.0,
+      "size": 24.7
+    },
+    {
+      "sample_id": "d2-0059",
+      "system": "S1",
+      "latency_ms": 29945.0,
+      "correctness": 4.0,
+      "size": 24.7
+    },
+    {
+      "sample_id": "d2-0060",
+      "system": "S1",
+      "latency_ms": 23274.0,
       "correctness": 4.0,
       "size": 20.1
     },
     {
-      "sample_id": "d1-0000",
-      "system": "S4",
-      "latency_ms": 12585.0,
-      "correctness": 4.0,
-      "size": 80
+      "sample_id": "d2-0061",
+      "system": "S1",
+      "latency_ms": 25528.0,
+      "correctness": 3.0,
+      "size": 19.55
     },
     {
-      "sample_id": "d1-0001",
-      "system": "S4",
-      "latency_ms": 14810.0,
-      "correctness": 4.0,
-      "size": 80
+      "sample_id": "d2-0062",
+      "system": "S1",
+      "latency_ms": 24508.0,
+      "correctness": 3.0,
+      "size": 18.45
     },
     {
-      "sample_id": "d1-0002",
-      "system": "S4",
-      "latency_ms": 12593.0,
+      "sample_id": "d2-0063",
+      "system": "S1",
+      "latency_ms": 19931.0,
+      "correctness": 4.0,
+      "size": 11.9
+    },
+    {
+      "sample_id": "d2-0064",
+      "system": "S1",
+      "latency_ms": 29016.0,
+      "correctness": 2.0,
+      "size": 22.0
+    },
+    {
+      "sample_id": "d2-0065",
+      "system": "S1",
+      "latency_ms": 23758.0,
+      "correctness": 4.0,
+      "size": 17.25
+    },
+    {
+      "sample_id": "d2-0066",
+      "system": "S1",
+      "latency_ms": 30592.0,
+      "correctness": 4.0,
+      "size": 25.3
+    },
+    {
+      "sample_id": "d2-0067",
+      "system": "S1",
+      "latency_ms": 23812.0,
+      "correctness": 3.0,
+      "size": 18.3
+    },
+    {
+      "sample_id": "d2-0068",
+      "system": "S1",
+      "latency_ms": 21464.0,
+      "correctness": 3.0,
+      "size": 13.1
+    },
+    {
+      "sample_id": "d2-0069",
+      "system": "S1",
+      "latency_ms": 26993.0,
+      "correctness": 3.0,
+      "size": 20.3
+    },
+    {
+      "sample_id": "d2-0070",
+      "system": "S1",
+      "latency_ms": 25613.0,
+      "correctness": 4.0,
+      "size": 23.95
+    },
+    {
+      "sample_id": "d2-0071",
+      "system": "S1",
+      "latency_ms": 26988.0,
+      "correctness": 4.0,
+      "size": 20.65
+    },
+    {
+      "sample_id": "d2-0072",
+      "system": "S1",
+      "latency_ms": 23798.0,
+      "correctness": 3.0,
+      "size": 20.4
+    },
+    {
+      "sample_id": "d2-0073",
+      "system": "S1",
+      "latency_ms": 22588.0,
+      "correctness": 4.0,
+      "size": 16.6
+    },
+    {
+      "sample_id": "d2-0074",
+      "system": "S1",
+      "latency_ms": 24130.0,
+      "correctness": 4.0,
+      "size": 15.05
+    },
+    {
+      "sample_id": "d2-0075",
+      "system": "S1",
+      "latency_ms": 32136.0,
+      "correctness": 3.0,
+      "size": 30.3
+    },
+    {
+      "sample_id": "d2-0076",
+      "system": "S1",
+      "latency_ms": 28958.0,
+      "correctness": 4.0,
+      "size": 22.6
+    },
+    {
+      "sample_id": "d2-0077",
+      "system": "S1",
+      "latency_ms": 26507.0,
+      "correctness": 4.0,
+      "size": 20.9
+    },
+    {
+      "sample_id": "d2-0078",
+      "system": "S1",
+      "latency_ms": 32225.0,
+      "correctness": 4.0,
+      "size": 28.15
+    },
+    {
+      "sample_id": "d2-0079",
+      "system": "S1",
+      "latency_ms": 27427.0,
+      "correctness": 4.0,
+      "size": 22.5
+    },
+    {
+      "sample_id": "d2-0080",
+      "system": "S1",
+      "latency_ms": 27287.0,
+      "correctness": 3.0,
+      "size": 21.25
+    },
+    {
+      "sample_id": "d2-0025-typo1",
+      "system": "S1",
+      "latency_ms": 21776.0,
+      "correctness": 4.0,
+      "size": 17.3
+    },
+    {
+      "sample_id": "d2-0002-typo2",
+      "system": "S1",
+      "latency_ms": 22729.0,
+      "correctness": 4.0,
+      "size": 18.25
+    },
+    {
+      "sample_id": "d2-0007-typo3",
+      "system": "S1",
+      "latency_ms": 25722.0,
+      "correctness": 4.0,
+      "size": 23.95
+    },
+    {
+      "sample_id": "d2-0016-typo4",
+      "system": "S1",
+      "latency_ms": 32407.0,
+      "correctness": 4.0,
+      "size": 30.65
+    },
+    {
+      "sample_id": "d2-0048-typo5",
+      "system": "S1",
+      "latency_ms": 21796.0,
       "correctness": 5.0,
-      "size": 80
+      "size": 16.4
     },
     {
-      "sample_id": "d1-0003",
-      "system": "S4",
-      "latency_ms": 9567.0,
+      "sample_id": "d2-0076-typo6",
+      "system": "S1",
+      "latency_ms": 25759.0,
+      "correctness": 3.0,
+      "size": 17.85
+    },
+    {
+      "sample_id": "d2-0052-typo7",
+      "system": "S1",
+      "latency_ms": 22340.0,
+      "correctness": 3.0,
+      "size": 16.4
+    },
+    {
+      "sample_id": "d2-0067-typo8",
+      "system": "S1",
+      "latency_ms": 28894.0,
+      "correctness": 3.0,
+      "size": 26.85
+    },
+    {
+      "sample_id": "d2-0037-typo9",
+      "system": "S1",
+      "latency_ms": 26854.0,
+      "correctness": 3.0,
+      "size": 22.05
+    },
+    {
+      "sample_id": "d2-0003-typo10",
+      "system": "S1",
+      "latency_ms": 27361.0,
       "correctness": 4.0,
+      "size": 21.4
+    },
+    {
+      "sample_id": "d2-0068-typo11",
+      "system": "S1",
+      "latency_ms": 22840.0,
+      "correctness": 4.0,
+      "size": 15.95
+    },
+    {
+      "sample_id": "d2-0009-typo12",
+      "system": "S1",
+      "latency_ms": 25330.0,
+      "correctness": 2.0,
+      "size": 20.65
+    },
+    {
+      "sample_id": "d2-0034-typo13",
+      "system": "S1",
+      "latency_ms": 22154.0,
+      "correctness": 3.0,
+      "size": 18.85
+    },
+    {
+      "sample_id": "d2-0065-typo14",
+      "system": "S1",
+      "latency_ms": 23359.0,
+      "correctness": 4.0,
+      "size": 15.25
+    },
+    {
+      "sample_id": "d2-0040-typo15",
+      "system": "S1",
+      "latency_ms": 27104.0,
+      "correctness": 4.0,
+      "size": 21.5
+    },
+    {
+      "sample_id": "d2-0011-typo16",
+      "system": "S1",
+      "latency_ms": 25999.0,
+      "correctness": 3.0,
+      "size": 18.65
+    },
+    {
+      "sample_id": "d2-0071-typo17",
+      "system": "S1",
+      "latency_ms": 29332.0,
+      "correctness": 4.0,
+      "size": 24.4
+    },
+    {
+      "sample_id": "d2-0022-typo18",
+      "system": "S1",
+      "latency_ms": 25071.0,
+      "correctness": 3.0,
+      "size": 18.35
+    },
+    {
+      "sample_id": "d2-0069-typo19",
+      "system": "S1",
+      "latency_ms": 32677.0,
+      "correctness": 4.0,
+      "size": 29.25
+    },
+    {
+      "sample_id": "d2-0005-typo20",
+      "system": "S1",
+      "latency_ms": 27123.0,
+      "correctness": 3.0,
+      "size": 22.5
+    },
+    {
+      "sample_id": "d2-0072-typo21",
+      "system": "S1",
+      "latency_ms": 24645.0,
+      "correctness": 4.0,
+      "size": 22.6
+    },
+    {
+      "sample_id": "d2-0019-typo22",
+      "system": "S1",
+      "latency_ms": 25369.0,
+      "correctness": 2.0,
+      "size": 18.05
+    },
+    {
+      "sample_id": "d2-0050-typo23",
+      "system": "S1",
+      "latency_ms": 22141.0,
+      "correctness": 4.0,
+      "size": 16.25
+    },
+    {
+      "sample_id": "d2-0038-typo24",
+      "system": "S1",
+      "latency_ms": 24832.0,
+      "correctness": 4.0,
+      "size": 21.3
+    },
+    {
+      "sample_id": "d2-0004-typo25",
+      "system": "S1",
+      "latency_ms": 22360.0,
+      "correctness": 3.0,
+      "size": 19.1
+    },
+    {
+      "sample_id": "d2-0031-typo26",
+      "system": "S1",
+      "latency_ms": 19750.0,
+      "correctness": 3.0,
+      "size": 11.95
+    },
+    {
+      "sample_id": "d2-0041-typo27",
+      "system": "S1",
+      "latency_ms": 24334.0,
+      "correctness": 3.0,
+      "size": 20.35
+    },
+    {
+      "sample_id": "d2-0008-typo28",
+      "system": "S1",
+      "latency_ms": 20987.0,
+      "correctness": 4.0,
+      "size": 15.5
+    },
+    {
+      "sample_id": "d2-0001-typo29",
+      "system": "S1",
+      "latency_ms": 17743.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0024-typo30",
+      "system": "S1",
+      "latency_ms": 23260.0,
+      "correctness": 3.0,
+      "size": 20.4
+    },
+    {
+      "sample_id": "d2-0039-typo31",
+      "system": "S1",
+      "latency_ms": 27221.0,
+      "correctness": 4.0,
+      "size": 20.9
+    },
+    {
+      "sample_id": "d2-0062-typo32",
+      "system": "S1",
+      "latency_ms": 24298.0,
+      "correctness": 3.0,
+      "size": 19.55
+    },
+    {
+      "sample_id": "d2-0074-typo33",
+      "system": "S1",
+      "latency_ms": 24454.0,
+      "correctness": 2.0,
+      "size": 16.65
+    },
+    {
+      "sample_id": "d2-0032-typo34",
+      "system": "S1",
+      "latency_ms": 22136.0,
+      "correctness": 3.0,
+      "size": 17.45
+    },
+    {
+      "sample_id": "d2-0080-typo35",
+      "system": "S1",
+      "latency_ms": 26999.0,
+      "correctness": 4.0,
+      "size": 21.2
+    },
+    {
+      "sample_id": "d2-0056-typo36",
+      "system": "S1",
+      "latency_ms": 23228.0,
+      "correctness": 3.0,
+      "size": 18.05
+    },
+    {
+      "sample_id": "d2-0070-typo37",
+      "system": "S1",
+      "latency_ms": 27490.0,
+      "correctness": 4.0,
+      "size": 18.45
+    },
+    {
+      "sample_id": "d2-0063-typo38",
+      "system": "S1",
+      "latency_ms": 22593.0,
+      "correctness": 4.0,
+      "size": 11.9
+    },
+    {
+      "sample_id": "d2-0066-typo39",
+      "system": "S1",
+      "latency_ms": 27640.0,
+      "correctness": 4.0,
+      "size": 21.95
+    },
+    {
+      "sample_id": "d2-0030-typo40",
+      "system": "S1",
+      "latency_ms": 22204.0,
+      "correctness": 3.0,
+      "size": 18.2
+    },
+    {
+      "sample_id": "d2-0006-typo41",
+      "system": "S1",
+      "latency_ms": 19157.0,
+      "correctness": 4.0,
+      "size": 13.15
+    },
+    {
+      "sample_id": "d2-0035-typo42",
+      "system": "S1",
+      "latency_ms": 30257.0,
+      "correctness": 4.0,
+      "size": 26.0
+    },
+    {
+      "sample_id": "d2-0028-typo43",
+      "system": "S1",
+      "latency_ms": 18020.0,
+      "correctness": 3.0,
+      "size": 11.55
+    },
+    {
+      "sample_id": "d2-0018-typo44",
+      "system": "S1",
+      "latency_ms": 26347.0,
+      "correctness": 3.0,
+      "size": 19.7
+    },
+    {
+      "sample_id": "d2-0033-typo45",
+      "system": "S1",
+      "latency_ms": 27163.0,
+      "correctness": 4.0,
+      "size": 24.8
+    },
+    {
+      "sample_id": "d2-0010-typo46",
+      "system": "S1",
+      "latency_ms": 26066.0,
+      "correctness": 2.0,
+      "size": 19.2
+    },
+    {
+      "sample_id": "d2-0049-typo47",
+      "system": "S1",
+      "latency_ms": 31638.0,
+      "correctness": 4.0,
+      "size": 22.0
+    },
+    {
+      "sample_id": "d2-0021-typo48",
+      "system": "S1",
+      "latency_ms": 26019.0,
+      "correctness": 4.0,
+      "size": 20.5
+    },
+    {
+      "sample_id": "d2-0059-typo49",
+      "system": "S1",
+      "latency_ms": 29456.0,
+      "correctness": 4.0,
+      "size": 22.0
+    },
+    {
+      "sample_id": "d2-0020-typo50",
+      "system": "S1",
+      "latency_ms": 25123.0,
+      "correctness": 4.0,
+      "size": 17.25
+    },
+    {
+      "sample_id": "d2-0012-typo51",
+      "system": "S1",
+      "latency_ms": 22009.0,
+      "correctness": 4.0,
+      "size": 16.45
+    },
+    {
+      "sample_id": "d2-0058-typo52",
+      "system": "S1",
+      "latency_ms": 23690.0,
+      "correctness": 4.0,
+      "size": 19.1
+    },
+    {
+      "sample_id": "d2-0053-typo53",
+      "system": "S1",
+      "latency_ms": 24998.0,
+      "correctness": 4.0,
+      "size": 17.6
+    },
+    {
+      "sample_id": "d2-0014-typo54",
+      "system": "S1",
+      "latency_ms": 21711.0,
+      "correctness": 4.0,
+      "size": 16.8
+    },
+    {
+      "sample_id": "d2-0046-typo55",
+      "system": "S1",
+      "latency_ms": 28932.0,
+      "correctness": 3.0,
+      "size": 24.25
+    },
+    {
+      "sample_id": "d2-0051-typo56",
+      "system": "S1",
+      "latency_ms": 22377.0,
+      "correctness": 4.0,
+      "size": 12.3
+    },
+    {
+      "sample_id": "d2-0023-typo57",
+      "system": "S1",
+      "latency_ms": 31268.0,
+      "correctness": 4.0,
+      "size": 23.3
+    },
+    {
+      "sample_id": "d2-0079-typo58",
+      "system": "S1",
+      "latency_ms": 23835.0,
+      "correctness": 4.0,
+      "size": 15.95
+    },
+    {
+      "sample_id": "d2-0057-typo59",
+      "system": "S1",
+      "latency_ms": 27466.0,
+      "correctness": 4.0,
+      "size": 23.4
+    },
+    {
+      "sample_id": "d2-0073-typo60",
+      "system": "S1",
+      "latency_ms": 21707.0,
+      "correctness": 4.0,
+      "size": 12.95
+    },
+    {
+      "sample_id": "d2-0001",
+      "system": "S2",
+      "latency_ms": 17158.0,
+      "correctness": 2.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0002",
+      "system": "S2",
+      "latency_ms": 48778.0,
+      "correctness": 4.0,
+      "size": 37.85
+    },
+    {
+      "sample_id": "d2-0003",
+      "system": "S2",
+      "latency_ms": 49949.0,
+      "correctness": 4.0,
+      "size": 45.05
+    },
+    {
+      "sample_id": "d2-0004",
+      "system": "S2",
+      "latency_ms": 51785.0,
+      "correctness": 3.0,
+      "size": 54.85
+    },
+    {
+      "sample_id": "d2-0005",
+      "system": "S2",
+      "latency_ms": 52589.0,
+      "correctness": 3.0,
+      "size": 48.95
+    },
+    {
+      "sample_id": "d2-0006",
+      "system": "S2",
+      "latency_ms": 73411.0,
+      "correctness": 2.0,
+      "size": 75.7
+    },
+    {
+      "sample_id": "d2-0007",
+      "system": "S2",
+      "latency_ms": 54402.0,
+      "correctness": 4.0,
+      "size": 58.05
+    },
+    {
+      "sample_id": "d2-0008",
+      "system": "S2",
+      "latency_ms": 55853.0,
+      "correctness": 4.0,
+      "size": 60.2
+    },
+    {
+      "sample_id": "d2-0009",
+      "system": "S2",
+      "latency_ms": 47397.0,
+      "correctness": 4.0,
+      "size": 41.8
+    },
+    {
+      "sample_id": "d2-0010",
+      "system": "S2",
+      "latency_ms": 43646.0,
+      "correctness": 2.0,
+      "size": 36.05
+    },
+    {
+      "sample_id": "d2-0011",
+      "system": "S2",
+      "latency_ms": 53690.0,
+      "correctness": 3.0,
+      "size": 56.1
+    },
+    {
+      "sample_id": "d2-0012",
+      "system": "S2",
+      "latency_ms": 49841.0,
+      "correctness": 4.0,
+      "size": 39.45
+    },
+    {
+      "sample_id": "d2-0013",
+      "system": "S2",
+      "latency_ms": 47336.0,
+      "correctness": 3.0,
+      "size": 41.35
+    },
+    {
+      "sample_id": "d2-0014",
+      "system": "S2",
+      "latency_ms": 57132.0,
+      "correctness": 3.0,
+      "size": 69.55
+    },
+    {
+      "sample_id": "d2-0015",
+      "system": "S2",
+      "latency_ms": 79237.0,
+      "correctness": 2.0,
+      "size": 74.45
+    },
+    {
+      "sample_id": "d2-0016",
+      "system": "S2",
+      "latency_ms": 64190.0,
+      "correctness": 3.0,
+      "size": 63.7
+    },
+    {
+      "sample_id": "d2-0017",
+      "system": "S2",
+      "latency_ms": 70741.0,
+      "correctness": 2.0,
+      "size": 74.8
+    },
+    {
+      "sample_id": "d2-0018",
+      "system": "S2",
+      "latency_ms": 59940.0,
+      "correctness": 4.0,
+      "size": 60.95
+    },
+    {
+      "sample_id": "d2-0019",
+      "system": "S2",
+      "latency_ms": 42486.0,
+      "correctness": 2.0,
+      "size": 32.9
+    },
+    {
+      "sample_id": "d2-0020",
+      "system": "S2",
+      "latency_ms": 73380.0,
+      "correctness": 2.0,
+      "size": 29.45
+    },
+    {
+      "sample_id": "d2-0021",
+      "system": "S2",
+      "latency_ms": 77795.0,
+      "correctness": 2.0,
       "size": 80
     },
     {
-      "sample_id": "d1-0004",
-      "system": "S4",
-      "latency_ms": 11866.0,
-      "correctness": 5.0,
-      "size": 80
+      "sample_id": "d2-0022",
+      "system": "S2",
+      "latency_ms": 60743.0,
+      "correctness": 3.0,
+      "size": 43.2
     },
     {
-      "sample_id": "d1-0005",
-      "system": "S4",
-      "latency_ms": 15705.0,
+      "sample_id": "d2-0023",
+      "system": "S2",
+      "latency_ms": 78355.0,
+      "correctness": 3.0,
+      "size": 71.5
+    },
+    {
+      "sample_id": "d2-0024",
+      "system": "S2",
+      "latency_ms": 70634.0,
       "correctness": 3.0,
       "size": 80
     },
     {
-      "sample_id": "d1-0006",
-      "system": "S4",
-      "latency_ms": 14340.0,
+      "sample_id": "d2-0025",
+      "system": "S2",
+      "latency_ms": 68604.0,
+      "correctness": 3.0,
+      "size": 75.95
+    },
+    {
+      "sample_id": "d2-0026",
+      "system": "S2",
+      "latency_ms": 63855.0,
+      "correctness": 4.0,
+      "size": 66.05
+    },
+    {
+      "sample_id": "d2-0027",
+      "system": "S2",
+      "latency_ms": 58727.0,
+      "correctness": 2.0,
+      "size": 57.75
+    },
+    {
+      "sample_id": "d2-0028",
+      "system": "S2",
+      "latency_ms": 45944.0,
       "correctness": 5.0,
+      "size": 47.55
+    },
+    {
+      "sample_id": "d2-0029",
+      "system": "S2",
+      "latency_ms": 79671.0,
+      "correctness": 3.0,
       "size": 80
     },
     {
-      "sample_id": "d1-0007",
-      "system": "S4",
-      "latency_ms": 9801.0,
+      "sample_id": "d2-0030",
+      "system": "S2",
+      "latency_ms": 67692.0,
+      "correctness": 4.0,
+      "size": 73.6
+    },
+    {
+      "sample_id": "d2-0031",
+      "system": "S2",
+      "latency_ms": 62552.0,
+      "correctness": 3.0,
+      "size": 64.2
+    },
+    {
+      "sample_id": "d2-0032",
+      "system": "S2",
+      "latency_ms": 64654.0,
+      "correctness": 3.0,
+      "size": 70.05
+    },
+    {
+      "sample_id": "d2-0033",
+      "system": "S2",
+      "latency_ms": 50518.0,
+      "correctness": 3.0,
+      "size": 51.25
+    },
+    {
+      "sample_id": "d2-0034",
+      "system": "S2",
+      "latency_ms": 80913.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0035",
+      "system": "S2",
+      "latency_ms": 46338.0,
+      "correctness": 4.0,
+      "size": 40.3
+    },
+    {
+      "sample_id": "d2-0036",
+      "system": "S2",
+      "latency_ms": 45726.0,
+      "correctness": 3.0,
+      "size": 42.5
+    },
+    {
+      "sample_id": "d2-0037",
+      "system": "S2",
+      "latency_ms": 62050.0,
+      "correctness": 4.0,
+      "size": 59.55
+    },
+    {
+      "sample_id": "d2-0038",
+      "system": "S2",
+      "latency_ms": 44746.0,
+      "correctness": 3.0,
+      "size": 39.6
+    },
+    {
+      "sample_id": "d2-0039",
+      "system": "S2",
+      "latency_ms": 55256.0,
+      "correctness": 2.0,
+      "size": 27.55
+    },
+    {
+      "sample_id": "d2-0040",
+      "system": "S2",
+      "latency_ms": 64748.0,
+      "correctness": 3.0,
+      "size": 66.2
+    },
+    {
+      "sample_id": "d2-0041",
+      "system": "S2",
+      "latency_ms": 68134.0,
+      "correctness": 4.0,
+      "size": 77.5
+    },
+    {
+      "sample_id": "d2-0042",
+      "system": "S2",
+      "latency_ms": 69283.0,
+      "correctness": 2.0,
+      "size": 68.85
+    },
+    {
+      "sample_id": "d2-0043",
+      "system": "S2",
+      "latency_ms": 63181.0,
+      "correctness": 2.0,
+      "size": 61.15
+    },
+    {
+      "sample_id": "d2-0044",
+      "system": "S2",
+      "latency_ms": 61077.0,
+      "correctness": 4.0,
+      "size": 59.3
+    },
+    {
+      "sample_id": "d2-0045",
+      "system": "S2",
+      "latency_ms": 67564.0,
+      "correctness": 4.0,
+      "size": 79.0
+    },
+    {
+      "sample_id": "d2-0046",
+      "system": "S2",
+      "latency_ms": 71653.0,
+      "correctness": 4.0,
+      "size": 78.7
+    },
+    {
+      "sample_id": "d2-0047",
+      "system": "S2",
+      "latency_ms": 63777.0,
+      "correctness": 4.0,
+      "size": 71.05
+    },
+    {
+      "sample_id": "d2-0048",
+      "system": "S2",
+      "latency_ms": 58303.0,
+      "correctness": 5.0,
+      "size": 52.75
+    },
+    {
+      "sample_id": "d2-0049",
+      "system": "S2",
+      "latency_ms": 50979.0,
+      "correctness": 3.0,
+      "size": 36.8
+    },
+    {
+      "sample_id": "d2-0050",
+      "system": "S2",
+      "latency_ms": 63863.0,
+      "correctness": 4.0,
+      "size": 69.05
+    },
+    {
+      "sample_id": "d2-0051",
+      "system": "S2",
+      "latency_ms": 56142.0,
+      "correctness": 3.0,
+      "size": 51.35
+    },
+    {
+      "sample_id": "d2-0052",
+      "system": "S2",
+      "latency_ms": 15878.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0053",
+      "system": "S2",
+      "latency_ms": 61804.0,
+      "correctness": 3.0,
+      "size": 26.9
+    },
+    {
+      "sample_id": "d2-0054",
+      "system": "S2",
+      "latency_ms": 16270.0,
+      "correctness": 2.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0055",
+      "system": "S2",
+      "latency_ms": 67525.0,
+      "correctness": 4.0,
+      "size": 55.25
+    },
+    {
+      "sample_id": "d2-0056",
+      "system": "S2",
+      "latency_ms": 75472.0,
+      "correctness": 3.0,
+      "size": 66.0
+    },
+    {
+      "sample_id": "d2-0057",
+      "system": "S2",
+      "latency_ms": 84290.0,
+      "correctness": 2.0,
+      "size": 76.6
+    },
+    {
+      "sample_id": "d2-0058",
+      "system": "S2",
+      "latency_ms": 63071.0,
+      "correctness": 4.0,
+      "size": 55.9
+    },
+    {
+      "sample_id": "d2-0059",
+      "system": "S2",
+      "latency_ms": 65826.0,
+      "correctness": 2.0,
+      "size": 53.5
+    },
+    {
+      "sample_id": "d2-0060",
+      "system": "S2",
+      "latency_ms": 54035.0,
+      "correctness": 3.0,
+      "size": 49.15
+    },
+    {
+      "sample_id": "d2-0061",
+      "system": "S2",
+      "latency_ms": 53792.0,
+      "correctness": 4.0,
+      "size": 48.85
+    },
+    {
+      "sample_id": "d2-0062",
+      "system": "S2",
+      "latency_ms": 61979.0,
+      "correctness": 4.0,
+      "size": 62.0
+    },
+    {
+      "sample_id": "d2-0063",
+      "system": "S2",
+      "latency_ms": 58662.0,
+      "correctness": 4.0,
+      "size": 59.2
+    },
+    {
+      "sample_id": "d2-0064",
+      "system": "S2",
+      "latency_ms": 73021.0,
+      "correctness": 3.0,
+      "size": 63.9
+    },
+    {
+      "sample_id": "d2-0065",
+      "system": "S2",
+      "latency_ms": 61127.0,
+      "correctness": 2.0,
+      "size": 47.2
+    },
+    {
+      "sample_id": "d2-0066",
+      "system": "S2",
+      "latency_ms": 46296.0,
+      "correctness": 4.0,
+      "size": 33.55
+    },
+    {
+      "sample_id": "d2-0067",
+      "system": "S2",
+      "latency_ms": 49762.0,
+      "correctness": 3.0,
+      "size": 45.1
+    },
+    {
+      "sample_id": "d2-0068",
+      "system": "S2",
+      "latency_ms": 68233.0,
+      "correctness": 3.0,
+      "size": 60.8
+    },
+    {
+      "sample_id": "d2-0069",
+      "system": "S2",
+      "latency_ms": 65484.0,
+      "correctness": 4.0,
+      "size": 57.9
+    },
+    {
+      "sample_id": "d2-0070",
+      "system": "S2",
+      "latency_ms": 46924.0,
+      "correctness": 4.0,
+      "size": 42.15
+    },
+    {
+      "sample_id": "d2-0071",
+      "system": "S2",
+      "latency_ms": 88216.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0072",
+      "system": "S2",
+      "latency_ms": 89519.0,
       "correctness": 4.0,
       "size": 80
     },
     {
-      "sample_id": "d1-0008",
+      "sample_id": "d2-0073",
+      "system": "S2",
+      "latency_ms": 54273.0,
+      "correctness": 4.0,
+      "size": 46.75
+    },
+    {
+      "sample_id": "d2-0074",
+      "system": "S2",
+      "latency_ms": 68025.0,
+      "correctness": 3.0,
+      "size": 60.0
+    },
+    {
+      "sample_id": "d2-0075",
+      "system": "S2",
+      "latency_ms": 75782.0,
+      "correctness": 3.0,
+      "size": 71.05
+    },
+    {
+      "sample_id": "d2-0076",
+      "system": "S2",
+      "latency_ms": 46163.0,
+      "correctness": 5.0,
+      "size": 33.9
+    },
+    {
+      "sample_id": "d2-0077",
+      "system": "S2",
+      "latency_ms": 62871.0,
+      "correctness": 4.0,
+      "size": 55.45
+    },
+    {
+      "sample_id": "d2-0078",
+      "system": "S2",
+      "latency_ms": 74896.0,
+      "correctness": 4.0,
+      "size": 64.95
+    },
+    {
+      "sample_id": "d2-0079",
+      "system": "S2",
+      "latency_ms": 62594.0,
+      "correctness": 2.0,
+      "size": 29.65
+    },
+    {
+      "sample_id": "d2-0080",
+      "system": "S2",
+      "latency_ms": 82270.0,
+      "correctness": 3.0,
+      "size": 73.0
+    },
+    {
+      "sample_id": "d2-0025-typo1",
+      "system": "S2",
+      "latency_ms": 65448.0,
+      "correctness": 3.0,
+      "size": 66.95
+    },
+    {
+      "sample_id": "d2-0002-typo2",
+      "system": "S2",
+      "latency_ms": 46072.0,
+      "correctness": 4.0,
+      "size": 42.55
+    },
+    {
+      "sample_id": "d2-0007-typo3",
+      "system": "S2",
+      "latency_ms": 32581.0,
+      "correctness": 3.0,
+      "size": 17.55
+    },
+    {
+      "sample_id": "d2-0016-typo4",
+      "system": "S2",
+      "latency_ms": 56906.0,
+      "correctness": 4.0,
+      "size": 57.25
+    },
+    {
+      "sample_id": "d2-0048-typo5",
+      "system": "S2",
+      "latency_ms": 46318.0,
+      "correctness": 4.0,
+      "size": 38.55
+    },
+    {
+      "sample_id": "d2-0076-typo6",
+      "system": "S2",
+      "latency_ms": 51784.0,
+      "correctness": 4.0,
+      "size": 46.5
+    },
+    {
+      "sample_id": "d2-0052-typo7",
+      "system": "S2",
+      "latency_ms": 51586.0,
+      "correctness": 2.0,
+      "size": 42.15
+    },
+    {
+      "sample_id": "d2-0067-typo8",
+      "system": "S2",
+      "latency_ms": 68095.0,
+      "correctness": 3.0,
+      "size": 69.25
+    },
+    {
+      "sample_id": "d2-0037-typo9",
+      "system": "S2",
+      "latency_ms": 74190.0,
+      "correctness": 2.0,
+      "size": 70.25
+    },
+    {
+      "sample_id": "d2-0003-typo10",
+      "system": "S2",
+      "latency_ms": 50978.0,
+      "correctness": 3.0,
+      "size": 41.65
+    },
+    {
+      "sample_id": "d2-0068-typo11",
+      "system": "S2",
+      "latency_ms": 53633.0,
+      "correctness": 3.0,
+      "size": 45.2
+    },
+    {
+      "sample_id": "d2-0009-typo12",
+      "system": "S2",
+      "latency_ms": 54027.0,
+      "correctness": 3.0,
+      "size": 48.8
+    },
+    {
+      "sample_id": "d2-0034-typo13",
+      "system": "S2",
+      "latency_ms": 78071.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0065-typo14",
+      "system": "S2",
+      "latency_ms": 71015.0,
+      "correctness": 2.0,
+      "size": 57.05
+    },
+    {
+      "sample_id": "d2-0040-typo15",
+      "system": "S2",
+      "latency_ms": 82059.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0011-typo16",
+      "system": "S2",
+      "latency_ms": 72859.0,
+      "correctness": 4.0,
+      "size": 76.8
+    },
+    {
+      "sample_id": "d2-0071-typo17",
+      "system": "S2",
+      "latency_ms": 45363.0,
+      "correctness": 4.0,
+      "size": 36.65
+    },
+    {
+      "sample_id": "d2-0022-typo18",
+      "system": "S2",
+      "latency_ms": 77177.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0069-typo19",
+      "system": "S2",
+      "latency_ms": 48427.0,
+      "correctness": 3.0,
+      "size": 44.15
+    },
+    {
+      "sample_id": "d2-0005-typo20",
+      "system": "S2",
+      "latency_ms": 36746.0,
+      "correctness": 2.0,
+      "size": 27.55
+    },
+    {
+      "sample_id": "d2-0072-typo21",
+      "system": "S2",
+      "latency_ms": 71355.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0019-typo22",
+      "system": "S2",
+      "latency_ms": 46888.0,
+      "correctness": 2.0,
+      "size": 44.75
+    },
+    {
+      "sample_id": "d2-0050-typo23",
+      "system": "S2",
+      "latency_ms": 55787.0,
+      "correctness": 4.0,
+      "size": 59.4
+    },
+    {
+      "sample_id": "d2-0038-typo24",
+      "system": "S2",
+      "latency_ms": 55016.0,
+      "correctness": 4.0,
+      "size": 58.05
+    },
+    {
+      "sample_id": "d2-0004-typo25",
+      "system": "S2",
+      "latency_ms": 61620.0,
+      "correctness": 3.0,
+      "size": 67.5
+    },
+    {
+      "sample_id": "d2-0031-typo26",
+      "system": "S2",
+      "latency_ms": 60886.0,
+      "correctness": 2.0,
+      "size": 64.95
+    },
+    {
+      "sample_id": "d2-0041-typo27",
+      "system": "S2",
+      "latency_ms": 56623.0,
+      "correctness": 5.0,
+      "size": 60.05
+    },
+    {
+      "sample_id": "d2-0008-typo28",
+      "system": "S2",
+      "latency_ms": 45429.0,
+      "correctness": 5.0,
+      "size": 44.45
+    },
+    {
+      "sample_id": "d2-0001-typo29",
+      "system": "S2",
+      "latency_ms": 15029.0,
+      "correctness": 4.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0024-typo30",
+      "system": "S2",
+      "latency_ms": 51138.0,
+      "correctness": 4.0,
+      "size": 54.65
+    },
+    {
+      "sample_id": "d2-0039-typo31",
+      "system": "S2",
+      "latency_ms": 59965.0,
+      "correctness": 3.0,
+      "size": 55.8
+    },
+    {
+      "sample_id": "d2-0062-typo32",
+      "system": "S2",
+      "latency_ms": 58448.0,
+      "correctness": 4.0,
+      "size": 58.15
+    },
+    {
+      "sample_id": "d2-0074-typo33",
+      "system": "S2",
+      "latency_ms": 43977.0,
+      "correctness": 2.0,
+      "size": 36.45
+    },
+    {
+      "sample_id": "d2-0032-typo34",
+      "system": "S2",
+      "latency_ms": 62177.0,
+      "correctness": 3.0,
+      "size": 67.85
+    },
+    {
+      "sample_id": "d2-0080-typo35",
+      "system": "S2",
+      "latency_ms": 71088.0,
+      "correctness": 2.0,
+      "size": 69.7
+    },
+    {
+      "sample_id": "d2-0056-typo36",
+      "system": "S2",
+      "latency_ms": 68824.0,
+      "correctness": 3.0,
+      "size": 72.05
+    },
+    {
+      "sample_id": "d2-0070-typo37",
+      "system": "S2",
+      "latency_ms": 44699.0,
+      "correctness": 4.0,
+      "size": 45.9
+    },
+    {
+      "sample_id": "d2-0063-typo38",
+      "system": "S2",
+      "latency_ms": 41647.0,
+      "correctness": 4.0,
+      "size": 35.35
+    },
+    {
+      "sample_id": "d2-0066-typo39",
+      "system": "S2",
+      "latency_ms": 52154.0,
+      "correctness": 4.0,
+      "size": 46.3
+    },
+    {
+      "sample_id": "d2-0030-typo40",
+      "system": "S2",
+      "latency_ms": 69258.0,
+      "correctness": 4.0,
+      "size": 78.8
+    },
+    {
+      "sample_id": "d2-0006-typo41",
+      "system": "S2",
+      "latency_ms": 73629.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0035-typo42",
+      "system": "S2",
+      "latency_ms": 47087.0,
+      "correctness": 4.0,
+      "size": 41.15
+    },
+    {
+      "sample_id": "d2-0028-typo43",
+      "system": "S2",
+      "latency_ms": 38505.0,
+      "correctness": 4.0,
+      "size": 37.65
+    },
+    {
+      "sample_id": "d2-0018-typo44",
+      "system": "S2",
+      "latency_ms": 41957.0,
+      "correctness": 4.0,
+      "size": 34.7
+    },
+    {
+      "sample_id": "d2-0033-typo45",
+      "system": "S2",
+      "latency_ms": 49789.0,
+      "correctness": 4.0,
+      "size": 53.9
+    },
+    {
+      "sample_id": "d2-0010-typo46",
+      "system": "S2",
+      "latency_ms": 47559.0,
+      "correctness": 2.0,
+      "size": 42.85
+    },
+    {
+      "sample_id": "d2-0049-typo47",
+      "system": "S2",
+      "latency_ms": 63794.0,
+      "correctness": 3.0,
+      "size": 51.75
+    },
+    {
+      "sample_id": "d2-0021-typo48",
+      "system": "S2",
+      "latency_ms": 81255.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0059-typo49",
+      "system": "S2",
+      "latency_ms": 58697.0,
+      "correctness": 3.0,
+      "size": 56.55
+    },
+    {
+      "sample_id": "d2-0020-typo50",
+      "system": "S2",
+      "latency_ms": 75699.0,
+      "correctness": 2.0,
+      "size": 75.1
+    },
+    {
+      "sample_id": "d2-0012-typo51",
+      "system": "S2",
+      "latency_ms": 63975.0,
+      "correctness": 2.0,
+      "size": 63.8
+    },
+    {
+      "sample_id": "d2-0058-typo52",
+      "system": "S2",
+      "latency_ms": 58617.0,
+      "correctness": 3.0,
+      "size": 57.4
+    },
+    {
+      "sample_id": "d2-0053-typo53",
+      "system": "S2",
+      "latency_ms": 49105.0,
+      "correctness": 4.0,
+      "size": 47.65
+    },
+    {
+      "sample_id": "d2-0014-typo54",
+      "system": "S2",
+      "latency_ms": 45454.0,
+      "correctness": 3.0,
+      "size": 52.7
+    },
+    {
+      "sample_id": "d2-0046-typo55",
+      "system": "S2",
+      "latency_ms": 76648.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0051-typo56",
+      "system": "S2",
+      "latency_ms": 55698.0,
+      "correctness": 3.0,
+      "size": 50.15
+    },
+    {
+      "sample_id": "d2-0023-typo57",
+      "system": "S2",
+      "latency_ms": 61716.0,
+      "correctness": 2.0,
+      "size": 53.05
+    },
+    {
+      "sample_id": "d2-0079-typo58",
+      "system": "S2",
+      "latency_ms": 47864.0,
+      "correctness": 3.0,
+      "size": 43.25
+    },
+    {
+      "sample_id": "d2-0057-typo59",
+      "system": "S2",
+      "latency_ms": 68479.0,
+      "correctness": 3.0,
+      "size": 61.3
+    },
+    {
+      "sample_id": "d2-0073-typo60",
+      "system": "S2",
+      "latency_ms": 53895.0,
+      "correctness": 4.0,
+      "size": 53.15
+    },
+    {
+      "sample_id": "d2-0001",
+      "system": "S3",
+      "latency_ms": 19042.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0002",
+      "system": "S3",
+      "latency_ms": 26996.0,
+      "correctness": 4.0,
+      "size": 15.1
+    },
+    {
+      "sample_id": "d2-0003",
+      "system": "S3",
+      "latency_ms": 29854.0,
+      "correctness": 4.0,
+      "size": 18.4
+    },
+    {
+      "sample_id": "d2-0004",
+      "system": "S3",
+      "latency_ms": 30454.0,
+      "correctness": 3.0,
+      "size": 23.8
+    },
+    {
+      "sample_id": "d2-0005",
+      "system": "S3",
+      "latency_ms": 32611.0,
+      "correctness": 4.0,
+      "size": 20.9
+    },
+    {
+      "sample_id": "d2-0006",
+      "system": "S3",
+      "latency_ms": 29952.0,
+      "correctness": 3.0,
+      "size": 21.25
+    },
+    {
+      "sample_id": "d2-0007",
+      "system": "S3",
+      "latency_ms": 26002.0,
+      "correctness": 4.0,
+      "size": 17.85
+    },
+    {
+      "sample_id": "d2-0008",
+      "system": "S3",
+      "latency_ms": 27467.0,
+      "correctness": 4.0,
+      "size": 18.15
+    },
+    {
+      "sample_id": "d2-0009",
+      "system": "S3",
+      "latency_ms": 29019.0,
+      "correctness": 4.0,
+      "size": 17.2
+    },
+    {
+      "sample_id": "d2-0010",
+      "system": "S3",
+      "latency_ms": 27532.0,
+      "correctness": 2.0,
+      "size": 15.15
+    },
+    {
+      "sample_id": "d2-0011",
+      "system": "S3",
+      "latency_ms": 32735.0,
+      "correctness": 4.0,
+      "size": 23.55
+    },
+    {
+      "sample_id": "d2-0012",
+      "system": "S3",
+      "latency_ms": 32381.0,
+      "correctness": 3.0,
+      "size": 16.4
+    },
+    {
+      "sample_id": "d2-0013",
+      "system": "S3",
+      "latency_ms": 30570.0,
+      "correctness": 4.0,
+      "size": 19.9
+    },
+    {
+      "sample_id": "d2-0014",
+      "system": "S3",
+      "latency_ms": 34856.0,
+      "correctness": 5.0,
+      "size": 33.4
+    },
+    {
+      "sample_id": "d2-0015",
+      "system": "S3",
+      "latency_ms": 43771.0,
+      "correctness": 2.0,
+      "size": 30.6
+    },
+    {
+      "sample_id": "d2-0016",
+      "system": "S3",
+      "latency_ms": 36543.0,
+      "correctness": 2.0,
+      "size": 26.6
+    },
+    {
+      "sample_id": "d2-0017",
+      "system": "S3",
+      "latency_ms": 35656.0,
+      "correctness": 3.0,
+      "size": 27.65
+    },
+    {
+      "sample_id": "d2-0018",
+      "system": "S3",
+      "latency_ms": 30832.0,
+      "correctness": 4.0,
+      "size": 19.0
+    },
+    {
+      "sample_id": "d2-0019",
+      "system": "S3",
+      "latency_ms": 34029.0,
+      "correctness": 2.0,
+      "size": 24.2
+    },
+    {
+      "sample_id": "d2-0020",
+      "system": "S3",
+      "latency_ms": 30246.0,
+      "correctness": 4.0,
+      "size": 16.6
+    },
+    {
+      "sample_id": "d2-0021",
+      "system": "S3",
+      "latency_ms": 27042.0,
+      "correctness": 4.0,
+      "size": 14.4
+    },
+    {
+      "sample_id": "d2-0022",
+      "system": "S3",
+      "latency_ms": 28725.0,
+      "correctness": 3.0,
+      "size": 16.6
+    },
+    {
+      "sample_id": "d2-0023",
+      "system": "S3",
+      "latency_ms": 41865.0,
+      "correctness": 3.0,
+      "size": 20.45
+    },
+    {
+      "sample_id": "d2-0024",
+      "system": "S3",
+      "latency_ms": 29197.0,
+      "correctness": 3.0,
+      "size": 19.85
+    },
+    {
+      "sample_id": "d2-0025",
+      "system": "S3",
+      "latency_ms": 30590.0,
+      "correctness": 4.0,
+      "size": 23.05
+    },
+    {
+      "sample_id": "d2-0026",
+      "system": "S3",
+      "latency_ms": 31719.0,
+      "correctness": 4.0,
+      "size": 18.35
+    },
+    {
+      "sample_id": "d2-0027",
+      "system": "S3",
+      "latency_ms": 37163.0,
+      "correctness": 3.0,
+      "size": 28.3
+    },
+    {
+      "sample_id": "d2-0028",
+      "system": "S3",
+      "latency_ms": 28815.0,
+      "correctness": 4.0,
+      "size": 19.95
+    },
+    {
+      "sample_id": "d2-0029",
+      "system": "S3",
+      "latency_ms": 35373.0,
+      "correctness": 4.0,
+      "size": 26.35
+    },
+    {
+      "sample_id": "d2-0030",
+      "system": "S3",
+      "latency_ms": 36761.0,
+      "correctness": 4.0,
+      "size": 33.9
+    },
+    {
+      "sample_id": "d2-0031",
+      "system": "S3",
+      "latency_ms": 29520.0,
+      "correctness": 4.0,
+      "size": 17.9
+    },
+    {
+      "sample_id": "d2-0032",
+      "system": "S3",
+      "latency_ms": 37713.0,
+      "correctness": 4.0,
+      "size": 33.95
+    },
+    {
+      "sample_id": "d2-0033",
+      "system": "S3",
+      "latency_ms": 35737.0,
+      "correctness": 5.0,
+      "size": 30.55
+    },
+    {
+      "sample_id": "d2-0034",
+      "system": "S3",
+      "latency_ms": 30740.0,
+      "correctness": 3.0,
+      "size": 21.2
+    },
+    {
+      "sample_id": "d2-0035",
+      "system": "S3",
+      "latency_ms": 36573.0,
+      "correctness": 4.0,
+      "size": 26.8
+    },
+    {
+      "sample_id": "d2-0036",
+      "system": "S3",
+      "latency_ms": 26471.0,
+      "correctness": 3.0,
+      "size": 15.0
+    },
+    {
+      "sample_id": "d2-0037",
+      "system": "S3",
+      "latency_ms": 32133.0,
+      "correctness": 4.0,
+      "size": 21.2
+    },
+    {
+      "sample_id": "d2-0038",
+      "system": "S3",
+      "latency_ms": 30678.0,
+      "correctness": 3.0,
+      "size": 22.35
+    },
+    {
+      "sample_id": "d2-0039",
+      "system": "S3",
+      "latency_ms": 34546.0,
+      "correctness": 4.0,
+      "size": 22.75
+    },
+    {
+      "sample_id": "d2-0040",
+      "system": "S3",
+      "latency_ms": 36198.0,
+      "correctness": 4.0,
+      "size": 26.0
+    },
+    {
+      "sample_id": "d2-0041",
+      "system": "S3",
+      "latency_ms": 29354.0,
+      "correctness": 3.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0042",
+      "system": "S3",
+      "latency_ms": 31013.0,
+      "correctness": 4.0,
+      "size": 21.7
+    },
+    {
+      "sample_id": "d2-0043",
+      "system": "S3",
+      "latency_ms": 33907.0,
+      "correctness": 4.0,
+      "size": 22.85
+    },
+    {
+      "sample_id": "d2-0044",
+      "system": "S3",
+      "latency_ms": 29756.0,
+      "correctness": 2.0,
+      "size": 18.35
+    },
+    {
+      "sample_id": "d2-0045",
+      "system": "S3",
+      "latency_ms": 33210.0,
+      "correctness": 4.0,
+      "size": 26.25
+    },
+    {
+      "sample_id": "d2-0046",
+      "system": "S3",
+      "latency_ms": 32798.0,
+      "correctness": 4.0,
+      "size": 23.0
+    },
+    {
+      "sample_id": "d2-0047",
+      "system": "S3",
+      "latency_ms": 32945.0,
+      "correctness": 2.0,
+      "size": 24.5
+    },
+    {
+      "sample_id": "d2-0048",
+      "system": "S3",
+      "latency_ms": 28350.0,
+      "correctness": 4.0,
+      "size": 17.9
+    },
+    {
+      "sample_id": "d2-0049",
+      "system": "S3",
+      "latency_ms": 42667.0,
+      "correctness": 3.0,
+      "size": 24.95
+    },
+    {
+      "sample_id": "d2-0050",
+      "system": "S3",
+      "latency_ms": 32489.0,
+      "correctness": 4.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0051",
+      "system": "S3",
+      "latency_ms": 31749.0,
+      "correctness": 4.0,
+      "size": 17.05
+    },
+    {
+      "sample_id": "d2-0052",
+      "system": "S3",
+      "latency_ms": 17581.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0053",
+      "system": "S3",
+      "latency_ms": 36072.0,
+      "correctness": 4.0,
+      "size": 25.8
+    },
+    {
+      "sample_id": "d2-0054",
+      "system": "S3",
+      "latency_ms": 22998.0,
+      "correctness": 2.0,
+      "size": 17.75
+    },
+    {
+      "sample_id": "d2-0055",
+      "system": "S3",
+      "latency_ms": 34189.0,
+      "correctness": 2.0,
+      "size": 25.55
+    },
+    {
+      "sample_id": "d2-0056",
+      "system": "S3",
+      "latency_ms": 30439.0,
+      "correctness": 3.0,
+      "size": 24.0
+    },
+    {
+      "sample_id": "d2-0057",
+      "system": "S3",
+      "latency_ms": 39457.0,
+      "correctness": 3.0,
+      "size": 23.75
+    },
+    {
+      "sample_id": "d2-0058",
+      "system": "S3",
+      "latency_ms": 34298.0,
+      "correctness": 4.0,
+      "size": 21.1
+    },
+    {
+      "sample_id": "d2-0059",
+      "system": "S3",
+      "latency_ms": 36576.0,
+      "correctness": 4.0,
+      "size": 24.05
+    },
+    {
+      "sample_id": "d2-0060",
+      "system": "S3",
+      "latency_ms": 27355.0,
+      "correctness": 4.0,
+      "size": 15.9
+    },
+    {
+      "sample_id": "d2-0061",
+      "system": "S3",
+      "latency_ms": 37082.0,
+      "correctness": 4.0,
+      "size": 26.7
+    },
+    {
+      "sample_id": "d2-0062",
+      "system": "S3",
+      "latency_ms": 32368.0,
+      "correctness": 4.0,
+      "size": 23.55
+    },
+    {
+      "sample_id": "d2-0063",
+      "system": "S3",
+      "latency_ms": 30548.0,
+      "correctness": 3.0,
+      "size": 18.65
+    },
+    {
+      "sample_id": "d2-0064",
+      "system": "S3",
+      "latency_ms": 34745.0,
+      "correctness": 3.0,
+      "size": 21.05
+    },
+    {
+      "sample_id": "d2-0065",
+      "system": "S3",
+      "latency_ms": 39436.0,
+      "correctness": 4.0,
+      "size": 24.55
+    },
+    {
+      "sample_id": "d2-0066",
+      "system": "S3",
+      "latency_ms": 43923.0,
+      "correctness": 4.0,
+      "size": 34.05
+    },
+    {
+      "sample_id": "d2-0067",
+      "system": "S3",
+      "latency_ms": 46453.0,
+      "correctness": 2.0,
+      "size": 47.95
+    },
+    {
+      "sample_id": "d2-0068",
+      "system": "S3",
+      "latency_ms": 30163.0,
+      "correctness": 2.0,
+      "size": 19.15
+    },
+    {
+      "sample_id": "d2-0069",
+      "system": "S3",
+      "latency_ms": 31989.0,
+      "correctness": 4.0,
+      "size": 20.7
+    },
+    {
+      "sample_id": "d2-0070",
+      "system": "S3",
+      "latency_ms": 27641.0,
+      "correctness": 3.0,
+      "size": 20.1
+    },
+    {
+      "sample_id": "d2-0071",
+      "system": "S3",
+      "latency_ms": 34211.0,
+      "correctness": 4.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0072",
+      "system": "S3",
+      "latency_ms": 36806.0,
+      "correctness": 3.0,
+      "size": 32.9
+    },
+    {
+      "sample_id": "d2-0073",
+      "system": "S3",
+      "latency_ms": 32448.0,
+      "correctness": 3.0,
+      "size": 22.05
+    },
+    {
+      "sample_id": "d2-0074",
+      "system": "S3",
+      "latency_ms": 31749.0,
+      "correctness": 4.0,
+      "size": 17.85
+    },
+    {
+      "sample_id": "d2-0075",
+      "system": "S3",
+      "latency_ms": 38582.0,
+      "correctness": 2.0,
+      "size": 24.95
+    },
+    {
+      "sample_id": "d2-0076",
+      "system": "S3",
+      "latency_ms": 30972.0,
+      "correctness": 4.0,
+      "size": 20.1
+    },
+    {
+      "sample_id": "d2-0077",
+      "system": "S3",
+      "latency_ms": 32216.0,
+      "correctness": 4.0,
+      "size": 20.25
+    },
+    {
+      "sample_id": "d2-0078",
+      "system": "S3",
+      "latency_ms": 42432.0,
+      "correctness": 3.0,
+      "size": 22.2
+    },
+    {
+      "sample_id": "d2-0079",
+      "system": "S3",
+      "latency_ms": 34862.0,
+      "correctness": 5.0,
+      "size": 23.25
+    },
+    {
+      "sample_id": "d2-0080",
+      "system": "S3",
+      "latency_ms": 36589.0,
+      "correctness": 4.0,
+      "size": 19.0
+    },
+    {
+      "sample_id": "d2-0025-typo1",
+      "system": "S3",
+      "latency_ms": 32582.0,
+      "correctness": 4.0,
+      "size": 24.5
+    },
+    {
+      "sample_id": "d2-0002-typo2",
+      "system": "S3",
+      "latency_ms": 25734.0,
+      "correctness": 4.0,
+      "size": 14.25
+    },
+    {
+      "sample_id": "d2-0007-typo3",
+      "system": "S3",
+      "latency_ms": 26261.0,
+      "correctness": 4.0,
+      "size": 17.35
+    },
+    {
+      "sample_id": "d2-0016-typo4",
+      "system": "S3",
+      "latency_ms": 35642.0,
+      "correctness": 4.0,
+      "size": 26.15
+    },
+    {
+      "sample_id": "d2-0048-typo5",
+      "system": "S3",
+      "latency_ms": 29508.0,
+      "correctness": 4.0,
+      "size": 19.8
+    },
+    {
+      "sample_id": "d2-0076-typo6",
+      "system": "S3",
+      "latency_ms": 29184.0,
+      "correctness": 4.0,
+      "size": 17.45
+    },
+    {
+      "sample_id": "d2-0052-typo7",
+      "system": "S3",
+      "latency_ms": 28777.0,
+      "correctness": 3.0,
+      "size": 16.65
+    },
+    {
+      "sample_id": "d2-0067-typo8",
+      "system": "S3",
+      "latency_ms": 34171.0,
+      "correctness": 3.0,
+      "size": 27.05
+    },
+    {
+      "sample_id": "d2-0037-typo9",
+      "system": "S3",
+      "latency_ms": 33058.0,
+      "correctness": 3.0,
+      "size": 23.5
+    },
+    {
+      "sample_id": "d2-0003-typo10",
+      "system": "S3",
+      "latency_ms": 28611.0,
+      "correctness": 3.0,
+      "size": 16.5
+    },
+    {
+      "sample_id": "d2-0068-typo11",
+      "system": "S3",
+      "latency_ms": 36872.0,
+      "correctness": 2.0,
+      "size": 28.45
+    },
+    {
+      "sample_id": "d2-0009-typo12",
+      "system": "S3",
+      "latency_ms": 30277.0,
+      "correctness": 4.0,
+      "size": 19.1
+    },
+    {
+      "sample_id": "d2-0034-typo13",
+      "system": "S3",
+      "latency_ms": 35708.0,
+      "correctness": 5.0,
+      "size": 29.65
+    },
+    {
+      "sample_id": "d2-0065-typo14",
+      "system": "S3",
+      "latency_ms": 37389.0,
+      "correctness": 3.0,
+      "size": 21.45
+    },
+    {
+      "sample_id": "d2-0040-typo15",
+      "system": "S3",
+      "latency_ms": 32152.0,
+      "correctness": 4.0,
+      "size": 20.85
+    },
+    {
+      "sample_id": "d2-0011-typo16",
+      "system": "S3",
+      "latency_ms": 34003.0,
+      "correctness": 4.0,
+      "size": 23.2
+    },
+    {
+      "sample_id": "d2-0071-typo17",
+      "system": "S3",
+      "latency_ms": 32363.0,
+      "correctness": 4.0,
+      "size": 18.85
+    },
+    {
+      "sample_id": "d2-0022-typo18",
+      "system": "S3",
+      "latency_ms": 36885.0,
+      "correctness": 4.0,
+      "size": 27.2
+    },
+    {
+      "sample_id": "d2-0069-typo19",
+      "system": "S3",
+      "latency_ms": 29525.0,
+      "correctness": 3.0,
+      "size": 16.35
+    },
+    {
+      "sample_id": "d2-0005-typo20",
+      "system": "S3",
+      "latency_ms": 32580.0,
+      "correctness": 3.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0072-typo21",
+      "system": "S3",
+      "latency_ms": 32987.0,
+      "correctness": 4.0,
+      "size": 26.95
+    },
+    {
+      "sample_id": "d2-0019-typo22",
+      "system": "S3",
+      "latency_ms": 32972.0,
+      "correctness": 2.0,
+      "size": 22.1
+    },
+    {
+      "sample_id": "d2-0050-typo23",
+      "system": "S3",
+      "latency_ms": 31787.0,
+      "correctness": 4.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0038-typo24",
+      "system": "S3",
+      "latency_ms": 35657.0,
+      "correctness": 2.0,
+      "size": 29.2
+    },
+    {
+      "sample_id": "d2-0004-typo25",
+      "system": "S3",
+      "latency_ms": 30086.0,
+      "correctness": 4.0,
+      "size": 22.9
+    },
+    {
+      "sample_id": "d2-0031-typo26",
+      "system": "S3",
+      "latency_ms": 27864.0,
+      "correctness": 3.0,
+      "size": 14.45
+    },
+    {
+      "sample_id": "d2-0041-typo27",
+      "system": "S3",
+      "latency_ms": 34666.0,
+      "correctness": 4.0,
+      "size": 29.75
+    },
+    {
+      "sample_id": "d2-0008-typo28",
+      "system": "S3",
+      "latency_ms": 27909.0,
+      "correctness": 4.0,
+      "size": 18.05
+    },
+    {
+      "sample_id": "d2-0001-typo29",
+      "system": "S3",
+      "latency_ms": 17587.0,
+      "correctness": 3.0,
+      "size": 10
+    },
+    {
+      "sample_id": "d2-0024-typo30",
+      "system": "S3",
+      "latency_ms": 28403.0,
+      "correctness": 4.0,
+      "size": 19.35
+    },
+    {
+      "sample_id": "d2-0039-typo31",
+      "system": "S3",
+      "latency_ms": 31228.0,
+      "correctness": 4.0,
+      "size": 19.65
+    },
+    {
+      "sample_id": "d2-0062-typo32",
+      "system": "S3",
+      "latency_ms": 28869.0,
+      "correctness": 4.0,
+      "size": 16.05
+    },
+    {
+      "sample_id": "d2-0074-typo33",
+      "system": "S3",
+      "latency_ms": 38174.0,
+      "correctness": 3.0,
+      "size": 27.1
+    },
+    {
+      "sample_id": "d2-0032-typo34",
+      "system": "S3",
+      "latency_ms": 30432.0,
+      "correctness": 4.0,
+      "size": 21.8
+    },
+    {
+      "sample_id": "d2-0080-typo35",
+      "system": "S3",
+      "latency_ms": 35926.0,
+      "correctness": 2.0,
+      "size": 17.1
+    },
+    {
+      "sample_id": "d2-0056-typo36",
+      "system": "S3",
+      "latency_ms": 28626.0,
+      "correctness": 2.0,
+      "size": 20.0
+    },
+    {
+      "sample_id": "d2-0070-typo37",
+      "system": "S3",
+      "latency_ms": 29206.0,
+      "correctness": 3.0,
+      "size": 21.1
+    },
+    {
+      "sample_id": "d2-0063-typo38",
+      "system": "S3",
+      "latency_ms": 30366.0,
+      "correctness": 3.0,
+      "size": 18.35
+    },
+    {
+      "sample_id": "d2-0066-typo39",
+      "system": "S3",
+      "latency_ms": 37790.0,
+      "correctness": 4.0,
+      "size": 29.0
+    },
+    {
+      "sample_id": "d2-0030-typo40",
+      "system": "S3",
+      "latency_ms": 27831.0,
+      "correctness": 4.0,
+      "size": 19.25
+    },
+    {
+      "sample_id": "d2-0006-typo41",
+      "system": "S3",
+      "latency_ms": 28355.0,
+      "correctness": 4.0,
+      "size": 20.6
+    },
+    {
+      "sample_id": "d2-0035-typo42",
+      "system": "S3",
+      "latency_ms": 34076.0,
+      "correctness": 3.0,
+      "size": 22.9
+    },
+    {
+      "sample_id": "d2-0028-typo43",
+      "system": "S3",
+      "latency_ms": 29792.0,
+      "correctness": 4.0,
+      "size": 22.25
+    },
+    {
+      "sample_id": "d2-0018-typo44",
+      "system": "S3",
+      "latency_ms": 33896.0,
+      "correctness": 4.0,
+      "size": 21.2
+    },
+    {
+      "sample_id": "d2-0033-typo45",
+      "system": "S3",
+      "latency_ms": 30623.0,
+      "correctness": 4.0,
+      "size": 24.8
+    },
+    {
+      "sample_id": "d2-0010-typo46",
+      "system": "S3",
+      "latency_ms": 27496.0,
+      "correctness": 2.0,
+      "size": 14.4
+    },
+    {
+      "sample_id": "d2-0049-typo47",
+      "system": "S3",
+      "latency_ms": 50318.0,
+      "correctness": 3.0,
+      "size": 33.9
+    },
+    {
+      "sample_id": "d2-0021-typo48",
+      "system": "S3",
+      "latency_ms": 33764.0,
+      "correctness": 4.0,
+      "size": 25.15
+    },
+    {
+      "sample_id": "d2-0059-typo49",
+      "system": "S3",
+      "latency_ms": 32882.0,
+      "correctness": 3.0,
+      "size": 18.95
+    },
+    {
+      "sample_id": "d2-0020-typo50",
+      "system": "S3",
+      "latency_ms": 27945.0,
+      "correctness": 3.0,
+      "size": 14.4
+    },
+    {
+      "sample_id": "d2-0012-typo51",
+      "system": "S3",
+      "latency_ms": 30160.0,
+      "correctness": 3.0,
+      "size": 17.7
+    },
+    {
+      "sample_id": "d2-0058-typo52",
+      "system": "S3",
+      "latency_ms": 38137.0,
+      "correctness": 4.0,
+      "size": 27.8
+    },
+    {
+      "sample_id": "d2-0053-typo53",
+      "system": "S3",
+      "latency_ms": 35544.0,
+      "correctness": 5.0,
+      "size": 24.9
+    },
+    {
+      "sample_id": "d2-0014-typo54",
+      "system": "S3",
+      "latency_ms": 29634.0,
+      "correctness": 4.0,
+      "size": 25.55
+    },
+    {
+      "sample_id": "d2-0046-typo55",
+      "system": "S3",
+      "latency_ms": 37137.0,
+      "correctness": 4.0,
+      "size": 28.85
+    },
+    {
+      "sample_id": "d2-0051-typo56",
+      "system": "S3",
+      "latency_ms": 32093.0,
+      "correctness": 4.0,
+      "size": 19.2
+    },
+    {
+      "sample_id": "d2-0023-typo57",
+      "system": "S3",
+      "latency_ms": 39291.0,
+      "correctness": 3.0,
+      "size": 18.1
+    },
+    {
+      "sample_id": "d2-0079-typo58",
+      "system": "S3",
+      "latency_ms": 32993.0,
+      "correctness": 4.0,
+      "size": 20.4
+    },
+    {
+      "sample_id": "d2-0057-typo59",
+      "system": "S3",
+      "latency_ms": 36152.0,
+      "correctness": 4.0,
+      "size": 15.6
+    },
+    {
+      "sample_id": "d2-0073-typo60",
+      "system": "S3",
+      "latency_ms": 32231.0,
+      "correctness": 3.0,
+      "size": 22.4
+    },
+    {
+      "sample_id": "d2-0001",
       "system": "S4",
-      "latency_ms": 11970.0,
+      "latency_ms": 12158.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0002",
+      "system": "S4",
+      "latency_ms": 9045.0,
       "correctness": 5.0,
       "size": 80
     },
     {
-      "sample_id": "d1-0009",
+      "sample_id": "d2-0003",
       "system": "S4",
-      "latency_ms": 16080.0,
+      "latency_ms": 10840.0,
       "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0004",
+      "system": "S4",
+      "latency_ms": 8062.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0005",
+      "system": "S4",
+      "latency_ms": 9394.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0006",
+      "system": "S4",
+      "latency_ms": 8548.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0007",
+      "system": "S4",
+      "latency_ms": 8572.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0008",
+      "system": "S4",
+      "latency_ms": 10005.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0009",
+      "system": "S4",
+      "latency_ms": 8783.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0010",
+      "system": "S4",
+      "latency_ms": 12192.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0011",
+      "system": "S4",
+      "latency_ms": 10453.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0012",
+      "system": "S4",
+      "latency_ms": 9962.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0013",
+      "system": "S4",
+      "latency_ms": 12055.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0014",
+      "system": "S4",
+      "latency_ms": 8399.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0015",
+      "system": "S4",
+      "latency_ms": 12278.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0016",
+      "system": "S4",
+      "latency_ms": 12549.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0017",
+      "system": "S4",
+      "latency_ms": 10108.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0018",
+      "system": "S4",
+      "latency_ms": 9189.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0019",
+      "system": "S4",
+      "latency_ms": 10068.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0020",
+      "system": "S4",
+      "latency_ms": 11925.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0021",
+      "system": "S4",
+      "latency_ms": 11476.0,
+      "correctness": 1.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0022",
+      "system": "S4",
+      "latency_ms": 9176.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0023",
+      "system": "S4",
+      "latency_ms": 9537.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0024",
+      "system": "S4",
+      "latency_ms": 8639.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0025",
+      "system": "S4",
+      "latency_ms": 11606.0,
+      "correctness": 1.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0026",
+      "system": "S4",
+      "latency_ms": 13998.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0027",
+      "system": "S4",
+      "latency_ms": 10491.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0028",
+      "system": "S4",
+      "latency_ms": 8310.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0029",
+      "system": "S4",
+      "latency_ms": 10843.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0030",
+      "system": "S4",
+      "latency_ms": 8505.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0031",
+      "system": "S4",
+      "latency_ms": 11267.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0032",
+      "system": "S4",
+      "latency_ms": 8540.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0033",
+      "system": "S4",
+      "latency_ms": 11532.0,
+      "correctness": 1.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0034",
+      "system": "S4",
+      "latency_ms": 11748.0,
+      "correctness": 1.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0035",
+      "system": "S4",
+      "latency_ms": 9500.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0036",
+      "system": "S4",
+      "latency_ms": 9052.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0037",
+      "system": "S4",
+      "latency_ms": 8888.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0038",
+      "system": "S4",
+      "latency_ms": 10073.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0039",
+      "system": "S4",
+      "latency_ms": 11164.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0040",
+      "system": "S4",
+      "latency_ms": 12596.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0041",
+      "system": "S4",
+      "latency_ms": 9053.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0042",
+      "system": "S4",
+      "latency_ms": 11108.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0043",
+      "system": "S4",
+      "latency_ms": 10381.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0044",
+      "system": "S4",
+      "latency_ms": 11713.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0045",
+      "system": "S4",
+      "latency_ms": 8303.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0046",
+      "system": "S4",
+      "latency_ms": 8845.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0047",
+      "system": "S4",
+      "latency_ms": 8748.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0048",
+      "system": "S4",
+      "latency_ms": 11384.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0049",
+      "system": "S4",
+      "latency_ms": 10042.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0050",
+      "system": "S4",
+      "latency_ms": 11229.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0051",
+      "system": "S4",
+      "latency_ms": 9610.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0052",
+      "system": "S4",
+      "latency_ms": 10651.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0053",
+      "system": "S4",
+      "latency_ms": 8883.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0054",
+      "system": "S4",
+      "latency_ms": 12458.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0055",
+      "system": "S4",
+      "latency_ms": 11898.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0056",
+      "system": "S4",
+      "latency_ms": 8168.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0057",
+      "system": "S4",
+      "latency_ms": 11734.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0058",
+      "system": "S4",
+      "latency_ms": 11724.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0059",
+      "system": "S4",
+      "latency_ms": 11689.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0060",
+      "system": "S4",
+      "latency_ms": 9668.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0061",
+      "system": "S4",
+      "latency_ms": 9328.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0062",
+      "system": "S4",
+      "latency_ms": 9983.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0063",
+      "system": "S4",
+      "latency_ms": 10719.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0064",
+      "system": "S4",
+      "latency_ms": 11523.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0065",
+      "system": "S4",
+      "latency_ms": 12987.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0066",
+      "system": "S4",
+      "latency_ms": 10901.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0067",
+      "system": "S4",
+      "latency_ms": 9359.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0068",
+      "system": "S4",
+      "latency_ms": 11990.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0069",
+      "system": "S4",
+      "latency_ms": 11003.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0070",
+      "system": "S4",
+      "latency_ms": 8787.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0071",
+      "system": "S4",
+      "latency_ms": 10081.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0072",
+      "system": "S4",
+      "latency_ms": 8554.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0073",
+      "system": "S4",
+      "latency_ms": 9785.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0074",
+      "system": "S4",
+      "latency_ms": 12267.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0075",
+      "system": "S4",
+      "latency_ms": 10181.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0076",
+      "system": "S4",
+      "latency_ms": 10593.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0077",
+      "system": "S4",
+      "latency_ms": 9068.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0078",
+      "system": "S4",
+      "latency_ms": 13748.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0079",
+      "system": "S4",
+      "latency_ms": 11231.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0080",
+      "system": "S4",
+      "latency_ms": 11554.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0025-typo1",
+      "system": "S4",
+      "latency_ms": 11314.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0002-typo2",
+      "system": "S4",
+      "latency_ms": 9176.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0007-typo3",
+      "system": "S4",
+      "latency_ms": 8485.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0016-typo4",
+      "system": "S4",
+      "latency_ms": 12524.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0048-typo5",
+      "system": "S4",
+      "latency_ms": 11395.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0076-typo6",
+      "system": "S4",
+      "latency_ms": 477.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0052-typo7",
+      "system": "S4",
+      "latency_ms": 10329.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0067-typo8",
+      "system": "S4",
+      "latency_ms": 9566.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0037-typo9",
+      "system": "S4",
+      "latency_ms": 8965.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0003-typo10",
+      "system": "S4",
+      "latency_ms": 473.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0068-typo11",
+      "system": "S4",
+      "latency_ms": 11988.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0009-typo12",
+      "system": "S4",
+      "latency_ms": 8613.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0034-typo13",
+      "system": "S4",
+      "latency_ms": 11834.0,
+      "correctness": 1.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0065-typo14",
+      "system": "S4",
+      "latency_ms": 14278.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0040-typo15",
+      "system": "S4",
+      "latency_ms": 12192.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0011-typo16",
+      "system": "S4",
+      "latency_ms": 10400.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0071-typo17",
+      "system": "S4",
+      "latency_ms": 9921.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0022-typo18",
+      "system": "S4",
+      "latency_ms": 9133.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0069-typo19",
+      "system": "S4",
+      "latency_ms": 499.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0005-typo20",
+      "system": "S4",
+      "latency_ms": 9501.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0072-typo21",
+      "system": "S4",
+      "latency_ms": 8347.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0019-typo22",
+      "system": "S4",
+      "latency_ms": 9270.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0050-typo23",
+      "system": "S4",
+      "latency_ms": 11415.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0038-typo24",
+      "system": "S4",
+      "latency_ms": 10310.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0004-typo25",
+      "system": "S4",
+      "latency_ms": 8158.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0031-typo26",
+      "system": "S4",
+      "latency_ms": 496.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0041-typo27",
+      "system": "S4",
+      "latency_ms": 10171.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0008-typo28",
+      "system": "S4",
+      "latency_ms": 10296.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0001-typo29",
+      "system": "S4",
+      "latency_ms": 11459.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0024-typo30",
+      "system": "S4",
+      "latency_ms": 8564.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0039-typo31",
+      "system": "S4",
+      "latency_ms": 11309.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0062-typo32",
+      "system": "S4",
+      "latency_ms": 13831.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0074-typo33",
+      "system": "S4",
+      "latency_ms": 577.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0032-typo34",
+      "system": "S4",
+      "latency_ms": 8452.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0080-typo35",
+      "system": "S4",
+      "latency_ms": 11537.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0056-typo36",
+      "system": "S4",
+      "latency_ms": 8339.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0070-typo37",
+      "system": "S4",
+      "latency_ms": 8721.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0063-typo38",
+      "system": "S4",
+      "latency_ms": 10590.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0066-typo39",
+      "system": "S4",
+      "latency_ms": 10794.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0030-typo40",
+      "system": "S4",
+      "latency_ms": 8542.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0006-typo41",
+      "system": "S4",
+      "latency_ms": 8265.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0035-typo42",
+      "system": "S4",
+      "latency_ms": 10694.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0028-typo43",
+      "system": "S4",
+      "latency_ms": 8326.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0018-typo44",
+      "system": "S4",
+      "latency_ms": 10850.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0033-typo45",
+      "system": "S4",
+      "latency_ms": 11261.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0010-typo46",
+      "system": "S4",
+      "latency_ms": 12172.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0049-typo47",
+      "system": "S4",
+      "latency_ms": 10089.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0021-typo48",
+      "system": "S4",
+      "latency_ms": 11198.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0059-typo49",
+      "system": "S4",
+      "latency_ms": 11031.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0020-typo50",
+      "system": "S4",
+      "latency_ms": 11614.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0012-typo51",
+      "system": "S4",
+      "latency_ms": 9658.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0058-typo52",
+      "system": "S4",
+      "latency_ms": 12046.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0053-typo53",
+      "system": "S4",
+      "latency_ms": 9039.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0014-typo54",
+      "system": "S4",
+      "latency_ms": 8395.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0046-typo55",
+      "system": "S4",
+      "latency_ms": 8863.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0051-typo56",
+      "system": "S4",
+      "latency_ms": 9736.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0023-typo57",
+      "system": "S4",
+      "latency_ms": 9382.0,
+      "correctness": 2.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0079-typo58",
+      "system": "S4",
+      "latency_ms": 11278.0,
+      "correctness": 3.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0057-typo59",
+      "system": "S4",
+      "latency_ms": 11476.0,
+      "correctness": 4.0,
+      "size": 80
+    },
+    {
+      "sample_id": "d2-0073-typo60",
+      "system": "S4",
+      "latency_ms": 9806.0,
+      "correctness": 2.0,
       "size": 80
     }
   ],

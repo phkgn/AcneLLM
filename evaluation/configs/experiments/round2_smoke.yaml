@@ -1,6 +1,6 @@
 name: round2_smoke
 tier: t3
-dataset: evaluation/datasets/v1/d1_dev_seed.jsonl
+dataset: evaluation/datasets/v1/dev_tuning.jsonl
 systems:
   - evaluation/configs/systems/s2.yaml
   - evaluation/configs/systems/s3.yaml

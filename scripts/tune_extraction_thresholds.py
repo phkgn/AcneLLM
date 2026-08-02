@@ -15,7 +15,7 @@ import json, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from acne_llm.chat.extraction_confidence import extract_with_confidence
+from acne_llm.chat.fallback.rule_extractor import extract_with_confidence
 
 
 def load(path):

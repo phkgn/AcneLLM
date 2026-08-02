@@ -174,13 +174,13 @@ def select_threshold(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--labels", default="evaluation/configs/grounding_d1_manual_labels.json"
+        "--labels", default="evaluation/configs/grounding_dev_tuning_manual_labels.json"
     )
     parser.add_argument("--out-dir", default=None)
     args = parser.parse_args()
     labels_path = (ROOT / args.labels).resolve()
     payload = json.loads(labels_path.read_text(encoding="utf-8"))
-    if Path(payload.get("dataset", "")).name != "d1_dev_seed.jsonl":
+    if Path(payload.get("dataset", "")).name != "dev_tuning.jsonl":
         parser.error("grounding threshold tuning is restricted to D1")
     try:
         labels = validate_label_payload(payload)

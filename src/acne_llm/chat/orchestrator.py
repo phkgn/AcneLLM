@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from ..schemas import RetrievalOutput, UserInput
 from ._retrieval import retrieve_for_chat
-from .extraction_confidence import build_confidence_hint
+from .confidence_hint import build_confidence_hint
 from .intake import IntakeResult, run_intake
 from .fallback.intent_router import RouteDecision
 from .preprocess import prepare_user_text

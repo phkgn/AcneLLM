@@ -7,7 +7,7 @@ metric hợp lệ. Chạy trên D1 dev (không đụng D2).
 
 Usage:
     python -m evaluation.judges.bias_tests --run-dir evaluation/reports/main_2x2_t3 \
-        --dataset evaluation/datasets/v1/d1_dev_seed.jsonl [--n 30]
+        --dataset evaluation/datasets/v1/dev_tuning.jsonl [--n 30]
 """
 from __future__ import annotations
 

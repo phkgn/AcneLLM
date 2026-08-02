@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-16T18:59:44.704618+00:00",
-  "generation_id": "20260716T185944704618Z-0362e3fc33",
+  "generated_at": "2026-07-27T20:49:42.473475+00:00",
+  "generation_id": "20260727T204942473475Z-6b8ff1e403",
   "generator": "evaluation.analysis.figures_kb",
   "artifact_policy": "fresh_compute_no_figure_reuse",
   "group": "finetune",
@@ -49,7 +49,7 @@
       "pdf_file": null,
       "chart_type": "hist",
       "caption": "Histogram uses overlap values stored by check_contamination; unflagged samples are aggregated below threshold.",
-      "source_data": "evaluation/datasets/v1/d2_test.contamination.json",
+      "source_data": "evaluation/datasets/v1/answer_quality_test.contamination.json",
       "status": "ok",
       "skip_reason": null
     },

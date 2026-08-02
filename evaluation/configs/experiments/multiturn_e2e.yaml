@@ -2,7 +2,7 @@
 # in one isolated session before sending each sample's current user turn.
 name: multiturn_e2e_t4
 tier: t4
-dataset: evaluation/datasets/v1/d5_multiturn.jsonl
+dataset: evaluation/datasets/v1/multi_turn_test.jsonl
 api_url: http://localhost:8000
 chat_mode: auto
 systems:

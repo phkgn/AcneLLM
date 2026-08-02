@@ -1,7 +1,7 @@
 """Unit tests for intent router -- new flags and routing logic."""
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
 from acne_llm.chat.fallback.intent_router import is_repeated_question, route_intent
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
 from acne_llm.chat.session import ConversationTurn
 
 

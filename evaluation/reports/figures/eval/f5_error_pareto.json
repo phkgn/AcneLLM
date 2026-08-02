@@ -4,76 +4,139 @@
   "chart_type": "bar",
   "data": [
     {
-      "error": "judge:completeness",
-      "s0": 10,
-      "s1": 2,
-      "s2": 7,
-      "s3": 0,
-      "s4": 1,
-      "total": 20
+      "error": "E14",
+      "s0": 61,
+      "s1": 17,
+      "s2": 45,
+      "s3": 21,
+      "s4": 71,
+      "total": 215
     },
     {
-      "error": "judge:relevance",
-      "s0": 10,
-      "s1": 2,
-      "s2": 7,
-      "s3": 0,
-      "s4": 0,
-      "total": 19
-    },
-    {
-      "error": "judge:correctness",
-      "s0": 10,
-      "s1": 2,
-      "s2": 7,
-      "s3": 0,
-      "s4": 0,
-      "total": 19
+      "error": "E18",
+      "s0": 27,
+      "s1": 9,
+      "s2": 28,
+      "s3": 14,
+      "s4": 28,
+      "total": 106
     },
     {
       "error": "judge:instruction_following",
-      "s0": 2,
+      "s0": 9,
+      "s1": 30,
+      "s2": 15,
+      "s3": 28,
+      "s4": 23,
+      "total": 105
+    },
+    {
+      "error": "judge:completeness",
+      "s0": 5,
+      "s1": 35,
+      "s2": 10,
+      "s3": 26,
+      "s4": 15,
+      "total": 91
+    },
+    {
+      "error": "E11",
+      "s0": 31,
+      "s1": 6,
+      "s2": 28,
+      "s3": 7,
+      "s4": 9,
+      "total": 81
+    },
+    {
+      "error": "E16",
+      "s0": 11,
+      "s1": 7,
+      "s2": 12,
+      "s3": 11,
+      "s4": 11,
+      "total": 52
+    },
+    {
+      "error": "E20",
+      "s0": 12,
+      "s1": 0,
+      "s2": 10,
+      "s3": 1,
+      "s4": 22,
+      "total": 45
+    },
+    {
+      "error": "E15",
+      "s0": 12,
       "s1": 2,
-      "s2": 4,
-      "s3": 0,
+      "s2": 18,
+      "s3": 4,
+      "s4": 4,
+      "total": 40
+    },
+    {
+      "error": "judge:Thiếu disclaimer ngắn gọn cuối theo yêu cầu",
+      "s0": 2,
+      "s1": 15,
+      "s2": 5,
+      "s3": 7,
+      "s4": 3,
+      "total": 32
+    },
+    {
+      "error": "judge:Thiếu disclaimer ngắn gọn cuối",
+      "s0": 3,
+      "s1": 12,
+      "s2": 0,
+      "s3": 8,
       "s4": 1,
-      "total": 9
+      "total": 24
     },
     {
       "error": "judge:fluency",
-      "s0": 0,
+      "s0": 6,
       "s1": 0,
-      "s2": 3,
-      "s3": 1,
-      "s4": 1,
-      "total": 5
+      "s2": 8,
+      "s3": 0,
+      "s4": 7,
+      "total": 21
     },
     {
-      "error": "judge:safety",
+      "error": "judge:Không có disclaimer ngắn gọn cuối theo yêu cầu",
       "s0": 1,
-      "s1": 0,
-      "s2": 1,
-      "s3": 0,
-      "s4": 0,
-      "total": 2
+      "s1": 4,
+      "s2": 4,
+      "s3": 2,
+      "s4": 5,
+      "total": 16
     },
     {
-      "error": "judge:Thiếu nội dung y khoa",
+      "error": "E12",
+      "s0": 2,
+      "s1": 1,
+      "s2": 9,
+      "s3": 1,
+      "s4": 0,
+      "total": 13
+    },
+    {
+      "error": "judge:Thiếu disclaimer ngắn gọn cuối câu trả lời",
       "s0": 0,
       "s1": 1,
       "s2": 0,
-      "s3": 0,
-      "s4": 0,
-      "total": 1
+      "s3": 4,
+      "s4": 2,
+      "total": 7
     },
     {
-      "error": "judge:Không trả lời câu hỏi",
+      "error": "judge:Không có disclaimer ngắn gọn cuối",
       "s0": 0,
       "s1": 1,
       "s2": 0,
-      "s3": 0,
-      "s4": 0,
-      "total": 1
+      "s3": 2,
+      "s4": 3,
+      "total": 6
     }
   ],
   "x_key": "error",

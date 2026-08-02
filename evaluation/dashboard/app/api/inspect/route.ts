@@ -10,6 +10,7 @@ import {
   REPORTS_ROOT,
   assertSafeName,
 } from "@/lib/paths";
+import { loadSystemLabels } from "@/lib/systems";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,6 +51,7 @@ async function datasetForRun(
 
 export async function GET(request: Request) {
   try {
+    const systemLabels = loadSystemLabels();
     const url = new URL(request.url);
     const experiment = assertSafeName(
       url.searchParams.get("experiment") ?? "main_2x2_t3",
@@ -101,6 +103,7 @@ export async function GET(request: Request) {
       return NextResponse.json({
         experiment,
         system,
+        systemLabels,
         dataset: datasetRelative,
         availableSystems,
         result,
@@ -153,6 +156,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       experiment,
       system,
+      systemLabels,
       dataset: datasetRelative,
       availableSystems,
       total: filtered.length,

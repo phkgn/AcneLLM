@@ -14,11 +14,13 @@ from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
 from ._terms import CASE_INTAKE_TERMS, contains_any
 from .completeness import CompletenessResult, check_completeness
-from .fallback.intent_router import RouteDecision, route_intent
+from .fallback.intent_router import RouteDecision, compute_route_flags, route_intent
 from .fallback.llm_extractor import ExtractorFallback
 from .fallback.llm_router import RouterFallback
-from .normalizer import _light_normalize, normalize_chat_message
-from .extraction_confidence import extract_with_confidence, ExtractionConfidence
+from .fallback.rule_normalizer import normalize_chat_message
+from .preprocess import light_normalize
+from ..schemas.extraction import ExtractionConfidence
+from .fallback.rule_extractor import extract_with_confidence
 from .preprocess import prepare_user_text, strip_accents
 from .session import (
     ConversationTurn,
@@ -311,7 +313,7 @@ def run_intake(
             clean_text_no_accent=clean_text_no_accent,
         )
 
-    base_user = UserInput(description=_light_normalize(raw_message), mode=mode)
+    base_user = UserInput(description=light_normalize(raw_message), mode=mode)
     _extraction_conf: ExtractionConfidence | None = None
     safety_terms = _extract_safety_terms(clean_text, base_user)
     log_pipeline_stage(
@@ -634,6 +636,20 @@ def run_intake(
                 settings=getattr(c, "settings", None),
                 current_clinical=base_user.clinical,
             )
+    # Chỉ đường rule sinh route_flags; unified và semantic trả list rỗng, làm
+    # chết im lặng cảnh báo khẩn cấp (_safety) và guidance an toàn
+    # (prompt_builder). Cờ là tín hiệu văn bản nên không phụ thuộc router nào
+    # chọn intent -> gắn chung cho mọi đường. Với đường rule đây là no-op vì
+    # cùng nguồn cờ và dict.fromkeys khử trùng.
+    _text_flags = compute_route_flags(clean_text, history=history)
+    if _text_flags:
+        route_decision = replace(
+            route_decision,
+            route_flags=list(dict.fromkeys([
+                *route_decision.route_flags,
+                *_text_flags,
+            ])),
+        )
     if mixed_genital_scope:
         route_decision = replace(
             route_decision,

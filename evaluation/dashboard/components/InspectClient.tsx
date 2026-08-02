@@ -27,6 +27,7 @@ type JsonRecord = Record<string, unknown>;
 type ListResponse = {
   experiment: string;
   system: string;
+  systemLabels: Record<string, string>;
   dataset: string | null;
   availableSystems: string[];
   total: number;
@@ -49,6 +50,7 @@ type ListResponse = {
 type DetailResponse = {
   experiment: string;
   system: string;
+  systemLabels: Record<string, string>;
   dataset: string | null;
   availableSystems: string[];
   result: JsonRecord | null;
@@ -155,6 +157,8 @@ export function InspectClient() {
     list?.availableSystems.length
       ? list.availableSystems
       : ["s0", "s1", "s2", "s3", "s4"];
+  const systemLabels = list?.systemLabels ?? detail?.systemLabels ?? {};
+  const labelFor = (id: string) => systemLabels[id] ?? id;
   const result = record(detail?.result);
   const trace = record(result.trace);
   const structured = result.structured;
@@ -215,7 +219,7 @@ export function InspectClient() {
             >
               {availableSystems.map((item) => (
                 <option key={item} value={item}>
-                  {item.toUpperCase()}
+                  {labelFor(item)}
                 </option>
               ))}
             </select>
@@ -231,7 +235,7 @@ export function InspectClient() {
                 .filter((item) => item !== system)
                 .map((item) => (
                   <option key={item} value={item}>
-                    {item.toUpperCase()}
+                    {labelFor(item)}
                   </option>
                 ))}
             </select>
@@ -339,7 +343,7 @@ export function InspectClient() {
                       <Pill tone={result.ok === true ? "good" : "bad"}>
                         {result.ok === true ? "OK" : "FAIL"}
                       </Pill>
-                      <Pill tone="info">{system.toUpperCase()}</Pill>
+                      <Pill tone="info">{labelFor(system)}</Pill>
                       {detail.errorCodes.map((code) => (
                         <Pill key={code} tone="bad">
                           {code}
@@ -379,17 +383,17 @@ export function InspectClient() {
                 <div className="flex items-center gap-2">
                   <Columns2 size={19} className="text-moss" />
                   <h2 className="text-xl font-black">
-                    {system.toUpperCase()} vs {compareSystem.toUpperCase()}
+                    {labelFor(system)} vs {labelFor(compareSystem)}
                   </h2>
                 </div>
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
                   <AnswerPanel
-                    label={system.toUpperCase()}
+                    label={labelFor(system)}
                     answer={String(result.answer ?? "(rỗng)")}
                     ok={result.ok === true}
                   />
                   <AnswerPanel
-                    label={compareSystem.toUpperCase()}
+                    label={labelFor(compareSystem)}
                     answer={
                       detail.compare
                         ? String(compare.answer ?? "(rỗng)")

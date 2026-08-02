@@ -7,9 +7,8 @@ import {
   resolveEvaluationPath,
   toRepoRelative,
 } from "./paths.ts";
-import { checkGateRunFlags, t3OutputFlags } from "./command-flags.ts";
+import { checkGateRunFlags, generationOutputFlags } from "./command-flags.ts";
 import { COMMAND_IDS } from "./command-ids.ts";
-import { parsePreliminaryLimit } from "./preliminary.ts";
 import type { CommandId } from "./types.ts";
 
 const FORBIDDEN = /[;&|`$><\r\n]/;
@@ -22,8 +21,14 @@ const RETRIEVAL_MODES = new Set([
   "hybrid_rerank",
   "hybrid_mmr_rerank",
 ]);
-const SKIP_STEPS = new Set(["t1", "t2", "t3", "judge", "report", "gate"]);
-const PROBE_EXPECTS = new Set(["advise", "knowledge", "clarify", "reject"]);
+const SKIP_STEPS = new Set([
+  "intake",
+  "rag",
+  "generation",
+  "scoring",
+  "bottleneck",
+  "figures",
+]);
 const BOTTLENECK_ARMS = new Set(["z", "x", "y", "w"]);
 
 export interface BuiltCommand {
@@ -63,37 +68,6 @@ function optionalSample(value: unknown): number {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isInteger(parsed) || parsed < 3 || parsed > 100_000) {
     throw new Error("Sample phải là số nguyên từ 3 đến 100000.");
-  }
-  return parsed;
-}
-
-function optionalProbeK(value: unknown): number | null {
-  if (value === undefined || value === null || value === "") return null;
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) {
-    throw new Error("k phải là số nguyên từ 1 đến 100.");
-  }
-  return parsed;
-}
-
-function optionalProbeThreshold(
-  value: unknown,
-  label: string,
-  max: number,
-): number | null {
-  if (value === undefined || value === null || value === "") return null;
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0 || parsed > max) {
-    throw new Error(`${label} phải là số từ 0 đến ${max}.`);
-  }
-  return parsed;
-}
-
-function optionalProbeExpect(value: unknown): string | null {
-  if (value === undefined || value === null || value === "") return null;
-  const parsed = assertCleanString(value, "Expect");
-  if (!PROBE_EXPECTS.has(parsed)) {
-    throw new Error("Expect chỉ nhận advise|knowledge|clarify|reject.");
   }
   return parsed;
 }
@@ -209,28 +183,18 @@ function quoteForDisplay(value: string): string {
   return /\s/.test(value) ? JSON.stringify(value) : value;
 }
 
-function probeText(value: unknown): string {
-  // Free-form Vietnamese input; spawned via argv array with shell:false and
-  // passed as --text=<value> so shell metacharacters are inert.  Only reject
-  // what would corrupt a single-line CLI argument.
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error("Câu probe không được rỗng.");
-  }
-  const text = value.trim();
-  if (text.length > 2000 || /[\0\r\n]/.test(text)) {
-    throw new Error("Câu probe phải là một dòng, tối đa 2000 ký tự.");
-  }
-  return text;
-}
-
-function preliminaryOutputDir(value: unknown): string {
+function timestampedOutputDir(value: unknown, prefix: string): string {
   const stamp = new Date()
     .toISOString()
     .replace(/[-:]/g, "")
     .replace(".", "_");
   return outputRunDir(
-    value ?? `evaluation/reports/prelim_d2_${stamp}`,
+    value ?? `evaluation/reports/${prefix}_${stamp}`,
   );
+}
+
+function runAllOutputDir(value: unknown): string {
+  return timestampedOutputDir(value, "thesis");
 }
 
 export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltCommand {
@@ -248,14 +212,20 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
   const py = pythonExecutable();
   const argv: string[] = [];
   const normalizedArgs: Record<string, unknown> = {};
-  const limit = commandId === "preliminary_d2" ? null : optionalLimit(args.limit);
+  const limit = optionalLimit(args.limit);
 
   switch (commandId) {
-    case "run_all": {
-      argv.push("-m", "evaluation.run_all");
+    case "full_evaluation": {
+      const outDir = runAllOutputDir(args.outDir);
+      argv.push("-m", "evaluation.full_evaluation", "--out", outDir);
+      normalizedArgs.outDir = outDir;
       if (args.smoke === true) {
         argv.push("--smoke");
         normalizedArgs.smoke = true;
+      }
+      if (limit !== null) {
+        argv.push("--limit", String(limit));
+        normalizedArgs.limit = limit;
       }
       const skip = stringList(args.skip, SKIP_STEPS, "Skip");
       if (skip.length) {
@@ -273,61 +243,12 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
-    case "preliminary_d2": {
-      const outDir = preliminaryOutputDir(args.outDir);
-      const presetLimit = parsePreliminaryLimit(args.limit);
-      const dataset = "evaluation/datasets/v1/d2_test.jsonl";
-      const systems = ["s0", "s1", "s2", "s3", "s4"];
-      const pairs = ["s0:s1", "s0:s2", "s1:s3", "s2:s3"];
-      argv.push(
-        "evaluation/dashboard/scripts/run_preliminary_d2.py",
-        "--out-dir",
-        outDir,
-        "--limit",
-        String(presetLimit),
-      );
-      normalizedArgs.outDir = outDir;
-      normalizedArgs.dataset = dataset;
-      normalizedArgs.systems = systems;
-      normalizedArgs.pairs = pairs;
-      normalizedArgs.limit = presetLimit;
-      normalizedArgs.provisional = true;
-      normalizedArgs.judgeWorkers = JUDGE_WORKERS;
-      break;
-    }
-    case "t1_normalizer":
-      argv.push("-m", "evaluation.unit.eval_normalizer");
-      break;
-    case "t1_intent":
-      argv.push(
-        "-m",
-        "evaluation.unit.eval_intent_router",
-        "--dataset",
-        "evaluation/datasets/v1/t1_intent_seed.jsonl",
-      );
-      break;
-    case "t1_planner":
-      argv.push(
-        "-m",
-        "evaluation.unit.eval_query_planner",
-        "--dataset",
-        "evaluation/datasets/v1/t1_intent_seed.jsonl",
-      );
-      break;
-    case "t1_guardrails":
-      argv.push(
-        "-m",
-        "evaluation.unit.eval_guardrails",
-        "--dataset",
-        "evaluation/datasets/v1/t1_guardrails_seed.jsonl",
-      );
-      break;
-    case "t2_retrieval": {
+    case "retrieval_eval": {
       argv.push(
         "-m",
         "evaluation.runners.run_retrieval",
         "--dataset",
-        "evaluation/datasets/v1/d8_qrels_seed.jsonl",
+        "evaluation/datasets/v1/retrieval_test.jsonl",
       );
       const modes = stringList(args.modes, RETRIEVAL_MODES, "Modes");
       if (modes.length) {
@@ -340,7 +261,7 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
-    case "t3_generation": {
+    case "answer_generation": {
       argv.push(
         "-m",
         "evaluation.runners.run_experiment",
@@ -354,15 +275,15 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       const outDir = outputRunDir(args.outDir);
       const resume = args.resume !== false;
-      argv.push(...t3OutputFlags(outDir, resume));
+      argv.push(...generationOutputFlags(outDir, resume));
       normalizedArgs.outDir = outDir;
       normalizedArgs.resume = resume;
       break;
     }
-    case "judge": {
+    case "llm_scoring": {
       const dataset = datasetPath(
         args.dataset,
-        "evaluation/datasets/v1/d1_dev_seed.jsonl",
+        "evaluation/datasets/v1/dev_tuning.jsonl",
       );
       const runDir = reportRunDir(args.runDir);
       argv.push(
@@ -385,10 +306,10 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
-    case "report": {
+    case "build_report": {
       const dataset = datasetPath(
         args.dataset,
-        "evaluation/datasets/v1/d1_dev_seed.jsonl",
+        "evaluation/datasets/v1/dev_tuning.jsonl",
       );
       const runDir = reportRunDir(args.runDir);
       argv.push(
@@ -403,7 +324,7 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.runDir = runDir;
       break;
     }
-    case "check_gate": {
+    case "quality_gate": {
       const runDir = reportRunDir(args.runDir);
       argv.push(
         "-m",
@@ -413,10 +334,10 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       normalizedArgs.runDir = runDir;
       break;
     }
-    case "validation_loop": {
+    case "trust_audit": {
       const dataset = datasetPath(
         args.dataset,
-        "evaluation/datasets/v1/d1_dev_seed.jsonl",
+        "evaluation/datasets/v1/dev_tuning.jsonl",
       );
       const runDir = reportRunDir(args.runDir);
       const reproSubset = optionalReproSubset(args.reproSubset);
@@ -494,42 +415,10 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
       }
       break;
     }
-    case "probe_semantic": {
-      // Text free-form tiếng Việt; spawn argv + shell:false nên metachar vô hại.
-      const text = probeText(args.text);
-      argv.push("-m", "evaluation.probe.semantic_probe", "--text", text);
-      normalizedArgs.text = text;
-      const k = optionalProbeK(args.k);
-      if (k !== null) {
-        argv.push("--k", String(k));
-        normalizedArgs.k = k;
-      }
-      const oos = optionalProbeThreshold(args.oos, "OOS threshold", 2);
-      if (oos !== null) {
-        argv.push("--oos", String(oos));
-        normalizedArgs.oos = oos;
-      }
-      const margin = optionalProbeThreshold(args.margin, "Ambiguity margin", 1);
-      if (margin !== null) {
-        argv.push("--margin", String(margin));
-        normalizedArgs.margin = margin;
-      }
-      const expect = optionalProbeExpect(args.expect);
-      if (expect !== null) {
-        argv.push("--expect", expect);
-        normalizedArgs.expect = expect;
-      }
-      if (args.neighbors !== false) {
-        argv.push("--neighbors");
-        normalizedArgs.neighbors = true;
-      }
-      argv.push("--json");
-      break;
-    }
-    case "intake_unified":
+    case "intake_eval":
       argv.push("scripts/eval_unified_intake.py");
       break;
-    case "bottleneck": {
+    case "bottleneck_analysis": {
       const arm = assertCleanString(args.arm, "Arm");
       if (!BOTTLENECK_ARMS.has(arm)) {
         throw new Error("Arm chỉ nhận z|x|y|w.");
@@ -545,18 +434,15 @@ export function buildCommand(commandIdRaw: unknown, argsRaw: unknown): BuiltComm
 
   if (
     limit !== null &&
-    commandId !== "run_all" &&
-    commandId !== "preliminary_d2" &&
-    commandId !== "t1_normalizer" &&
+    commandId !== "full_evaluation" &&
     commandId !== "tests" &&
-    commandId !== "report" &&
-    commandId !== "check_gate" &&
-    commandId !== "validation_loop" &&
+    commandId !== "build_report" &&
+    commandId !== "quality_gate" &&
+    commandId !== "trust_audit" &&
     commandId !== "figures_kb" &&
     commandId !== "figures_eval" &&
     commandId !== "figures_usage" &&
-    commandId !== "figures_all" &&
-    commandId !== "probe_semantic"
+    commandId !== "figures_all"
   ) {
     argv.push("--limit", String(limit));
     normalizedArgs.limit = limit;
