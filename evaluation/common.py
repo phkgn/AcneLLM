@@ -59,13 +59,6 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def load_yaml(path: Path) -> dict:
-    import yaml
-
-    with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-
 def git_commit() -> str:
     try:
         return subprocess.check_output(
