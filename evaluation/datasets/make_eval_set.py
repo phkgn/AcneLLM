@@ -290,10 +290,17 @@ def generate(n: int, seed: int, model: str, out_path: Path) -> list[dict[str, An
     rows += policy
 
     write_jsonl(out_path, rows)
-    freeze_dir(out_path.parent)
     print(f"\n{len(rows)} dòng ({len(rows) - len(policy)} sinh + {len(policy)} chính sách)"
           f" → {out_path}   (loại {rejected})")
-    print(f"MANIFEST.json đã freeze — sửa file sau bước này thì load_dataset sẽ raise.")
+    # Chỉ freeze khi bộ đã hoàn chỉnh. Freeze sớm thì mỗi lần sinh thử lại phải
+    # xoá MANIFEST — ma sát vô ích trong lúc còn lặp.
+    if len(policy) >= MIN_POLICY_ROWS:
+        freeze_dir(out_path.parent)
+        print("MANIFEST.json đã freeze — sửa file sau bước này thì load_dataset raise.")
+    else:
+        print("CHƯA freeze MANIFEST (bộ chưa đủ ca chính sách). "
+              "Xong thì: python -m evaluation.datasets.registry freeze "
+              f"{out_path.parent.relative_to(ROOT).as_posix()}")
     # PRICES chỉ có bảng giá OpenAI nên số này = 0 với model DeepSeek.
     if client.total_cost_usd:
         print(f"cost: ${client.total_cost_usd:.4f}")
