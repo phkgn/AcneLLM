@@ -277,6 +277,13 @@ def main() -> None:
         print(f"  {mark} {step['id']}: {step['status']}{detail}")
     print(f"\nOutputs: {run_dir}/")
 
+    # Exit non-zero khi có bước fail. Cần cho CI, và cần cho vòng retry chạy đêm:
+    # ablation resume được nên chạy lại là tiếp tục, nhưng vòng lặp phải BIẾT là
+    # lần trước hỏng mới chạy lại.
+    failed = [step["id"] for step in summary["steps"] if step["status"] == "fail"]
+    if failed:
+        raise SystemExit(f"Bước thất bại: {', '.join(failed)}")
+
 
 def _confirm_cost() -> bool:
     try:
