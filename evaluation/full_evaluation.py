@@ -11,7 +11,7 @@
 Mỗi bước là subprocess độc lập; bước fail không kéo sập bước sau (trừ preflight).
 
 Usage:
-    python -m evaluation.full_evaluation                 # đầy đủ
+    python -m evaluation.full_evaluation --yes           # đầy đủ, không hỏi lại
     python -m evaluation.full_evaluation --smoke         # 10 mẫu/bước
     python -m evaluation.full_evaluation --skip intake
 """
@@ -142,9 +142,22 @@ def _skip_step(summary: dict, summary_path: Path, step_id: str, detail: str) -> 
     _finish_step(summary, summary_path, step_id, "skipped", started, detail)
 
 
-def sh(label: str, cmd: list[str]) -> bool:
-    print(f"\n{'=' * 60}\n[{label}] {' '.join(cmd)}\n{'=' * 60}", flush=True)
-    return subprocess.run(cmd, cwd=ROOT).returncode == 0
+def sh(label: str, cmd: list[str], *, retries: int = 0, wait_s: int = 60) -> bool:
+    """Chạy, thử lại nếu hỏng.
+
+    Retry an toàn vì run_ablation ghi checkpoint từng dòng — chạy lại là tiếp
+    tục chỗ dở, không tốn tiền lần hai. Để retry ở đây thay vì bắt người dùng
+    viết vòng lặp PowerShell.
+    """
+    for attempt in range(retries + 1):
+        print(f"\n{'=' * 60}\n[{label}] {' '.join(cmd)}\n{'=' * 60}", flush=True)
+        if subprocess.run(cmd, cwd=ROOT).returncode == 0:
+            return True
+        if attempt < retries:
+            print(f"\n[{label}] hỏng — thử lại sau {wait_s}s "
+                  f"({attempt + 1}/{retries}), tiếp từ checkpoint\n", flush=True)
+            time.sleep(wait_s)
+    return False
 
 
 def _has_openai_key() -> bool:
@@ -190,6 +203,9 @@ def main() -> None:
     ap.add_argument("--out", default=None, help="thư mục output của run")
     ap.add_argument("--yes", action="store_true", help="chấp thuận trước bước tốn phí API")
     ap.add_argument("--force", action="store_true", help="chạy tiếp dù preflight lỗi cứng")
+    ap.add_argument("--retry", type=int, default=3,
+                    help="số lần thử lại mỗi bước khi hỏng (checkpoint nên chạy "
+                         "lại là tiếp tục, không tốn tiền lần hai)")
     args = ap.parse_args()
     if args.limit < 0:
         ap.error("--limit must be non-negative")
@@ -240,7 +256,7 @@ def main() -> None:
         ok = sh("intake", [
             PY, "-m", "evaluation.runners.run_intake",
             "--output", str(run_dir / "intake" / "report.json"), *limit,
-        ])
+        ], retries=args.retry)
         _finish_step(summary, summary_path, "intake",
                      "ok" if ok else "fail", step_started,
                      "" if ok else "run_intake exit != 0")
@@ -261,7 +277,7 @@ def main() -> None:
             "--arms", args.arms,
             "--dataset", args.dataset,
             "--output", str(run_dir / "ablation" / "results.json"), *limit,
-        ])
+        ], retries=args.retry)
         _finish_step(summary, summary_path, "ablation",
                      "ok" if ok else "fail", step_started,
                      "" if ok else "run_ablation exit != 0")
