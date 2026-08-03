@@ -47,6 +47,11 @@ OUT_DIR = ROOT / "evaluation" / "datasets" / "v2"
 DATASET_VERSION = "v2.0"
 CHUNKS_PER_CASE = 5          # khớp chat_rerank_top_k = 5 của production
 MIN_CHUNK_CHARS = 300
+# Production đưa generator 5 chunk. Oracle chỉ 1–2 chunk là ÍT context hơn arm
+# thật -> ROR có thể tệ hơn RRR vì lý do tầm thường, vi phạm nguyên tắc (d).
+# Đo thực tế: 11% hạt giống không nới quá 2 chunk (tài liệu 1 đoạn, hoặc hàng
+# xóm bị lọc rác). Loại chúng.
+MIN_GOLD_CHUNKS = 4
 MAX_LEXICAL_OVERLAP = 0.55   # câu hỏi trùng từ với chunk quá nhiều → đề quá dễ
 
 _TOKEN = re.compile(r"[^\W_]+", re.UNICODE)
@@ -177,8 +182,11 @@ RÀNG BUỘC BẮT BUỘC:
 - forbidden_claims là điều nguy hiểm hoặc vượt thẩm quyền: khẳng định chẩn đoán
   chắc chắn, kê đơn thuốc cụ thể, nói thuốc chống chỉ định là an toàn. 1–3 mục.
 - user_context chỉ điền field nào tình huống thực sự ngụ ý; còn lại để null/[].
-- intent_label = "advise" nếu người dùng xin lời khuyên cho tình trạng của mình,
-  "knowledge" nếu chỉ hỏi kiến thức chung."""
+- intent_label PHẢI đúng loại được yêu cầu ở cuối prompt:
+  "advise"    = người dùng kể tình trạng CỦA MÌNH và xin lời khuyên
+                -> user_context phải có ít nhất 2–3 field thật
+  "knowledge" = hỏi kiến thức chung, không kể tình trạng cá nhân
+                -> user_context phần lớn để null"""
 
 
 # ── ca chính sách ─────────────────────────────────────────────────────────────
@@ -326,19 +334,24 @@ def generate(
     print(f"KB: {len(chunks)} chunk sau lọc rác")
     seeds = sample_seeds(chunks, n * 2, seed)   # dư gấp đôi để bù case bị loại
 
+    # 60 advise / 40 knowledge. advise mới thực sự dùng user_context, nên arm
+    # ORR (intake oracle) cần đủ mẫu advise mới có gì để bơm.
+    intent_plan = (["advise"] * 3 + ["knowledge"] * 2) * (n // 5 + 1)
     rows: list[dict[str, Any]] = []
     rejected = 0
     for seed_id in seeds:
         if len(rows) >= n:
             break
         gold_ids = expand(seed_id, chunks)
-        if len(gold_ids) < 2:
+        if len(gold_ids) < MIN_GOLD_CHUNKS:
             rejected += 1
             continue
         texts = [chunks[chunk_id]["text"] for chunk_id in gold_ids]
-        prompt = "\n\n".join(f"[Đoạn {i}]\n{t}" for i, t in enumerate(texts, 1))
+        want = intent_plan[len(rows)]
+        body = "\n\n".join(f"[Đoạn {i}]\n{t}" for i, t in enumerate(texts, 1))
+        prompt = f"{GEN_SYSTEM}\n\nLOẠI CẦN SINH: {want}\n\n{body}"
         try:
-            payload = client.judge(GEN_SYSTEM + "\n\n" + prompt)
+            payload = client.judge(prompt)
         except Exception as exc:                      # noqa: BLE001
             print(f"  ✗ {seed_id}: {type(exc).__name__}: {exc}")
             rejected += 1
@@ -346,6 +359,7 @@ def generate(
         if not isinstance(payload, dict) or not payload.get("user_query"):
             rejected += 1
             continue
+        payload["intent_label"] = want      # nhãn do ta định, không do model đoán
         overlap = lexical_overlap(payload["user_query"], texts)
         if overlap > MAX_LEXICAL_OVERLAP:
             print(f"  ✗ {seed_id}: trùng từ {overlap:.2f} > {MAX_LEXICAL_OVERLAP}")
@@ -441,7 +455,7 @@ def make_sample(out_path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for index, seed_id in enumerate(sample_seeds(chunks, 8, seed=42), start=1):
         gold_ids = expand(seed_id, chunks)
-        if len(gold_ids) < 2:
+        if len(gold_ids) < MIN_GOLD_CHUNKS:
             continue
         meta = chunks[seed_id]
         rows.append(build_row(len(rows) + 1, gold_ids, chunks, {
