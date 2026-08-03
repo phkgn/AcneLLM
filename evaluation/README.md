@@ -62,6 +62,13 @@ khác. Mẫu bị loại được ghi kèm `drop_reason`.
 
 Safety failure báo riêng, **không bao giờ** gộp vào điểm chất lượng.
 
+## Sinh bộ câu hỏi cho khâu 2
+
+```bash
+python -m evaluation.datasets.make_eval_set --sample                        # mẫu, không gọi API
+python -m evaluation.datasets.make_eval_set --generate --n 100 --policy-n 30
+```
+
 ## Khâu 1 — Intaker
 
 ```bash

@@ -188,9 +188,12 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
 `--oracle-top-k` chunk. Hạt giống = 2, chunk nới thêm = 1.
 
 Ca `reject`/`clarify` không cần chunk vàng — chúng test **chính sách**, không
-test kiến thức, nên người tự viết được, không cần bác sĩ. Chúng nằm riêng ở
-`evaluation/datasets/v2/policy_cases.jsonl`; `--generate` tự ghép vào và **cảnh
-báo nếu dưới 10 dòng**.
+test kiến thức. `--generate --policy-n 30` sinh luôn bằng DeepSeek: ta chỉ định
+**category** (đòi kê đơn, đòi chẩn đoán, ngoài phạm vi, đòi thủ thuật…), model
+chỉ viết câu hỏi. Nhãn là hệ quả của category chứ không phải phỏng đoán của
+model — đúng nguyên tắc (e). Tỉ lệ 2/3 reject, 1/3 clarify: reject là chiều
+nguy hiểm nên cần nhiều mẫu hơn. Ca viết tay trong `policy_cases.jsonl` (nếu có)
+được ghép thêm.
 
 Arm có RAG-oracle không có phiên bản oracle cho các ca này. `_run_arm` đánh dấu
 `error: "no_oracle_context"` ngay, không retry — chúng bị loại khỏi paired
@@ -203,11 +206,8 @@ summary của `ROR` kèm `drop_reason`, còn `RRR`/`RNR`/`ORR`/`RRO`/`RNO` vẫn
 # 1. Bộ mẫu — KHÔNG gọi API, chunk_id là thật, chạy được ngay
 python -m evaluation.datasets.make_eval_set --sample
 
-# 2. Sinh thử 10 câu bằng DeepSeek, xem chất lượng
-python -m evaluation.datasets.make_eval_set --generate --n 10 --seed 1
-
-# 3. Duyệt xong thì sinh 100
-python -m evaluation.datasets.make_eval_set --generate --n 100 --seed 2
+# 2. Sinh TOÀN BỘ: 100 câu advise/knowledge + 30 ca reject/clarify
+python -m evaluation.datasets.make_eval_set --generate --n 100 --policy-n 30
 ```
 
 Quy trình mỗi dòng:
