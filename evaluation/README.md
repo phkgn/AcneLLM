@@ -121,7 +121,7 @@ evaluation/
 ├── datasets/
 │   ├── registry.py          load + validate + sha256 freeze
 │   ├── make_eval_set.py     sinh bộ câu hỏi từ chunk thật
-│   └── v2/eval_set.jsonl
+│   └── eval_set.jsonl
 ├── runners/
 │   ├── run_intake.py        khâu 1
 │   └── run_ablation.py      khâu 2

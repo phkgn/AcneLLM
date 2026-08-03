@@ -43,7 +43,7 @@ from evaluation.datasets.registry import freeze_dir  # noqa: E402
 # reranker) chỉ để liệt kê chunk. Script chạy một lần khi làm data; đổi sang
 # store API nếu Chroma đổi schema.
 CHROMA_DB = ROOT / "data" / "chroma_db" / "chroma.sqlite3"
-OUT_DIR = ROOT / "evaluation" / "datasets" / "v2"
+OUT_DIR = ROOT / "evaluation" / "datasets"
 DATASET_VERSION = "v2.0"
 CHUNKS_PER_CASE = 5          # khớp chat_rerank_top_k = 5 của production
 MIN_CHUNK_CHARS = 300
@@ -485,9 +485,23 @@ def make_sample(out_path: Path) -> list[dict[str, Any]]:
 # ── io ────────────────────────────────────────────────────────────────────────
 
 def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Khử trùng sample_id, GIỮ BẢN SAU.
+
+    Ca viết tay trong policy_cases.jsonl dùng chung dải q-rNNN/q-cNNN với ca
+    sinh ra, nên đụng id. Ca viết tay được ghép sau cùng nên thắng — người soạn
+    thì chất lượng hơn. `registry.validate_file` raise nếu id trùng, thà chặn ở
+    đây còn hơn để bộ đề hỏng.
+    """
+    deduped: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        deduped[str(row.get("sample_id"))] = row
+    dropped = len(rows) - len(deduped)
+    if dropped:
+        print(f"  ⚠ {dropped} dòng trùng sample_id — giữ bản viết tay")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        "".join(json.dumps(row, ensure_ascii=False) + "\n"
+                for row in deduped.values()),
         encoding="utf-8",
     )
 

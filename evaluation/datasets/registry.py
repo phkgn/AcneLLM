@@ -1,8 +1,8 @@
 """Dataset registry: validate schema (§5.2 blueprint), freeze bằng sha256 MANIFEST.
 
 Usage:
-    python -m evaluation.datasets.registry validate evaluation/datasets/v1/retrieval_test.jsonl
-    python -m evaluation.datasets.registry freeze evaluation/datasets/v1
+    python -m evaluation.datasets.registry validate evaluation/datasets/eval_set.jsonl
+    python -m evaluation.datasets.registry freeze evaluation/datasets
 """
 from __future__ import annotations
 

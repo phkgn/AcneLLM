@@ -32,7 +32,7 @@ from evaluation.common import ROOT, REPORTS_DIR, utcnow  # noqa: E402
 from evaluation.runners.run_ablation import DEFAULT_ARMS  # noqa: E402
 
 PY = sys.executable
-DATASET = "evaluation/datasets/v2/eval_set.jsonl"
+DATASET = "evaluation/datasets/eval_set.jsonl"
 
 STEP_DEFINITIONS = (
     ("preflight", "Kiểm tra môi trường"),

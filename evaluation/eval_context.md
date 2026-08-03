@@ -150,7 +150,7 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
 
 ### Khâu 2 — ablation
 
-`evaluation/datasets/v2/eval_set.jsonl` · **cần sinh**
+`evaluation/datasets/eval_set.jsonl` · **cần sinh**
 
 ```json
 {
