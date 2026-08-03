@@ -1,5 +1,7 @@
 # AcneLLM Evaluation — 2 khâu
 
+> Thiết kế đầy đủ: **[`eval_context.md`](eval_context.md)**
+
 Hệ thống có 3 khâu nối tiếp: **intaker → RAG → generator**. Eval làm đúng 2 việc
 và không làm gì khác.
 
@@ -31,23 +33,26 @@ Preflight kiểm: Ollama + model, `data/chroma_db`, `data/bm25_index.pkl`, bộ 
 ## Khâu 2 — mã arm
 
 Arm là **3 ký tự**, mỗi ký tự một khâu `[intaker][rag][generator]`.
-`R` = chạy thật, `O` = thay bằng bản hoàn hảo (oracle).
 
-| Arm | Nghĩa | Trả lời |
-|---|---|---|
-| `RRR` | chạy thật cả 3 | mốc so sánh |
-| `ORR` | intake hoàn hảo | intaker đang làm mất bao nhiêu điểm |
-| `ROR` | RAG hoàn hảo | RAG đang làm mất bao nhiêu điểm |
-| `RRO` | generator hoàn hảo (API) | generator đang làm mất bao nhiêu điểm |
-| `OOR` | input hoàn hảo, generator thật | **khâu 3** — generator tốt đến đâu khi được cho đủ |
+`R` = chạy thật · `O` = bản hoàn hảo · `N` = tắt hẳn (chỉ cho RAG).
+Không gian đầy đủ 2 × 3 × 2 = 12 arm; mặc định chạy 6:
+
+| Arm | Đọc ra |
+|---|---|
+| `RRR` | **mốc** — sản phẩm hiện tại |
+| `RNR` | RAG có đóng góp gì không |
+| `ROR` | retriever còn dư địa bao nhiêu |
+| `ORR` | intaker có đáng sửa không |
+| `RRO` | generator có phải nút thắt |
+| `RNO` | model mạnh có cần RAG không |
 
 ```bash
-python -m evaluation.runners.run_ablation --arms              # 5 arm mặc định
-python -m evaluation.runners.run_ablation --arms RRR,OOR --limit 5
+python -m evaluation.runners.run_ablation --arms              # 6 arm mặc định
+python -m evaluation.runners.run_ablation --arms RRR,RNR --limit 5
 python -m evaluation.runners.run_ablation --summarize --output <results.json>
 ```
 
-100 câu × 5 arm = 500 lượt sinh + 500 lượt chấm. `summary.json` được sinh lại
+100 câu × 6 arm = 600 lượt sinh + 600 lượt chấm. `summary.json` được sinh lại
 **tự động** sau mỗi lần chạy arm — không bao giờ để nó stale so với
 `results.json`.
 
@@ -108,7 +113,8 @@ evaluation/
 │   └── scorecard.py         5 mặt điểm
 ├── datasets/
 │   ├── registry.py          load + validate + sha256 freeze
-│   └── v1/retrieval_test.jsonl
+│   ├── make_eval_set.py     sinh bộ câu hỏi từ chunk thật
+│   └── v2/eval_set.jsonl
 ├── runners/
 │   ├── run_intake.py        khâu 1
 │   └── run_ablation.py      khâu 2

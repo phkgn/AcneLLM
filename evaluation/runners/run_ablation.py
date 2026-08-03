@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
-"""Khâu 3 + 4 — ablation thay từng khâu bằng bản hoàn hảo (oracle substitution).
+"""Khâu 2 — ablation thay từng khâu bằng bản hoàn hảo (oracle substitution).
 
-Arm là mã 3 ký tự `[intaker][rag][generator]`, `R` = chạy thật, `O` = oracle:
+Arm là mã 3 ký tự `[intaker][rag][generator]`:
+    R = chạy thật · O = thay bằng bản hoàn hảo · N = tắt hẳn (chỉ cho RAG)
 
     RRR  mốc — chạy thật cả 3 khâu
-    ORR  intake hoàn hảo   → headroom khâu 1
-    ROR  RAG hoàn hảo      → headroom khâu 2
-    RRO  generator hoàn hảo → headroom khâu 3
-    OOR  input hoàn hảo, generator thật → KHÂU 3, điểm tuyệt đối của generator
+    RNR  tắt RAG            → RAG có đóng góp gì không
+    ROR  RAG hoàn hảo       → retriever còn dư địa bao nhiêu
+    ORR  intake hoàn hảo    → intaker có đáng sửa không
+    RRO  generator API mạnh → generator có phải nút thắt
+    RNO  API mạnh, tắt RAG  → model mạnh có cần RAG không
+
+Không gian đầy đủ 2 × 3 × 2 = 12 arm. Thêm ORO/ROO/OOO/OOR để có đủ lattice
+2³ trên {R,O} → tính được Shapley; artifact cộng dồn nên không phải chạy lại.
 
 Mọi arm dùng chung một question set bất biến trong một artifact. Điểm chấm theo
 từng câu rồi so với RRR bằng paired delta; safety failure báo riêng, không bao
 giờ gộp vào điểm chất lượng.
 
 Usage:
-    python -m evaluation.runners.run_ablation --arms            # 5 arm mặc định
-    python -m evaluation.runners.run_ablation --arms RRR,OOR --limit 5
+    python -m evaluation.runners.run_ablation --arms            # 6 arm mặc định
+    python -m evaluation.runners.run_ablation --arms RRR,RNR --limit 5
     python -m evaluation.runners.run_ablation --summarize --output <results.json>
 """
 from __future__ import annotations
@@ -68,22 +73,36 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 )
 
 
-DEFAULT_DATASET = Path("evaluation/datasets/v1/retrieval_test.jsonl")
+DEFAULT_DATASET = Path("evaluation/datasets/v2/eval_set.jsonl")
 DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
 ARM_Y_MODEL = "gpt-5.6-terra"
 DEFAULT_JUDGE_MODEL = "gpt-5.4-mini"
 # Arm = 3 ký tự, mỗi ký tự một khâu: [intaker][rag][generator].
-# R = chạy thật · O = thay bằng bản hoàn hảo (oracle).
+#   R = chạy thật · O = thay bằng bản hoàn hảo (oracle) · N = tắt hẳn
+# Không gian đầy đủ 2 × 3 × 2 = 12 tổ hợp; DEFAULT_ARMS là gói 6 arm khuyên dùng.
 BASELINE_ARM = "RRR"
-ARM_LABELS = {
-    "RRR": "real_intake+real_rag+local_generator",
-    "ORR": "oracle_intake+real_rag+local_generator",
-    "ROR": "real_intake+oracle_rag+local_generator",
-    "RRO": "real_intake+real_rag+api_generator",
-    "OOR": "oracle_intake+oracle_rag+local_generator",
-}
-# RRR = mốc · ORR/ROR/RRO = headroom từng khâu · OOR = khâu 3 (generator riêng lẻ)
-DEFAULT_ARMS = ("RRR", "ORR", "ROR", "RRO", "OOR")
+ARM_VARIANTS = (
+    {"R": "real_intake", "O": "oracle_intake"},
+    {"R": "real_rag", "O": "oracle_rag", "N": "no_rag"},
+    {"R": "local_generator", "O": "api_generator"},
+)
+
+
+def is_valid_arm(arm: str) -> bool:
+    """N chỉ hợp lệ ở vị trí RAG — tắt intake hay tắt generator đều vô nghĩa."""
+    return len(arm) == 3 and all(
+        char in ARM_VARIANTS[index] for index, char in enumerate(arm)
+    )
+
+
+def arm_label(arm: str) -> str:
+    return "+".join(ARM_VARIANTS[index][char] for index, char in enumerate(arm))
+
+
+# RRR mốc · RNR RAG có đóng góp không · ROR retriever còn dư địa
+# ORR intaker đáng sửa không · RRO generator có phải nút thắt
+# RNO model mạnh có cần RAG không
+DEFAULT_ARMS = ("RRR", "RNR", "ROR", "ORR", "RRO", "RNO")
 
 
 class _OracleIntake:
@@ -513,7 +532,7 @@ def _run_arm(
                     # Arm có RAG oracle không được chạy retrieval thật trước khi
                     # thay context: latency/failure path sẽ bị nhiễm.
                     real_retrieve_for_chat = chat_orchestrator.retrieve_for_chat
-                    if rag_variant == "O":
+                    if rag_variant in ("O", "N"):
                         chat_orchestrator.retrieve_for_chat = (
                             lambda *_args, **_kwargs: None
                         )
@@ -536,6 +555,10 @@ def _run_arm(
                         )
                         _replace_retrieval_prompt(container, turn, retrieval)
                         retrieval_source = "oracle_qrels"
+                    elif rag_variant == "N":
+                        # retrieve_for_chat đã bị vô hiệu ở trên nên turn.retrieval
+                        # là None; prompt dựng không có khối ngữ cảnh nào.
+                        retrieval_source = "none"
 
                     if gen_variant == "O":
                         candidates, temperature_policy = _api_candidates(
@@ -656,7 +679,7 @@ def _run_arm(
         and (row.get("trace") or {}).get("oracle_injected_field_count") == 0
     ]
     meta = {
-        "label": ARM_LABELS[arm],
+        "label": arm_label(arm),
         "generator_model": ARM_Y_MODEL if gen_variant == "O" else local_model,
         "temperature_policy": temperature_policy,
         "judge_provider": judge.provider,
@@ -998,7 +1021,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         const=",".join(DEFAULT_ARMS),
         default=None,
         help=(
-            "danh sách arm 3 ký tự [intaker][rag][generator], R=thật O=oracle. "
+            "danh sách arm 3 ký tự [intaker][rag][generator]: R=thật, O=oracle, "
+            "N=tắt (chỉ cho rag). "
             f"Không kèm giá trị = {','.join(DEFAULT_ARMS)}"
         ),
     )
@@ -1032,10 +1056,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.arms is not None:
         arms = [value.strip().upper() for value in args.arms.split(",") if value.strip()]
-        unknown = [arm for arm in arms if arm not in ARM_LABELS]
+        unknown = [arm for arm in arms if not is_valid_arm(arm)]
         if unknown:
             parser.error(
-                f"arm không hợp lệ: {unknown}. Hợp lệ: {', '.join(ARM_LABELS)}"
+                f"arm không hợp lệ: {unknown}. Mã 3 ký tự [intaker][rag][generator], "
+                "intaker/generator ∈ {R,O}, rag ∈ {R,O,N}"
             )
         if not arms:
             parser.error("--arms rỗng")
