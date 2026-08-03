@@ -66,6 +66,12 @@ from evaluation.adapters._repo import build_eval_container  # noqa: E402
 from evaluation.common import read_jsonl, utcnow  # noqa: E402
 from evaluation.judges.clients import JudgeClient  # noqa: E402
 from evaluation.metrics.grounding import GroundingScorer  # noqa: E402
+from evaluation.trace import (  # noqa: E402
+    RunLog,
+    arm_summary_table,
+    delta_table,
+    row_block,
+)
 from evaluation.metrics.scorecard import (  # noqa: E402
     BINARY_FACES,
     SCORECARD_FACES,
@@ -462,6 +468,8 @@ def _run_arm(
     oracle_top_k: int,
     judge_model: str,
     model: str | None = None,
+    log: RunLog | None = None,
+    verbose: bool = True,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     from acne_llm.chat import orchestrator as chat_orchestrator
 
@@ -504,6 +512,10 @@ def _run_arm(
     try:
         for index, sample in enumerate(samples, 1):
             sample_id = str(sample["sample_id"])
+            cached = log.cached(arm, sample_id) if log else None
+            if cached is not None:
+                rows.append(cached)
+                continue
             started = time.perf_counter()
             record: dict[str, Any] = {
                 "sample_id": sample_id,
@@ -529,8 +541,10 @@ def _run_arm(
                 record["error"] = "no_oracle_context"
                 record["latency_ms"] = 0
                 rows.append(record)
-                print(f"[{arm}] {index}/{len(samples)} {sample_id} SKIP no_oracle_context",
-                      flush=True)
+                if log:
+                    log.append(arm, record)
+                    log.say(f"  {arm} {sample_id} ({index}/{len(samples)}) "
+                            "SKIP no_oracle_context")
                 continue
             for attempt in range(1, 3):
                 try:
@@ -665,10 +679,20 @@ def _run_arm(
                     record["error"] = error
                     if attempt == 1:
                         time.sleep(1.0)
-            record["latency_ms"] = int((time.perf_counter() - started) * 1000)
+            elapsed = time.perf_counter() - started
+            record["latency_ms"] = int(elapsed * 1000)
             rows.append(record)
-            status = "OK" if record["ok"] else f"FAIL {record['error']}"
-            print(f"[{arm}] {index}/{len(samples)} {sample_id} {status}", flush=True)
+            if log:
+                log.append(arm, record)      # ghi NGAY: crash không mất dòng nào
+                log.say(
+                    row_block(arm=arm, arm_desc=arm_label(arm), index=index,
+                              total=len(samples), sample=sample, record=record,
+                              duration_s=elapsed)
+                    if verbose else
+                    f"  {arm} {sample_id} ({index}/{len(samples)}) "
+                    f"{'ok' if record['ok'] else 'FAIL ' + str(record['error'])} "
+                    f"{elapsed:.1f}s"
+                )
     finally:
         try:
             judge._db.close()
@@ -1056,6 +1080,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default=DEFAULT_JUDGE_MODEL,
         help="judge lineage recorded in the artifact",
     )
+    parser.add_argument("--quiet", action="store_true",
+                        help="1 dòng/mẫu thay vì khối trace đầy đủ")
+    parser.add_argument("--no-resume", action="store_true",
+                        help="bỏ qua checkpoint, chạy lại từ đầu")
     parser.add_argument(
         "--model",
         default=None,
@@ -1166,6 +1194,15 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
             f"chạy --arms {BASELINE_ARM} với --dataset/--output này trước"
         )
 
+    log = RunLog(output_path.parent, fingerprint, resume=not args.no_resume)
+    log.say(f"\n{'=' * 96}\nABLATION  {utcnow()}\n"
+            f"  dataset   {_relative_to_root(dataset_path)}  ({len(samples)} câu)\n"
+            f"  arms      {', '.join(requested)}\n"
+            f"  output    {_relative_to_root(output_path)}\n{'=' * 96}")
+    resumed = sum(log.done_count(arm) for arm in requested)
+    if resumed:
+        log.say(f"↻ checkpoint: {resumed} dòng đã xong, chạy tiếp phần còn lại\n")
+
     # Baseline mới làm mọi so sánh cũ vô hiệu; không bao giờ ghép RRR mới với
     # generation cũ của arm khác từ một baseline trước đó.
     arms = {} if runs_baseline else dict(existing.get("arms") or {})
@@ -1178,6 +1215,10 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
             continue
         started = time.perf_counter()
         _arm_marker(arm, "start")
+        done = log.done_count(arm)
+        log.say(f"\n{'─' * 96}\n▶ {arm}  {arm_label(arm)}"
+                + (f"   ({done}/{len(samples)} đã xong, chạy tiếp)" if done else "")
+                + f"\n{'─' * 96}")
         try:
             items, summary = _run_arm(
                 arm,
@@ -1185,6 +1226,8 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
                 oracle_top_k=args.oracle_top_k,
                 judge_model=args.judge_model,
                 model=args.model,
+                log=log,
+                verbose=not args.quiet,
             )
         except Exception as exc:
             failed_arms.append(arm)
@@ -1197,6 +1240,7 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         if arm == BASELINE_ARM:
             baseline_ok = True
         _arm_marker(arm, "ok", duration_s=time.perf_counter() - started)
+        log.say("\n" + arm_summary_table({arm: arms[arm]}))
 
     report = {
         "schema_version": 2,
@@ -1240,18 +1284,17 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         bootstrap_samples=args.bootstrap_samples,
         seed=args.seed,
     )
-    print(
-        json.dumps(
-            {
-                "arms_run": [arm for arm in requested if arm in arms],
-                "arms_failed": failed_arms,
-                "output": _relative_to_root(output_path),
-                "summary": _relative_to_root(summary_path),
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-    )
+    summary_doc = json.loads(summary_path.read_text(encoding="utf-8"))
+    log.say(f"\n{'=' * 96}\nTỔNG KẾT\n{'=' * 96}")
+    log.say(arm_summary_table(arms))
+    log.say(f"\nSo cặp với {BASELINE_ARM}:")
+    log.say(delta_table(summary_doc, BASELINE_ARM))
+    log.say(f"\n  results   {_relative_to_root(output_path)}"
+            f"\n  summary   {_relative_to_root(summary_path)}"
+            f"\n  log       {_relative_to_root(log.log_path)}"
+            f"\n  rows      {_relative_to_root(log.rows_path)}  (checkpoint)")
+    if failed_arms:
+        log.say(f"\n  arm thất bại: {', '.join(failed_arms)}")
     if failed_arms:
         raise SystemExit(f"arm thất bại: {', '.join(failed_arms)}")
     return report

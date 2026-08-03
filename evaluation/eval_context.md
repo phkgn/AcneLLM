@@ -304,7 +304,50 @@ stale so với `results.json` (lỗi đã xảy ra tháng 7: số bottleneck tí
 
 ---
 
-## 10. Bất biến
+## 10. Log, checkpoint, chạy tiếp
+
+`run_ablation` ghi **mỗi dòng ngay khi xong** vào `rows.jsonl`. Một cơ chế cho
+ba việc: log đầy đủ, checkpoint để chạy tiếp, và chống mất khi crash — 780 lượt
+gọi API mà đổ hết vì lỗi ở dòng 700 thì quá đắt.
+
+```
+<run_dir>/ablation/
+├── rows.jsonl      mỗi dòng = 1 (arm, sample) đã xong   ← nguồn sự thật
+├── run.log         mọi thứ in ra màn hình
+├── results.json    dựng lại từ rows.jsonl
+├── summary.json    paired delta + CI
+└── .fingerprint    bộ câu hỏi của checkpoint này
+```
+
+Chạy lại cùng lệnh → tự bỏ qua dòng đã xong, chạy tiếp phần còn lại. Đổi bộ câu
+hỏi → `.fingerprint` lệch → checkpoint bị bỏ, cảnh báo rồi chạy lại từ đầu (thà
+bỏ còn hơn ghép nhầm). `--no-resume` để ép chạy lại.
+
+Dòng cuối bị cắt do crash giữa lúc ghi sẽ không parse được JSON → bỏ qua, dòng
+đó chạy lại. Append-only nên không có trạng thái hỏng.
+
+Mỗi mẫu in một khối trace đủ để debug mà không phải mở `results.json`:
+
+```
+┌─ ROR  q-0007  (7/130)  real_intake+oracle_rag+local_generator                                ┐
+│ task      advise · Giải thích nguyên nhân, không kê đơn                                      │
+│ query     Em 22 tuổi hay bị mụn mủ ở cằm với quai hàm, có phải do nội tiết không ạ           │
+│ intaker   real · intent=advise · slots=[age, skin_type]                                      │
+│ context   oracle_qrels · 2 chunk · hellobacsi_280ca3e1e9::0004, guideline_nice198::0031      │
+│ generator acne-generator · temperature_0                                                     │
+│ answer    Mụn ở vùng cằm và quai hàm thường liên quan tới dao động nội tiết androgen. [75 ký │
+│            tự]                                                                               │
+│ metric    quality=4 · tone=4 · grounding=0.83 · safety=FAIL · refusal=True                   │
+│ !safety   forbidden_claim                                                                    │
+└─ ok · 4.8s───────────────────────────────────────────────────────────────────────────────────┘
+```
+
+`--quiet` rút về 1 dòng/mẫu. Cuối mỗi arm và cuối run in bảng tổng kết + bảng
+paired delta, đánh dấu `*` ở CI không cắt 0.
+
+---
+
+## 11. Bất biến
 
 1. **Không fallback** — adapter ép `fallback_model=None`.
 2. **Không đụng data production** — audit/session DB nằm trong thư mục tạm,
