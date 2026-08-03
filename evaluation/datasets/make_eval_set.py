@@ -37,6 +37,9 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from evaluation.common import read_jsonl  # noqa: E402
+from evaluation.datasets.registry import freeze_dir  # noqa: E402
+
 # ponytail: đọc thẳng sqlite của Chroma thay vì dựng cả container (embedder +
 # reranker) chỉ để liệt kê chunk. Script chạy một lần khi làm data; đổi sang
 # store API nếu Chroma đổi schema.
@@ -276,8 +279,21 @@ def generate(n: int, seed: int, model: str, out_path: Path) -> list[dict[str, An
         rows.append(build_row(len(rows) + 1, gold_ids, chunks, payload))
         print(f"  ✓ q-{len(rows):04d} trùng={overlap:.2f} {payload['user_query'][:60]}")
 
+    policy = read_jsonl(POLICY_PATH) if POLICY_PATH.exists() else []
+    if len(policy) < MIN_POLICY_ROWS:
+        print(
+            f"\n⚠  Chỉ có {len(policy)} ca chính sách trong {POLICY_PATH.name}.\n"
+            f"   Dưới {MIN_POLICY_ROWS} thì refusal_fidelity KHÔNG bao giờ bắt được\n"
+            "   'đáng từ chối mà vẫn trả lời' — đúng lỗ hổng của bộ v1 cũ.\n"
+            "   Chạy --sample để lấy file khởi động rồi nới ra ~20 reject + ~10 clarify."
+        )
+    rows += policy
+
     write_jsonl(out_path, rows)
-    print(f"\n{len(rows)} dòng → {out_path}   (loại {rejected})")
+    freeze_dir(out_path.parent)
+    print(f"\n{len(rows)} dòng ({len(rows) - len(policy)} sinh + {len(policy)} chính sách)"
+          f" → {out_path}   (loại {rejected})")
+    print(f"MANIFEST.json đã freeze — sửa file sau bước này thì load_dataset sẽ raise.")
     # PRICES chỉ có bảng giá OpenAI nên số này = 0 với model DeepSeek.
     if client.total_cost_usd:
         print(f"cost: ${client.total_cost_usd:.4f}")
@@ -286,6 +302,13 @@ def generate(n: int, seed: int, model: str, out_path: Path) -> list[dict[str, An
 
 # ── mẫu tay, không gọi API ────────────────────────────────────────────────────
 
+POLICY_PATH = OUT_DIR / "policy_cases.jsonl"
+MIN_POLICY_ROWS = 10
+
+# Ca chính sách: test LUẬT, không test kiến thức — nên không cần chunk vàng và
+# không cần bác sĩ. Đây là 2 mẫu khởi động; bạn nới ra ~20 reject + ~10 clarify.
+# Thiếu chúng thì refusal_fidelity chỉ bắt được "từ chối nhầm", không bao giờ
+# bắt được "đáng từ chối mà vẫn trả lời" — đúng lỗ hổng của bộ v1 cũ.
 SAMPLE_EXTRA = [
     {
         "sample_id": "q-r001",
@@ -314,6 +337,16 @@ SAMPLE_EXTRA = [
 ]
 
 
+def _policy_row(extra: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **build_row(0, [], {}, extra),
+        "sample_id": extra["sample_id"],
+        "source_provenance": "human_written",
+        "human_notes": "ca chính sách — người viết, không cần chunk vàng",
+        "annotation_status": "approved",
+    }
+
+
 def make_sample(out_path: Path) -> list[dict[str, Any]]:
     """Bộ mẫu đủ 4 intent, dùng chunk THẬT nên chạy được ngay với arm ROR."""
     chunks = load_chunks()
@@ -335,14 +368,11 @@ def make_sample(out_path: Path) -> list[dict[str, Any]]:
         if len(rows) == 4:
             break
 
-    for extra in SAMPLE_EXTRA:
-        rows.append({
-            **build_row(len(rows) + 1, [], {}, extra),
-            "sample_id": extra["sample_id"],
-            "source_provenance": "human_written",
-            "human_notes": "ca chính sách — người viết, không cần chunk vàng",
-            "annotation_status": "approved",
-        })
+    policy = [_policy_row(extra) for extra in SAMPLE_EXTRA]
+    rows += policy
+    if not POLICY_PATH.exists():
+        write_jsonl(POLICY_PATH, policy)
+        print(f"→ {POLICY_PATH.name}: 2 ca khởi động, nới ra ~20 reject + ~10 clarify")
 
     write_jsonl(out_path, rows)
     print(f"\n{len(rows)} dòng mẫu → {out_path}")

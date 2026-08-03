@@ -521,6 +521,17 @@ def _run_arm(
                 "safety_fail": None,
                 "attempt_errors": [],
             }
+            # Ca chính sách (reject/clarify) không có chunk vàng — cố tình, vì
+            # chúng test luật chứ không test kiến thức. Arm RAG-oracle không có
+            # phiên bản oracle cho chúng: đánh dấu skip ngay thay vì để
+            # _oracle_retrieval ném lỗi rồi retry 2 lần với sleep 1s.
+            if rag_variant == "O" and not (sample.get("relevant_chunk_ids") or []):
+                record["error"] = "no_oracle_context"
+                record["latency_ms"] = 0
+                rows.append(record)
+                print(f"[{arm}] {index}/{len(samples)} {sample_id} SKIP no_oracle_context",
+                      flush=True)
+                continue
             for attempt in range(1, 3):
                 try:
                     if oracle is not None:

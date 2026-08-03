@@ -188,7 +188,14 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
 `--oracle-top-k` chunk. Hạt giống = 2, chunk nới thêm = 1.
 
 Ca `reject`/`clarify` không cần chunk vàng — chúng test **chính sách**, không
-test kiến thức, nên người tự viết được, không cần bác sĩ.
+test kiến thức, nên người tự viết được, không cần bác sĩ. Chúng nằm riêng ở
+`evaluation/datasets/v2/policy_cases.jsonl`; `--generate` tự ghép vào và **cảnh
+báo nếu dưới 10 dòng**.
+
+Arm có RAG-oracle không có phiên bản oracle cho các ca này. `_run_arm` đánh dấu
+`error: "no_oracle_context"` ngay, không retry — chúng bị loại khỏi paired
+summary của `ROR` kèm `drop_reason`, còn `RRR`/`RNR`/`ORR`/`RRO`/`RNO` vẫn chạy
+đủ. Đó là thiết kế, không phải lỗi.
 
 ### Cách sinh
 
@@ -212,8 +219,8 @@ chọn 1 chunk hạt giống (lọc rác, phân tầng theo nguồn)
   → guard: trùng từ câu hỏi ↔ chunk > 0.55 → loại, sinh lại
 ```
 
-Sinh xong phải **freeze `MANIFEST.json`**, nếu không `load_dataset` raise vì
-sha256 lệch — cố tình, để không ai lỡ tay sửa bộ đề.
+`--generate` **tự freeze `MANIFEST.json`** sau khi ghi. Sửa file sau bước đó thì
+`load_dataset` raise vì sha256 lệch — cố tình, để không ai lỡ tay sửa bộ đề.
 
 ---
 
