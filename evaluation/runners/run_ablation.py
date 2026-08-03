@@ -644,6 +644,12 @@ def _run_arm(
                                     "oracle" if intake_variant == "O" else "real"
                                 ),
                                 "primary_intent": actual_intent,
+                                # Slot intaker THẬT rút được. Không có nó thì
+                                # trace phải fallback về key của user_context
+                                # trong dataset — tức in ra thứ dataset có, chứ
+                                # không phải thứ intaker lấy được. Hiểu nhầm
+                                # đúng chỗ cần đọc để so ORR với RRR.
+                                "extracted_slots": _filled_slots(turn),
                                 "oracle_runtime_input": (
                                     oracle.runtime_input if oracle else None
                                 ),
@@ -1040,6 +1046,23 @@ def _validate_oracle_dataset(samples: Sequence[Mapping[str, Any]]) -> None:
             f"{len(missing)} mẫu ({preview}{suffix}). Dùng dataset intake gán tay "
             "(B3), không phải qrels chưa gán intent. Không mẫu nào đã được chạy."
         )
+
+
+def _filled_slots(turn: Any) -> list[str]:
+    """Tên các slot intaker điền được, bỏ field rỗng/None/[]."""
+    try:
+        user = turn.intake.user
+    except AttributeError:
+        return []
+    filled: list[str] = []
+    for holder in (getattr(user, "context", None), getattr(user, "clinical", None)):
+        if holder is None:
+            continue
+        for name in getattr(holder.__class__, "model_fields", {}):
+            value = getattr(holder, name, None)
+            if value not in (None, "", [], {}):
+                filled.append(name)
+    return sorted(set(filled))
 
 
 def _arm_marker(arm: str, status: str, *, duration_s: float | None = None) -> None:

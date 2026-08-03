@@ -112,11 +112,17 @@ def row_block(
                   f"{sample.get('expected_behavior') or '—'}")
     field("query", sample.get("user_query"))
 
+    # Arm oracle: slot ĐƯỢC BƠM. Arm thật: slot intaker RÚT ĐƯỢC.
+    # Không trộn hai thứ — trước đây fallback về key của user_context trong
+    # dataset, tức in ra thứ dataset có chứ không phải thứ intaker lấy được.
     intake_src = trace.get("intake_source") or ("oracle" if arm[0] == "O" else "real")
-    slots = trace.get("oracle_injected_fields") or list(
-        (sample.get("user_context") or {}).keys())
+    if intake_src == "oracle":
+        label, slots = "bơm", trace.get("oracle_injected_fields")
+    else:
+        label, slots = "rút", trace.get("extracted_slots")
+    shown = ", ".join(map(str, slots)) if slots else ("—" if slots == [] else "?")
     field("intaker", f"{intake_src} · intent={trace.get('primary_intent') or '?'} · "
-                     f"slots=[{', '.join(map(str, slots)) or '—'}]")
+                     f"{label}=[{shown}]")
 
     chunks = record.get("used_chunks") or []
     field("context", f"{trace.get('retrieval_source') or '?'} · {len(chunks)} chunk"

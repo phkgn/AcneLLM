@@ -1,0 +1,36 @@
+{
+  "run_id": "full_eval",
+  "out_dir": "evaluation/reports/full_eval",
+  "started_at": "2026-08-03T17:22:24.314833+00:00",
+  "finished_at": null,
+  "current_step": "ablation",
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Kiểm tra môi trường",
+      "status": "ok",
+      "started_at": "2026-08-03T17:22:24.314833+00:00",
+      "finished_at": "2026-08-03T17:22:26.396784+00:00",
+      "duration_s": 2.1,
+      "detail": ""
+    },
+    {
+      "id": "intake",
+      "label": "Khâu 1 — Intaker",
+      "status": "ok",
+      "started_at": "2026-08-03T17:22:26.396784+00:00",
+      "finished_at": "2026-08-03T17:33:59.685117+00:00",
+      "duration_s": 693.3,
+      "detail": ""
+    },
+    {
+      "id": "ablation",
+      "label": "Khâu 2 — Ablation oracle",
+      "status": "running",
+      "started_at": "2026-08-03T17:33:59.699638+00:00",
+      "finished_at": null,
+      "duration_s": null,
+      "detail": ""
+    }
+  ]
+}
