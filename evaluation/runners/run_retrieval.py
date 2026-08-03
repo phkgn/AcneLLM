@@ -62,6 +62,14 @@ def main() -> None:
                     help="A4 ablation: dùng raw text thay vì constructed query")
     ap.add_argument("--top-k", type=int, default=10)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument(
+        "--out",
+        default=None,
+        help=(
+            "thư mục output. Mặc định reports/retrieval/<timestamp>/ — truyền vào "
+            "để artifact của khâu 2 nằm cùng run với khâu 1 và 3+4"
+        ),
+    )
     args = ap.parse_args()
 
     samples = load_dataset(ROOT / args.dataset)[: args.limit]
@@ -79,7 +87,11 @@ def main() -> None:
 
     from acne_llm.utils.retrieval_query import build_retrieval_query_from_user
 
-    out_dir = REPORTS_DIR / "retrieval" / utcnow()[:19].replace(":", "")
+    out_dir = (
+        Path(args.out) if args.out
+        else REPORTS_DIR / "retrieval" / utcnow()[:19].replace(":", "")
+    )
+    out_dir = out_dir if out_dir.is_absolute() else ROOT / out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     summary: dict = {"generated_at": utcnow(), "dataset": args.dataset,
                      "raw_query": args.raw_query, "n_queries": len(samples),

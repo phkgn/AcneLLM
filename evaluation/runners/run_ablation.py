@@ -69,7 +69,7 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 
 
 DEFAULT_DATASET = Path("evaluation/datasets/v1/retrieval_test.jsonl")
-DEFAULT_OUTPUT = Path("evaluation/reports/bottleneck/results.json")
+DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
 ARM_Y_MODEL = "gpt-5.6-terra"
 DEFAULT_JUDGE_MODEL = "gpt-5.4-mini"
 # Arm = 3 ký tự, mỗi ký tự một khâu: [intaker][rag][generator].
@@ -326,7 +326,7 @@ def _oracle_retrieval(
 ) -> RetrievalOutput:
     chunk_ids = sample.get("relevant_chunk_ids")
     if not isinstance(chunk_ids, list) or not chunk_ids:
-        raise ValueError("arm W requires non-empty relevant_chunk_ids")
+        raise ValueError("arm có RAG oracle cần relevant_chunk_ids không rỗng")
     grades = sample.get("relevance_grade")
     grades = grades if isinstance(grades, Mapping) else {}
     ordered = sorted(
@@ -470,7 +470,7 @@ def _run_arm(
             if callable(intake_close):
                 intake_close()
         raise RuntimeError(
-            "bottleneck preflight failed: RAG/KB is unavailable; "
+            "ablation preflight failed: RAG/KB is unavailable; "
             "refusing to label an llm_only fallback as a real-RAG arm"
         )
     real_intake = container.llm_router
@@ -507,7 +507,7 @@ def _run_arm(
                     if oracle is not None:
                         oracle.set_sample(sample)
                     session_id = (
-                        f"bottleneck-{arm}-{sample_id}-{uuid.uuid4().hex[:8]}"
+                        f"ablation-{arm}-{sample_id}-{uuid.uuid4().hex[:8]}"
                     )
                     _populate_history(container, sample, session_id)
                     # Arm có RAG oracle không được chạy retrieval thật trước khi
@@ -830,7 +830,7 @@ def summarize_report(
 ) -> dict[str, Any]:
     """Build a compact paired Z-baseline summary with deterministic CIs."""
     if report.get("schema_version") != 2:
-        raise ValueError("bottleneck results must use schema_version 2")
+        raise ValueError("ablation results must use schema_version 2")
     arms = report.get("arms")
     if not isinstance(arms, Mapping) or BASELINE_ARM not in arms:
         raise ValueError(f"ablation results need baseline arm {BASELINE_ARM}")
@@ -1111,12 +1111,12 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         if existing.get("question_fingerprint") != fingerprint:
             raise RuntimeError(
                 "output is dataset-scoped and already contains a different question set; "
-                "choose a new --output and rerun arm Z on that dataset"
+                f"choose a new --output and rerun {BASELINE_ARM} on that dataset"
             )
         if existing.get("dataset_fingerprint") != dataset_fingerprint:
             raise RuntimeError(
                 "output labels/qrels differ from the selected dataset snapshot; "
-                "choose a new --output and rerun arm Z"
+                f"choose a new --output and rerun {BASELINE_ARM}"
             )
         if existing.get("dataset") != _relative_to_root(dataset_path):
             raise RuntimeError(

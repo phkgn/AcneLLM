@@ -199,7 +199,11 @@ def main() -> None:
     selected_limit = args.limit or (10 if args.smoke else 0)
     limit = ["--limit", str(selected_limit)] if selected_limit else []
 
-    run_dir = Path(args.out) if args.out else REPORTS_DIR / "full_eval"
+    # Artifact ablation gắn với đúng bộ câu hỏi đã chạy (question_fingerprint).
+    # Dùng chung thư mục cho smoke 10 mẫu và run đầy đủ 100 mẫu → fingerprint
+    # lệch → RuntimeError. Tách sẵn thay vì bắt người dùng tự nhớ --out.
+    default_dir = "full_eval_smoke" if args.smoke else "full_eval"
+    run_dir = Path(args.out) if args.out else REPORTS_DIR / default_dir
     run_dir = (run_dir if run_dir.is_absolute() else ROOT / run_dir).resolve()
     run_dir.mkdir(parents=True, exist_ok=True)
     summary_path = run_dir / "summary.json"
@@ -248,11 +252,13 @@ def main() -> None:
         failed = [
             name for name, cmd in (
                 ("retrieval", [PY, "-m", "evaluation.runners.run_retrieval",
-                               "--dataset", args.dataset, *limit]),
+                               "--dataset", args.dataset,
+                               "--out", str(run_dir / "retrieval"), *limit]),
                 ("raw_query_ablation", [PY, "-m", "evaluation.runners.run_retrieval",
                                         "--dataset", args.dataset,
-                                        "--modes", "hybrid_mmr_rerank",
-                                        "--raw-query", *limit]),
+                                        "--modes", "hybrid_mmr_rerank", "--raw-query",
+                                        "--out", str(run_dir / "retrieval_raw_query"),
+                                        *limit]),
             ) if not sh(name, cmd)
         ]
         _finish_step(summary, summary_path, "retrieval",
