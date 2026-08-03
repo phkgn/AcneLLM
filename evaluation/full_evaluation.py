@@ -1,17 +1,19 @@
-"""Orchestrator 4 khâu: kiểm tra môi trường → intake → retrieval → ablation.
+"""Orchestrator 2 khâu: kiểm tra môi trường → intake → ablation.
 
-    khâu 1  intake     — intaker rút đúng 15 slot không          (không cần judge)
-    khâu 2  retrieval  — RAG tìm đúng tài liệu không             (không cần judge)
-    khâu 3  ablation   — generator viết tốt đến đâu khi input hoàn hảo (arm OOR)
-    khâu 4  ablation   — thay từng khâu bằng bản hoàn hảo, chênh bao nhiêu
+    khâu 1  intake    — intaker rút đúng 15 slot không       (không cần judge)
+    khâu 2  ablation  — thay từng khâu bằng bản hoàn hảo / tắt hẳn,
+                        xem câu trả lời chênh bao nhiêu      (cần judge)
 
-Khâu 3 và 4 chung một lần chạy 5 arm. Mỗi bước là subprocess độc lập; bước fail
-không kéo sập bước sau (trừ preflight).
+Đánh giá RAG nội tại (nDCG/recall@k trên qrels) đã bỏ: tầm quan trọng của RAG
+đo bằng arm trong khâu 2 chứ không cần qrels người gán. Lấy lại bằng
+`git show <commit>:evaluation/runners/run_retrieval.py` nếu sau này cần.
+
+Mỗi bước là subprocess độc lập; bước fail không kéo sập bước sau (trừ preflight).
 
 Usage:
     python -m evaluation.full_evaluation                 # đầy đủ
     python -m evaluation.full_evaluation --smoke         # 10 mẫu/bước
-    python -m evaluation.full_evaluation --skip intake,retrieval
+    python -m evaluation.full_evaluation --skip intake
 """
 from __future__ import annotations
 
@@ -30,13 +32,12 @@ from evaluation.common import ROOT, REPORTS_DIR, utcnow  # noqa: E402
 from evaluation.runners.run_ablation import DEFAULT_ARMS  # noqa: E402
 
 PY = sys.executable
-QRELS = "evaluation/datasets/v1/retrieval_test.jsonl"
+DATASET = "evaluation/datasets/v1/retrieval_test.jsonl"
 
 STEP_DEFINITIONS = (
     ("preflight", "Kiểm tra môi trường"),
     ("intake", "Khâu 1 — Intaker"),
-    ("retrieval", "Khâu 2 — RAG"),
-    ("ablation", "Khâu 3+4 — Ablation oracle"),
+    ("ablation", "Khâu 2 — Ablation oracle"),
 )
 TERMINAL_STATUSES = {"ok", "fail", "skipped"}
 
@@ -159,8 +160,8 @@ def preflight(skip: set[str]) -> list[str]:
         problems.append("Thiếu data/chroma_db (git lfs pull)")
     if not (ROOT / "data" / "bm25_index.pkl").exists():
         problems.append("Thiếu data/bm25_index.pkl (python scripts/build_kb.py --step bm25)")
-    if not (ROOT / QRELS).exists():
-        problems.append(f"Thiếu {QRELS}")
+    if not (ROOT / DATASET).exists():
+        problems.append(f"Thiếu {DATASET}")
     if "ablation" not in skip:
         from acne_llm.config import settings
 
@@ -182,9 +183,9 @@ def preflight(skip: set[str]) -> list[str]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true", help="10 mẫu/bước")
-    ap.add_argument("--skip", default="", help="intake,retrieval,ablation")
+    ap.add_argument("--skip", default="", help="intake,ablation")
     ap.add_argument("--limit", type=int, default=0, help="0 = all rows")
-    ap.add_argument("--dataset", default=QRELS, help="qrels cho khâu 2 và 3+4")
+    ap.add_argument("--dataset", default=DATASET, help="bộ câu hỏi cho khâu 2")
     ap.add_argument("--arms", default=",".join(DEFAULT_ARMS))
     ap.add_argument("--out", default=None, help="thư mục output của run")
     ap.add_argument("--yes", action="store_true", help="chấp thuận trước bước tốn phí API")
@@ -244,28 +245,7 @@ def main() -> None:
                      "ok" if ok else "fail", step_started,
                      "" if ok else "run_intake exit != 0")
 
-    # ── Khâu 2 — RAG ────────────────────────────────────────────────────
-    if "retrieval" in skip:
-        _skip_step(summary, summary_path, "retrieval", "--skip retrieval")
-    else:
-        step_started = _start_step(summary, summary_path, "retrieval")
-        failed = [
-            name for name, cmd in (
-                ("retrieval", [PY, "-m", "evaluation.runners.run_retrieval",
-                               "--dataset", args.dataset,
-                               "--out", str(run_dir / "retrieval"), *limit]),
-                ("raw_query_ablation", [PY, "-m", "evaluation.runners.run_retrieval",
-                                        "--dataset", args.dataset,
-                                        "--modes", "hybrid_mmr_rerank", "--raw-query",
-                                        "--out", str(run_dir / "retrieval_raw_query"),
-                                        *limit]),
-            ) if not sh(name, cmd)
-        ]
-        _finish_step(summary, summary_path, "retrieval",
-                     "fail" if failed else "ok", step_started,
-                     f"Failed: {', '.join(failed)}" if failed else "")
-
-    # ── Khâu 3+4 — Ablation ─────────────────────────────────────────────
+    # ── Khâu 2 — Ablation ───────────────────────────────────────────────
     if "ablation" in skip:
         _skip_step(summary, summary_path, "ablation", "--skip ablation")
     elif not _has_openai_key():

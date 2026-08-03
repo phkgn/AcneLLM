@@ -3,43 +3,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from evaluation.metrics.retrieval import (
-    average_precision, duplicate_rate, evaluate_query, hit_at_k, irrelevant_rate,
-    ndcg_at_k_graded, precision_at_k, recall_at_k,
-)
 from evaluation.metrics.deterministic import (
     evaluate_record, forbidden_claims, parse_success, pregnancy_safety,
+    vacuous_answer,
 )
-
-
-def test_recall_precision_hit():
-    retrieved = ["a", "b", "c", "d"]
-    relevant = {"b", "x"}
-    assert recall_at_k(retrieved, relevant, 4) == 0.5
-    assert precision_at_k(retrieved, relevant, 4) == 0.25
-    assert hit_at_k(retrieved, relevant, 1) == 0.0
-    assert hit_at_k(retrieved, relevant, 2) == 1.0
-
-
-def test_ndcg_graded_perfect_ranking():
-    grades = {"a": 2, "b": 1, "c": 0}
-    assert ndcg_at_k_graded(["a", "b", "c"], grades, 3) == 1.0
-    assert ndcg_at_k_graded(["c", "b", "a"], grades, 3) < 1.0
-
-
-def test_map():
-    assert average_precision(["a", "x", "b"], {"a", "b"}, 10) == (1.0 + 2 / 3) / 2
-
-
-def test_irrelevant_and_duplicate():
-    assert irrelevant_rate(["a", "b"], {"a": 2}, 2) == 0.5
-    assert duplicate_rate(["mụn viêm ở cằm nặng", "mụn viêm ở cằm nặng"]) > 0
-    assert duplicate_rate(["hoàn toàn khác nhau", "văn bản riêng biệt xyz"]) == 0.0
-
-
-def test_evaluate_query_keys():
-    out = evaluate_query(["a"], {"a": 2})
-    assert out["hit@1"] == 1.0 and "ndcg@5" in out and "map@10" in out
 
 
 def _rec(structured=None, answer="", used=None):

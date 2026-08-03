@@ -1,32 +1,34 @@
-# AcneLLM Evaluation — 4 khâu
+# AcneLLM Evaluation — 2 khâu
 
-Hệ thống có 3 khâu nối tiếp: **intaker → RAG → generator**. Eval làm đúng 4 việc
+Hệ thống có 3 khâu nối tiếp: **intaker → RAG → generator**. Eval làm đúng 2 việc
 và không làm gì khác.
 
 | Khâu | Đo gì | Cần LLM chấm | Chạy bằng |
 |---|---|---|---|
 | 1 | Intaker rút đúng 15 slot không | Không | `runners.run_intake` |
-| 2 | RAG tìm đúng tài liệu không | Không | `runners.run_retrieval` |
-| 3 | Generator viết tốt đến đâu khi input hoàn hảo | Có | `runners.run_ablation` arm `OOR` |
-| 4 | Thay từng khâu bằng bản hoàn hảo, chênh bao nhiêu | Có | `runners.run_ablation` 4 arm |
+| 2 | Thay từng khâu bằng bản hoàn hảo / tắt hẳn, chênh bao nhiêu | Có | `runners.run_ablation` |
+
+Đánh giá RAG nội tại (nDCG/recall@k trên qrels) **đã bỏ**: tầm quan trọng của RAG
+đo bằng arm ở khâu 2, không cần qrels người gán. Lấy lại bằng
+`git show <commit>:evaluation/runners/run_retrieval.py` nếu sau này cần.
 
 ## Chạy
 
 ```bash
-# Cả 4 khâu
+# Cả 2 khâu
 python -m evaluation.full_evaluation
 
 # Smoke (10 mẫu/bước, kiểm tra ống nước)
 python -m evaluation.full_evaluation --smoke
 
 # Bỏ bước
-python -m evaluation.full_evaluation --skip intake,retrieval
+python -m evaluation.full_evaluation --skip intake
 ```
 
-Preflight kiểm: Ollama + model, `data/chroma_db`, `data/bm25_index.pkl`, qrels,
+Preflight kiểm: Ollama + model, `data/chroma_db`, `data/bm25_index.pkl`, bộ câu hỏi,
 `OPENAI_API_KEY`. Thiếu gì in hướng dẫn sửa. Bước fail không kéo sập bước sau.
 
-## Khâu 4 — mã arm
+## Khâu 2 — mã arm
 
 Arm là **3 ký tự**, mỗi ký tự một khâu `[intaker][rag][generator]`.
 `R` = chạy thật, `O` = thay bằng bản hoàn hảo (oracle).
@@ -72,21 +74,6 @@ không cache, không fallback, có train-overlap guard. Ba tầng metric:
 
 Kèm latency p50/p95.
 
-## Khâu 2 — RAG
-
-```bash
-python -m evaluation.runners.run_retrieval \
-  --dataset evaluation/datasets/v1/retrieval_test.jsonl
-```
-
-Qrels 100 câu, `relevance_grade` 0–2, đã relabel và approve. Đo `hit@k`,
-`recall@k`, `precision@k`, `MRR`, `MAP`, **graded nDCG**, duplicate rate,
-irrelevant-context rate trên 5 mode:
-
-`sparse` · `dense` · `hybrid` · `hybrid_rerank` · `hybrid_mmr_rerank` (production)
-
-Thêm `--raw-query` để so query dựng sẵn với query thô (ablation A4).
-
 ## Bất biến — vi phạm là kết quả không hợp lệ
 
 1. **Không fallback**: adapter ép `fallback_model=None`; record có `model_name`
@@ -106,7 +93,7 @@ Thêm `--raw-query` để so query dựng sẵn với query thô (ablation A4).
 
 ```
 evaluation/
-├── full_evaluation.py       orchestrator 4 khâu
+├── full_evaluation.py       orchestrator 2 khâu
 ├── common.py                path, jsonl, run_meta, git commit
 ├── adapters/_repo.py        bridge vào product container
 ├── judges/
@@ -116,7 +103,6 @@ evaluation/
 ├── metrics/
 │   ├── classification.py    accuracy, macro-F1, confusion
 │   ├── intake.py            intent PRF, ECE, negation leak
-│   ├── retrieval.py         recall/precision/MRR/MAP/graded nDCG
 │   ├── deterministic.py     pregnancy safety, forbidden claims
 │   ├── grounding.py         sentence grounding
 │   └── scorecard.py         5 mặt điểm
@@ -125,14 +111,13 @@ evaluation/
 │   └── v1/retrieval_test.jsonl
 ├── runners/
 │   ├── run_intake.py        khâu 1
-│   ├── run_retrieval.py     khâu 2
-│   └── run_ablation.py      khâu 3 + 4
-└── tests/                   42 test, không cần mạng
+│   └── run_ablation.py      khâu 2
+└── tests/                   45 test, không cần mạng
 ```
 
 ## Chưa tự động
 
 **Judge calibration** — `judges/calibrate.py` export 50 mẫu đã judge (không kèm
 điểm để tránh anchor), người chấm, rồi import lại tính Cohen's κ + Spearman.
-Khâu 3 và 4 đều dựa trên một LLM judge; không có κ thì con số không phòng thủ
+Khâu 2 dựa trên một LLM judge; không có κ thì con số không phòng thủ
 được. Chạy trước khi công bố.

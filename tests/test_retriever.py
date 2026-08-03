@@ -1,7 +1,6 @@
 from acne_llm.rag.retriever import _MIN_FUSION_SCORE, rrf_fusion
 from acne_llm.rag.retriever import HybridRetriever
 from acne_llm.rag.sparse import BM25Index, tokenize_vi
-from evaluation.metrics.retrieval import recall_at_k, mrr_at_k, ndcg_at_k_graded
 from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 
 
@@ -28,16 +27,6 @@ def test_bm25_roundtrip(tmp_path):
     idx.save(str(p))
     loaded = BM25Index.load(str(p))
     assert loaded.chunk_ids == ids
-
-
-def test_metrics():
-    retrieved = ["a", "b", "c", "d"]
-    rel = {"b", "d"}
-    assert recall_at_k(retrieved, rel, 4) == 1.0
-    assert recall_at_k(retrieved, rel, 1) == 0.0
-    assert mrr_at_k(retrieved, rel, 4) == 0.5  # b at rank 2
-    # bản graded thay bản binary cũ: grade 1 cho mọi chunk liên quan = binary
-    assert 0 < ndcg_at_k_graded(retrieved, {"b": 1, "d": 1}, 4) <= 1.0
 
 
 def test_tokenize_fallback():

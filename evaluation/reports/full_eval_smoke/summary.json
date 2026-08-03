@@ -1,16 +1,16 @@
 {
   "run_id": "full_eval_smoke",
   "out_dir": "evaluation/reports/full_eval_smoke",
-  "started_at": "2026-08-03T10:42:11.343244+00:00",
-  "finished_at": "2026-08-03T10:42:11.613760+00:00",
+  "started_at": "2026-08-03T12:01:43.045517+00:00",
+  "finished_at": "2026-08-03T12:01:43.296141+00:00",
   "current_step": null,
   "steps": [
     {
       "id": "preflight",
       "label": "Kiểm tra môi trường",
       "status": "ok",
-      "started_at": "2026-08-03T10:42:11.371074+00:00",
-      "finished_at": "2026-08-03T10:42:11.415494+00:00",
+      "started_at": "2026-08-03T12:01:43.080396+00:00",
+      "finished_at": "2026-08-03T12:01:43.125195+00:00",
       "duration_s": 0.0,
       "detail": ""
     },
@@ -18,26 +18,17 @@
       "id": "intake",
       "label": "Khâu 1 — Intaker",
       "status": "skipped",
-      "started_at": "2026-08-03T10:42:11.445297+00:00",
-      "finished_at": "2026-08-03T10:42:11.474779+00:00",
+      "started_at": "2026-08-03T12:01:43.156644+00:00",
+      "finished_at": "2026-08-03T12:01:43.190849+00:00",
       "duration_s": 0.0,
       "detail": "--skip intake"
     },
     {
-      "id": "retrieval",
-      "label": "Khâu 2 — RAG",
-      "status": "skipped",
-      "started_at": "2026-08-03T10:42:11.505186+00:00",
-      "finished_at": "2026-08-03T10:42:11.535011+00:00",
-      "duration_s": 0.0,
-      "detail": "--skip retrieval"
-    },
-    {
       "id": "ablation",
-      "label": "Khâu 3+4 — Ablation oracle",
+      "label": "Khâu 2 — Ablation oracle",
       "status": "skipped",
-      "started_at": "2026-08-03T10:42:11.562183+00:00",
-      "finished_at": "2026-08-03T10:42:11.587605+00:00",
+      "started_at": "2026-08-03T12:01:43.225949+00:00",
+      "finished_at": "2026-08-03T12:01:43.258912+00:00",
       "duration_s": 0.0,
       "detail": "--skip ablation"
     }
