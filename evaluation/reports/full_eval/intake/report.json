@@ -4,7 +4,7 @@
   "model": "acne-intaker",
   "dataset": "datagen\\intakedata\\output\\intake\\intake.val.jsonl",
   "train_overlap_guard": "datagen\\intakedata\\output\\intake\\intake.train.jsonl",
-  "generated_at_epoch": 1785778439,
+  "generated_at_epoch": 1785816472,
   "rows_input": 400,
   "rows_evaluated": 380,
   "excluded_multiturn": 20,
@@ -13,7 +13,7 @@
   "fallback_executed": false,
   "clean_measurement": true,
   "alert": null,
-  "elapsed_seconds": 685.2,
+  "elapsed_seconds": 800.93,
   "metrics": {
     "format": {
       "schema_valid_rate": 0.9211,
@@ -227,8 +227,8 @@
       "fuzzy_threshold": 0.8
     },
     "latency": {
-      "p50_ms": 1678.63,
-      "p95_ms": 3680.53,
+      "p50_ms": 1819.36,
+      "p95_ms": 4748.38,
       "n": 380
     },
     "scalar_accuracy": {

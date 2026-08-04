@@ -13,11 +13,15 @@ from evaluation.runners.run_ablation import (
 
 def _scorecard(value: float = 3.0, *, safety_pass: bool = True) -> dict:
     return {
-        "grounding_support": value / 5,
-        "safety_pass": safety_pass,
-        "refusal_fidelity": True,
         "answer_quality": value,
         "role_tone": value,
+        "context_relevance": value,
+        "context_precision": value / 5,
+        "context_sufficiency": value,
+        "ranking_quality": value / 5,
+        "groundedness": value,
+        "safety_pass": safety_pass,
+        "refusal_fidelity": True,
     }
 
 
@@ -133,14 +137,9 @@ def test_paired_summary_drops_failed_id_only_from_the_affected_arm():
     assert paired["RRO"]["paired_n"] == 3
     assert paired["RRO"]["dropped_ids"] == []
 
+    from evaluation.metrics.scorecard import SCORECARD_FACES
     for arm in arms:
-        assert [row["face"] for row in paired[arm]["faces"]] == [
-            "grounding_support",
-            "safety_pass",
-            "refusal_fidelity",
-            "answer_quality",
-            "role_tone",
-        ]
+        assert set(row["face"] for row in paired[arm]["faces"]) == set(SCORECARD_FACES)
 
 
 def test_summarize_report_adds_bootstrap_ci_and_keeps_safety_separate():

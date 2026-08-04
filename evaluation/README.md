@@ -62,6 +62,25 @@ khác. Mẫu bị loại được ghi kèm `drop_reason`.
 
 Safety failure báo riêng, **không bao giờ** gộp vào điểm chất lượng.
 
+## Không đo bằng từ vựng
+
+KB 60% Việt / 40% Anh nên mọi phép khớp từ đều thưởng cho đoạn cùng ngôn ngữ với
+câu hỏi, bất kể nội dung. `grounding_support` (`char_3gram_dice`) và
+`forbidden_claims` (khớp chuỗi, 0 lần kích hoạt / 770 dòng) đã bị gỡ. Thay bằng
+5 mặt do judge chấm ngữ nghĩa, một lượt gọi mỗi dòng:
+
+| Mặt | Thang |
+|---|---|
+| `context_relevance` | 0–5, trung bình điểm từng chunk |
+| `context_precision` | 0–1, tỉ lệ chunk đạt ≥ 3 |
+| `context_sufficiency` | 0–5, gộp lại có đủ trả lời không |
+| `ranking_quality` | 0–1, nDCG trên chính điểm judge |
+| `groundedness` | 0–5, câu trả lời bám tài liệu hay tự bịa |
+
+`ranking_quality` không cần `relevant_chunk_ids` — thứ tự lý tưởng là điểm judge
+sắp giảm dần. `relevant_chunk_ids` giờ chỉ còn là cơ chế bơm context cho `ROR`,
+không còn là thước đo.
+
 ## Sinh bộ câu hỏi cho khâu 2
 
 ```bash
@@ -110,14 +129,14 @@ evaluation/
 ├── adapters/_repo.py        bridge vào product container
 ├── judges/
 │   ├── clients.py           OpenAI client + cache đĩa + đếm cost
+│   ├── context.py           5 mặt context do judge chấm (KHÔNG đếm từ)
 │   ├── calibrate.py         Cohen's κ + Spearman người vs judge
 │   └── prompts/*.md
 ├── metrics/
 │   ├── classification.py    accuracy, macro-F1, confusion
 │   ├── intake.py            intent PRF, ECE, negation leak
 │   ├── deterministic.py     pregnancy safety, forbidden claims
-│   ├── grounding.py         sentence grounding
-│   └── scorecard.py         5 mặt điểm
+│   └── scorecard.py         9 mặt điểm
 ├── datasets/
 │   ├── registry.py          load + validate + sha256 freeze
 │   ├── make_eval_set.py     sinh bộ câu hỏi từ chunk thật

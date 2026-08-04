@@ -160,6 +160,25 @@ def sh(label: str, cmd: list[str], *, retries: int = 0, wait_s: int = 60) -> boo
     return False
 
 
+def _intake_is_complete(report: Path) -> bool:
+    """Report của một lần chạy `--limit N` không được tính là đã xong."""
+    try:
+        payload = json.loads(report.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return payload.get("rows_input", 0) >= _dataset_rows(
+        ROOT / "datagen/intakedata/output/intake/intake.val.jsonl"
+    )
+
+
+def _dataset_rows(path: Path) -> int:
+    try:
+        with path.open(encoding="utf-8") as handle:
+            return sum(1 for line in handle if line.strip())
+    except OSError:
+        return 0
+
+
 def _has_openai_key() -> bool:
     env = (ROOT / ".env").read_text(encoding="utf-8") if (ROOT / ".env").exists() else ""
     return bool(os.environ.get("OPENAI_API_KEY")) or bool(
@@ -249,8 +268,15 @@ def main() -> None:
                  "; ".join(problems) if problems else "")
 
     # ── Khâu 1 — Intaker ────────────────────────────────────────────────
+    # Khác ablation, run_intake không checkpoint từng dòng: chạy lại là 380 dòng
+    # từ đầu (~11 phút). Nó lại tất định và không tốn API, nên có report rồi thì
+    # chạy lại chẳng cho số mới. Muốn chạy lại: xoá report.json.
+    intake_report = run_dir / "intake" / "report.json"
     if "intake" in skip:
         _skip_step(summary, summary_path, "intake", "--skip intake")
+    elif not selected_limit and _intake_is_complete(intake_report):
+        _skip_step(summary, summary_path, "intake",
+                   f"đã có {_display_path(intake_report)} — xoá file để chạy lại")
     else:
         step_started = _start_step(summary, summary_path, "intake")
         ok = sh("intake", [

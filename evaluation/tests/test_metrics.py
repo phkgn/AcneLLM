@@ -4,8 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from evaluation.metrics.deterministic import (
-    evaluate_record, forbidden_claims, parse_success, pregnancy_safety,
-    vacuous_answer,
+    parse_success, pregnancy_safety, vacuous_answer,
 )
 
 
@@ -42,37 +41,3 @@ def test_vacuous_answer():
     assert vacuous_answer(_rec(structured=empty)) is True
     assert vacuous_answer(_rec(structured={"causes": ["x"]})) is False
     assert vacuous_answer(_rec()) is None
-
-
-def test_forbidden_claims():
-    hits = forbidden_claims(_rec(answer="Bạn có thể tự nặn mụn tại nhà."),
-                            ["tự nặn mụn"])
-    assert hits == ["tự nặn mụn"]
-
-
-def test_new_prose_record_omits_legacy_structured_metrics():
-    record = _rec(answer="Rửa mặt dịu nhẹ.", used=["chunk-1"])
-    record["timings_ms"] = {"total": 123}
-
-    metrics = evaluate_record(record, {"user_context": {}, "forbidden_claims": []})
-
-    assert "parse_success" not in metrics
-    assert "vacuous_answer" not in metrics
-    assert metrics["answer_char_count"] == len(record["answer"])
-
-
-def test_legacy_structured_record_keeps_legacy_metrics_reader():
-    record = _rec(
-        structured={
-            "confidence": 0.8,
-            "causes": ["x"],
-            "recommendations": [{"action": "y"}],
-        },
-        answer="Nội dung legacy.",
-        used=["chunk-1"],
-    )
-
-    metrics = evaluate_record(record, {"user_context": {}, "forbidden_claims": []})
-
-    assert metrics["parse_success"] is True
-    assert metrics["vacuous_answer"] is False

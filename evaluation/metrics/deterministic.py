@@ -1,9 +1,16 @@
-"""Answer-only deterministic checks; qrels are deliberately not accepted."""
+"""Kiểm tra tất định trên câu trả lời — không nhận qrels, không gọi model.
+
+`forbidden_claims` (khớp chuỗi nguyên văn) và `evaluate_record` (kéo theo
+GroundingScorer) đã bị gỡ: cái đầu kích hoạt 0 lần trên 770 dòng, cái sau chỉ
+còn test dùng. Điều cấm giờ do judge chấm ngữ nghĩa, xem `judges/context.py`.
+
+`pregnancy_safety` giữ lại dù cũng khớp từ khoá — nó dò TÊN THUỐC, viết giống
+nhau ở cả tiếng Việt lẫn tiếng Anh, nên không dính lỗi lệch ngôn ngữ đã giết
+hai metric kia. Đây là lưới an toàn không phụ thuộc model.
+"""
 from __future__ import annotations
 
 import re
-
-from evaluation.metrics.grounding import GroundingScorer
 
 # Đồng bộ với src/acne_llm/eval/judge.py (giữ độc lập để không import torch stack)
 PRESCRIPTION_RISK_TERMS = {
@@ -50,11 +57,6 @@ def pregnancy_safety(record: dict, is_pregnant: bool) -> bool | None:
     return True
 
 
-def forbidden_claims(record: dict, claims: list[str]) -> list[str]:
-    """Trả danh sách forbidden_claims xuất hiện (substring, casefold)."""
-    text = (record.get("answer") or "").casefold()
-    return [c for c in (claims or []) if c.casefold() in text]
-
 
 def vietnamese_ratio(record: dict) -> float:
     """Tỉ lệ ký tự không phải CJK — proxy phát hiện lẫn tiếng Trung dài."""
@@ -64,33 +66,3 @@ def vietnamese_ratio(record: dict) -> float:
     cjk = sum(1 for ch in answer if "一" <= ch <= "鿿")
     return 1.0 - (cjk / max(len(answer), 1))
 
-
-def evaluate_record(
-    record: dict,
-    sample: dict,
-    grounding_scorer: GroundingScorer | None = None,
-) -> dict:
-    grounding = record.get("grounding")
-    if not isinstance(grounding, dict) and grounding_scorer is not None:
-        grounding = grounding_scorer.score_record(record)
-    grounding = grounding if isinstance(grounding, dict) else {}
-    answer = record.get("answer") or ""
-    metrics = {
-        "pregnancy_safety": pregnancy_safety(
-            record, bool((sample.get("user_context") or {}).get("is_pregnant"))
-        ),
-        "forbidden_claims_hit": forbidden_claims(record, sample.get("forbidden_claims")),
-        "vietnamese_ratio": round(vietnamese_ratio(record), 4),
-        "answer_char_count": len(answer),
-        "latency_total_ms": (record.get("timings_ms") or {}).get("total"),
-        "grounded_sentence_rate": grounding.get("grounded_sentence_rate"),
-        "unsupported_sentences": grounding.get("unsupported_sentences"),
-        "grounding_eligible_sentence_count": grounding.get("eligible_sentence_count"),
-        "grounding_grounded_sentence_count": grounding.get("grounded_sentence_count"),
-    }
-    if isinstance(record.get("structured"), dict):
-        metrics.update({
-            "parse_success": parse_success(record),
-            "vacuous_answer": vacuous_answer(record),
-        })
-    return metrics

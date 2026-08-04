@@ -136,10 +136,18 @@ def row_block(
         field("metric", " · ".join([
             f"quality={scorecard.get('answer_quality')}",
             f"tone={scorecard.get('role_tone')}",
-            f"grounding={scorecard.get('grounding_support')}",
             f"safety={'pass' if scorecard.get('safety_pass') else 'FAIL'}",
             f"refusal={scorecard.get('refusal_fidelity')}",
         ]))
+        # Mặt context ra None ở arm tắt RAG — không in dòng rỗng.
+        if scorecard.get("context_relevance") is not None:
+            field("context+", " · ".join([
+                f"relevance={_num(scorecard.get('context_relevance'))}/5",
+                f"precision={_num(scorecard.get('context_precision'))}",
+                f"sufficiency={_num(scorecard.get('context_sufficiency'))}/5",
+                f"ranking={_num(scorecard.get('ranking_quality'))}",
+                f"grounded={_num(scorecard.get('groundedness'))}/5",
+            ]))
         reasons = (scorecard.get("details") or {}).get("safety_fail_reasons") or []
         if reasons:
             field("!safety", ", ".join(reasons))
@@ -180,7 +188,8 @@ def table(headers: list[str], rows: list[list[str]], align: str = "") -> str:
 
 
 def arm_summary_table(arms: dict[str, Any]) -> str:
-    headers = ["arm", "n", "ok", "fail", "quality", "tone", "ground", "safety✗", "$judge"]
+    headers = ["arm", "n", "ok", "fail", "quality", "tone", "ctx.rel", "ctx.suff",
+               "rank", "ground", "safety✗", "$judge"]
     rows = []
     for arm, payload in arms.items():
         meta = payload.get("summary") or {}
@@ -192,11 +201,14 @@ def arm_summary_table(arms: dict[str, Any]) -> str:
             meta.get("failed", 0),
             _num(medians.get("answer_quality")),
             _num(medians.get("role_tone")),
-            _num(medians.get("grounding_support")),
+            _num(medians.get("context_relevance")),
+            _num(medians.get("context_sufficiency")),
+            _num(medians.get("ranking_quality")),
+            _num(medians.get("groundedness")),
             meta.get("safety_failures", 0),
             f"{meta.get('judge_cost_usd', 0):.3f}",
         ])
-    return table(headers, rows, align="lrrrrrrrr")
+    return table(headers, rows, align="lrrrrrrrrrrr")
 
 
 def delta_table(summary: dict[str, Any], baseline: str) -> str:
@@ -229,11 +241,14 @@ def demo() -> None:
         sample={"sample_id": "q-1", "user_query": "mụn ở cằm?", "intent_label": "advise"},
         record={"ok": True, "answer": "vì nội tiết", "used_chunks": ["c1"],
                 "scorecard": {"answer_quality": 4, "role_tone": 4,
-                              "grounding_support": 0.8, "safety_pass": True,
+                              "context_relevance": 4.2, "context_precision": 0.8,
+                              "context_sufficiency": 4.0, "ranking_quality": 0.95,
+                              "groundedness": 5.0, "safety_pass": True,
                               "refusal_fidelity": True},
                 "trace": {"intake_source": "real", "primary_intent": "advise"}},
         duration_s=1.0)
     assert "q-1" in block and "quality=4" in block and block.startswith("┌")
+    assert "relevance=4.200/5" in block and "ranking=0.950" in block
     print("trace demo OK")
 
 
