@@ -46,7 +46,7 @@ from evaluation.judges.clients import JudgeClient  # noqa: E402
 
 DEFAULT_DATASET = ROOT / "evaluation/datasets/eval_set.v3.jsonl"
 DEFAULT_OUTPUT = ROOT / "evaluation/reports/rag/results.json"
-DEFAULT_JUDGE = "gpt-5.4-mini"
+DEFAULT_JUDGE = "gpt-5.4-mini-2026-03-17"
 
 
 def _fmt(v: Any, pct: bool = False) -> str:

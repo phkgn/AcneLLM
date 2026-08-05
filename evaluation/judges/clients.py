@@ -134,12 +134,15 @@ class JudgeClient:
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_object"},
         }
+        # temperature=0 cho MỌI model. Trước đây nhánh gpt-5.x bỏ qua nó, nên
+        # judge chạy ở nhiệt độ mặc định của nhà cung cấp -> chấm lại cùng một
+        # câu có thể ra điểm khác. Với eval thì đó là nhiễu không đo được.
+        # Model nào từ chối temperature sẽ raise và lộ ra ngay, không im lặng.
+        payload["temperature"] = 0
         if self.model.startswith("gpt-5.4") or self.model.startswith("gpt-5.6"):
             payload["reasoning_effort"] = "none"
         elif self.model.startswith("gpt-5"):
             payload["reasoning_effort"] = "minimal"
-        else:
-            payload["temperature"] = 0
         req = urllib.request.Request(
             self.base_url.rstrip("/") + "/v1/chat/completions"
             if not self.base_url.endswith("/v1")

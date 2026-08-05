@@ -66,7 +66,9 @@ chỉ chấm nội dung có trả lời được câu hỏi hay không.
 {rubrics.SUFFICIENCY}
 {ground_rule}
 Chỉ trả về JSON:
-{{"grades": [số cho từng đoạn theo đúng thứ tự], "sufficiency": số{ground_field}, "reason": chuỗi}}
+{{"reason": chuỗi, "grades": [số cho từng đoạn theo đúng thứ tự], "sufficiency": số{ground_field}}}
+
+Viết "reason" TRƯỚC: mỗi đoạn nói về gì, có khớp câu hỏi không. Rồi mới chấm.
 
 Câu hỏi: {question}
 Các ý người dùng cần biết: {json.dumps(list(expected_points), ensure_ascii=False)}

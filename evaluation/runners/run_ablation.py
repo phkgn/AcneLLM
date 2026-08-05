@@ -83,7 +83,10 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 DEFAULT_DATASET = Path("evaluation/datasets/eval_set.v3.jsonl")
 DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
 ARM_Y_MODEL = "gpt-5.6-terra"
-DEFAULT_JUDGE_MODEL = "gpt-5.4-mini"
+# GHIM THEO NGÀY. "gpt-5.4-mini" là bí danh — nhà cung cấp dời bí danh thì
+# điểm đổi lặng lẽ, mà cache cũ vẫn giữ điểm của bản trước. Cache 20MB của
+# lần chạy 804 dòng cho thấy nó phân giải về đúng bản dưới đây.
+DEFAULT_JUDGE_MODEL = "gpt-5.4-mini-2026-03-17"
 # Arm = 3 ký tự, mỗi ký tự một khâu: [intaker][rag][generator].
 #   R = chạy thật · O = thay bằng bản hoàn hảo (oracle) · N = tắt hẳn
 # Không gian đầy đủ 2 × 3 × 2 = 12 tổ hợp; DEFAULT_ARMS là gói 6 arm khuyên dùng.
@@ -409,8 +412,11 @@ def _judge_prompt(sample: Mapping[str, Any], answer: str) -> str:
     """Thang neo lấy từ judges/rubrics.py — một nguồn sự thật, có trích dẫn."""
     return f"""Bạn là trọng tài độc lập chấm một câu trả lời tư vấn da mụn.
 Chỉ trả về JSON object:
-{{"answer_quality": integer, "role_tone": integer,
-  "forbidden_violated": boolean, "reason": string}}.
+{{"reason": string, "answer_quality": integer, "role_tone": integer,
+  "forbidden_violated": boolean}}.
+
+Viết "reason" TRƯỚC, nêu ngắn gọn điểm mạnh/yếu của câu trả lời rồi mới cho
+điểm. Chấm trước rồi mới viết lý do là hợp lý hoá ngược, không phải lập luận.
 
 {rubrics.ANSWER_QUALITY}
 
