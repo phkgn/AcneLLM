@@ -88,6 +88,7 @@ def main() -> None:
     records: list[dict[str, Any]] = []
     per_type: dict[str, list[float]] = collections.defaultdict(list)
     no_context = 0
+    failed: list[dict[str, Any]] = []
     t0 = time.time()
     for i, sample in enumerate(rows, 1):
         user, _ = normalize_query(container, sample)
@@ -96,12 +97,20 @@ def main() -> None:
         if not chunks:
             no_context += 1
 
-        scored = context_judge.score(
-            judge,
-            sample.get("user_query") or "",
-            [c.text for c in chunks],
-            sample.get("expected_answer_points") or [],
-        )
+        # Một dòng hỏng KHÔNG được giết cả lượt chạy. Retrieval mất ~14s/câu
+        # nên 197 câu là 45 phút; để judge trả JSON dị dạng ở câu 150 mà mất
+        # sạch là quá đắt. Dòng hỏng ghi lại kèm lý do, chạy tiếp.
+        try:
+            scored = context_judge.score(
+                judge,
+                sample.get("user_query") or "",
+                [c.text for c in chunks],
+                sample.get("expected_answer_points") or [],
+            )
+        except Exception as exc:                       # noqa: BLE001
+            failed.append({"sample_id": sample.get("sample_id"),
+                           "error": f"{type(exc).__name__}: {exc}"})
+            scored = {f: None for f in context_judge.FACES} | {"details": None}
         # Điểm từng đoạn gắn với source_type -> biết tầng nguồn nào thật sự dùng được.
         grades = ((scored.get("details") or {}).get("grades") or [])
         for chunk, g in zip(chunks, grades):
@@ -130,6 +139,7 @@ def main() -> None:
         "dataset": str(args.dataset),
         "n": len(records),
         "no_context": no_context,
+        "failed": failed,
         "judge_model": args.judge_model,
         "settings": {
             k: getattr(settings, k, None) for k in
@@ -160,6 +170,10 @@ def main() -> None:
         scale = "0-1" if f in ("context_precision", "ranking_quality") else "0-5"
         print(f"  {f:20}{_fmt(v):>8}   {scale}")
     print(f"\n  câu KHÔNG có tài liệu nào: {no_context}/{len(records)}")
+    if failed:
+        print(f"  ⚠ {len(failed)}/{len(records)} câu judge lỗi — KHÔNG tính vào điểm:")
+        for f in failed[:5]:
+            print(f"     {f['sample_id']}: {f['error'][:70]}")
 
     print(f"\n{'source_type':20}{'n đoạn':>8}{'điểm TB':>10}{'dùng được (≥3)':>18}")
     for t, s in summary["by_source_type"].items():
