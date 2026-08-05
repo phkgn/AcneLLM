@@ -34,7 +34,7 @@ module eval sinh ra để trả lời câu đó.
 
 Chấm theo **danh tính chunk** là chấm oan. Nhiều đoạn cùng nói một chủ đề;
 retriever mang về đoạn khác nhưng cũng trả lời được thì vẫn bị tính trượt. Và bộ
-đề sinh theo đường đi ngược có `MAX_LEXICAL_OVERLAP = 0.55` — cố ý loại câu hỏi
+đề sinh theo đường đi ngược có `MAX_RESTATEMENT_COSINE = 0.88` — cố ý loại câu hỏi
 trùng từ với chunk — nên recall đo được **bi quan có hệ thống**.
 
 Thay bằng judge ngữ nghĩa hỏi thẳng *"đoạn này liên quan không, gộp lại đủ trả
@@ -163,9 +163,9 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
  "meta": {"source": "golden_relabel", "judged": true, "gate_checks": {…}}}
 ```
 
-### Khâu 2 — ablation
+### Khâu 2 & 3 — retrieval và ablation
 
-`evaluation/datasets/eval_set.jsonl` · **cần sinh**
+`evaluation/datasets/eval_set.v3.jsonl` · **197 dòng, đã sinh**
 
 ```json
 {
@@ -173,7 +173,7 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
   "user_query": "Em hay bị mụn mủ ở cằm với quai hàm, có phải do nội tiết không ạ?",
   "task_type": "answer_quality",
   "split": "test",
-  "dataset_version": "v2.0",
+  "dataset_version": "v3.0",
   "source_provenance": "synthetic_deepseek",
   "user_context": {"age": 22, "skin_type": "oily"},
   "conversation_history": [],
@@ -182,7 +182,9 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
   "relevance_grade":   {"hellobacsi_280…::0004": 2, "…::0005": 1, "…::0003": 1},
 
   "intent_label": "advise",
-  "intent_label_source": "authored_from_persona",
+  "intent_label_source": "derived_from_intaker_modelfile",
+  "spec_category": "không_chẩn_đoán",
+  "generator_constraints": ["không_chẩn_đoán"],
   "expected_behavior": "Giải thích nguyên nhân, không kê đơn, khuyên khám nếu nặng",
   "expected_answer_points": ["mụn vùng cằm liên quan androgen", "…"],
   "forbidden_claims": ["khẳng định chắc chắn nguyên nhân", "chỉ định thuốc kê đơn"],

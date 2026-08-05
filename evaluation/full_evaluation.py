@@ -1,12 +1,13 @@
-"""Orchestrator 2 khâu: kiểm tra môi trường → intake → ablation.
+"""Orchestrator 3 khâu: kiểm tra môi trường → intake → ablation.
 
-    khâu 1  intake    — intaker rút đúng 15 slot không       (không cần judge)
-    khâu 2  ablation  — thay từng khâu bằng bản hoàn hảo / tắt hẳn,
-                        xem câu trả lời chênh bao nhiêu      (cần judge)
+    khâu 1  intake     — intaker rút đúng 15 slot không      (không cần judge)
+    khâu 2  retrieval  — tài liệu RAG mang về có dùng được không   (cần judge)
+    khâu 3  ablation   — thay từng khâu bằng bản hoàn hảo / tắt hẳn,
+                         xem câu trả lời chênh bao nhiêu     (cần judge)
 
-Đánh giá RAG nội tại (nDCG/recall@k trên qrels) đã bỏ: tầm quan trọng của RAG
-đo bằng arm trong khâu 2 chứ không cần qrels người gán. Lấy lại bằng
-`git show <commit>:evaluation/runners/run_retrieval.py` nếu sau này cần.
+Khâu 2 KHÔNG dùng recall@k trên chunk vàng — chấm theo danh tính chunk là chấm
+oan. Judge hỏi thẳng "đoạn này liên quan không, đủ trả lời không". Xem
+eval_context.md §2.
 
 Mỗi bước là subprocess độc lập; bước fail không kéo sập bước sau (trừ preflight).
 
@@ -32,12 +33,15 @@ from evaluation.common import ROOT, REPORTS_DIR, utcnow  # noqa: E402
 from evaluation.runners.run_ablation import DEFAULT_ARMS  # noqa: E402
 
 PY = sys.executable
-DATASET = "evaluation/datasets/eval_set.jsonl"
+# v3: nhãn suy từ Modelfile, khử trùng bằng ngữ nghĩa. Bộ v2 gán sai 15 ca
+# reject nên mọi kết quả cũ đo nhầm chuyện — xem eval_context.md §2.
+DATASET = "evaluation/datasets/eval_set.v3.jsonl"
 
 STEP_DEFINITIONS = (
     ("preflight", "Kiểm tra môi trường"),
     ("intake", "Khâu 1 — Intaker"),
-    ("ablation", "Khâu 2 — Ablation oracle"),
+    ("retrieval", "Khâu 2 — Tài liệu RAG (judge chấm)"),
+    ("ablation", "Khâu 3 — Ablation oracle"),
 )
 TERMINAL_STATUSES = {"ok", "fail", "skipped"}
 
@@ -215,7 +219,7 @@ def preflight(skip: set[str]) -> list[str]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true", help="10 mẫu/bước")
-    ap.add_argument("--skip", default="", help="intake,ablation")
+    ap.add_argument("--skip", default="", help="intake,retrieval,ablation")
     ap.add_argument("--limit", type=int, default=0, help="0 = all rows")
     ap.add_argument("--dataset", default=DATASET, help="bộ câu hỏi cho khâu 2")
     ap.add_argument("--arms", default=",".join(DEFAULT_ARMS))
@@ -287,7 +291,24 @@ def main() -> None:
                      "ok" if ok else "fail", step_started,
                      "" if ok else "run_intake exit != 0")
 
-    # ── Khâu 2 — Ablation ───────────────────────────────────────────────
+    # ── Khâu 2 — Tài liệu RAG ───────────────────────────────────────────
+    if "retrieval" in skip:
+        _skip_step(summary, summary_path, "retrieval", "--skip retrieval")
+    elif not _has_openai_key():
+        _skip_step(summary, summary_path, "retrieval",
+                   "Thiếu OPENAI_API_KEY (judge chấm tài liệu cần API).")
+    else:
+        step_started = _start_step(summary, summary_path, "retrieval")
+        ok = sh("retrieval", [
+            PY, "-m", "evaluation.runners.run_retrieval",
+            "--dataset", args.dataset,
+            "--output", str(run_dir / "retrieval" / "results.json"), *limit,
+        ], retries=args.retry)
+        _finish_step(summary, summary_path, "retrieval",
+                     "ok" if ok else "fail", step_started,
+                     "" if ok else "run_retrieval exit != 0")
+
+    # ── Khâu 3 — Ablation ───────────────────────────────────────────────
     if "ablation" in skip:
         _skip_step(summary, summary_path, "ablation", "--skip ablation")
     elif not _has_openai_key():

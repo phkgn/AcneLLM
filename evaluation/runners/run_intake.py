@@ -241,6 +241,54 @@ def _matched_list_counts(
     return true_positive, len(pred) - true_positive, len(unmatched)
 
 
+def _per_value_metrics(
+    scalar_gold: Mapping[str, Sequence[Any]],
+    scalar_pred: Mapping[str, Sequence[Any]],
+    list_gold: Mapping[str, Sequence[Sequence[str]]],
+    list_pred: Mapping[str, Sequence[Sequence[str]]],
+) -> dict[str, Any]:
+    """PRF cho TỪNG GIÁ TRỊ enum, không chỉ từng field.
+
+    Vì sao cần: `skin_type` được F1 0.72 không cho biết nên sửa gì. Có thể model
+    nhận ra "da dầu" rất tốt nhưng mù với "da hỗn hợp" — hai chẩn đoán khác nhau,
+    hai cách sửa khác nhau. Chỉ số theo field gộp chúng lại thành một con số.
+
+    `support` là số lần giá trị đó XUẤT HIỆN TRONG ĐÁP ÁN. Support nhỏ thì F1
+    không đọc được — 1 mẫu mà trúng là 1.0, trượt là 0.0.
+    """
+    out: dict[str, Any] = {}
+
+    def add(field: str, pairs: list[tuple[Any, Any]]) -> None:
+        # Model hỏng có thể trả list ở chỗ đáng lẽ là scalar -> unhashable, vỡ
+        # set(). Chỉ gom giá trị enum hợp lệ; dự đoán dị dạng vẫn được đếm là
+        # SAI qua nhánh fp/fn bên dưới, không bị bỏ qua lặng lẽ.
+        values = {v for g, p in pairs for v in (g, p)
+                  if isinstance(v, (str, int, float, bool))}
+        if not values:
+            return
+        rows = {}
+        for value in sorted(values, key=str):
+            tp = sum(1 for g, p in pairs if g == value and p == value)
+            fp = sum(1 for g, p in pairs if g != value and p == value)
+            fn = sum(1 for g, p in pairs if g == value and p != value)
+            rows[str(value)] = {"support": tp + fn, **_prf(tp, fp, fn)}
+        out[field] = rows
+
+    for field, gold_values in scalar_gold.items():
+        add(field, list(zip(gold_values, scalar_pred[field])))
+
+    for field, gold_rows in list_gold.items():
+        # List: mỗi giá trị enum là một bài toán nhị phân "có mặt / không có mặt".
+        pairs: list[tuple[Any, Any]] = []
+        for gold, pred in zip(gold_rows, list_pred[field]):
+            gset, pset = set(gold or []), set(pred or [])
+            for value in gset | pset:
+                pairs.append((value if value in gset else None,
+                              value if value in pset else None))
+        add(field, pairs)
+    return out
+
+
 def _extraction_metrics(
     scalar_gold: Mapping[str, Sequence[Any]],
     scalar_pred: Mapping[str, Sequence[Any]],
@@ -624,6 +672,9 @@ def evaluate_rows(
         list_gold,
         list_pred,
     )
+    extraction["per_value"] = _per_value_metrics(
+        scalar_gold, scalar_pred, list_gold, list_pred
+    )
     return {
         "rows_input": len(rows),
         "rows_evaluated": len(samples),
@@ -726,6 +777,49 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return args
 
 
+def _print_tables(report: Mapping[str, Any]) -> None:
+    """In bảng đọc ngay, khỏi mở JSON."""
+    metrics = report.get("metrics") or {}
+    intent = metrics.get("intent") or {}
+    extraction = metrics.get("extraction") or {}
+
+    print(f"\n{'INTENT':22}{'P':>8}{'R':>8}{'F1':>8}{'support':>9}")
+    for label, values in sorted((intent.get("per_label") or {}).items()):
+        print(f"  {label:20}{values.get('precision', 0):>8.3f}"
+              f"{values.get('recall', 0):>8.3f}{values.get('f1', 0):>8.3f}"
+              f"{values.get('support', 0):>9}")
+    print(f"  {'macro-F1':20}{'':>8}{'':>8}{intent.get('macro_f1', 0):>8.3f}")
+    if intent.get("reject_recall") is not None:
+        print(f"  {'reject_recall':20}{'':>8}{intent['reject_recall']:>8.3f}")
+
+    print(f"\n{'FIELD':30}{'khớp':>7}{'P':>8}{'R':>8}{'F1':>8}")
+    for field, values in sorted((extraction.get("per_field") or {}).items()):
+        print(f"  {field:28}{str(values.get('match', '')):>7}"
+              f"{values.get('precision', 0):>8.3f}"
+              f"{values.get('recall', 0):>8.3f}{values.get('f1', 0):>8.3f}")
+    macro = extraction.get("macro") or {}
+    micro = extraction.get("micro") or {}
+    print(f"  {'macro':28}{'':>7}{macro.get('precision', 0):>8.3f}"
+          f"{macro.get('recall', 0):>8.3f}{macro.get('f1', 0):>8.3f}")
+    print(f"  {'micro':28}{'':>7}{micro.get('precision', 0):>8.3f}"
+          f"{micro.get('recall', 0):>8.3f}{micro.get('f1', 0):>8.3f}")
+
+    per_value = extraction.get("per_value") or {}
+    if not per_value:
+        return
+    print("\nTỪNG GIÁ TRỊ ENUM   support = số lần xuất hiện trong ĐÁP ÁN;")
+    print("                    support < 5 thì F1 chỉ để tham khảo")
+    for field, values in sorted(per_value.items()):
+        usable = [(v, m) for v, m in values.items() if m["support"]]
+        if not usable:
+            continue
+        print(f"\n  {field}")
+        for value, m in sorted(usable, key=lambda kv: -kv[1]["support"]):
+            warn = "" if m["support"] >= 5 else "   ← ít mẫu"
+            print(f"    {value:32}{m['support']:>5}{m['precision']:>8.3f}"
+                  f"{m['recall']:>8.3f}{m['f1']:>8.3f}{warn}")
+
+
 def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
     args = parse_args(argv)
     dataset_path = _path(args.dataset).resolve()
@@ -757,6 +851,7 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    _print_tables(report)
     if report["alert"]:
         print("\n" + "!" * 88)
         print(report["alert"])

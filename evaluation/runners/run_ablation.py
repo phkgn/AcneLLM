@@ -80,7 +80,7 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 )
 
 
-DEFAULT_DATASET = Path("evaluation/datasets/eval_set.jsonl")
+DEFAULT_DATASET = Path("evaluation/datasets/eval_set.v3.jsonl")
 DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
 ARM_Y_MODEL = "gpt-5.6-terra"
 DEFAULT_JUDGE_MODEL = "gpt-5.4-mini"

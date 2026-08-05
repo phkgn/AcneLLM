@@ -5,8 +5,8 @@ Thay cho recall@k trên chunk vàng. Vì sao đổi:
 
   Chấm theo danh tính chunk là chấm oan. Nhiều đoạn cùng nói một chủ đề; retriever
   mang về đoạn KHÁC nhưng cũng trả lời được thì vẫn bị tính là trượt. Và bộ đề
-  sinh theo đường đi ngược có `MAX_LEXICAL_OVERLAP = 0.55` — cố ý loại câu hỏi
-  trùng từ với chunk — nên recall đo được là con số bi quan có hệ thống.
+  sinh theo đường đi ngược có `MAX_RESTATEMENT_COSINE = 0.88` — cố ý loại câu hỏi
+  chép lại đoạn văn — nên recall đo được là con số bi quan có hệ thống.
 
   Judge hỏi thẳng: đoạn này có liên quan không, gộp lại có đủ trả lời không.
   Không cần biết "đoạn đúng" là đoạn nào.
@@ -44,7 +44,7 @@ from evaluation.common import utcnow  # noqa: E402
 from evaluation.judges import context as context_judge  # noqa: E402
 from evaluation.judges.clients import JudgeClient  # noqa: E402
 
-DEFAULT_DATASET = ROOT / "evaluation/datasets/eval_set.jsonl"
+DEFAULT_DATASET = ROOT / "evaluation/datasets/eval_set.v3.jsonl"
 DEFAULT_OUTPUT = ROOT / "evaluation/reports/rag/results.json"
 DEFAULT_JUDGE = "gpt-5.4-mini"
 
