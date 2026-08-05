@@ -1,30 +1,0 @@
-[dashboard] 2026-07-16T16:46:32.417Z
-[command] .venv/Scripts/python.exe -m evaluation.runners.run_experiment --experiment evaluation/configs/experiments/main_2x2.yaml --systems s0 --out-dir evaluation/reports/qa_1case --resume --limit 1
-
-
-===== s0 (base_only) | tier=t3 | n=1 =====
-[32m2026-07-16 23:46:50.185[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m75[0m - [1mBuilding DI container...[0m
-[32m2026-07-16 23:46:50.195[0m | [1mINFO    [0m | [36macne_llm.db.session_store[0m:[36m__init__[0m:[36m79[0m - [1m[SessionStore] SQLite @ C:\Users\khang\AppData\Local\Temp\acnellm_eval_b2qimjzs\sessions.db[0m
-[32m2026-07-16 23:46:50.207[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m97[0m - [1mSessions SQLite: C:\Users\khang\AppData\Local\Temp\acnellm_eval_b2qimjzs\sessions.db | Audit SQLite: C:\Users\khang\AppData\Local\Temp\acnellm_eval_b2qimjzs\audit.db[0m
-[32m2026-07-16 23:46:50.920[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m124[0m - [1mLLM effective: model=qwen25-base-acnesys ctx=3072 predict=1200 temp=0.35 top_p=0.85 top_k=40 keep_alive=-1 use_modelfile_system=True[0m
-[32m2026-07-16 23:46:52.990[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m141[0m - [1mModelfile PARAMETER (Ollama-side):
-stop                           "<|im_end|>"
-stop                           "<|im_start|>"
-stop                           "<|endoftext|>"[0m
-[32m2026-07-16 23:46:53.009[0m | [1mINFO    [0m | [36macne_llm.guardrails.drug_checker[0m:[36m_load_yaml[0m:[36m71[0m - [1m[DrugChecker] Loaded 20 drug entries from config\drugs_acne.yaml[0m
-[32m2026-07-16 23:46:53.009[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m158[0m - [1mLLM: qwen25-base-acnesys @ http://localhost:11434[0m
-[32m2026-07-16 23:46:53.010[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m170[0m - [1mKB detected -- loading RAG components...[0m
-[32m2026-07-16 23:46:54.909[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m178[0m - [1mChromaDB: 16635 vectors | BM25: 16635 chunks[0m
-[32m2026-07-16 23:46:58.568[0m | [1mINFO    [0m | [36macne_llm.rag.embedder[0m:[36m_load[0m:[36m39[0m - [1mLoading embedder: AITeamVN/Vietnamese_Embedding on cpu[0m
-Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 6265.15it/s]
-[32m2026-07-16 23:47:08.427[0m | [1mINFO    [0m | [36macne_llm.rag.embedder[0m:[36m_load[0m:[36m45[0m - [1mEmbedder ready (dim=1024)[0m
-[32m2026-07-16 23:47:08.429[0m | [1mINFO    [0m | [36macne_llm.guardrails.ood_detector[0m:[36m_init_centroid[0m:[36m201[0m - [1m[OOD] Loaded centroid from config\ood_centroid.json (dim=1024)[0m
-[32m2026-07-16 23:47:08.429[0m | [1mINFO    [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m208[0m - [1m[guardrails] OOD detector attached with embedder[0m
-[32m2026-07-16 23:47:08.429[0m | [1mINFO    [0m | [36macne_llm.rag.reranker[0m:[36m_load[0m:[36m40[0m - [1mLoading reranker: BAAI/bge-reranker-v2-m3 on cpu[0m
-Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 4151.72it/s]
-[32m2026-07-16 23:47:16.350[0m | [1mINFO    [0m | [36macne_llm.rag.reranker[0m:[36m_load[0m:[36m43[0m - [1mReranker ready[0m
-[32m2026-07-16 23:47:16.350[0m | [32m[1mSUCCESS [0m | [36macne_llm.di[0m:[36mbuild_container[0m:[36m222[0m - [32m[1mRAG ready -- shared chat orchestrator enabled[0m
-[32m2026-07-16 23:47:16.477[0m | [34m[1mDEBUG   [0m | [36macne_llm.llm.clinical_planner[0m:[36m_build_plan[0m:[36m260[0m - [34m[1m[planner] lang=vi query_vi=lesions whitehead papule other ; distribution chin ; severit... rerank_query=bị mụn đầu trắng, mụn viêm đỏ, mụn trứng cá ở cằm mức độ vừa... missing=['age', 'duration_weeks'][0m
-[32m2026-07-16 23:47:16.482[0m | [1mINFO    [0m | [36macne_llm.pipeline.llm_only[0m:[36mrun[0m:[36m96[0m - [1mLLM-only prompt size: system=0 user=371 total=371[0m
-
-[dashboard] process finished: exit=1 signal=null

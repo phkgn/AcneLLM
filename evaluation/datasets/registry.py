@@ -21,6 +21,11 @@ OPTIONAL_DEFAULTS = {
     "expected_answer_points": [], "forbidden_claims": [], "relevant_chunk_ids": [],
     "relevance_grade": {}, "reference_answer": None,
     "difficulty": None, "annotation_status": "draft", "human_notes": "",
+    # v3: nhãn suy ra từ system prompt trong Modelfile, không tự nghĩ ra.
+    # `spec_category` = loại theo spec; `generator_constraints` = luật generator
+    # phải giữ khi trả lời ca này (không chẩn đoán, không hướng dẫn thủ thuật…).
+    "intent_label_source": None, "spec_category": None,
+    "generator_constraints": [],
 }
 VALID_PROVENANCE = {
     "human_written", "real_user", "synthetic_deepseek", "synthetic_openai",

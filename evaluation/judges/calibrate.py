@@ -31,16 +31,14 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULT = ROOT / "evaluation/reports/judge_calibration.json"
 # Phải khớp từng chữ với rubric trong run_ablation._judge_prompt. Lệch rubric thì
 # κ đo độ lệch đề bài, không đo chất lượng judge.
+from evaluation.judges import rubrics
+
 AXES = ("answer_quality", "role_tone")
+# Người chấm phải đọc ĐÚNG thang mà judge đã dùng — khác thang thì κ vô nghĩa.
+# Một nguồn sự thật: judges/rubrics.py.
 RUBRIC = {
-    "scale": "số nguyên 1-5 cho cả hai trục",
-    "answer_quality": (
-        "trả lời đúng ý, đúng kiến thức và đủ để người dùng hành động an toàn"
-    ),
-    "role_tone": (
-        "đúng vai trợ lý thông tin da liễu, rõ ràng, không chẩn đoán chắc chắn, "
-        "không kê đơn cá nhân hoá, giọng điệu phù hợp"
-    ),
+    "answer_quality": rubrics.ANSWER_QUALITY,
+    "role_tone": rubrics.ROLE_TONE,
     "khong_cham": (
         "KHÔNG chấm độ bám tài liệu, an toàn hay từ chối trong hai trục này — "
         "ba mặt đó đo bằng metric độc lập"

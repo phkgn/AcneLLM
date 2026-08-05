@@ -1,8 +1,0 @@
-[dashboard] 2026-07-16T16:47:55.367Z
-[command] .venv/Scripts/python.exe -m evaluation.judges.run_judge --run-dir evaluation/reports/qa_1case --dataset evaluation/datasets/v1/d2_test.jsonl --limit 1
-
-[s1] judged -> evaluation\reports\qa_1case\s1.judged.jsonl | cost=$0.000
-
-Tổng judge calls: 1 | cost ước tính: $0.00
-
-[dashboard] process finished: exit=0 signal=null

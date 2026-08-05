@@ -1,1 +1,0 @@
-{"sample_id": "t1i-0001", "query": "Em 22 tuổi da dầu, bị mụn viêm ở cằm 2 tháng nay, em nên làm gì ạ?", "gold_intent": "advise", "pred": {"primary_intent": "advise", "query_subject": "self", "confidence": 0.82, "reason_code": "personal_acne_case", "route_flags": ["urgency_red_flag", "partial_advise"]}, "intent_ok": true, "subject_ok": true}

@@ -1,1 +1,0 @@
-{"sample_id": "d2-0001", "pair": ["s2", "s3"], "judge_provider": "openai", "judge_model": "gpt-5.4-mini", "forward": "B", "backward": "A", "verdict": "B", "judge_status": "valid"}
