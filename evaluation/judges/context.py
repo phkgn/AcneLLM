@@ -33,7 +33,9 @@ import json
 import math
 from typing import Any, Mapping, Sequence
 
-RELEVANT_THRESHOLD = 3.0     # >= 3 nghĩa là chunk thật sự dùng được cho câu hỏi
+from evaluation.judges import rubrics
+
+RELEVANT_THRESHOLD = rubrics.RELEVANT_THRESHOLD   # thang neo ở judges/rubrics.py
 MAX_CHUNK_CHARS = 1500       # cắt để prompt không phình; đủ để judge nắm nội dung
 
 FACES = ("context_relevance", "context_precision",
@@ -49,14 +51,7 @@ def build_prompt(question: str, chunks: Sequence[str],
     )
     ground_rule = ground_field = ground_block = ""
     if answer:
-        ground_rule = """
-Và chấm mức BÁM TÀI LIỆU của câu trả lời, thang 0-5:
-  0  gần như mọi khẳng định đều không có trong tài liệu
-  3  ý chính có căn cứ, một số chi tiết là model tự thêm
-  5  mọi khẳng định thực chất đều truy được về tài liệu
-Câu trả lời đúng nhưng không có trong tài liệu vẫn bị điểm thấp — đây đo mức
-bám nguồn, không đo mức đúng.
-"""
+        ground_rule = f"\n{rubrics.GROUNDEDNESS}\n"
         ground_field = ', "groundedness": số'
         ground_block = f"\nCâu trả lời hệ thống đã đưa ra:\n{answer}\n"
 
@@ -66,18 +61,9 @@ thống tìm kiếm đã lấy về cho một câu hỏi về da mụn.
 Tài liệu có thể bằng tiếng Việt HOẶC tiếng Anh. Ngôn ngữ không ảnh hưởng điểm —
 chỉ chấm nội dung có trả lời được câu hỏi hay không.
 
-Chấm từng đoạn theo thang 0-5:
-  0  hoàn toàn lạc đề
-  1  cùng lĩnh vực da liễu nhưng không liên quan câu hỏi
-  2  chạm tới chủ đề nhưng không có thông tin dùng được
-  3  có thông tin liên quan, dùng được một phần
-  4  trả lời được phần lớn câu hỏi
-  5  trả lời trực tiếp và đầy đủ câu hỏi
+{rubrics.CHUNK_RELEVANCE}
 
-Và chấm riêng mức ĐỦ của toàn bộ tài liệu gộp lại, thang 0-5:
-  0  không có gì để trả lời
-  3  trả lời được phần chính, còn thiếu ý
-  5  đủ để trả lời trọn vẹn, không cần thêm nguồn nào
+{rubrics.SUFFICIENCY}
 {ground_rule}
 Chỉ trả về JSON:
 {{"grades": [số cho từng đoạn theo đúng thứ tự], "sufficiency": số{ground_field}, "reason": chuỗi}}
@@ -164,7 +150,10 @@ def demo() -> None:
 
         def judge(self, prompt: str) -> dict:
             FakeJudge.seen = prompt
-            assert "thang 0-5" in prompt and "Đoạn 1" in prompt
+            # Mọi bậc điểm phải có mốc neo — đó là lý do rubrics.py tồn tại.
+            assert "Đoạn 1" in prompt
+            for bin_ in "012345":
+                assert f"\n  {bin_}  " in prompt, f"prompt thiếu neo bậc {bin_}"
             return {"grades": [5, 2, 0], "sufficiency": 4,
                     "groundedness": 3, "reason": "ok"}
 

@@ -22,16 +22,31 @@ câu trả lời
 Câu trả lời dở thì **lỗi ở khâu nào?** Nhìn kết quả cuối không biết được. Toàn bộ
 module eval sinh ra để trả lời câu đó.
 
-## 2. Eval làm đúng 2 việc
+## 2. Eval làm đúng 3 việc
 
 | Khâu | Đo gì | Cần judge | Chạy bằng |
 |---|---|---|---|
 | **1** | intaker rút đúng 15 slot không | Không | `runners.run_intake` |
-| **2** | thay/tắt từng khâu, câu trả lời chênh bao nhiêu | Có | `runners.run_ablation` |
+| **2** | tài liệu retrieval mang về có dùng được không | Có | `runners.run_retrieval` |
+| **3** | thay/tắt từng khâu, câu trả lời chênh bao nhiêu | Có | `runners.run_ablation` |
 
-**Không đo RAG nội tại** (nDCG/recall@k trên qrels). Tầm quan trọng của RAG đo
-bằng arm, không cần qrels người gán. Lấy lại nếu cần:
-`git show 91cbeb9:evaluation/runners/run_retrieval.py`
+### Khâu 2 KHÔNG dùng recall@k trên chunk vàng
+
+Chấm theo **danh tính chunk** là chấm oan. Nhiều đoạn cùng nói một chủ đề;
+retriever mang về đoạn khác nhưng cũng trả lời được thì vẫn bị tính trượt. Và bộ
+đề sinh theo đường đi ngược có `MAX_LEXICAL_OVERLAP = 0.55` — cố ý loại câu hỏi
+trùng từ với chunk — nên recall đo được **bi quan có hệ thống**.
+
+Thay bằng judge ngữ nghĩa hỏi thẳng *"đoạn này liên quan không, gộp lại đủ trả
+lời không"*. Không cần biết đoạn đúng là đoạn nào.
+
+Hệ quả thực dụng lớn hơn cả tính đúng đắn: **chạy được trên bất kỳ tập câu hỏi
+nào**, kể cả câu hỏi thật của người dùng, vì không đòi ai gán nhãn chunk vàng
+trước. `relevant_chunk_ids` giờ chỉ còn là **cơ chế** bơm context cho arm `ROR`
+ở khâu 3, không còn là **thước đo**.
+
+Ca `reject`/`clarify` bị loại khỏi khâu 2 — chúng test chính sách, không test
+kiến thức, nên không tồn tại "tài liệu đúng" để mà chấm.
 
 ---
 
@@ -242,7 +257,24 @@ chọn 1 chunk hạt giống (lọc rác, phân tầng theo nguồn)
 
 Năm mặt context đến từ **một lượt gọi judge duy nhất** mỗi dòng.
 
-### f. Không đo bằng từ vựng — không bao giờ
+### f. Thang chấm phải có MỐC NEO, và neo phải có nguồn
+
+Mọi thang điểm định nghĩa ở **`judges/rubrics.py`** — một nguồn sự thật, cả hai
+judge dựng prompt từ đó. Mỗi bậc điểm có mô tả riêng, không để judge tự bịa
+thang. Rubric cũ chỉ ghi "chấm 1 đến 5" nên `2.83` không có nghĩa cố định.
+
+| Neo lấy từ | Ta lấy gì |
+|---|---|
+| Singhal et al., *LLMs encode clinical knowledge*, Nature 2023 | tách "nội dung SAI" khỏi "nội dung THIẾU"; tách mức hại ra khỏi điểm chất lượng |
+| Singhal et al., *Toward expert-level medical QA*, Nature Medicine | mở rộng khung trên |
+| OpenAI, *HealthBench*, 2025 | rubric tựa vào tiêu chí RIÊNG của từng câu, không chỉ thang chung |
+| RAGAS | tên + nghĩa các mặt context, để số so được với công bố khác |
+
+**Món nợ có ý thức:** Med-PaLM tách "sai" và "thiếu" thành hai trục;
+`answer_quality` của ta vẫn gộp. Tách là đổi định nghĩa metric → artifact cũ hết
+so được, phải chạy lại toàn bộ. Ghi ra đây để không quên, không phải sơ suất.
+
+### g. Không đo bằng từ vựng — không bao giờ
 
 KB là **60% tiếng Việt / 40% tiếng Anh**. Mọi phép so khớp từ vựng đều thưởng
 cho đoạn **cùng ngôn ngữ với câu hỏi** bất kể nội dung. Nó đo ngôn ngữ, không
@@ -262,7 +294,7 @@ Ngoại lệ duy nhất là `pregnancy_safety` — nó dò **tên thuốc** (iso
 tretinoin…), viết giống nhau ở cả hai ngôn ngữ nên không dính lỗi trên. Giữ lại
 vì lưới an toàn cần một tầng không phụ thuộc model nào.
 
-### g. Không cần biết "đoạn đúng" là đoạn nào
+### h. Không cần biết "đoạn đúng" là đoạn nào
 
 `ranking_quality` dùng nDCG với thứ tự lý tưởng = **chính điểm judge sắp giảm
 dần**, nên không cần `relevant_chunk_ids`. Đây là chỗ thoát khỏi việc chấm theo

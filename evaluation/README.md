@@ -1,4 +1,4 @@
-# AcneLLM Evaluation — 2 khâu
+# AcneLLM Evaluation — 3 khâu
 
 > Thiết kế đầy đủ: **[`eval_context.md`](eval_context.md)**
 
@@ -8,11 +8,19 @@ và không làm gì khác.
 | Khâu | Đo gì | Cần LLM chấm | Chạy bằng |
 |---|---|---|---|
 | 1 | Intaker rút đúng 15 slot không | Không | `runners.run_intake` |
-| 2 | Thay từng khâu bằng bản hoàn hảo / tắt hẳn, chênh bao nhiêu | Có | `runners.run_ablation` |
+| 2 | Tài liệu retrieval mang về có dùng được không | Có | `runners.run_retrieval` |
+| 3 | Thay từng khâu bằng bản hoàn hảo / tắt hẳn, chênh bao nhiêu | Có | `runners.run_ablation` |
 
-Đánh giá RAG nội tại (nDCG/recall@k trên qrels) **đã bỏ**: tầm quan trọng của RAG
-đo bằng arm ở khâu 2, không cần qrels người gán. Lấy lại bằng
-`git show <commit>:evaluation/runners/run_retrieval.py` nếu sau này cần.
+**Khâu 2 không dùng recall@k trên chunk vàng.** Chấm theo danh tính chunk là chấm
+oan — nhiều đoạn cùng chủ đề, mang về đoạn khác mà vẫn trả lời được thì vẫn bị
+tính trượt. Judge hỏi thẳng "đoạn này liên quan không, đủ trả lời không", nên
+chạy được trên bất kỳ tập câu hỏi nào kể cả câu hỏi thật, không cần ai gán nhãn.
+
+```bash
+python -m evaluation.runners.run_retrieval --limit 30
+```
+
+`relevant_chunk_ids` giờ chỉ còn là cơ chế bơm context cho arm `ROR` ở khâu 3.
 
 ## Chạy
 
@@ -24,7 +32,7 @@ python -m evaluation.full_evaluation
 python -m evaluation.full_evaluation --smoke
 
 # Bỏ bước
-python -m evaluation.full_evaluation --skip intake
+python -m evaluation.full_evaluation --skip intake,retrieval
 ```
 
 Preflight kiểm: Ollama + model, `data/chroma_db`, `data/bm25_index.pkl`, bộ câu hỏi,
@@ -143,7 +151,8 @@ evaluation/
 │   └── eval_set.jsonl
 ├── runners/
 │   ├── run_intake.py        khâu 1
-│   └── run_ablation.py      khâu 2
+│   ├── run_retrieval.py     khâu 2 — judge chấm tài liệu
+│   └── run_ablation.py      khâu 3
 └── tests/                   45 test, không cần mạng
 ```
 

@@ -1,0 +1,11 @@
+[
+  {
+    "model": "AITeamVN/Vietnamese_Embedding",
+    "dim": 1024,
+    "giây": 2878.8,
+    "chunk_mỗi_giây": 2.2,
+    "recall@5": 0.13592233009708737,
+    "recall@15": 0.2524271844660194,
+    "recall@50": 0.39805825242718446
+  }
+]
