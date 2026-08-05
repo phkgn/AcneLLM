@@ -225,6 +225,9 @@ def main() -> None:
     ap.add_argument("--arms", default=",".join(DEFAULT_ARMS))
     ap.add_argument("--out", default=None, help="thư mục output của run")
     ap.add_argument("--yes", action="store_true", help="chấp thuận trước bước tốn phí API")
+    ap.add_argument("--no-cache", action="store_true",
+                    help="chấm mới 100%%: bỏ qua cache judge ở CẢ hai bước "
+                         "cần judge. Không đụng checkpoint rows.jsonl.")
     ap.add_argument("--force", action="store_true", help="chạy tiếp dù preflight lỗi cứng")
     ap.add_argument("--retry", type=int, default=3,
                     help="số lần thử lại mỗi bước khi hỏng (checkpoint nên chạy "
@@ -236,6 +239,7 @@ def main() -> None:
     unknown = skip - {step_id for step_id, _ in STEP_DEFINITIONS[1:]}
     if unknown:
         ap.error(f"--skip không hợp lệ: {sorted(unknown)}")
+    fresh = ["--no-cache"] if args.no_cache else []
     selected_limit = args.limit or (10 if args.smoke else 0)
     limit = ["--limit", str(selected_limit)] if selected_limit else []
 
@@ -302,7 +306,8 @@ def main() -> None:
         ok = sh("retrieval", [
             PY, "-m", "evaluation.runners.run_retrieval",
             "--dataset", args.dataset,
-            "--output", str(run_dir / "retrieval" / "results.json"), *limit,
+            "--output", str(run_dir / "retrieval" / "results.json"),
+            *limit, *fresh,
         ], retries=args.retry)
         _finish_step(summary, summary_path, "retrieval",
                      "ok" if ok else "fail", step_started,
@@ -323,7 +328,8 @@ def main() -> None:
             PY, "-m", "evaluation.runners.run_ablation",
             "--arms", args.arms,
             "--dataset", args.dataset,
-            "--output", str(run_dir / "ablation" / "results.json"), *limit,
+            "--output", str(run_dir / "ablation" / "results.json"),
+            *limit, *fresh,
         ], retries=args.retry)
         _finish_step(summary, summary_path, "ablation",
                      "ok" if ok else "fail", step_started,

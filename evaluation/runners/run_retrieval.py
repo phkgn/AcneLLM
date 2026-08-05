@@ -62,16 +62,22 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=0, help="0 = tất cả")
     ap.add_argument("--judge-model", default=DEFAULT_JUDGE)
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--no-cache", action="store_true",
+                    help="chấm mới 100%%: bỏ qua cache judge (vẫn ghi lại)")
     args = ap.parse_args()
 
     from acne_llm.config import settings
-    from acne_llm.di import build_container
     from acne_llm.chat._retrieval import retrieve_for_chat
+    from evaluation.adapters._repo import build_eval_container
 
-    container = build_container(settings)
+    # Container EVAL, không phải production: cache_size_gb=0 nên cached_retrieve
+    # và cached_embed_query đều tắt. Dùng build_container(settings) thì cache
+    # retrieval BẬT (2GB) -> chạy lại đọc kết quả cũ, tưởng tươi mà không tươi.
+    container = build_eval_container(None, None)
     if not container.rag_ready:
         raise SystemExit("RAG chưa sẵn sàng — kiểm tra data/chroma_db và bm25_index.pkl")
-    judge = JudgeClient(provider="openai", model=args.judge_model)
+    judge = JudgeClient(provider="openai", model=args.judge_model,
+                        use_cache=not args.no_cache)
 
     rows = [json.loads(l) for l in Path(args.dataset).read_text(encoding="utf-8")
             .splitlines() if l.strip()]
@@ -141,6 +147,7 @@ def main() -> None:
         "no_context": no_context,
         "failed": failed,
         "judge_model": args.judge_model,
+        "judge_cache_read": not args.no_cache,
         "settings": {
             k: getattr(settings, k, None) for k in
             ("chat_retrieve_top_k", "chat_rerank_top_k", "chat_rerank_floor",

@@ -478,6 +478,7 @@ def _run_arm(
     *,
     oracle_top_k: int,
     judge_model: str,
+    judge_no_cache: bool = False,
     model: str | None = None,
     log: RunLog | None = None,
     verbose: bool = True,
@@ -516,7 +517,8 @@ def _run_arm(
     if oracle is not None:
         container.llm_router = oracle
         container.llm_extractor = oracle
-    judge = JudgeClient(provider="openai", model=judge_model)
+    judge = JudgeClient(provider="openai", model=judge_model,
+                        use_cache=not judge_no_cache)
     rows: list[dict[str, Any]] = []
     temperature_policy = "temperature_0"
     try:
@@ -1120,6 +1122,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--quiet", action="store_true",
                         help="1 dòng/mẫu thay vì khối trace đầy đủ")
+    parser.add_argument("--no-cache", action="store_true",
+                        help="chấm mới 100%%: bỏ qua cache judge (vẫn ghi lại)")
     parser.add_argument("--no-resume", action="store_true",
                         help="bỏ qua checkpoint, chạy lại từ đầu")
     parser.add_argument(
@@ -1263,6 +1267,7 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
                 samples,
                 oracle_top_k=args.oracle_top_k,
                 judge_model=args.judge_model,
+                judge_no_cache=args.no_cache,
                 model=args.model,
                 log=log,
                 verbose=not args.quiet,
@@ -1293,6 +1298,7 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         "protocol": {
             "judge_provider": "openai",
             "judge_model": args.judge_model,
+            "judge_cache_read": not args.no_cache,
             "generator_model": args.model or Settings().llm_model,
             "generator_oracle_selection": "candidate_0",
             "generator_oracle_temperature": (

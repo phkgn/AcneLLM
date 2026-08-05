@@ -65,7 +65,11 @@ def _read_env(key: str) -> str:
 
 
 class JudgeClient:
-    def __init__(self, provider: str | None = None, model: str | None = None):
+    def __init__(self, provider: str | None = None, model: str | None = None,
+                 *, use_cache: bool = True):
+        """use_cache=False: KHÔNG đọc cache, nhưng VẪN GHI. Lượt này chấm mới
+        hoàn toàn, lượt sau vẫn được lợi. Dùng khi cần chắc chắn 100% tươi hoặc
+        khi đo nhiễu tự thân của judge."""
         provider = provider or getattr(
             settings, "judge_provider", DEFAULT_JUDGE_PROVIDER
         )
@@ -81,6 +85,7 @@ class JudgeClient:
         if not self.api_key:
             raise RuntimeError(f"Thiếu API key cho {provider} (.env)")
         self.provider = provider
+        self.use_cache = use_cache
         self.total_cost_usd = 0.0
         self.calls = 0
         self._lock = threading.RLock()
@@ -101,7 +106,7 @@ class JudgeClient:
         if max_retries < 1:
             raise ValueError("max_retries phải >= 1")
         key = sha256_text(f"{self.provider}::{self.model}::{prompt}")
-        if use_cache:
+        if use_cache and self.use_cache:
             with self._lock:
                 row = self._db.execute(
                     "SELECT response FROM cache WHERE key=?", (key,)
