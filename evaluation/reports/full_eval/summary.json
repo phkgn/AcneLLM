@@ -2,8 +2,8 @@
   "run_id": "full_eval",
   "out_dir": "evaluation/reports/full_eval",
   "started_at": "2026-08-06T04:00:50.387280+00:00",
-  "finished_at": null,
-  "current_step": "ablation",
+  "finished_at": "2026-08-06T06:19:49.090013+00:00",
+  "current_step": null,
   "steps": [
     {
       "id": "preflight",
@@ -35,10 +35,10 @@
     {
       "id": "ablation",
       "label": "Khâu 3 — Ablation oracle",
-      "status": "running",
+      "status": "ok",
       "started_at": "2026-08-06T04:00:52.521815+00:00",
-      "finished_at": null,
-      "duration_s": null,
+      "finished_at": "2026-08-06T06:19:49.090013+00:00",
+      "duration_s": 8336.6,
       "detail": ""
     }
   ]

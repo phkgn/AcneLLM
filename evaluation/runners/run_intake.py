@@ -9,7 +9,7 @@ training split by an exact-text overlap guard.
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 import json
 import math
@@ -48,7 +48,11 @@ from evaluation.metrics.intake import (  # noqa: E402
 )
 
 
-DEFAULT_EVAL = Path("datagen/intakedata/output/intake/intake.val.jsonl")
+# Bộ đề RIÊNG cho khâu intake, đặt hàng theo độ phủ lâm sàng.
+# Bộ cũ `intake.val.jsonl` bị bỏ vì có 0 dòng `is_pregnant=True` trên 400 dòng —
+# field quyết định chống chỉ định isotretinoin mà chưa từng được kiểm. Sinh bằng
+# `python -m evaluation.datasets.make_intake_set --yes`.
+DEFAULT_EVAL = Path("evaluation/datasets/intake_eval.v1.jsonl")
 DEFAULT_TRAIN = Path("datagen/intakedata/output/intake/intake.train.jsonl")
 DEFAULT_OUTPUT = Path("evaluation/reports/intake_eval/report.json")
 CONTEXT_SCALARS = (
@@ -239,6 +243,136 @@ def _matched_list_counts(
             true_positive += 1
             unmatched.pop(match_index)
     return true_positive, len(pred) - true_positive, len(unmatched)
+
+
+_EMPTY = (None, "unknown", "", "none_specified")
+
+
+def _is_empty(value: Any) -> bool:
+    """'Không khai' — gộp null, chuỗi rỗng, 'unknown' và list rỗng làm một."""
+    if isinstance(value, (list, tuple, set)):
+        return not value
+    return value in _EMPTY
+
+
+def _accuracy_one(gold: Sequence[Any], pred: Sequence[Any]) -> dict[str, Any]:
+    """Accuracy một field, KÈM mốc so sánh để biết con số đó có nghĩa không.
+
+    Vì sao không in accuracy trần: tập val lệch rất nặng về "không khai".
+    `context.is_pregnant` có 96,0% đáp án rỗng, nên một model luôn trả null đã
+    được 0.960; model thật được 0.9632. Toàn bộ năng lực thật của nó ở field này
+    là +0.003 — mà đây là field quyết định chống chỉ định isotretinoin.
+
+    Bốn con số dưới đây tách được điều đó:
+      `baseline_luon_doan_pho_bien`  đoán mãi một giá trị phổ biến nhất thì được
+                                     bao nhiêu. Đây là sàn, không phải 0.
+      `lift`                         accuracy trừ sàn = phần model thật sự kiếm.
+      `accuracy_khi_co_khai`         chỉ tính các dòng người dùng CÓ khai. Đây
+                                     mới là "trích đúng không".
+      `bo_trong`                     có khai mà model trả rỗng. Khác hẳn trích sai.
+    """
+    pairs = [(g, p) for g, p in zip(gold, pred)]
+    n = len(pairs)
+    if not n:
+        return {"n": 0}
+
+    def eq(g: Any, p: Any) -> bool:
+        if isinstance(g, (list, tuple, set)) or isinstance(p, (list, tuple, set)):
+            try:
+                return set(map(str, g or ())) == set(map(str, p or ()))
+            except TypeError:
+                return False
+        return g == p
+
+    correct = sum(eq(g, p) for g, p in pairs)
+    # Sàn: luôn đoán một giá trị cố định. Dùng chính giá trị phổ biến nhất trong
+    # đáp án — sàn cao nhất mà một model rỗng tuếch có thể đạt.
+    freq = Counter(
+        "∅" if _is_empty(g) else str(g) for g, _ in pairs
+    )
+    baseline = freq.most_common(1)[0][1] / n
+
+    khai = [(g, p) for g, p in pairs if not _is_empty(g)]
+    accuracy = round(correct / n, 4)
+    return {
+        "n": n,
+        "accuracy": accuracy,
+        "ty_le_khong_khai": round(1 - len(khai) / n, 4),
+        "baseline_luon_doan_pho_bien": round(baseline, 4),
+        "lift": round(accuracy - baseline, 4),
+        "n_co_khai": len(khai),
+        "accuracy_khi_co_khai": (
+            round(sum(eq(g, p) for g, p in khai) / len(khai), 4) if khai else None
+        ),
+        "bo_trong": sum(1 for g, p in khai if _is_empty(p)),
+        # Dưới 30 dòng có khai thì khoảng tin cậy rộng tới mức không phân biệt
+        # nổi model tốt với model tung đồng xu — xem lại chính lý do bộ probe
+        # mức độ ra đời. In cờ này để không ai trích số ra ngoài mà quên.
+        "du_co_mau": len(khai) >= 30,
+    }
+
+
+def _field_accuracy(
+    scalar_gold: Mapping[str, list[Any]],
+    scalar_pred: Mapping[str, list[Any]],
+    list_gold: Mapping[str, list[Any]],
+    list_pred: Mapping[str, list[Any]],
+) -> dict[str, Any]:
+    """Bảng accuracy cho MỌI field, scalar lẫn list, cùng một cách đọc.
+
+    `list_prf` cũ chỉ có P/R/F1 theo phần tử nên không trả lời được "trích đúng
+    trọn cả list bao nhiêu lần". Ở đây list dùng khớp TẬP: đúng hết mới tính đúng.
+    """
+    out: dict[str, Any] = {}
+    for field, values in scalar_gold.items():
+        out[field] = {"kieu": "scalar", **_accuracy_one(values, scalar_pred.get(field, []))}
+    for field, values in list_gold.items():
+        out[field] = {"kieu": "list", **_accuracy_one(values, list_pred.get(field, []))}
+    return out
+
+
+def _severity_metrics(
+    gold: Sequence[Any], pred: Sequence[Any]
+) -> dict[str, Any]:
+    """Phân tầng mức độ — con số RIÊNG, vì accuracy chung đang nói dối.
+
+    `clinical.inflammation_level` accuracy 0.9105 nghe rất tốt, nhưng 85,5% đáp
+    án trong tập val là None/unknown: chỉ cần biết im lặng là đã ~0.855. Năng lực
+    phân biệt nhẹ/vừa/nặng thật ra đo trên vài chục dòng và bị chôn trong con số
+    chung.
+
+    Nên ở đây tính RIÊNG trên các dòng CÓ nhãn bậc thật, cộng thêm hai thứ mà
+    accuracy không thấy:
+
+      `ha_bac`  — đoán nhẹ hơn thực tế. Sai một chiều và nguy hiểm: hạ một ca
+                  severe xuống mild là bỏ lỡ chỉ định đi khám. Nâng bậc chỉ thừa.
+      `bo_trong`— có nhãn thật nhưng model trả unknown/None. Không sai nhưng
+                  cũng không dùng được, và nó chính là thứ đang thổi phồng 0.91.
+    """
+    from evaluation.severity import ORDER, is_downgrade
+
+    graded = [(g, p) for g, p in zip(gold, pred) if g in ORDER]
+    if not graded:
+        return {"n_co_nhan_bac": 0, "ghi_chu": "tập không có dòng nào gán bậc thật"}
+
+    downgrades = [(g, p) for g, p in graded if is_downgrade(g, p)]
+    return {
+        "n_co_nhan_bac": len(graded),
+        "accuracy_tren_dong_co_bac": round(
+            sum(g == p for g, p in graded) / len(graded), 4
+        ),
+        "ha_bac": len(downgrades),
+        "ty_le_ha_bac": round(len(downgrades) / len(graded), 4),
+        "ha_bac_chi_tiet": dict(
+            sorted(Counter(f"{g}->{p}" for g, p in downgrades).items())
+        ),
+        "bo_trong": sum(1 for g, p in graded if p not in ORDER),
+        "phan_bo_nhan": dict(sorted(Counter(g for g, _ in graded).items())),
+        # Dưới 30 dòng mỗi bậc thì mọi kết luận về phân tầng chỉ là giai thoại.
+        "du_co_mau": all(
+            Counter(g for g, _ in graded).get(level, 0) >= 30 for level in ORDER
+        ),
+    }
 
 
 def _per_value_metrics(
@@ -675,6 +809,13 @@ def evaluate_rows(
     extraction["per_value"] = _per_value_metrics(
         scalar_gold, scalar_pred, list_gold, list_pred
     )
+    extraction["field_accuracy"] = _field_accuracy(
+        scalar_gold, scalar_pred, list_gold, list_pred
+    )
+    extraction["severity"] = _severity_metrics(
+        scalar_gold.get("clinical.inflammation_level") or [],
+        scalar_pred.get("clinical.inflammation_level") or [],
+    )
     return {
         "rows_input": len(rows),
         "rows_evaluated": len(samples),
@@ -791,6 +932,35 @@ def _print_tables(report: Mapping[str, Any]) -> None:
     print(f"  {'macro-F1':20}{'':>8}{'':>8}{intent.get('macro_f1', 0):>8.3f}")
     if intent.get("reject_recall") is not None:
         print(f"  {'reject_recall':20}{'':>8}{intent['reject_recall']:>8.3f}")
+
+    fields = extraction.get("field_accuracy") or {}
+    if fields:
+        print(f"\n{'FIELD':32}{'acc':>7}{'sàn':>7}{'lift':>7}"
+              f"{'khi có khai':>13}{'n khai':>8}{'trống':>7}")
+        for name, data in sorted(fields.items(), key=lambda kv: kv[1].get("lift", 0)):
+            khi = data.get("accuracy_khi_co_khai")
+            flag = "" if data.get("du_co_mau") else "  ⚠ ít mẫu"
+            print(f"  {name:30}{data.get('accuracy', 0):>7.3f}"
+                  f"{data.get('baseline_luon_doan_pho_bien', 0):>7.3f}"
+                  f"{data.get('lift', 0):>+7.3f}"
+                  f"{(f'{khi:.3f}' if khi is not None else '—'):>13}"
+                  f"{data.get('n_co_khai', 0):>8}{data.get('bo_trong', 0):>7}{flag}")
+        print("\n  sàn = luôn đoán một giá trị phổ biến nhất. lift = acc − sàn.")
+        print("  lift gần 0 nghĩa là accuracy đến từ việc đoán 'không khai', "
+              "không phải từ năng lực trích.")
+
+    sev = extraction.get("severity") or {}
+    if sev.get("n_co_nhan_bac"):
+        print(f"\nPHÂN TẦNG MỨC ĐỘ  ({sev['n_co_nhan_bac']} dòng có bậc thật)")
+        print(f"  accuracy          {sev.get('accuracy_tren_dong_co_bac', 0):.3f}")
+        print(f"  hạ bậc            {sev.get('ha_bac', 0)} "
+              f"({sev.get('ty_le_ha_bac', 0):.1%})  ← đoán NHẸ hơn thực tế")
+        for pair, count in (sev.get("ha_bac_chi_tiet") or {}).items():
+            print(f"      {pair:24}{count}")
+        print(f"  bỏ trống          {sev.get('bo_trong', 0)}")
+        print(f"  phân bố nhãn      {sev.get('phan_bo_nhan')}")
+        if not sev.get("du_co_mau"):
+            print("  ⚠ chưa đủ 30 dòng mỗi bậc — khoảng tin cậy quá rộng để kết luận")
 
     print(f"\n{'FIELD':30}{'khớp':>7}{'P':>8}{'R':>8}{'F1':>8}")
     for field, values in sorted((extraction.get("per_field") or {}).items()):

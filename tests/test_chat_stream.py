@@ -47,6 +47,7 @@ class _MockRetriever:
     def __init__(self):
         self.queries = []
         self.safety_calls = []
+        self.guideline_calls = []
 
     def retrieve(self, query, top_k=8, mode="hybrid"):
         self.queries.append(query)
@@ -66,8 +67,17 @@ class _MockRetriever:
             avg_score=0.9,
         )
 
-    def retrieve_safety_pass(self, query, safety_terms, top_k=5):
-        self.safety_calls.append((query, list(safety_terms), top_k))
+    def retrieve_safety_pass(self, query, safety_terms, top_k=5, source_types=None):
+        # Production dùng CHUNG hàm này cho hai việc: guideline pass (truyền
+        # source_types, safety_terms=None, chạy mọi truy vấn) và safety pass thật
+        # (truyền safety_terms, chỉ chạy khi có từ khoá y tế). Mock cũ chỉ có một
+        # xô nên guideline pass làm hỏng mọi assert về safety_calls — và trước đó
+        # thì chữ ký thiếu source_types khiến pass này ném TypeError im lặng,
+        # tức là guideline pass CHƯA TỪNG được test nào chạm tới.
+        if source_types:
+            self.guideline_calls.append((query, tuple(source_types), top_k))
+        else:
+            self.safety_calls.append((query, list(safety_terms or []), top_k))
         return RetrievalOutput(
             query=query,
             chunks=[
@@ -243,6 +253,31 @@ def test_stream_endpoint_soft_rejects_out_of_domain_with_llm_and_without_rag():
     assert container.prompt.templates[-1] == "reject_user.j2"
     assert container.llm.user_prompts
     assert container.retriever.queries == []
+    assert container.retriever.safety_calls == []
+    assert container.retriever.guideline_calls == []   # reject thì không retrieve gì cả
+
+
+def test_guideline_pass_chay_cho_moi_truy_van_khong_doi_safety_term():
+    """Câu hỏi thường, không từ khoá y tế nào -> vẫn phải đi lấy khuyến cáo.
+
+    Đo trên 152 truy vấn thật: pass này bơm ~760 đoạn guideline vào pool nhưng
+    chỉ 16 đoạn sống sót ra câu trả lời. Nếu pass im lặng ngừng chạy thì con số
+    đó về 0 mà không test nào kêu — trước bản vá chữ ký mock thì nó ném
+    TypeError và bị `except Exception` nuốt mất đúng như vậy.
+    """
+    container = _MockContainer()
+    container.rag_ready = True
+    container.retriever = _MockRetriever()
+    c = TestClient(_app(container))
+
+    r = c.get("/api/v1/chat/stream", params={"message": _SUFFICIENT_MSG})
+
+    assert r.status_code == 200
+    assert container.retriever.guideline_calls, "guideline pass phải chạy"
+    _, source_types, _ = container.retriever.guideline_calls[-1]
+    assert "nice_guideline" in source_types and "aad_guideline" in source_types
+    # Không có từ khoá y tế -> safety pass thật KHÔNG được chạy (nó tốn thêm
+    # một lượt embed + query Chroma, ~50-100ms mỗi request).
     assert container.retriever.safety_calls == []
 
 

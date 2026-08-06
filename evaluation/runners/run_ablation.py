@@ -408,11 +408,32 @@ def _replace_retrieval_prompt(container: Any, turn: Any, retrieval: RetrievalOut
     )
 
 
+def _face_stat(rows: Sequence[Mapping[str, Any]], fn: Any) -> dict[str, float | None]:
+    """Áp `fn` lên từng mặt, bỏ qua None. Mặt không có giá trị nào -> None.
+
+    None ở đây nghĩa là "không đo được mặt này" (arm tắt RAG, judge cũ chưa chấm),
+    khác hẳn 0. Gộp hai thứ đó lại là cách nhanh nhất để có một con số đẹp và sai.
+    """
+    out: dict[str, float | None] = {}
+    for face in SCORECARD_FACES:
+        if face in BINARY_FACES:
+            continue
+        values = [
+            row["scorecard"][face]
+            for row in rows
+            if isinstance(row["scorecard"].get(face), (int, float))
+            and not isinstance(row["scorecard"].get(face), bool)
+        ]
+        out[face] = round(float(fn(values)), 4) if values else None
+    return out
+
+
 def _judge_prompt(sample: Mapping[str, Any], answer: str) -> str:
     """Thang neo lấy từ judges/rubrics.py — một nguồn sự thật, có trích dẫn."""
     return f"""Bạn là trọng tài độc lập chấm một câu trả lời tư vấn da mụn.
 Chỉ trả về JSON object:
 {{"reason": string, "answer_quality": integer, "role_tone": integer,
+  "incorrect_content": integer, "missing_content": integer,
   "forbidden_violated": boolean}}.
 
 Viết "reason" TRƯỚC, nêu ngắn gọn điểm mạnh/yếu của câu trả lời rồi mới cho
@@ -421,6 +442,14 @@ Viết "reason" TRƯỚC, nêu ngắn gọn điểm mạnh/yếu của câu tr�
 {rubrics.ANSWER_QUALITY}
 
 {rubrics.ROLE_TONE}
+
+{rubrics.INCORRECT_CONTENT}
+
+{rubrics.MISSING_CONTENT}
+
+Lưu ý về hai mặt vừa nêu: chúng THẤP LÀ TỐT, 0 nghĩa là không có lỗi loại đó.
+Một lỗi chỉ được tính vào MỘT trong hai — nói sai thì vào `incorrect_content`,
+không nói thì vào `missing_content`. Đừng trừ hai lần cho cùng một lỗi.
 
 {rubrics.FORBIDDEN}
 
@@ -446,14 +475,21 @@ def _score_candidate(
     if not isinstance(result, Mapping):
         raise RuntimeError("judge returned invalid JSON")
     scores: dict[str, float] = {}
-    for face in ("answer_quality", "role_tone"):
+    # (mặt, thấp nhất, cao nhất) — hai mặt mới thang 0-3 và THẤP LÀ TỐT, nên
+    # không dùng chung khoảng 1-5 được.
+    for face, lo, hi in (
+        ("answer_quality", 1, 5),
+        ("role_tone", 1, 5),
+        ("incorrect_content", 0, 3),
+        ("missing_content", 0, 3),
+    ):
         score = result.get(face)
         if (
             not isinstance(score, (int, float))
             or isinstance(score, bool)
-            or not 1 <= score <= 5
+            or not lo <= score <= hi
         ):
-            raise RuntimeError(f"judge {face} invalid: {score!r}")
+            raise RuntimeError(f"judge {face} invalid: {score!r} (cần {lo}-{hi})")
         scores[face] = float(score)
     return {
         **scores,
@@ -747,21 +783,12 @@ def _run_arm(
         "successful": len(successful),
         "failed": len(rows) - len(successful),
         "failed_ids": [row["sample_id"] for row in rows if not row["ok"]],
-        "face_medians": {
-            face: (
-                statistics.median(values)
-                if (
-                    values := [
-                        row["scorecard"][face]
-                        for row in successful
-                        if isinstance(row["scorecard"].get(face), (int, float))
-                    ]
-                )
-                else None
-            )
-            for face in SCORECARD_FACES
-            if face not in BINARY_FACES
-        },
+        "face_medians": _face_stat(successful, statistics.median),
+        # Trung vị trên thang nguyên 1-5 gần như luôn rơi đúng số nguyên, nên
+        # bảng chỉ có trung vị thì sáu arm trông giống hệt nhau dù trung bình
+        # chênh nhau rõ. Giữ cả hai: trung vị bền với ngoại lai, trung bình mới
+        # thấy được chênh lệch nhỏ.
+        "face_means": _face_stat(successful, statistics.mean),
         "safety_failures": sum(
             bool(row.get("safety_fail")) for row in successful
         ),

@@ -33,6 +33,12 @@ Root bắt buộc: {"intent","confidence","description","context","clinical"}.
 - clinical là null hoặc object gồm đúng lesion_types, inflammation_level, lesion_distribution.
 - lesion_types chỉ dùng: comedone, whitehead, blackhead, closed_comedone, papule, pustule, nodule, cyst, scar, post_inflammatory_hyperpigmentation, other.
 - inflammation_level chỉ dùng: none, mild, moderate, severe, unknown.
+- inflammation_level neo theo IGA (AAD 2024), suy từ LOẠI tổn thương và MỨC LAN, không đếm số nốt:
+  - none: IGA 0-1 (sạch / gần sạch). Không còn tổn thương đang hoạt động; chỉ còn thâm, sẹo, hoặc lỗ chân lông to. Người hỏi nói kiểu 'hết mụn rồi nhưng còn thâm'.
+  - mild: IGA 2. Chủ yếu nhân trứng cá (đầu đen, đầu trắng), lác đác vài sẩn hoặc mụn mủ nhỏ. Khu trú một vùng. KHÔNG có nốt cục, KHÔNG đau, KHÔNG để lại sẹo. Người hỏi nói 'thỉnh thoảng vài nốt', 'mụn ẩn ở trán'.
+  - moderate: IGA 3. Nhiều sẩn và mụn mủ viêm rõ, lan hơn một vùng mặt, hoặc kéo dài dai dẳng. Có thể vài nốt cục nhưng không phải nét chính. Người hỏi nói 'mụn viêm đỏ khắp hai má', 'mọc liên tục mấy tháng không hết'.
+  - severe: IGA 4. Có BẤT KỲ dấu hiệu nào sau đây thì lên thẳng severe, không cần đủ cả: nốt cục hoặc nang (tổn thương chắc, sâu, >5 mm); đau khi chạm; đang để lại sẹo; lan xuống lưng/ngực/vai; hoặc đã thất bại với điều trị bôi. Người hỏi nói 'mụn bọc to đau', 'nặn xong thành sẹo lõm', 'mọc cả lưng'.
+  - unknown: Lời kể KHÔNG đủ tín hiệu để xếp bậc. Đây là giá trị MẶC ĐỊNH, không phải giá trị dự phòng cuối cùng — không suy đoán từ tuổi, giới, loại da hay thời gian bị. Chỉ nói 'em bị mụn' thì là unknown.
 - lesion_distribution chỉ dùng: forehead, cheeks, chin, jawline, nose, around_mouth, back, chest, shoulders, neck, t_zone, other.
 
 Chỉ trích điều người dùng thực sự tự khai. Câu hỏi kiến thức/sản phẩm không phải tự khai: intent=knowledge, context={}, clinical=null. Jailbreak, ngoài chủ đề hoặc yêu cầu kê đơn/liều nguy hiểm: intent=reject, context={}, clinical=null. Chào/cảm ơn đơn thuần: để toàn bộ field rỗng, thường intent=clarify.

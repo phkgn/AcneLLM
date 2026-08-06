@@ -164,6 +164,69 @@ def cap_per_source(
     return output.model_copy(update={"chunks": kept, "num_chunks": len(kept)})
 
 
+# Khuyen cao chinh thuc + sach giao khoa lam sang. Trung voi
+# Retriever.GUIDELINE_SOURCE_TYPES; de o day de ham duoi khong phai co retriever.
+GUIDELINE_SOURCE_TYPES = frozenset({
+    "nice_guideline", "aad_guideline", "clinical_textbook",
+})
+
+
+def _is_guideline(chunk: RetrievedChunk) -> bool:
+    return str((chunk.metadata or {}).get("source_type") or "") in GUIDELINE_SOURCE_TYPES
+
+
+def ensure_guideline_slot(
+    output: RetrievalOutput | None,
+    pool: RetrievalOutput,
+    limit: int,
+) -> RetrievalOutput | None:
+    """Giu cung mot o cuoi cung cho khuyen cao chinh thuc.
+
+    Guideline pass da bom ~5 doan khuyen cao vao pool o MOI truy van, nhung do
+    dac cua no la: cross-encoder cham cau hoi tieng Viet doi thuong voi doan
+    guideline tieng Anh hoc thuat va luon cho diem thap hon doan tieng Viet noi
+    cung chu de. Do luong tren 152 truy van: ~760 doan guideline vao pool, chi
+    16 doan song sot ra cau tra loi (2 aad + 14 textbook + 0 nice). Trong khi do
+    aad_guideline la tang nguon diem cao nhat -- 4.5/5, 100% doan dung duoc.
+
+    Nen cho nay chua o tang RERANK chu khong phai tang retrieve: neu top-N cuoi
+    khong co doan khuyen cao nao thi thay doan diem THAP NHAT bang doan khuyen
+    cao tot nhat con trong pool.
+
+    Chay SAU moi bo loc (OOD guard, noise, region) la co y: chinh may bo loc do
+    dang giet guideline. Nhung neu guard da tra None -- khong doan nao lien quan
+    -- thi KHONG bom guideline vao, vi luc do dang la cau ngoai pham vi.
+
+    ponytail: co the pha cap `chat_max_chunks_per_source=1` dung 1 o. Chap nhan,
+    doi lay dam bao co khuyen cao; sua neu do luong cho thay trung lap thuc su.
+    """
+    if output is None or not output.chunks:
+        return output
+    if any(_is_guideline(chunk) for chunk in output.chunks):
+        return output
+    present = {chunk.chunk_id for chunk in output.chunks}
+    candidates = [
+        chunk for chunk in pool.chunks
+        if _is_guideline(chunk) and chunk.chunk_id not in present
+    ]
+    if not candidates:
+        return output
+    best = max(candidates, key=lambda chunk: chunk.score)
+    chunks = list(output.chunks)
+    if len(chunks) >= limit:
+        # Khong gia dinh chunks da sap giam dan -- bo loc phia truoc co the doi
+        # thu tu. Tim o thap nhat that su roi thay.
+        weakest = min(range(len(chunks)), key=lambda i: chunks[i].score)
+        chunks[weakest] = best
+    else:
+        chunks.append(best)
+    logger.debug(
+        "[retrieval] guideline slot: bom {} (source_type={}, score={:.3f})",
+        best.chunk_id, (best.metadata or {}).get("source_type"), best.score,
+    )
+    return output.model_copy(update={"chunks": chunks, "num_chunks": len(chunks)})
+
+
 def retrieve_for_chat(
     c: "Container",
     user: UserInput,
@@ -193,7 +256,8 @@ def retrieve_for_chat(
         # v3: them guideline pass chay cho moi truy van.
         # v4: bo sigmoid lan hai trong reranker -> score doi thang do hoan toan.
         # v5: cap_per_source sau rerank -> thanh phan chunk cuoi cung doi.
-        "chat-query-v5",
+        # v6: giu cung 1 o cho guideline sau moi bo loc -> thanh phan doi.
+        "chat-query-v6",
         query,
         top_k,
         getattr(settings, "chat_rerank_top_k", 3),
@@ -268,7 +332,8 @@ def retrieve_for_chat(
                 ret = merge_retrieval_outputs([ret, safety], combined_query=rerank_query)
 
         if c.reranker is None:
-            return _full_filter(ret, rerank_query)
+            return ensure_guideline_slot(
+                _full_filter(ret, rerank_query), ret, effective_rerank_top_k)
         try:
             # Rerank pool rộng hơn rồi mới cap: nếu cap sau khi đã cắt còn 5 thì
             # ô bị loại bỏ trống, không có tài liệu khác lấp vào. Cap chạy TRƯỚC
@@ -311,10 +376,12 @@ def retrieve_for_chat(
             region_filtered = drop_body_region_mismatched_chunks(semantic_filtered, rerank_query)
             if region_filtered is not None and not region_filtered.chunks:
                 return None
-            return _noise_filter(region_filtered or reranked)
+            return ensure_guideline_slot(
+                _noise_filter(region_filtered or reranked), ret, effective_rerank_top_k)
         except Exception as e:
             logger.warning(f"Chat reranker unavailable, using raw retrieval: {e}")
-            return _full_filter(ret, rerank_query)
+            return ensure_guideline_slot(
+                _full_filter(ret, rerank_query), ret, effective_rerank_top_k)
 
     return cached_retrieve(_do_retrieve_and_rerank, _cache_key)
 

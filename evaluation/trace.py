@@ -188,27 +188,44 @@ def table(headers: list[str], rows: list[list[str]], align: str = "") -> str:
 
 
 def arm_summary_table(arms: dict[str, Any]) -> str:
-    headers = ["arm", "n", "ok", "fail", "quality", "tone", "ctx.rel", "ctx.suff",
-               "rank", "ground", "safety✗", "$judge"]
+    """Cột chất lượng in `trung bình (trung vị)`.
+
+    Bảng cũ chỉ có trung vị. Trên thang nguyên 1-5, trung vị của ~200 dòng gần
+    như luôn rơi đúng số nguyên, nên sáu arm hiện ra giống hệt nhau và người đọc
+    kết luận "mọi cấu hình như nhau" trong khi trung bình chênh nhau rõ rệt.
+    """
+    headers = ["arm", "n", "ok", "fail", "quality", "tone", "sai↓", "thiếu↓",
+               "ctx.rel", "ctx.suff", "rank", "ground", "safety✗", "$judge"]
     rows = []
     for arm, payload in arms.items():
         meta = payload.get("summary") or {}
-        medians = meta.get("face_medians") or {}
+        med = meta.get("face_medians") or {}
+        avg = meta.get("face_means") or {}
+
+        def both(face: str) -> str:
+            """Trung bình là con số dẫn dắt, trung vị để trong ngoặc."""
+            if not isinstance(avg.get(face), (int, float)):
+                return _num(med.get(face))
+            return f"{avg[face]:.2f} ({_num(med.get(face))[:4]})"
+
         rows.append([
             arm,
             meta.get("rows", 0),
             meta.get("successful", 0),
             meta.get("failed", 0),
-            _num(medians.get("answer_quality")),
-            _num(medians.get("role_tone")),
-            _num(medians.get("context_relevance")),
-            _num(medians.get("context_sufficiency")),
-            _num(medians.get("ranking_quality")),
-            _num(medians.get("groundedness")),
+            both("answer_quality"),
+            both("role_tone"),
+            both("incorrect_content"),
+            both("missing_content"),
+            both("context_relevance"),
+            both("context_sufficiency"),
+            both("ranking_quality"),
+            both("groundedness"),
             meta.get("safety_failures", 0),
             f"{meta.get('judge_cost_usd', 0):.3f}",
         ])
-    return table(headers, rows, align="lrrrrrrrrrrr")
+    return (table(headers, rows, align="lrrrrrrrrrrrrr")
+            + "\n  ô chất lượng = trung bình (trung vị)  ·  ↓ = thấp là tốt")
 
 
 def delta_table(summary: dict[str, Any], baseline: str) -> str:

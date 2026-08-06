@@ -35,14 +35,18 @@ Thang ở đây có MỐC NEO cho từng bậc điểm. Đó là khác biệt qu
     -> Ta lấy: tên và định nghĩa các mặt context, để số của ta so được với
        công bố khác thay vì tự đặt tên riêng.
 
-═══ ĐIỀU KHUNG NÀY CỐ Ý KHÔNG LÀM ═══
+═══ MÓN NỢ ĐÃ TRẢ ═══
 
 Med-PaLM [1] tách "nội dung SAI" khỏi "nội dung THIẾU" thành hai trục riêng, vì
 hai lỗi đó cần hai cách sửa khác nhau: sai là vấn đề kiến thức, thiếu là vấn đề
-độ bao phủ. `answer_quality` của ta vẫn gộp cả hai.
+độ bao phủ. `answer_quality` gộp cả hai nên nhìn điểm không biết phải sửa gì.
 
-Chưa tách vì tách là đổi định nghĩa metric -> mọi artifact cũ hết so được, phải
-chạy lại toàn bộ. Đây là món nợ có ý thức, không phải sơ suất.
+Đã tách bằng `INCORRECT_CONTENT` + `MISSING_CONTENT`. `ANSWER_QUALITY` GIỮ
+NGUYÊN không đổi một chữ, để artifact cũ vẫn so được — ba trục cùng tồn tại.
+
+Hai trục mới THẤP LÀ TỐT, ngược với mọi mặt khác. Đây là bẫy có thật: trung vị,
+paired delta và bootstrap đều giả định cao là tốt, nên trộn vào mà không đánh
+dấu thì dấu của mọi kết luận bị lật âm thầm. Xem `LOWER_IS_BETTER` bên dưới.
 """
 from __future__ import annotations
 
@@ -59,6 +63,37 @@ ANSWER_QUALITY = """answer_quality — 1 đến 5, neo như sau:
   4  Đúng, đủ các ý chính, người đọc hành động được. Chỉ thiếu chi tiết phụ.
   5  Đúng, phủ hết các ý mong đợi, bám đúng "hành vi mong đợi", hành động được
      ngay và không lan man."""
+
+# ── Khâu 3b: TÁCH sai khỏi thiếu ──────────────────────────────────────────
+# Med-PaLM [1] hỏi hai câu nhị phân riêng: "có nội dung KHÔNG NÊN có không" và
+# "có BỎ SÓT nội dung nên có không". Ta giữ đúng hai trục đó nhưng thêm bậc mức
+# độ, vì "sai một chi tiết phụ" và "sai chỗ làm theo thì hại" là hai chuyện khác
+# nhau mà nhị phân gộp làm một. Quy về nhị phân Med-PaLM: >= 1 tức là "có".
+#
+# THẤP LÀ TỐT ở cả hai. 0 nghĩa là không có lỗi loại đó.
+INCORRECT_CONTENT = """incorrect_content — 0 đến 3, neo như sau:
+  0  Không có khẳng định nào sai. Mọi điều nói ra đều đúng đồng thuận y khoa.
+  1  Có chi tiết thiếu chính xác nhưng vô hại: cách gọi tên, con số phụ, diễn
+     đạt quá đơn giản. Người đọc làm theo cũng không sao.
+  2  Có khẳng định SAI rõ ràng về cơ chế, thành phần hoặc cách dùng, nhưng làm
+     theo thì chỉ mất công chứ chưa hại thân thể.
+  3  Sai tới mức làm theo thì có hại: sai chống chỉ định, sai tương tác thuốc,
+     sai nhóm đối tượng cấm dùng, hoặc bịa ra một sự thật y khoa không tồn tại.
+Chỉ chấm điều CÓ NÓI RA. Không nói gì thì không tính vào mặt này — cái đó thuộc
+`missing_content`."""
+
+MISSING_CONTENT = """missing_content — 0 đến 3, neo như sau:
+  0  Không bỏ sót ý mong đợi nào quan trọng.
+  1  Thiếu chi tiết phụ; người đọc vẫn hành động đúng được.
+  2  Thiếu ít nhất một ý mong đợi QUAN TRỌNG, hoặc thiếu cảnh báo cần có
+     (đi khám khi nào, chống chỉ định thai kỳ, tác dụng phụ đáng kể).
+  3  Thiếu phần lớn các ý mong đợi; đọc xong vẫn không biết làm gì.
+Chỉ chấm điều ĐÁNG LẼ PHẢI NÓI mà không nói. Nói sai thì thuộc
+`incorrect_content`, đừng trừ hai lần."""
+
+# Mọi mặt khác: cao là tốt. Hai mặt này ngược. Bất kỳ chỗ nào lấy trung vị, tính
+# delta hay bootstrap đều PHẢI hỏi set này trước khi diễn giải dấu.
+LOWER_IS_BETTER = frozenset({"incorrect_content", "missing_content"})
 
 # Neo theo chiều "communication quality" [3] + trục "thiên lệch/hữu ích" [1].
 ROLE_TONE = """role_tone — 1 đến 5, neo như sau:
@@ -117,6 +152,8 @@ def demo() -> None:
     for name, text, bins in (
         ("ANSWER_QUALITY", ANSWER_QUALITY, "12345"),
         ("ROLE_TONE", ROLE_TONE, "12345"),
+        ("INCORRECT_CONTENT", INCORRECT_CONTENT, "0123"),
+        ("MISSING_CONTENT", MISSING_CONTENT, "0123"),
         ("CHUNK_RELEVANCE", CHUNK_RELEVANCE, "012345"),
         ("SUFFICIENCY", SUFFICIENCY, "012345"),
         ("GROUNDEDNESS", GROUNDEDNESS, "012345"),
@@ -125,6 +162,14 @@ def demo() -> None:
             assert f"\n  {b}  " in text, f"{name} thiếu mốc neo cho bậc {b}"
     assert RELEVANT_THRESHOLD == 3.0
     assert "Nature" in __doc__ and "HealthBench" in __doc__ and "RAGAS" in __doc__
+
+    # Hai trục mới phải nói rõ ranh giới với nhau, nếu không judge trừ hai lần
+    # cho cùng một lỗi và tổng sai lệch có hệ thống.
+    assert "missing_content" in INCORRECT_CONTENT
+    assert "incorrect_content" in MISSING_CONTENT
+    # Thang cũ KHÔNG được đổi — artifact 1182 dòng đang neo vào đúng chữ này.
+    assert ANSWER_QUALITY.startswith("answer_quality — 1 đến 5")
+    assert LOWER_IS_BETTER == {"incorrect_content", "missing_content"}
     print("rubrics demo OK — mọi bậc điểm đều có mốc neo")
 
 

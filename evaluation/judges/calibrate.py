@@ -5,7 +5,8 @@ không phòng thủ được. Quy trình 3 bước:
 
     1. --export   lấy ngẫu nhiên N câu đã judge, ghi phiếu KHÔNG kèm điểm judge
                   (tránh anchor) + file khoá riêng
-    2. người chấm điền human_answer_quality / human_role_tone (1-5)
+    2. người chấm điền human_<mặt> cho mọi mặt có trong phiếu
+       answer_quality / role_tone 1-5 · incorrect_content / missing_content 0-3
     3. --import   ghép lại, tính κ thường + κ có trọng số bậc hai + Spearman
 
 Usage:
@@ -33,14 +34,32 @@ DEFAULT_RESULT = ROOT / "evaluation/reports/judge_calibration.json"
 # κ đo độ lệch đề bài, không đo chất lượng judge.
 from evaluation.judges import rubrics
 
-AXES = ("answer_quality", "role_tone")
+# Mặt -> (thấp nhất, cao nhất). Hai mặt mới thang 0-3 và THẤP LÀ TỐT nên không
+# dùng chung khoảng 1-5 được; khoảng phải khớp `_score_candidate` trong
+# run_ablation, lệch một bậc là κ đo sai.
+AXES: dict[str, tuple[int, int]] = {
+    "answer_quality": (1, 5),
+    "role_tone": (1, 5),
+    "incorrect_content": (0, 3),
+    "missing_content": (0, 3),
+}
+# Artifact chấm TRƯỚC khi tách trục chỉ có hai mặt này. Dòng thiếu hai mặt mới
+# vẫn dùng được cho κ của hai mặt cũ — loại hẳn thì mất sạch 1182 dòng đã có.
+CORE_AXES = ("answer_quality", "role_tone")
 # Người chấm phải đọc ĐÚNG thang mà judge đã dùng — khác thang thì κ vô nghĩa.
 # Một nguồn sự thật: judges/rubrics.py.
 RUBRIC = {
     "answer_quality": rubrics.ANSWER_QUALITY,
     "role_tone": rubrics.ROLE_TONE,
+    "incorrect_content": rubrics.INCORRECT_CONTENT,
+    "missing_content": rubrics.MISSING_CONTENT,
+    "luu_y": (
+        "incorrect_content và missing_content THẤP LÀ TỐT, 0 = không có lỗi loại "
+        "đó. Một lỗi chỉ tính vào MỘT trong hai: nói sai thì vào incorrect, "
+        "không nói thì vào missing."
+    ),
     "khong_cham": (
-        "KHÔNG chấm độ bám tài liệu, an toàn hay từ chối trong hai trục này — "
+        "KHÔNG chấm độ bám tài liệu, an toàn hay từ chối trong các trục này — "
         "ba mặt đó đo bằng metric độc lập"
     ),
 }
@@ -82,9 +101,15 @@ def collect_judged(results_path: Path) -> list[dict[str, Any]]:
             scorecard = item.get("scorecard")
             if not item.get("ok") or not isinstance(scorecard, dict):
                 continue
-            if any(
-                not isinstance(scorecard.get(axis), (int, float)) for axis in AXES
-            ):
+            judged = {
+                axis: int(scorecard[axis])
+                for axis in AXES
+                if isinstance(scorecard.get(axis), (int, float))
+                and not isinstance(scorecard.get(axis), bool)
+            }
+            # Thiếu mặt CỐT LÕI thì bỏ; thiếu mặt mới thì vẫn giữ, κ của mặt đó
+            # tính trên số dòng ít hơn và `n` trong artifact nói rõ điều đó.
+            if any(axis not in judged for axis in CORE_AXES):
                 continue
             rows.append(
                 {
@@ -92,10 +117,41 @@ def collect_judged(results_path: Path) -> list[dict[str, Any]]:
                     "sample_id": str(item.get("sample_id") or ""),
                     "query": str(item.get("user_query") or ""),
                     "answer": str(item.get("answer") or ""),
-                    "judge": {axis: int(scorecard[axis]) for axis in AXES},
+                    "judge": judged,
                 }
             )
     return [row for row in rows if row["sample_id"] and row["answer"]]
+
+
+def stratify(
+    rows: Sequence[dict[str, Any]], size: int, rng: random.Random
+) -> list[dict[str, Any]]:
+    """Bốc phân tầng theo (arm, answer_quality) thay vì ngẫu nhiên thuần.
+
+    Ngẫu nhiên thuần trên phân bố lệch — 2.95 là mode 3, chỉ 18% đạt ≥4 — thì
+    phiếu 50 dòng dễ toàn câu tầm tầm. κ đo được lúc đó cao một cách vô nghĩa:
+    hai bên cùng chấm 3 cho mọi thứ vẫn ra κ đẹp mà không chứng minh judge phân
+    biệt được tốt với tệ. Vòng tròn qua từng tầng đảm bảo cả câu 1 điểm lẫn câu
+    5 điểm đều có mặt trước khi bất kỳ tầng nào được lấy dòng thứ hai.
+    """
+    buckets: dict[tuple[str, int], list[dict[str, Any]]] = {}
+    for row in rows:
+        buckets.setdefault(
+            (row["arm"], row["judge"]["answer_quality"]), []
+        ).append(row)
+    for bucket in buckets.values():
+        rng.shuffle(bucket)
+    order = sorted(buckets)                      # tất định, không phụ thuộc dict order
+    selected: list[dict[str, Any]] = []
+    while len(selected) < size and any(buckets[key] for key in order):
+        for key in order:
+            if not buckets[key]:
+                continue
+            selected.append(buckets[key].pop())
+            if len(selected) >= size:
+                break
+    rng.shuffle(selected)                        # trộn lại để người chấm không đoán ra tầng
+    return selected
 
 
 def export_sheet(
@@ -109,20 +165,22 @@ def export_sheet(
     candidates = collect_judged(results_path)
     if not candidates:
         raise ValueError(f"Không có dòng nào đã judge trong {results_path}")
-    rng = random.Random(seed)
-    rng.shuffle(candidates)
-    selected = candidates[: min(size, len(candidates))]
+    selected = stratify(candidates, size, random.Random(seed))
 
     # Phiếu cho người: không điểm judge, không mã arm. Biết arm là biết
     # "cái này của model API" → thiên vị ngay.
+    # Chỉ hỏi những mặt judge THẬT SỰ đã chấm cho dòng đó — bắt người chấm một
+    # mặt mà judge bỏ trống thì không ghép cặp được, chỉ tốn công.
     _write_jsonl(sheet_path, [
         {
             "row_id": index,
             "query": row["query"],
             "answer": row["answer"],
-            "rubric": RUBRIC,
-            "human_answer_quality": None,
-            "human_role_tone": None,
+            "rubric": {
+                key: value for key, value in RUBRIC.items()
+                if key in row["judge"] or key in ("luu_y", "khong_cham")
+            },
+            **{f"human_{axis}": None for axis in AXES if axis in row["judge"]},
         }
         for index, row in enumerate(selected)
     ])
@@ -223,42 +281,62 @@ def import_labels(
         row_id = row.get("row_id")
         if row_id not in key:
             raise ValueError(f"row_id {row_id} không có trong file khoá")
-        for axis in AXES:
+        judged = key[row_id]["judge"]
+        for axis, (low, high) in AXES.items():
+            if axis not in judged:
+                continue          # judge không chấm mặt này -> không có cặp để so
             value = row.get(f"human_{axis}")
-            if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 5:
+            if (
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or not low <= value <= high
+            ):
                 raise ValueError(
-                    f"row_id {row_id}: human_{axis} phải là số nguyên 1..5 "
-                    f"(đang là {value!r}) — chấm hết trước khi import"
+                    f"row_id {row_id}: human_{axis} phải là số nguyên "
+                    f"{low}..{high} (đang là {value!r}) — chấm hết trước khi import"
                 )
             human[axis].append(value)
-            judge[axis].append(int(key[row_id]["judge"][axis]))
+            judge[axis].append(int(judged[axis]))
+
+    scored = {axis: values for axis, values in human.items() if values}
+    if not scored:
+        raise ValueError("Không mặt nào ghép được cặp người/judge — phiếu rỗng?")
+
+    def _axis_report(axis: str) -> dict[str, Any]:
+        low, high = AXES[axis]
+        weighted = _cohen_kappa(human[axis], judge[axis], weighted=True)
+        return {
+            "n": len(human[axis]),
+            "scale": f"{low}-{high}",
+            "lower_is_better": axis in rubrics.LOWER_IS_BETTER,
+            "cohen_kappa": _cohen_kappa(human[axis], judge[axis]),
+            "cohen_kappa_quadratic": weighted,
+            "interpretation": _interpret(weighted),
+            "spearman": _spearman(human[axis], judge[axis]),
+            "human_distribution": {
+                str(score): human[axis].count(score)
+                for score in range(low, high + 1)
+            },
+            "judge_distribution": {
+                str(score): judge[axis].count(score)
+                for score in range(low, high + 1)
+            },
+            "mean_human_minus_judge": round(
+                float(np.mean(human[axis]) - np.mean(judge[axis])), 4
+            ),
+        }
 
     artifact = {
-        "schema_version": 2,
+        "schema_version": 3,
         "source": _relative(sheet_path),
-        "n": len(human[AXES[0]]),
-        "axes": {
-            axis: {
-                "cohen_kappa": _cohen_kappa(human[axis], judge[axis]),
-                "cohen_kappa_quadratic": _cohen_kappa(
-                    human[axis], judge[axis], weighted=True
-                ),
-                "interpretation": _interpret(
-                    _cohen_kappa(human[axis], judge[axis], weighted=True)
-                ),
-                "spearman": _spearman(human[axis], judge[axis]),
-                "human_distribution": {
-                    str(score): human[axis].count(score) for score in range(1, 6)
-                },
-                "judge_distribution": {
-                    str(score): judge[axis].count(score) for score in range(1, 6)
-                },
-                "mean_human_minus_judge": round(
-                    float(np.mean(human[axis]) - np.mean(judge[axis])), 4
-                ),
-            }
-            for axis in AXES
-        },
+        "n": max(len(values) for values in scored.values()),
+        "axes": {axis: _axis_report(axis) for axis in scored},
+        # Landis & Koch: dưới 0.61 là chưa "đáng kể". Mặt nào rơi vào đây thì con
+        # số của nó KHÔNG nên trích ra ngoài như một phép đo.
+        "khong_du_tin_cay": [
+            axis for axis in scored
+            if _cohen_kappa(human[axis], judge[axis], weighted=True) < 0.61
+        ],
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
@@ -277,6 +355,24 @@ def demo() -> None:
     assert _cohen_kappa(*far, weighted=True) < 0
     assert _interpret(0.85).startswith("gần như")
     assert _spearman([1, 2, 3], [1, 2, 3]) == 1.0
+
+    # Khoảng thang phải khớp run_ablation._score_candidate, lệch là κ sai.
+    assert AXES["answer_quality"] == (1, 5) and AXES["missing_content"] == (0, 3)
+    assert set(rubrics.LOWER_IS_BETTER) <= set(AXES)
+
+    # Phân tầng: phủ hết các bậc điểm trước khi lấy dòng thứ hai của bất kỳ bậc nào.
+    lech = (
+        [{"arm": "RRR", "judge": {"answer_quality": 3}, "id": f"m{i}"} for i in range(40)]
+        + [{"arm": "RRR", "judge": {"answer_quality": 5}, "id": "hiem"}]
+    )
+    picked = stratify(lech, 4, random.Random(0))
+    assert len(picked) == 4
+    assert any(row["id"] == "hiem" for row in picked), "bốc phân tầng phải với tới bậc hiếm"
+    # Tất định theo seed.
+    assert [r["id"] for r in stratify(lech, 4, random.Random(0))] == \
+           [r["id"] for r in stratify(lech, 4, random.Random(0))]
+    # Xin nhiều hơn số dòng có thì trả về hết chứ không lặp.
+    assert len(stratify(lech, 999, random.Random(0))) == len(lech)
     print("calibrate demo OK")
 
 
