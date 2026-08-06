@@ -21,7 +21,7 @@ openai>=1.0,<3.0          # dùng cho judge/dataset gen (DeepSeek compat)
 # ── API ──────────────────────────────────────────────────────
 fastapi>=0.115,<1.0
 uvicorn[standard]>=0.30   # includes websockets, httptools, uvloop (Linux)
-httpx[http2]>=0.27,<1.0
+httpx[http2]>=0.27,<0.28   # 0.28 bỏ Client(app=...) -> starlette.TestClient hiện tại vỡ
 python-multipart>=0.0.9
 starlette>=0.37,<1.0      # bundled với fastapi, pin để tránh conflict
 
