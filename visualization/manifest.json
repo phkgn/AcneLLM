@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-09T09:57:18.289850+00:00",
+  "generated_at": "2026-08-09T11:08:09.938169+00:00",
   "generator": "visualization/generate_all.py",
   "artifact_policy": "fresh_compute_from_current_worktree",
   "figures": [
@@ -577,78 +577,105 @@
       ]
     },
     {
-      "section": "workflow",
-      "path": "visualization/workflow/01_runtime_input_to_output.png",
-      "title": "Runtime workflow: input → output",
+      "section": "architecture",
+      "path": "visualization/architecture/01_system_context.png",
+      "title": "System context & runtime boundaries",
       "sources": [
+        "docker-compose.yml",
+        "frontend/src/hooks/useSSE.ts",
+        "src/acne_llm/api/app.py",
+        "src/acne_llm/di.py",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
+    },
+    {
+      "section": "architecture",
+      "path": "visualization/architecture/02_chat_sse_workflow.png",
+      "title": "Online chat request: input to streamed output",
+      "sources": [
+        "frontend/src/hooks/useSSE.ts",
         "src/acne_llm/api/routes/chat.py",
         "src/acne_llm/chat/runtime.py",
         "src/acne_llm/chat/orchestrator.py",
-        "src/acne_llm/chat/intake.py",
-        "src/acne_llm/chat/_retrieval.py",
-        "src/acne_llm/llm/prompt_builder.py",
-        "src/acne_llm/llm/ollama_backend.py",
-        "src/acne_llm/db/session_store.py",
-        "src/acne_llm/db/audit.py"
-      ]
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
     },
     {
-      "section": "workflow",
-      "path": "visualization/workflow/02_rag_retrieval_pipeline.png",
-      "title": "RAG retrieval workflow",
+      "section": "architecture",
+      "path": "visualization/architecture/03_intake_safety_routing.png",
+      "title": "Intake, hard safety and router-first control flow",
       "sources": [
-        "src/acne_llm/chat/_retrieval.py",
-        "src/acne_llm/rag/retriever.py",
-        "src/acne_llm/rag/sparse.py",
-        "src/acne_llm/rag/vectorstore.py",
-        "src/acne_llm/rag/reranker.py"
-      ]
+        "src/acne_llm/chat/intake.py",
+        "src/acne_llm/chat/preprocess.py",
+        "src/acne_llm/chat/unified_intake.py",
+        "src/acne_llm/guardrails/runner.py",
+        "src/acne_llm/di.py",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
     },
     {
-      "section": "workflow",
-      "path": "visualization/workflow/03_intaker_data_pipeline.png",
-      "title": "Intaker fine-tune data workflow",
+      "section": "architecture",
+      "path": "visualization/architecture/04_rag_kb_lifecycle.png",
+      "title": "Knowledge base lifecycle & hybrid retrieval",
+      "sources": [
+        "scripts/crawl_all.py",
+        "scripts/build_kb.py",
+        "src/acne_llm/chat/_retrieval.py",
+        "data/raw/chunks.jsonl",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
+    },
+    {
+      "section": "architecture",
+      "path": "visualization/architecture/05_finetune_data_factory.png",
+      "title": "Finetune data factory: Intaker vs Generator",
       "sources": [
         "datagen/intakedata/pipeline.py",
-        "datagen/intakedata/generator.py",
-        "datagen/intakedata/gates.py",
-        "datagen/intakedata/writer.py",
-        "datagen/intakedata/output/intake/summary.json"
-      ]
-    },
-    {
-      "section": "workflow",
-      "path": "visualization/workflow/04_generator_data_pipeline.png",
-      "title": "Generator fine-tune data workflow",
-      "sources": [
-        "datagen/roledata/taxonomy.yaml",
         "datagen/roledata/pipeline.py",
-        "datagen/roledata/gates.py",
-        "datagen/roledata/output/roledata.train.jsonl",
-        "datagen/roledata/output/generation_summary.json"
-      ]
+        "datagen/roledata/output/generation_summary.json",
+        "data/raw/chunks.jsonl",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
     },
     {
-      "section": "workflow",
-      "path": "visualization/workflow/05_evaluation_workflow.png",
-      "title": "Evaluation workflow: run_full_v3_2",
+      "section": "architecture",
+      "path": "visualization/architecture/06_evaluation_ablation.png",
+      "title": "Evaluation harness, judge scoring and paired ablation",
       "sources": [
         "evaluation/full_evaluation.py",
         "evaluation/runners/run_intake.py",
         "evaluation/runners/run_retrieval.py",
         "evaluation/runners/run_ablation.py",
-        "evaluation/reports/run_full_v3_2/ablation/results.json"
-      ]
+        "evaluation/reports/run_full_v3_2/summary.json",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
     },
     {
-      "section": "workflow",
-      "path": "visualization/workflow/06_docker_deployment.png",
-      "title": "Docker Compose deployment",
+      "section": "architecture",
+      "path": "visualization/architecture/07_docker_deployment.png",
+      "title": "Docker Compose deployment and startup order",
       "sources": [
         "docker-compose.yml",
         "docker-compose.gpu.yml",
-        "docker/nginx/default.conf.template"
-      ]
+        "Dockerfile",
+        "frontend/Dockerfile",
+        "docker/nginx/default.conf.template",
+        "visualization/architecture/build_drawio.py",
+        "visualization/architecture/AcneLLM_Architecture.drawio"
+      ],
+      "rendered_with": "https://app.diagrams.net/"
     },
     {
       "section": "repository",
@@ -876,16 +903,16 @@
       "path": "visualization/repository/06_model_artifact_sizes.png",
       "title": "Model artifacts lớn",
       "sources": [
-        "model/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
-        "model/role_finetune/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
-        "model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
-        "model/qwen25_acne_role_gguf_q4_k_m.zip",
-        "model/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf",
-        "model/acne_intake_release.zip",
-        "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-        "model/qwen25_acne_role_lora.zip",
-        "model/acne_intake_release/qwen25_intake_lora.zip",
-        "model/qwen25_acne_role_lora/adapter_model.safetensors"
+        "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/legacy/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/legacy/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/legacy/qwen25_acne_role_gguf_q4_k_m.zip",
+        "model/legacy/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf",
+        "model/legacy/acne_intake_release.zip",
+        "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
+        "model/legacy/qwen25_acne_role_lora.zip",
+        "model/intaker/qwen25_intake_lora.zip",
+        "model/legacy/qwen25_acne_role_lora/adapter_model.safetensors"
       ]
     },
     {
@@ -932,103 +959,6 @@
         "tests/test_sparse_bm25.py",
         "tests/test_sqlite_session_store.py",
         "tests/test_stream_safety.py"
-      ]
-    },
-    {
-      "section": "workflow",
-      "path": "visualization/workflow/07_source_module_architecture.png",
-      "title": "Source module architecture",
-      "sources": [
-        "src/acne_llm/cache.py",
-        "src/acne_llm/cli.py",
-        "src/acne_llm/config.py",
-        "src/acne_llm/di.py",
-        "src/acne_llm/__init__.py",
-        "src/acne_llm/api/app.py",
-        "src/acne_llm/api/deps.py",
-        "src/acne_llm/api/observability.py",
-        "src/acne_llm/api/__init__.py",
-        "src/acne_llm/chat/confidence_hint.py",
-        "src/acne_llm/chat/intake.py",
-        "src/acne_llm/chat/orchestrator.py",
-        "src/acne_llm/chat/preprocess.py",
-        "src/acne_llm/chat/runtime.py",
-        "src/acne_llm/chat/session.py",
-        "src/acne_llm/chat/unified_intake.py",
-        "src/acne_llm/chat/_intake_parse.py",
-        "src/acne_llm/chat/_intent_patch.py",
-        "src/acne_llm/chat/_retrieval.py",
-        "src/acne_llm/chat/_safety.py",
-        "src/acne_llm/chat/_terms.py",
-        "src/acne_llm/chat/__init__.py",
-        "src/acne_llm/crawler/base.py",
-        "src/acne_llm/crawler/checkpoint.py",
-        "src/acne_llm/crawler/dedup.py",
-        "src/acne_llm/crawler/discovery.py",
-        "src/acne_llm/crawler/extractor.py",
-        "src/acne_llm/crawler/fetcher.py",
-        "src/acne_llm/crawler/normalizer.py",
-        "src/acne_llm/crawler/playwright_fetcher.py",
-        "src/acne_llm/crawler/quality_filter.py",
-        "src/acne_llm/crawler/stats.py",
-        "src/acne_llm/crawler/__init__.py",
-        "src/acne_llm/db/audit.py",
-        "src/acne_llm/db/base.py",
-        "src/acne_llm/db/session_store.py",
-        "src/acne_llm/db/__init__.py",
-        "src/acne_llm/guardrails/drug_checker.py",
-        "src/acne_llm/guardrails/ood_detector.py",
-        "src/acne_llm/guardrails/runner.py",
-        "src/acne_llm/guardrails/__init__.py",
-        "src/acne_llm/llm/base.py",
-        "src/acne_llm/llm/language.py",
-        "src/acne_llm/llm/ollama_backend.py",
-        "src/acne_llm/llm/prompt_builder.py",
-        "src/acne_llm/llm/qa_generator.py",
-        "src/acne_llm/llm/__init__.py",
-        "src/acne_llm/pipeline/base.py",
-        "src/acne_llm/pipeline/__init__.py",
-        "src/acne_llm/rag/base.py",
-        "src/acne_llm/rag/chunker.py",
-        "src/acne_llm/rag/cleaning.py",
-        "src/acne_llm/rag/embedder.py",
-        "src/acne_llm/rag/reranker.py",
-        "src/acne_llm/rag/retriever.py",
-        "src/acne_llm/rag/sparse.py",
-        "src/acne_llm/rag/vectorstore.py",
-        "src/acne_llm/rag/__init__.py",
-        "src/acne_llm/schemas/clinical.py",
-        "src/acne_llm/schemas/core.py",
-        "src/acne_llm/schemas/extraction.py",
-        "src/acne_llm/schemas/kb.py",
-        "src/acne_llm/schemas/__init__.py",
-        "src/acne_llm/utils/chunk_filter.py",
-        "src/acne_llm/utils/fuzzy_match.py",
-        "src/acne_llm/utils/hashing.py",
-        "src/acne_llm/utils/logging.py",
-        "src/acne_llm/utils/retrieval_query.py",
-        "src/acne_llm/utils/text_cleaning.py",
-        "src/acne_llm/utils/timer.py",
-        "src/acne_llm/utils/__init__.py",
-        "src/acne_llm/vision/base.py",
-        "src/acne_llm/vision/mock.py",
-        "src/acne_llm/vision/__init__.py",
-        "src/acne_llm/api/routes/admin.py",
-        "src/acne_llm/api/routes/chat.py",
-        "src/acne_llm/api/routes/health.py",
-        "src/acne_llm/api/routes/kb.py",
-        "src/acne_llm/api/routes/metrics.py",
-        "src/acne_llm/api/routes/__init__.py",
-        "src/acne_llm/chat/fallback/intent_router.py",
-        "src/acne_llm/chat/fallback/llm_extractor.py",
-        "src/acne_llm/chat/fallback/llm_router.py",
-        "src/acne_llm/chat/fallback/rule_extractor.py",
-        "src/acne_llm/chat/fallback/rule_normalizer.py",
-        "src/acne_llm/chat/fallback/semantic_router.py",
-        "src/acne_llm/chat/fallback/__init__.py",
-        "src/acne_llm/crawler/sources/generic_html.py",
-        "src/acne_llm/crawler/sources/pubmed.py",
-        "src/acne_llm/crawler/sources/__init__.py"
       ]
     },
     {
@@ -1151,6 +1081,36 @@
       "mtime_utc": "2026-08-09T08:16:56.271533+00:00",
       "sha256": "dd6c491e2cae6823521c0dc8b6cee83c19b86b97c548c8919bbb7e40623b6d29"
     },
+    "docker-compose.yml": {
+      "bytes": 3765,
+      "mtime_utc": "2026-08-09T08:54:48.290098+00:00",
+      "sha256": "7472829b2da4e78081924222611f7298407f802379d89d16ecd74a801d606123"
+    },
+    "frontend/src/hooks/useSSE.ts": {
+      "bytes": 3209,
+      "mtime_utc": "2026-07-25T15:53:53.109186+00:00",
+      "sha256": "34ee7bfb81d12b3f3f744aaddd57ac58b98715fac3458ffad609330fdb3667e9"
+    },
+    "src/acne_llm/api/app.py": {
+      "bytes": 2162,
+      "mtime_utc": "2026-07-24T16:28:02.628304+00:00",
+      "sha256": "18d9be566f84e126175fd3cad593e011035896da8725557dc14ff839fd867488"
+    },
+    "src/acne_llm/di.py": {
+      "bytes": 13251,
+      "mtime_utc": "2026-07-29T14:08:11.359505+00:00",
+      "sha256": "59c56dc701fac9c22c72e11045ae00500e9f6335cde2acf8e2936736ea3a1c28"
+    },
+    "visualization/architecture/build_drawio.py": {
+      "bytes": 31612,
+      "mtime_utc": "2026-08-09T11:01:58.606120+00:00",
+      "sha256": "3a270f1a6a29a3906b07ff66e12c3cdf463f78df42046cdcc31f422beb6aaa5a"
+    },
+    "visualization/architecture/AcneLLM_Architecture.drawio": {
+      "bytes": 120602,
+      "mtime_utc": "2026-08-09T11:02:05.639121+00:00",
+      "sha256": "03f2f7da16fe4f34a1dbe8fb4c28c4498ec7d60a5cd4bab3854f211b165b4b1b"
+    },
     "src/acne_llm/api/routes/chat.py": {
       "bytes": 12625,
       "mtime_utc": "2026-08-06T15:42:01.383649+00:00",
@@ -1171,80 +1131,45 @@
       "mtime_utc": "2026-08-06T15:48:05.760329+00:00",
       "sha256": "02e6773038b1ce481113d2410dbf8a461540788645bc12c2bdbb7594f59a9590"
     },
+    "src/acne_llm/chat/preprocess.py": {
+      "bytes": 3564,
+      "mtime_utc": "2026-07-26T15:33:45.057348+00:00",
+      "sha256": "7252de34148879c1e2b0c925f097fd4163214debfbe986749ca7f92c8ae55e6f"
+    },
+    "src/acne_llm/chat/unified_intake.py": {
+      "bytes": 10484,
+      "mtime_utc": "2026-08-06T08:30:11.690037+00:00",
+      "sha256": "918949c904f1b68f2807320a22ab7015b40733647142a7f233c77bc0bb81de03"
+    },
+    "src/acne_llm/guardrails/runner.py": {
+      "bytes": 42904,
+      "mtime_utc": "2026-07-19T14:35:42.286539+00:00",
+      "sha256": "e64ff917ea5c5dee5f758dd05958be9d2c9d04b36461330a45b008f238377567"
+    },
+    "scripts/crawl_all.py": {
+      "bytes": 14964,
+      "mtime_utc": "2026-07-10T13:53:50.912637+00:00",
+      "sha256": "7d393c6683ac30008502fe882cf063432b1b676a6bbc557e3b6b943676db2525"
+    },
+    "scripts/build_kb.py": {
+      "bytes": 28933,
+      "mtime_utc": "2026-08-01T08:38:17.642989+00:00",
+      "sha256": "b194ce88c6d2b4797bc497bb31d8b5cbe90e16912fdfbcb1a50898ef25ac426a"
+    },
     "src/acne_llm/chat/_retrieval.py": {
       "bytes": 17769,
       "mtime_utc": "2026-08-06T16:07:05.717202+00:00",
       "sha256": "9a08293452f52d0aa46c70a6e7241c7b735a350ab60597d248f35c6bc56a757a"
-    },
-    "src/acne_llm/llm/prompt_builder.py": {
-      "bytes": 10996,
-      "mtime_utc": "2026-08-06T15:59:03.504230+00:00",
-      "sha256": "7167c165bae407b7f90318f1f223e66fa560ce3376e1636c4e01c4f5ff7e8fd7"
-    },
-    "src/acne_llm/llm/ollama_backend.py": {
-      "bytes": 12085,
-      "mtime_utc": "2026-08-06T13:34:51.646411+00:00",
-      "sha256": "fd219c9b952b8d55a6aedd84ffb77d958922a816ebf99aa67a4522ffa84a1624"
-    },
-    "src/acne_llm/db/session_store.py": {
-      "bytes": 13874,
-      "mtime_utc": "2026-07-13T15:10:13.493619+00:00",
-      "sha256": "7f0f89579afc936c594c170b121fc69af124fa48c975e62323cf5e440d476a18"
-    },
-    "src/acne_llm/db/audit.py": {
-      "bytes": 6763,
-      "mtime_utc": "2026-07-25T15:36:46.737525+00:00",
-      "sha256": "58b73101f133db7059806995228bc26e6f81ce0f9b7865908b6eee0ee4c7c820"
-    },
-    "src/acne_llm/rag/retriever.py": {
-      "bytes": 19781,
-      "mtime_utc": "2026-08-01T16:52:36.616368+00:00",
-      "sha256": "64deaf20b2e36f32f1a315d127936d187b41ae4c18dea11999fdd5560142b136"
-    },
-    "src/acne_llm/rag/sparse.py": {
-      "bytes": 4467,
-      "mtime_utc": "2026-06-12T16:58:00+00:00",
-      "sha256": "5f175b7f086e1e47b9407a1b394b0c9de0b84f6a85fba6cfb131c23bb14da5de"
-    },
-    "src/acne_llm/rag/vectorstore.py": {
-      "bytes": 5817,
-      "mtime_utc": "2026-07-25T15:35:57.112898+00:00",
-      "sha256": "0773dd010dca1e2a2614a2648388fe394ae005f582488ee085266d9953c1d65b"
-    },
-    "src/acne_llm/rag/reranker.py": {
-      "bytes": 6747,
-      "mtime_utc": "2026-08-01T17:34:58.074710+00:00",
-      "sha256": "6ea1e1de440ab066687d1e67ce1638839aa7e370353ee7fca4d9d429d420f31d"
     },
     "datagen/intakedata/pipeline.py": {
       "bytes": 25113,
       "mtime_utc": "2026-07-24T12:34:32.521474+00:00",
       "sha256": "56c6f6286cccea89d9726875134310015b8c081bbed7c6a26016f6a18b470c57"
     },
-    "datagen/intakedata/generator.py": {
-      "bytes": 36599,
-      "mtime_utc": "2026-08-06T16:45:03.447690+00:00",
-      "sha256": "d1310c70283ae7cb5f5c1eaad5ef98f5327e4fd56fbdc4793f31bcb018bb3458"
-    },
-    "datagen/intakedata/gates.py": {
-      "bytes": 29982,
-      "mtime_utc": "2026-07-24T08:55:22.961028+00:00",
-      "sha256": "bbaa43c93d437b7fd3df8fe827679112eb9c7aca3f79cec3d87941e935e38b06"
-    },
-    "datagen/intakedata/writer.py": {
-      "bytes": 4014,
-      "mtime_utc": "2026-07-24T05:57:38.120131+00:00",
-      "sha256": "8751cabd771615fae1066820dc899535037242f7d36665c9c5f130d7ba085c99"
-    },
     "datagen/roledata/pipeline.py": {
       "bytes": 23633,
       "mtime_utc": "2026-07-21T05:53:39.025622+00:00",
       "sha256": "6bb5ff31cfa0b763d95310dfba70ba505a2c3f8418ca7ad6ef0f42b96ee04ab7"
-    },
-    "datagen/roledata/gates.py": {
-      "bytes": 13247,
-      "mtime_utc": "2026-07-22T11:29:33.744443+00:00",
-      "sha256": "494242612e37675bfbaed476250e1dd2e7a1fc977b25cb3b33cd94421b7533c5"
     },
     "evaluation/full_evaluation.py": {
       "bytes": 18047,
@@ -1266,15 +1191,20 @@
       "mtime_utc": "2026-08-07T09:07:59.291301+00:00",
       "sha256": "20ef4f38ed018d768e7b43a7bea414e4d7b5ba92d191a2469176ca833b43ebbf"
     },
-    "docker-compose.yml": {
-      "bytes": 3765,
-      "mtime_utc": "2026-08-09T08:54:48.290098+00:00",
-      "sha256": "7472829b2da4e78081924222611f7298407f802379d89d16ecd74a801d606123"
-    },
     "docker-compose.gpu.yml": {
       "bytes": 176,
       "mtime_utc": "2026-08-09T08:50:57.389041+00:00",
       "sha256": "226bc04b1d0ced216776c1ffa807936c59c5c88ed72a479e81ca266b49d30085"
+    },
+    "Dockerfile": {
+      "bytes": 1161,
+      "mtime_utc": "2026-08-09T08:54:48.289101+00:00",
+      "sha256": "472ba350d15adc212e4e112b76cccc5ddf768be43d08a8ce463c961be0e322e8"
+    },
+    "frontend/Dockerfile": {
+      "bytes": 1005,
+      "mtime_utc": "2026-08-09T08:50:57.383519+00:00",
+      "sha256": "5d5813fe662ff78c78fc2a7d255c94fec2d85283ef0424b2b728a8a68567a29f"
     },
     "docker/nginx/default.conf.template": {
       "bytes": 1755,
@@ -1296,20 +1226,10 @@
       "mtime_utc": "2026-08-07T14:14:17.763564+00:00",
       "sha256": "3fccbb4bd70efdacdd6ffadfdb876250aa0b88818fa75928ec2ce00ded37cf85"
     },
-    "src/acne_llm/di.py": {
-      "bytes": 13251,
-      "mtime_utc": "2026-07-29T14:08:11.359505+00:00",
-      "sha256": "59c56dc701fac9c22c72e11045ae00500e9f6335cde2acf8e2936736ea3a1c28"
-    },
     "src/acne_llm/__init__.py": {
       "bytes": 106,
       "mtime_utc": "2026-06-12T16:58:00+00:00",
       "sha256": "a6b89513c28ed35f99950f1dc6e0729ac540866b3306c89b832a172bfc122f7d"
-    },
-    "src/acne_llm/api/app.py": {
-      "bytes": 2162,
-      "mtime_utc": "2026-07-24T16:28:02.628304+00:00",
-      "sha256": "18d9be566f84e126175fd3cad593e011035896da8725557dc14ff839fd867488"
     },
     "src/acne_llm/api/deps.py": {
       "bytes": 239,
@@ -1331,20 +1251,10 @@
       "mtime_utc": "2026-07-26T15:33:45.073235+00:00",
       "sha256": "d6ede998c42df45c7cfdb8bc47551381dc0443af6ab51282882ebb414e5feb45"
     },
-    "src/acne_llm/chat/preprocess.py": {
-      "bytes": 3564,
-      "mtime_utc": "2026-07-26T15:33:45.057348+00:00",
-      "sha256": "7252de34148879c1e2b0c925f097fd4163214debfbe986749ca7f92c8ae55e6f"
-    },
     "src/acne_llm/chat/session.py": {
       "bytes": 32606,
       "mtime_utc": "2026-08-06T15:59:03.489215+00:00",
       "sha256": "f6400cb74d1a6b5207ec627d84d8643eeb30b0f90c8445516ce53ff10c915cea"
-    },
-    "src/acne_llm/chat/unified_intake.py": {
-      "bytes": 10484,
-      "mtime_utc": "2026-08-06T08:30:11.690037+00:00",
-      "sha256": "918949c904f1b68f2807320a22ab7015b40733647142a7f233c77bc0bb81de03"
     },
     "src/acne_llm/chat/_intake_parse.py": {
       "bytes": 17851,
@@ -1426,10 +1336,20 @@
       "mtime_utc": "2026-06-12T16:58:00+00:00",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
+    "src/acne_llm/db/audit.py": {
+      "bytes": 6763,
+      "mtime_utc": "2026-07-25T15:36:46.737525+00:00",
+      "sha256": "58b73101f133db7059806995228bc26e6f81ce0f9b7865908b6eee0ee4c7c820"
+    },
     "src/acne_llm/db/base.py": {
       "bytes": 4018,
       "mtime_utc": "2026-07-25T15:36:46.718763+00:00",
       "sha256": "78ba9c235e1e6c01d7232ab2b35f5fc40755fb264c57182e5c51c3e075247122"
+    },
+    "src/acne_llm/db/session_store.py": {
+      "bytes": 13874,
+      "mtime_utc": "2026-07-13T15:10:13.493619+00:00",
+      "sha256": "7f0f89579afc936c594c170b121fc69af124fa48c975e62323cf5e440d476a18"
     },
     "src/acne_llm/db/__init__.py": {
       "bytes": 185,
@@ -1446,11 +1366,6 @@
       "mtime_utc": "2026-07-24T16:32:53.952761+00:00",
       "sha256": "5316f24f49aaa7be70151bd807ea2a1a53aa05491f1d17885c187827763eb38a"
     },
-    "src/acne_llm/guardrails/runner.py": {
-      "bytes": 42904,
-      "mtime_utc": "2026-07-19T14:35:42.286539+00:00",
-      "sha256": "e64ff917ea5c5dee5f758dd05958be9d2c9d04b36461330a45b008f238377567"
-    },
     "src/acne_llm/guardrails/__init__.py": {
       "bytes": 0,
       "mtime_utc": "2026-06-12T16:58:00+00:00",
@@ -1465,6 +1380,16 @@
       "bytes": 1158,
       "mtime_utc": "2026-06-12T16:58:00+00:00",
       "sha256": "79cd4223d870efde79f80e266c96cfa4933904cabaf3ff50e3bc42c5e044f5ef"
+    },
+    "src/acne_llm/llm/ollama_backend.py": {
+      "bytes": 12085,
+      "mtime_utc": "2026-08-06T13:34:51.646411+00:00",
+      "sha256": "fd219c9b952b8d55a6aedd84ffb77d958922a816ebf99aa67a4522ffa84a1624"
+    },
+    "src/acne_llm/llm/prompt_builder.py": {
+      "bytes": 10996,
+      "mtime_utc": "2026-08-06T15:59:03.504230+00:00",
+      "sha256": "7167c165bae407b7f90318f1f223e66fa560ce3376e1636c4e01c4f5ff7e8fd7"
     },
     "src/acne_llm/llm/qa_generator.py": {
       "bytes": 11406,
@@ -1505,6 +1430,26 @@
       "bytes": 2621,
       "mtime_utc": "2026-06-12T16:58:00+00:00",
       "sha256": "bccf9a0fb3ca285a5ec170436aa0a128d81b906115ec9794006c2be65d5fef83"
+    },
+    "src/acne_llm/rag/reranker.py": {
+      "bytes": 6747,
+      "mtime_utc": "2026-08-01T17:34:58.074710+00:00",
+      "sha256": "6ea1e1de440ab066687d1e67ce1638839aa7e370353ee7fca4d9d429d420f31d"
+    },
+    "src/acne_llm/rag/retriever.py": {
+      "bytes": 19781,
+      "mtime_utc": "2026-08-01T16:52:36.616368+00:00",
+      "sha256": "64deaf20b2e36f32f1a315d127936d187b41ae4c18dea11999fdd5560142b136"
+    },
+    "src/acne_llm/rag/sparse.py": {
+      "bytes": 4467,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "5f175b7f086e1e47b9407a1b394b0c9de0b84f6a85fba6cfb131c23bb14da5de"
+    },
+    "src/acne_llm/rag/vectorstore.py": {
+      "bytes": 5817,
+      "mtime_utc": "2026-07-25T15:35:57.112898+00:00",
+      "sha256": "0773dd010dca1e2a2614a2648388fe394ae005f582488ee085266d9953c1d65b"
     },
     "src/acne_llm/rag/__init__.py": {
       "bytes": 0,
@@ -1676,52 +1621,52 @@
       "mtime_utc": "2026-07-12T12:20:54.006808+00:00",
       "sha256": "79af81078db9991a7e5db63511fc2ee782d2a987122641a20b7b2d6f9d8dc27f"
     },
-    "model/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+    "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
       "bytes": 4683073600,
       "mtime_utc": "2026-07-23T10:34:43.064567+00:00",
       "sha256": "e8aee77a3d13658b5936cb8922fc0fdac17dc48682783ad4f3de7ecdb56776da"
     },
-    "model/role_finetune/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+    "model/legacy/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
       "bytes": 4683073600,
       "mtime_utc": "2026-07-23T10:34:43.064567+00:00",
       "sha256": "e8aee77a3d13658b5936cb8922fc0fdac17dc48682783ad4f3de7ecdb56776da"
     },
-    "model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+    "model/legacy/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
       "bytes": 4683073600,
       "mtime_utc": "2026-05-23T15:10:17.530177+00:00",
       "sha256": "91fa3855d9d21dfdaacaa0aa8b4ec441cf4beff41d47a3b0f19ffe7bc1145c55"
     },
-    "model/qwen25_acne_role_gguf_q4_k_m.zip": {
+    "model/legacy/qwen25_acne_role_gguf_q4_k_m.zip": {
       "bytes": 4596799740,
       "mtime_utc": "2026-07-23T10:17:42.827573+00:00",
       "sha256": "2a3035d1975bac7a35b224cd46540b2835af0838d77feb1c35df27672c1f1d71"
     },
-    "model/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf": {
+    "model/legacy/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf": {
       "bytes": 3015940160,
       "mtime_utc": "2026-05-23T15:10:10.279037+00:00",
       "sha256": "1dcb94e95b33d3b65820b71bb76b42c5ce1a59d7ddd8882f82a2f892232be812"
     },
-    "model/acne_intake_release.zip": {
+    "model/legacy/acne_intake_release.zip": {
       "bytes": 2508713588,
       "mtime_utc": "2026-07-24T14:41:55.220389+00:00",
       "sha256": "04f4ab366ea078ba724539f3c590e74034b8a2cea0ad5193457f78b504842bfd"
     },
-    "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf": {
+    "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf": {
       "bytes": 1929902592,
       "mtime_utc": "2026-07-24T14:42:47.092211+00:00",
       "sha256": "5c4e13d45e53704032a5d98199312e4bd7e4840dc69d8b8f207c2d0af8c58315"
     },
-    "model/qwen25_acne_role_lora.zip": {
+    "model/legacy/qwen25_acne_role_lora.zip": {
       "bytes": 832666140,
       "mtime_utc": "2026-07-23T10:08:54.038545+00:00",
       "sha256": "e1a78032da732e2220bca8a96dff61d5055d971c897caae4e7a22e684ff942c9"
     },
-    "model/acne_intake_release/qwen25_intake_lora.zip": {
+    "model/intaker/qwen25_intake_lora.zip": {
       "bytes": 619415446,
       "mtime_utc": "2026-07-24T14:42:25.868851+00:00",
       "sha256": "218bce13f09ae6c40cca080592e14dc719dec749272514a5f3dc734e22f88d0d"
     },
-    "model/qwen25_acne_role_lora/adapter_model.safetensors": {
+    "model/legacy/qwen25_acne_role_lora/adapter_model.safetensors": {
       "bytes": 161533192,
       "mtime_utc": "2026-07-23T10:28:13.889931+00:00",
       "sha256": "6b2ed1b85a550b47f25680a25b77597a01f54821c31f3894827aec05a7a9ae5f"

@@ -34,7 +34,7 @@ SECTIONS = (
     "finetune_intaker",
     "finetune_generator",
     "evaluation",
-    "workflow",
+    "architecture",
     "repository",
     "_overview",
 )
@@ -1183,22 +1183,66 @@ def generate_repository() -> dict:
     bar_chart("repository", "07_tests_by_domain.png", "Test functions theo domain tên file", test_counts,
               list((ROOT / "tests").glob("test_*.py")), top_n=25, xlabel="Số test functions", color=COLORS[1])
 
-    nodes = {
-        "api": (0.12, 0.72, "api\nroutes + middleware", 0),
-        "chat": (0.34, 0.72, "chat\nintake + orchestration", 1),
-        "guard": (0.34, 0.34, "guardrails\nsafety gates", 4),
-        "rag": (0.56, 0.82, "rag\nhybrid retrieval", 2),
-        "llm": (0.77, 0.82, "llm\nprompt + Ollama", 3),
-        "schemas": (0.56, 0.48, "schemas\nclinical contracts", 5),
-        "db": (0.77, 0.48, "db\nsession + audit", 0),
-        "data": (0.91, 0.66, "data/config\nruntime artifacts", 1),
-    }
-    edges = [("api", "chat", "calls"), ("chat", "guard", "safety"), ("chat", "rag", "retrieve"),
-             ("chat", "llm", "generate"), ("chat", "schemas", "typed data"), ("chat", "db", "persist"),
-             ("rag", "data", "indexes"), ("llm", "data", "prompts/models"), ("db", "data", "SQLite")]
-    draw_flow("07_source_module_architecture.png", "Source module architecture", nodes, edges,
-              list(source_root.rglob("*.py")))
     return {"backend_python_files": sum(package_files.values()), "backend_python_loc": sum(package_loc.values())}
+
+
+def register_architecture_figures() -> None:
+    """Register diagrams.net-rendered architecture pages in the shared catalog."""
+    build_script = OUT / "architecture" / "build_drawio.py"
+    drawio_file = OUT / "architecture" / "AcneLLM_Architecture.drawio"
+    pages = [
+        (
+            "01_system_context.png",
+            "System context & runtime boundaries",
+            [ROOT / "docker-compose.yml", ROOT / "frontend/src/hooks/useSSE.ts", ROOT / "src/acne_llm/api/app.py", ROOT / "src/acne_llm/di.py"],
+        ),
+        (
+            "02_chat_sse_workflow.png",
+            "Online chat request: input to streamed output",
+            [ROOT / "frontend/src/hooks/useSSE.ts", ROOT / "src/acne_llm/api/routes/chat.py", ROOT / "src/acne_llm/chat/runtime.py", ROOT / "src/acne_llm/chat/orchestrator.py"],
+        ),
+        (
+            "03_intake_safety_routing.png",
+            "Intake, hard safety and router-first control flow",
+            [ROOT / "src/acne_llm/chat/intake.py", ROOT / "src/acne_llm/chat/preprocess.py", ROOT / "src/acne_llm/chat/unified_intake.py", ROOT / "src/acne_llm/guardrails/runner.py", ROOT / "src/acne_llm/di.py"],
+        ),
+        (
+            "04_rag_kb_lifecycle.png",
+            "Knowledge base lifecycle & hybrid retrieval",
+            [ROOT / "scripts/crawl_all.py", ROOT / "scripts/build_kb.py", ROOT / "src/acne_llm/chat/_retrieval.py", ROOT / "data/raw/chunks.jsonl"],
+        ),
+        (
+            "05_finetune_data_factory.png",
+            "Finetune data factory: Intaker vs Generator",
+            [ROOT / "datagen/intakedata/pipeline.py", ROOT / "datagen/roledata/pipeline.py", ROOT / "datagen/roledata/output/generation_summary.json", ROOT / "data/raw/chunks.jsonl"],
+        ),
+        (
+            "06_evaluation_ablation.png",
+            "Evaluation harness, judge scoring and paired ablation",
+            [ROOT / "evaluation/full_evaluation.py", ROOT / "evaluation/runners/run_intake.py", ROOT / "evaluation/runners/run_retrieval.py", ROOT / "evaluation/runners/run_ablation.py", ROOT / "evaluation/reports/run_full_v3_2/summary.json"],
+        ),
+        (
+            "07_docker_deployment.png",
+            "Docker Compose deployment and startup order",
+            [ROOT / "docker-compose.yml", ROOT / "docker-compose.gpu.yml", ROOT / "Dockerfile", ROOT / "frontend/Dockerfile", ROOT / "docker/nginx/default.conf.template"],
+        ),
+    ]
+    for filename, title, sources in pages:
+        target = OUT / "architecture" / filename
+        if not target.exists():
+            raise FileNotFoundError(
+                f"Missing diagrams.net architecture render: {rel(target)}. "
+                f"Open {rel(drawio_file)} in app.diagrams.net and export the page."
+            )
+        manifest["figures"].append(
+            {
+                "section": "architecture",
+                "path": rel(target),
+                "title": title,
+                "sources": register_sources([*sources, build_script, drawio_file]),
+                "rendered_with": "https://app.diagrams.net/",
+            }
+        )
 
 
 def generate_overview(stats: dict) -> None:
@@ -1264,6 +1308,8 @@ def remove_previous_generated_figures() -> None:
         return
     out_root = OUT.resolve()
     for item in previous.get("figures") or []:
+        if item.get("section") == "architecture":
+            continue
         raw_path = item.get("path")
         if not isinstance(raw_path, str):
             continue
@@ -1280,7 +1326,7 @@ def main() -> None:
     intaker = generate_intaker()
     generator = generate_generator()
     evaluation = generate_evaluation(kb)
-    generate_workflows()
+    register_architecture_figures()
     repository = generate_repository()
     stats = {"kb": {k: v for k, v in kb.items() if k not in {"id_to_source", "sources"}},
              "intaker": {k: v for k, v in intaker.items() if k != "intents"},
