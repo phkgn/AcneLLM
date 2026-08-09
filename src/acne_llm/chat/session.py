@@ -38,7 +38,6 @@ MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
 SESSION_SCHEMA_VERSION: int = 2
 # Nguồn sự thật duy nhất cho ngân sách ký tự lịch sử.
 HISTORY_CHAR_BUDGET: int = 2000    # ~570 tokens; prompt thực đo được 828 tokens / ctx 3072
-FIRST_TURN_BUDGET: int = 0         # first-turn anchoring was removed in schema v2
 
 # Nguồn sự thật duy nhất cho cửa sổ lịch sử đưa vào prompt.
 HISTORY_WINDOW_TURNS: int = 6      # 3 lượt hỏi-đáp; budget chars mới là giới hạn thật
@@ -685,8 +684,6 @@ def _is_genital_turn(turn: ConversationTurn) -> bool:
 def format_history_block(
     turns: list[ConversationTurn],
     char_budget: int = HISTORY_CHAR_BUDGET,
-    first_turn_budget: int = FIRST_TURN_BUDGET,
-    keep_anchor: bool = False,
     max_turns: int | None = None,
 ) -> str:
     """Render only recent selected turns as a compact prompt block.
@@ -695,7 +692,6 @@ def format_history_block(
     session history poisoning (LLM mention "bìu" trong câu hỏi acne tiếp theo).
 
     Ưu tiên anchor turn đầu tiên của user (tin nhắn gốc mô tả tình trạng):
-    - Luôn giữ turn đầu (cắt tối đa first_turn_budget chars nếu quá dài).
     - Phần budget còn lại dùng cho các turns gần nhất (newest-first).
 
     Returns empty string when turns is empty (caller should skip the section).

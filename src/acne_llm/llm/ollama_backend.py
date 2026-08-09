@@ -79,6 +79,37 @@ class OllamaBackend:
             raise RuntimeError(f"Ollama chat failed: {e}; body={detail}") from e
         return r.json()
 
+    def _log_token_budget(self, done_chunk: dict) -> None:
+        """Ghi lai ngan sach token that. Do, dung doan.
+
+        `prompt_eval_count` = so token prompt sau khi ollama tokenize; `eval_count`
+        = so token da sinh. Tong hai so nay vuot num_ctx nghia la co thu bi cat,
+        va ollama cat im lang -- khong exception, khong warning.
+        """
+        prompt_tokens = done_chunk.get("prompt_eval_count")
+        out_tokens = done_chunk.get("eval_count") or 0
+        if not isinstance(prompt_tokens, int):
+            return
+        used = prompt_tokens + out_tokens
+        headroom = self.num_ctx - used
+        if headroom <= 0:
+            logger.warning(
+                "[ollama] TRAN NGU CANH: prompt {} + sinh {} = {} token > num_ctx {}. "
+                "Ollama da cat bot ma khong bao. Tang num_ctx hoac giam "
+                "chat_max_context_chars.",
+                prompt_tokens, out_tokens, used, self.num_ctx,
+            )
+        elif headroom < self.num_ctx * 0.1:
+            logger.warning(
+                "[ollama] gan tran: prompt {} + sinh {} = {}/{} token, con {} cho.",
+                prompt_tokens, out_tokens, used, self.num_ctx, headroom,
+            )
+        else:
+            logger.debug(
+                "[ollama] token: prompt {} + sinh {} = {}/{}",
+                prompt_tokens, out_tokens, used, self.num_ctx,
+            )
+
     def _post_chat_stream(self, payload: dict, model: str | None = None) -> Iterator[str]:
         if model is not None:
             payload = dict(payload)
@@ -100,6 +131,14 @@ class OllamaBackend:
                     logger.debug(f"Ollama stream returned non-JSON line: {line[:120]}")
                     continue
                 if data.get("done"):
+                    # Goi cuoi cua ollama mang so token THAT. Truoc day break ngay
+                    # nen ta phai uoc luong bang ky tu -- uoc luong tieng Viet lech
+                    # 2,5 den 3,5 ky tu/token, tuc sai so gan gap doi.
+                    # Ky tu prompt hien tai (SYSTEM 5.032 + context 6.000 + history
+                    # 2.000 + con lai) uoc ra 3.900-5.500 token vao, cong
+                    # num_predict 1.200, trong khi num_ctx mac dinh 4.096.
+                    # Neu that su tran thi ollama cat bot va KHONG bao gi ca.
+                    self._log_token_budget(data)
                     break
                 content = (data.get("message") or {}).get("content") or ""
                 if content:

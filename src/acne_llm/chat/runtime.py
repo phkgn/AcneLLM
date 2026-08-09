@@ -1,7 +1,7 @@
 """Streaming chat runtime -- orchestrator chinh cho /chat/stream va /ws/chat.
 
 Flow:
-    message -> intake (guardrails + completeness) -> retrieve -> build_prompt
+    message -> intake (guardrails + route) -> retrieve -> build_prompt
     -> llm.stream_text -> safety suffix -> SSE events -> persist session -> audit
 """
 from __future__ import annotations
@@ -242,28 +242,14 @@ def stream_chat_sse(
         if warning_suffix:
             yield _event("token", warning_suffix)
 
-        # -- 6b. Exactly one completeness follow-up ---------------------------
-        # Router clarify owns the open clarify template and has no completeness.
-        # Advise owns completeness; append its one deterministic field question.
-        completeness_question_suffix = ""
-        if (
-            _primary_intent == "advise"
-            and intake.completeness is not None
-            and intake.completeness.followup_question
-        ):
-            completeness_question_suffix = (
-                "\n\n" + intake.completeness.followup_question
-            )
-            yield _event("token", completeness_question_suffix)
-            # Bug fix: mark fields as asked so completeness checker doesn't
-            # repeat the same follow-up question on subsequent turns.
-            if intake.completeness.missing_fields and session_id:
-                sess.mark_fields_asked(session_id, intake.completeness.missing_fields)
+        # ponytail: bo doan noi cau hoi bo sung. Generator thay lich su va thay
+        # du kien trong nen tu quyet dinh hoi hay khong -- va no van hoi bat ke
+        # prompt bao dung, nen noi them chi tao cau hoi THU HAI. Viec chan hoi
+        # lap cung khong can `asked_fields` nua: model doc duoc luot truoc no da
+        # hoi gi. Xem git history neu can khoi phuc.
 
         # -- 8. Persist session -----------------------------------------------
-        full_assistant_text = (
-            full_text + (warning_suffix or "") + completeness_question_suffix
-        )
+        full_assistant_text = full_text + (warning_suffix or "")
         assistant_mode = "clarify" if intake.effective_mode == "clarify" else mode
         if session_id:
             sess.append_turn(

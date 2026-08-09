@@ -51,7 +51,7 @@ from evaluation.runners.run_ablation import _score_candidate  # noqa: E402
 
 DEFAULT_INPUT = ROOT / "evaluation/reports/full_eval/ablation/rows.jsonl"
 DEFAULT_OUTPUT = ROOT / "evaluation/reports/rescore"
-DEFAULT_JUDGE = "gpt-5.4-mini-2026-03-17"
+DEFAULT_JUDGE = "deepseek-v4-pro"
 ANSWER_FACES = ("answer_quality", "role_tone", "incorrect_content", "missing_content")
 
 
@@ -214,7 +214,7 @@ def main(argv: list[str] | None = None) -> None:
     if not todo and not done:
         raise SystemExit("Không có dòng nào có câu trả lời để chấm.")
 
-    judge = JudgeClient(provider="openai", model=args.judge_model,
+    judge = JudgeClient(model=args.judge_model,
                         use_cache=not args.no_cache)
     write_lock = threading.Lock()
     failed: list[dict[str, str]] = []
@@ -329,7 +329,6 @@ def demo() -> None:
     record = {
         "sample_id": "q-1", "user_query": "mụn ở cằm do đâu?",
         "user_context": {"is_pregnant": True},
-        "expected_behavior": "giải thích nội tiết",
         "expected_answer_points": ["nội tiết"],
         "forbidden_claims": ["kê liều cụ thể"],
         "intent_label": "advise",

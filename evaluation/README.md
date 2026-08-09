@@ -36,7 +36,13 @@ python -m evaluation.full_evaluation --skip intake,retrieval
 ```
 
 Preflight kiểm: Ollama + model, `data/chroma_db`, `data/bm25_index.pkl`, bộ câu hỏi,
-`OPENAI_API_KEY`. Thiếu gì in hướng dẫn sửa. Bước fail không kéo sập bước sau.
+key của judge provider đang bật (`JUDGE_PROVIDER` trong `.env` → `DEEPSEEK_API_KEY`
+hoặc `OPENAI_API_KEY`). Thiếu gì in hướng dẫn sửa. Bước fail không kéo sập bước sau.
+
+**Đổi judge provider = đổi thang điểm.** Cache judge khoá theo `provider::model::prompt`
+nên đổi provider là miss 100%, và điểm mới KHÔNG so được với artifact cũ. Chạy lại
+toàn bộ thì phải `--out` một thư mục mới — trộn hai judge trong một `rows.jsonl`
+làm paired delta vô nghĩa.
 
 ## Khâu 2 — mã arm
 

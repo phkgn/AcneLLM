@@ -36,17 +36,20 @@ Kế thừa nguyên máy móc của `datagen.intakedata` — cùng anchor byte-p
 Cổng chống nhiễm: loại mọi câu đã có trong tập train của model. Dùng lại câu
 model đã học là tự chấm bài mình.
 
+Sinh bằng model KHÁC gpt-4o-mini (thứ đã sinh tập train) — xem `build_config`.
+
 Usage:
     python -m evaluation.datasets.make_intake_set --dry-run
     python -m evaluation.datasets.make_intake_set --yes
     python -m evaluation.datasets.make_intake_set --yes --scale 0.1   # thử 50 dòng
+    python -m evaluation.datasets.make_intake_set --yes --provider deepseek
 """
 from __future__ import annotations
 
 import argparse
 import asyncio
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 from pathlib import Path
 import random
@@ -58,7 +61,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from datagen.intakedata.anchor import anchor_sha256, load_anchor  # noqa: E402
-from datagen.intakedata.config import Config  # noqa: E402
+from datagen.intakedata.config import Config, _environment  # noqa: E402
 from datagen.intakedata.gates import CorpusGateState, evaluate_record  # noqa: E402
 from datagen.intakedata.generator import (  # noqa: E402
     CaseSpec,
@@ -101,15 +104,17 @@ def _sev(level: str) -> str:
 
 CASES: tuple[Case, ...] = (
     # ── An toàn: lỗ hổng lớn nhất, ưu tiên cao nhất ────────────────────────
+    # KHÔNG nêu ví dụ nguyên văn ở đây: bản trước ghi "'em bầu 5 tháng'" và model
+    # chép thẳng — 37/45 câu ra đúng "5 tháng". Mốc thời gian do seed cấp ngẫu
+    # nhiên qua `patch_seed` thay vì viết cứng vào prompt.
     Case("pregnant_true", 45, RICH, "context.is_pregnant", True,
-         "Người hỏi ĐANG MANG THAI và nói rõ điều đó. Đa dạng cách nói: 'em bầu "
-         "5 tháng', 'đang có em bé', 'mang thai tuần 20'. Có kèm mô tả mụn."),
+         "Người hỏi ĐANG MANG THAI và nói rõ điều đó, bằng cách nói tự nhiên của "
+         "riêng mình. Có kèm mô tả mụn."),
     Case("pregnant_false", 20, SIMPLE, "context.is_pregnant", False,
          "Người hỏi nói RÕ mình KHÔNG mang thai, ví dụ 'em không có bầu đâu', "
          "'chưa lập gia đình'. Phải là phủ định chủ động, không phải im lặng."),
     Case("breastfeeding_true", 45, RICH, "context.is_breastfeeding", True,
-         "Người hỏi ĐANG CHO CON BÚ. Đa dạng: 'em đang cho bé bú', 'con em 3 "
-         "tháng còn ti mẹ', 'sau sinh đang nuôi con sữa mẹ'."),
+         "Người hỏi ĐANG CHO CON BÚ, nói bằng cách của riêng mình. Có kèm mô tả mụn."),
     Case("allergy", 40, RICH, "context.allergies", ANY,
          "Người hỏi nêu rõ mình DỊ ỨNG với ít nhất một thành phần. Mỗi lần một "
          "chất khác nhau. Phân biệt rõ với 'đã ngưng dùng' — dị ứng là phản ứng, "
@@ -200,6 +205,84 @@ def satisfies(payload: Mapping[str, Any], case: Case) -> bool:
     return value == case.expect
 
 
+class DeepSeekGenerator(OpenAIGenerator):
+    """DeepSeek khong ho tro Structured Outputs, chi co JSON mode.
+
+    Gui `{"type": "json_schema", ...}` vao la 400 BadRequest o MOI request --
+    do dung la thu da lam luot chay dau tien that bai sach.
+
+    Mat gi: khong con bao dam CAU TRUC tu API. Bu lai bang cong o phia ta --
+    `to_record` kiem hop dong, `satisfies` kiem gia tri dat hang, `evaluate_record`
+    kiem schema/enum/negation. Dong hong bi loai va sinh lai, ton luot thu chu
+    khong lot vao file.
+    """
+
+    # JSON mode cua DeepSeek de sinh chuoi dai hon Structured Outputs (khong co
+    # grammar ep dung cau truc), va deepseek-v4-flash con tieu token cho reasoning.
+    # 1.600 token mac dinh -> content RONG hoac cat giua chung o gan het request.
+    MAX_TOKENS = 4_000
+
+    def _response_format(self) -> dict[str, Any]:
+        return {"type": "json_object"}
+
+
+# Sinh tap TRAIN cua intaker la `gpt-4o-mini`. Dung lai dung model do cho bo
+# DANH GIA thi bo de mang cung giong van model da hoc thuoc qua 4.000 mau --
+# khong trung cau nhung trung phan phoi cach dien dat. Doi sang mot model khac
+# trong cung ho la du de tach, va re hon deepseek ve mat cong sua loi.
+DEFAULT_MODEL = {"openai": "gpt-4.1-mini", "deepseek": None}
+TRAIN_GENERATOR = "gpt-4o-mini"
+
+
+def build_config(provider: str, model: str | None = None) -> Config:
+    """Config cho bo sinh. MAC DINH deepseek, khong phai openai.
+
+    Vi sao quan trong: bo TRAIN cua intaker duoc sinh bang `openai:gpt-4o-mini`
+    (3.164/4.000 dong -- xem datagen/intakedata/DATA_PROVENANCE_REPORT.md). Neu
+    bo DANH GIA cung sinh bang model do thi no mang cung mot giong van ma model
+    da hoc thuoc qua 4.000 mau. Khong trung cau, nhung trung phan phoi cach dien
+    dat -- nhiem ban kieu tinh vi, va con so do duoc se dep hon thuc te.
+
+    `datagen.intakedata.config.Config` chi doc bien OPENAI_*, nen truoc day script
+    nay lang le chay OpenAI du .env co san khoa DeepSeek. Khong ai bao gi ca.
+    """
+    env = _environment(ROOT)
+    model = model or DEFAULT_MODEL[provider]
+    if provider == "openai":
+        if model == TRAIN_GENERATOR:
+            print(f"  ⚠ {model} chính là model đã sinh tập train — bộ đề sẽ "
+                  "mang cùng giọng văn model đã học thuộc. Cân nhắc --model khác.")
+        return Config(model=model)
+    keys = {k: env.get(f"DEEPSEEK_{k.upper()}") for k in ("api_key", "base_url", "model")}
+    if model:
+        keys["model"] = model
+    thieu = [f"DEEPSEEK_{k.upper()}" for k, v in keys.items() if not v]
+    if thieu:
+        raise SystemExit(
+            f".env thieu {', '.join(thieu)}. Them vao, hoac chay voi "
+            "--provider openai (nhung doc docstring build_config truoc)."
+        )
+    return Config(**keys, max_output_tokens=DeepSeekGenerator.MAX_TOKENS)
+
+
+def cue_violations(seed: Mapping[str, Any], user_turn: str) -> list[str]:
+    """Cue nào đã đặt hàng mà KHÔNG có nguyên văn trong câu người dùng.
+
+    `build_gen_prompt` ra lệnh rõ: "user_turn phải chứa NGUYÊN VĂN từng cue trong
+    danh sách; assistant_json chỉ được trích các field có bằng chứng đó". Generator
+    không phải lúc nào cũng tuân — đo trên bộ cũ: 354/7006 cue thiếu ở train
+    (5,1%), 48/779 ở val (6,2%).
+
+    Mỗi cue thiếu là một nhãn vàng không có căn cứ trong lời người dùng, tức là
+    ngược hẳn luật đầu tiên của hệ: "Chỉ trích điều người dùng thực sự tự khai".
+    Model trích đúng (không bịa) lại bị chấm là sai.
+
+    Đây là khớp CHUỖI NGUYÊN VĂN, không phải đoán ngữ nghĩa — không có dương tính
+    giả. Khác hẳn mấy metric từ vựng đã bị gỡ khỏi eval.
+    """
+    return [c for c in (seed.get("required_user_cues") or ()) if c not in user_turn]
+
+
 def spec_of(case: Case) -> CaseSpec:
     # intent_hint PHẢI theo ca. Hardcode "advise" thì ca reject/clarify nhận
     # prompt bảo "INTENT BẮT BUỘC: advise" rồi bị chính cổng của mình loại —
@@ -215,21 +298,37 @@ def spec_of(case: Case) -> CaseSpec:
 # ngực/cổ/vai/chữ-T. Nó vẫn nhồi cue của nó vào `required_user_cues` và đè lên
 # behavior -> lượt thử ra đúng 6 giá trị của seed, không lệch cái nào.
 CUE = {
-    "cyst": "mụn nang, cục to sâu dưới da",
-    "scar": "sẹo rỗ sau mụn",
-    "comedone": "nhân mụn sần sần dưới da",
-    "post_inflammatory_hyperpigmentation": "vết thâm sau mụn",
+    "cyst": "mụn nang",
+    "scar": "sẹo rỗ",
+    "comedone": "nhân mụn",
+    "post_inflammatory_hyperpigmentation": "vết thâm",
     "chest": "ở ngực",
     "neck": "ở cổ",
     "shoulders": "ở vai",
-    "t_zone": "ở vùng chữ T",
+    "t_zone": "vùng chữ T",
 }
+# Cue mức độ: seed bốc lesion NGẪU NHIÊN, nên ca `sev_severe` nhận cue "mụn đầu
+# đen" trong khi behavior đòi IGA 4. Model không thể vừa viết mụn đầu đen vừa
+# gán severe — nó chọn cue, và đơn hàng trượt (7/30). Ép lesion khớp bậc.
+SEV_LESION = {"mild": "blackhead", "moderate": "pustule", "severe": "nodule"}
+SEV_CUE = {"mild": ("mụn đầu đen",), "moderate": ("mụn đỏ", "mụn mủ"),
+           "severe": ("mụn bọc",)}
 # Thuốc UỐNG. Lượt thử cho thấy seed chỉ có sản phẩm bôi nên `medications` nhận
 # về "benzoyl peroxide", "adapalene" — đó là kem bôi, thuộc current_products.
 ORAL_MEDS = ("doxycycline", "minocycline", "isotretinoin", "spironolactone",
              "thuốc tránh thai")
 ALLERGENS = ("benzoyl peroxide", "retinol", "salicylic acid", "hương liệu",
              "cồn", "tretinoin")
+# Đủ trải ba tam cá nguyệt. Không nêu mốc nào thì model chép ví dụ trong behavior.
+PREGNANCY_STAGES = (
+    "mới có thai tháng đầu", "thai 8 tuần", "bầu 3 tháng", "thai 14 tuần",
+    "bầu 4 tháng rưỡi", "thai 22 tuần", "bầu 6 tháng", "thai 30 tuần",
+    "bầu tháng thứ 8", "sắp sinh",
+)
+BABY_AGES = (
+    "con mới sinh được 2 tuần", "bé được 1 tháng", "con 3 tháng",
+    "bé 5 tháng", "con 8 tháng", "bé hơn 1 tuổi vẫn bú",
+)
 
 
 def patch_seed(case: Case, seed: dict[str, Any], rng: random.Random) -> dict[str, Any]:
@@ -238,33 +337,71 @@ def patch_seed(case: Case, seed: dict[str, Any], rng: random.Random) -> dict[str
     Chỉ chạm những ca mà seed KHÔNG có từ vựng. Ca thai kỳ/cho bú/mức độ đã đạt
     quota ở lượt thử nên để nguyên — sửa thứ đang chạy được là tự chuốc rủi ro.
     """
-    if case.expect is ANY and case.path not in (
-        "context.medications", "context.allergies"
-    ):
+    touched = (
+        case.path in ("context.medications", "context.allergies",
+                      "context.is_pregnant", "context.is_breastfeeding",
+                      "clinical.inflammation_level")
+        or case.expect in CUE
+    )
+    if not touched:
         return seed
     seed = dict(seed)
     cues = [c for c in (seed.get("required_user_cues") or ())]
 
+    # Mỗi cue thừa là một xác suất trượt độc lập: prompt bắt user_turn chứa
+    # NGUYÊN VĂN từng cue, nên seed RICH với 9 cue nghĩa là 9 chỗ có thể hỏng cho
+    # một đơn hàng chỉ cần đúng MỘT field. Lượt 500 dòng: cue giới rớt 39 lần,
+    # cue "đang dùng <sản phẩm>" rớt 34 lần — không cue nào liên quan đơn hàng.
+    # Gỡ cue thì phải gỡ luôn field trong seed: prompt cấm thêm thứ ngoài cue.
+    cues = [c for c in cues if not c.startswith("đang dùng ")]
+    seed.pop("product", None)
+
+    if case.path in ("context.is_pregnant", "context.is_breastfeeding"):
+        # Seed bốc `sex` ngẫu nhiên rồi nhét "nam" vào cue. Đo trên lượt 500 dòng:
+        # 25/45 ca mang thai và 23/45 ca cho bú mang nhãn sex=male, trong đó 20 ca
+        # text nói thẳng "là nam". Nam giới mang thai — vô lý sinh học, và nhãn
+        # vàng đó dạy model sai.
+        if case.expect is True:
+            seed["sex"] = "female"
+            # Gỡ cue giới của seed nhưng KHÔNG thêm "nữ" vào chỗ nó. "Đang cho
+            # con bú" đã hàm ý nữ; bắt model viết thêm chữ "nữ" là ép câu thành
+            # không tự nhiên, và lượt 500 dòng rớt 33 lần đúng vì cue này.
+            cues = [c for c in cues if c not in ("nam", "nữ")]
+            # Mốc thời gian đi vào SEED chứ không vào `required_user_cues`: SEED
+            # được dump nguyên vào prompt nên model vẫn thấy và dùng, nhưng không
+            # bị ràng buộc khớp nguyên văn. Model viết "bầu được 3 tháng" thì cue
+            # "bầu 3 tháng" trượt, dù nội dung đúng y hệt.
+            seed["stage"] = rng.choice(
+                PREGNANCY_STAGES if case.path == "context.is_pregnant" else BABY_AGES
+            )
+
+    else:
+        # Giới tính không phục vụ đơn hàng nào ngoài thai kỳ/cho bú.
+        cues = [c for c in cues if c not in ("nam", "nữ")]
+        seed.pop("sex", None)
+
+    # Cue NGẮN, không phải mô tả dài. Bản trước gỡ sạch cue tổn thương/vị trí rồi
+    # để `behavior` dẫn — nhưng prompt có câu "Không thêm ... lesion, vị trí ...
+    # ngoài các cue bắt buộc", nên gỡ cue là CẤM model viết đúng thứ đã đặt hàng:
+    # cyst 0/30, chest 4/15. Bản trước nữa dùng cue dài ("mụn nang, cục to sâu
+    # dưới da") và trượt khớp nguyên văn. Cue ngắn giải cả hai: đủ để cho phép,
+    # ngắn để model chép lại nguyên xi.
     if case.path == "clinical.lesion_types" and case.expect in CUE:
-        # Bỏ mọi cue tổn thương cũ rồi mới thêm cue đặt hàng, nếu không hai bên
-        # đánh nhau trong cùng một prompt.
-        cues = [c for c in cues if not c.startswith("mụn")]
-        cues.append(CUE[case.expect])
+        cues = [c for c in cues if not c.startswith("mụn")] + [CUE[case.expect]]
         seed["lesion"] = case.expect
         seed.pop("second_lesion", None)
     elif case.path == "clinical.lesion_distribution" and case.expect in CUE:
-        cues = [c for c in cues if not c.startswith("ở ")]
-        cues.append(CUE[case.expect])
+        cues = [c for c in cues if not c.startswith("ở ")] + [CUE[case.expect]]
         seed["distribution"] = case.expect
         seed.pop("second_distribution", None)
+    elif case.expect in SEV_LESION:
+        cues = [c for c in cues if not c.startswith("mụn")] + list(SEV_CUE[case.expect])
+        seed["lesion"] = SEV_LESION[case.expect]
+        seed.pop("second_lesion", None)
     elif case.path == "context.medications":
-        drug = rng.choice(ORAL_MEDS)
-        cues.append(f"đang uống {drug}")
-        seed["medication"] = drug
+        seed["medication"] = rng.choice(ORAL_MEDS)
     elif case.path == "context.allergies":
-        allergen = rng.choice(ALLERGENS)
-        cues.append(f"bị dị ứng {allergen}")
-        seed["allergy"] = allergen
+        seed["allergy"] = rng.choice(ALLERGENS)
 
     seed["required_user_cues"] = cues
     return seed
@@ -285,10 +422,35 @@ def trained_hashes(paths: list[Path]) -> set[str]:
     return seen
 
 
+async def _attempt(
+    provider: Any, spec: CaseSpec, seed: dict[str, Any], anchor: str, case_name: str
+) -> tuple[dict[str, Any] | None, dict[str, Any], str | None]:
+    """Mot lan goi provider. Tra (record, seed, ly_do_loi)."""
+    try:
+        generated = await provider.generate(build_gen_prompt(spec, seed))
+        record = to_record(spec, generated, anchor,
+                           source=f"intake_eval:{case_name}", seed=seed)
+    except Exception as exc:                                # noqa: BLE001
+        return None, seed, f"provider:{type(exc).__name__}"
+    return record, seed, None
+
+
 async def build(
     anchor: str, cases: tuple[Case, ...], *, provider: Any, contaminated: set[str],
     seed: int, attempts_factor: int, verbose: bool = True,
+    generator_id: str = "unknown", concurrency: int = 8,
 ) -> tuple[list[dict[str, Any]], Counter[str], Counter[str]]:
+    """Sinh theo LO song song, nhung xet duyet TUAN TU.
+
+    Vong lap cu `await` tung luot mot nen `concurrency` trong Config chua bao gio
+    co tac dung -- 500 dong x ~4s = gan 35 phut. Gio moi vong ban `concurrency`
+    request cung luc roi xu ly ket qua lan luot.
+
+    Vi sao khong song song ca phan xet duyet: `state.duplicate_user` va bo dem
+    quota la trang thai chia se. Chay song song thi hai dong trung nhau cung lot,
+    va quota vuot. Phan cham la goi mang, khong phai phan xet -- song song hoa
+    dung cho ton kem la du.
+    """
     state = CorpusGateState(anchor)
     rng = random.Random(seed)
     kept: list[dict[str, Any]] = []
@@ -297,48 +459,88 @@ async def build(
 
     for case in cases:
         spec = spec_of(case)
-        for _ in range(case.quota * attempts_factor):
-            if got[case.name] >= case.quota:
-                break
-            try:
-                generated = await provider.generate(
-                    build_gen_prompt(
-                        spec, patch_seed(case, synthesize_seed(case.base, rng), rng)
-                    )
-                )
-                record = to_record(spec, generated, anchor,
-                                   source=f"intake_eval:{case.name}", seed=None)
-            except Exception as exc:                        # noqa: BLE001
-                rejects[f"{case.name}:provider:{type(exc).__name__}"] += 1
-                continue
+        # Khu trung ngu nghia chay o CUOI, sau khi vong nay da dem du quota -- nen
+        # quota "du" luc sinh thanh thieu luc doi chieu: sev_mild 30 -> 22,
+        # knowledge 20 -> 17. Sinh du ra de bu phan se bi cat.
+        target = -(-case.quota * 115 // 100)
+        con_lai = target * attempts_factor
+        while got[case.name] < target and con_lai > 0:
+            # Khong ban thua: chi can bao nhieu dong nua thi ban bay nhieu.
+            batch = min(concurrency, target - got[case.name], con_lai)
+            seeds = [patch_seed(case, synthesize_seed(case.base, rng), rng)
+                     for _ in range(batch)]
+            con_lai -= batch
+            for record, used_seed, err in await asyncio.gather(
+                *(_attempt(provider, spec, sd, anchor, case.name) for sd in seeds)
+            ):
+                if err is not None:
+                    rejects[f"{case.name}:{err}"] += 1
+                    continue
+                if got[case.name] >= target:
+                    break
 
-            payload = json.loads(record["messages"][-1]["content"])
-            if not satisfies(payload, case):
-                rejects[f"{case.name}:khong_dat_yeu_cau"] += 1
-                continue
+                payload = json.loads(record["messages"][-1]["content"])
+                if not satisfies(payload, case):
+                    rejects[f"{case.name}:khong_dat_yeu_cau"] += 1
+                    continue
 
-            user_turn = record["messages"][-2]["content"]
-            if user_turn_hash(user_turn) in contaminated:
-                rejects[f"{case.name}:trung_tap_train"] += 1
-                continue
-            if state.duplicate_user(user_turn):
-                rejects[f"{case.name}:trung_trong_bo"] += 1
-                continue
+                user_turn = record["messages"][-2]["content"]
+                thieu_cue = cue_violations(used_seed, user_turn)
+                if thieu_cue:
+                    rejects[f"{case.name}:cue_khong_co_trong_cau:{thieu_cue[0][:22]}"] += 1
+                    continue
+                if user_turn_hash(user_turn) in contaminated:
+                    rejects[f"{case.name}:trung_tap_train"] += 1
+                    continue
+                if state.duplicate_user(user_turn):
+                    rejects[f"{case.name}:trung_trong_bo"] += 1
+                    continue
 
-            result = evaluate_record(record, state)
-            if not result.passed:
-                rejects[f"{case.name}:gate:{','.join(result.reasons)[:30]}"] += 1
-                continue
+                result = evaluate_record(record, state)
+                if not result.passed:
+                    rejects[f"{case.name}:gate:{','.join(result.reasons)[:30]}"] += 1
+                    continue
 
-            state.accept(record, payload)
-            record.setdefault("meta", {})["eval_case"] = case.name
-            kept.append(record)
-            got[case.name] += 1
+                state.accept(record, payload)
+                meta = record.setdefault("meta", {})
+                meta["eval_case"] = case.name
+                # Ghi model sinh vao TUNG dong: cau hoi "data nay tu dau" phai tra
+                # loi duoc tu chinh file, khong phai tu tri nho cua ai do.
+                meta["generator"] = generator_id
+                kept.append(record)
+                got[case.name] += 1
 
         if verbose:
             mark = "✓" if got[case.name] >= case.quota else "✗"
-            print(f"  {mark} {case.name:22}{got[case.name]:>4}/{case.quota}")
+            print(f"  {mark} {case.name:22}{got[case.name]:>4}/{case.quota}", flush=True)
     return kept, got, rejects
+
+
+def drop_near_duplicates(
+    records: list[dict[str, Any]], threshold: float
+) -> tuple[list[dict[str, Any]], list[tuple[float, int, int]]]:
+    """Khu trung NGU NGHIA trong chinh bo moi, mot lan o cuoi.
+
+    `state.duplicate_user` chi khop chuoi chinh xac, nen 500 dong sinh ra van co
+    the chua cac cau na na nhau. Bo v2 lot 15 ban trung dung kieu do, va bootstrap
+    CI gia dinh mau doc lap nen trung noi dung lam khoang tin cay HEP GIA.
+
+    Chay o CUOI chu khong trong vong lap: mot lan nap embedder, mot lan inference
+    tren 500 cau. Kiem trong vong lap thi phai embed lai sau moi dong.
+
+    Tai dung `make_eval_set.semantic_dedup` -- cung nguong, cung cach giu ban dau.
+    """
+    from evaluation.datasets.make_eval_set import semantic_dedup
+
+    users = [r["messages"][-2]["content"] for r in records]
+    keep, dropped = semantic_dedup(users, threshold=threshold)
+    return [records[i] for i in keep], dropped
+
+
+def users_preview(records: list[dict[str, Any]], index: int) -> str:
+    if 0 <= index < len(records):
+        return records[index]["messages"][-2]["content"][:70]
+    return "?"
 
 
 def verify(records: list[dict[str, Any]], cases: tuple[Case, ...]) -> list[tuple]:
@@ -395,6 +597,19 @@ def main(argv: list[str] | None = None) -> int:
                     help="nhân quota, vd 0.1 để chạy thử ~50 dòng")
     ap.add_argument("--seed", type=int, default=20260806)
     ap.add_argument("--attempts-factor", type=int, default=3)
+    ap.add_argument("--dedup-cosine", type=float, default=0.90,
+                    help="ngưỡng khử trùng ngữ nghĩa ở cuối. Cao hơn "
+                         "make_eval_set (0.85) vì bộ này CỐ Ý nhiều câu cùng "
+                         "chủ đề — 30 ca nang, 45 ca thai kỳ.")
+    ap.add_argument("--concurrency", type=int, default=16,
+                    help="số request song song. Vòng lặp cũ chạy tuần tự nên "
+                         "concurrency trong Config chưa từng có tác dụng.")
+    ap.add_argument("--model", default="",
+                    help=f"ghi đè model. Mặc định {DEFAULT_MODEL['openai']} cho "
+                         f"openai — KHÁC {TRAIN_GENERATOR} đã sinh tập train.")
+    ap.add_argument("--provider", default="openai", choices=("deepseek", "openai"),
+                    help="model sinh dữ liệu. Mặc định deepseek — KHÁC họ với "
+                         "gpt-4o-mini đã sinh tập train, nên bộ đề độc lập.")
     ap.add_argument("--yes", action="store_true", help="bắt buộc: cho phép gọi API")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
@@ -406,7 +621,8 @@ def main(argv: list[str] | None = None) -> int:
              c.expect, c.behavior, c.style)
         for c in CASES
     )
-    cfg = Config()
+    cfg = replace(build_config(args.provider, args.model or None),
+                  concurrency=args.concurrency)
     anchor = load_anchor(cfg)
     if "IGA" not in anchor:
         raise SystemExit(
@@ -431,6 +647,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"\n── {sample.name} ── intent_hint={spec_of(sample).intent_hint}")
             print("   cues:", seed.get("required_user_cues"))
         print(f"\nanchor_sha256 = {anchor_sha256(anchor)}")
+        print(f"provider      = {args.provider} · model = {cfg.model}")
         return 0
 
     if not args.yes:
@@ -440,12 +657,25 @@ def main(argv: list[str] | None = None) -> int:
         ROOT / "datagen/intakedata/output/intake/intake.train.jsonl",
         ROOT / "datagen/intakedata/output/intake/intake.val.jsonl",
     ])
+    print(f"sinh bằng {args.provider} · model {cfg.model} · {args.concurrency} luồng")
     print(f"{len(contaminated)} câu đã có trong bộ cũ — loại nếu trùng\n")
 
     kept, got, rejects = asyncio.run(build(
-        anchor, cases, provider=OpenAIGenerator(cfg), contaminated=contaminated,
+        anchor, cases, contaminated=contaminated,
+        provider=(DeepSeekGenerator if args.provider == "deepseek"
+                  else OpenAIGenerator)(cfg),
         seed=args.seed, attempts_factor=args.attempts_factor,
+        generator_id=f"{args.provider}:{cfg.model}",
+        concurrency=args.concurrency,
     ))
+
+    truoc = len(kept)
+    kept, trung = drop_near_duplicates(kept, args.dedup_cosine)
+    if trung:
+        print(f"\nkhử trùng ngữ nghĩa (cosine > {args.dedup_cosine}): "
+              f"{truoc} → {len(kept)} dòng")
+        for cos, i, j in trung[:5]:
+            print(f"  {cos:.3f}  {users_preview(kept, j)}")
 
     out = Path(args.out)
     write_jsonl(out, kept)

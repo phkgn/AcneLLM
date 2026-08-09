@@ -1,10 +1,12 @@
-{# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Luật phạm vi/an toàn/ngôn ngữ/grounding
-   (kể cả an toàn trẻ sơ sinh) nằm ở Modelfile SYSTEM, không lặp ở đây. #}
-{% if history_block %}[NGỮ CẢNH USER GẦN NHẤT - CHỈ ĐỂ GIẢI FOLLOW-UP]
-{{ history_block }}
-{% endif %}
-{% if has_retrieved_context %}[TÀI LIỆU Y KHOA THAM KHẢO]
+{# Câu hỏi kiến thức chung: không có hồ sơ cá nhân, không dữ kiện an toàn.
+   Nhãn khối và thứ tự theo knowledge_user.legacy.j2 -> xem stream_user.j2. #}
+{% if has_retrieved_context %}Tài liệu tham khảo:
 {{ retrieved_context }}
+
 {% endif %}
-[CÂU HỎI HIỆN TẠI]
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
+{{ history_block }}
+
+{% endif %}
+Tin nhắn hiện tại:
 {{ description }}

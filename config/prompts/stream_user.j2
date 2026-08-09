@@ -1,22 +1,22 @@
-{# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Mọi luật an toàn/ngôn ngữ/phong cách/grounding
-   nằm ở Modelfile SYSTEM, không lặp ở đây. #}
-{% if confirmed_safety_facts %}[DỮ KIỆN AN TOÀN ĐÃ XÁC NHẬN]
-{{ confirmed_safety_facts }}
-{% endif %}
-{% if known_facts %}[DỮ KIỆN NGƯỜI DÙNG ĐÃ XÁC NHẬN]
-{{ known_facts }}
-{% endif %}
-{% if route_metadata %}[CHỈ DẪN NGỮ CẢNH]
-{{ route_metadata }}
-{% endif %}
-{% if completeness_hint %}[GỢI Ý BỔ SUNG]
-{{ completeness_hint }}
-{% endif %}
-{% if history_block %}[NGỮ CẢNH GẦN NHẤT - CHỈ ĐỂ HIỂU FOLLOW-UP]
-{{ history_block }}
-{% endif %}
-{% if has_retrieved_context %}[TÀI LIỆU Y KHOA THAM KHẢO]
+{# Nhãn khối trùng đúng thứ tự ưu tiên dữ kiện Modelfile SYSTEM đã tuyên bố:
+   tin nhắn hiện tại > dữ kiện an toàn > ngữ cảnh gần nhất > tài liệu tham khảo.
+   Xếp ngược lại: ưu tiên thấp lên đầu, cao xuống cuối (chỗ model chú ý mạnh nhất).
+   ponytail: bỏ known_facts + route_metadata — SYSTEM không có luật nào cho chúng.
+   Bản 7 khối cũ giữ ở stream_user.legacy.j2. #}
+{% if has_retrieved_context %}Tài liệu tham khảo:
 {{ retrieved_context }}
+
 {% endif %}
-[CÂU HỎI HIỆN TẠI]
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
+{{ history_block }}
+
+{% endif %}
+{% if confirmed_safety_facts %}Dữ kiện an toàn đã xác nhận: {{ confirmed_safety_facts }}
+
+{% endif %}
+Tin nhắn hiện tại:
 {{ description }}
+{% if prompt_note %}
+
+({{ prompt_note }})
+{% endif %}

@@ -109,7 +109,6 @@ def _mentions_rx_advice(text: str, term: str) -> bool:
         if any(ctx in window for ctx in _ALL_RX_CONTEXT):
             return _mentions_positively(text, term)
         start = idx + len(term)
-    return False
 
 
 _PREGNANCY_MENTION_TERMS = (

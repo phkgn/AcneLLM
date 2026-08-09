@@ -108,8 +108,10 @@ def row_block(
             head = f" {label:<9} " if i == 0 else " " * (indent + 1)
             lines.append(f"{BOX['v']}{head}{chunk}".ljust(width - 1) + BOX['v'])
 
+    points = sample.get("expected_answer_points") or []
     field("task", f"{sample.get('intent_label') or '?'} · "
-                  f"{sample.get('expected_behavior') or '—'}")
+                  f"{len(points)} ý mong đợi"
+                  + (f" · {points[0]}" if points else ""))
     field("query", sample.get("user_query"))
 
     # Arm oracle: slot ĐƯỢC BƠM. Arm thật: slot intaker RÚT ĐƯỢC.

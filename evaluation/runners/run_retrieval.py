@@ -46,7 +46,7 @@ from evaluation.judges.clients import JudgeClient  # noqa: E402
 
 DEFAULT_DATASET = ROOT / "evaluation/datasets/eval_set.v3.jsonl"
 DEFAULT_OUTPUT = ROOT / "evaluation/reports/rag/results.json"
-DEFAULT_JUDGE = "gpt-5.4-mini-2026-03-17"
+DEFAULT_JUDGE = "deepseek-v4-pro"
 
 
 def _fmt(v: Any, pct: bool = False) -> str:
@@ -76,7 +76,7 @@ def main() -> None:
     container = build_eval_container(None, None)
     if not container.rag_ready:
         raise SystemExit("RAG chưa sẵn sàng — kiểm tra data/chroma_db và bm25_index.pkl")
-    judge = JudgeClient(provider="openai", model=args.judge_model,
+    judge = JudgeClient(model=args.judge_model,
                         use_cache=not args.no_cache)
 
     rows = [json.loads(l) for l in Path(args.dataset).read_text(encoding="utf-8")

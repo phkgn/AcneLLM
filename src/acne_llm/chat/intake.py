@@ -2,7 +2,7 @@
 
 This module owns the deterministic steps before generation:
 preprocess -> normalize current turn -> guardrails/scope -> route ->
-select recent context -> completeness hint -> effective mode.
+select recent context -> effective mode.
 """
 from __future__ import annotations
 
@@ -13,10 +13,10 @@ from typing import TYPE_CHECKING, Literal
 from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
 from ._terms import CASE_INTAKE_TERMS, contains_any
-from .completeness import CompletenessResult, check_completeness
 from .fallback.intent_router import RouteDecision, compute_route_flags, route_intent
 from .fallback.llm_extractor import ExtractorFallback
 from .fallback.llm_router import RouterFallback
+from ._intent_patch import CLARIFY_DOWNGRADED, repaired_intent
 from .fallback.rule_normalizer import normalize_chat_message
 from .preprocess import light_normalize
 from ..schemas.extraction import ExtractionConfidence
@@ -62,7 +62,6 @@ class IntakeResult:
     effective_mode: EffectiveMode
     scope_decision: ScopeDecision
     scope_refusal: AdviseOutput | None = None
-    completeness: CompletenessResult | None = None
     route_decision: RouteDecision | None = None
     session_id: str | None = None
     clean_text_no_accent: str = ""
@@ -201,33 +200,6 @@ def _is_intake_reply(message: str, history: list[ConversationTurn]) -> bool:
     if last_assistant is None:
         return False
     return last_assistant.mode == "clarify"
-
-
-def _should_check_completeness(
-    message: str,
-    user: UserInput,
-    history: list[ConversationTurn],
-    route_decision: RouteDecision | None = None,
-) -> bool:
-    if route_decision is not None and route_decision.primary_intent == "knowledge":
-        return False
-    if route_decision is not None and route_decision.primary_intent == "advise":
-        return True
-    if _is_intake_reply(message, history):
-        return True
-    if not _is_acne_scope(message):
-        return False
-    lowered = message.lower()
-    if contains_any(lowered, _CASE_INTAKE_TERMS):
-        return True
-    clinical = user.clinical or AcneClinicalInput()
-    if _has_clinical_data(clinical):
-        return True
-    has_prior_acne_context = any(
-        turn.role == "user" and _is_acne_scope(turn.content)
-        for turn in history
-    )
-    return has_prior_acne_context and bool(message.strip())
 
 
 def _has_established_case(history: list[ConversationTurn]) -> bool:
@@ -659,17 +631,18 @@ def run_intake(
             ])),
             reason_code=f"{route_decision.reason_code}|mixed_genital_scope",
         )
-    # Intaker 3B học multi-turn từ 180/180 mẫu đều gán nhãn clarify, nên mọi
-    # follow-up có history đều bị kéo về clarify. Khi phiên đã có case thật,
-    # hỏi lại là hành vi sai bất kể model nói gì -> hạ xuống advise để chạy
-    # tiếp extraction + RAG. Bỏ guard này sau khi datagen multi-turn cân lại.
-    if route_decision.primary_intent == "clarify" and _has_established_case(history):
+    # Vá cho lỗi DỮ LIỆU, không phải luật nghiệp vụ — xem `_intent_patch.py`
+    # để biết bằng chứng, phạm vi, và điều kiện xoá.
+    _intent = repaired_intent(
+        route_decision.primary_intent, _has_established_case(history)
+    )
+    if _intent != route_decision.primary_intent:
         route_decision = replace(
             route_decision,
-            primary_intent="advise",
+            primary_intent=_intent,
             route_flags=list(dict.fromkeys([
                 *route_decision.route_flags,
-                "clarify_downgraded",
+                CLARIFY_DOWNGRADED,
             ])),
             reason_code=f"{route_decision.reason_code}|established_case",
         )
@@ -953,35 +926,6 @@ def run_intake(
             confirmed_profile=confirmed_profile,
         )
 
-    asked_fields = store.get_asked_fields(session_id)
-    completeness = (
-        check_completeness(user, history=selected_history, asked_fields=asked_fields, confidence=_extraction_conf)
-        if is_personal_case
-        and _should_check_completeness(clean_text, user, selected_history, route_decision)
-        else None
-    )
-
-    log_pipeline_stage(
-        session_id,
-        "INTAKE",
-        intake_started,
-        level="DEBUG",
-        completeness=("checked" if completeness is not None else "skipped"),
-        kind=(completeness.kind if completeness else "skip"),
-        level_name=(completeness.level if completeness else "skip"),
-        missing=(completeness.missing_fields if completeness else []),
-    )
-
-    if completeness is not None and completeness.level == "none":
-        log_pipeline_stage(
-            session_id,
-            "INTAKE",
-            intake_started,
-            level="DEBUG",
-            hint="missing_fields",
-            missing=completeness.missing_fields,
-        )
-
     # Retrieval dùng thẳng query của lượt hiện tại (planner đã gỡ).
     normalized_query = build_current_turn_query(clean_text, selected_history)
     extracted_entities = extracted_entities_from_user(base_user)
@@ -1003,7 +947,6 @@ def run_intake(
         history=selected_history,
         effective_mode=effective_mode,
         scope_decision=scope_decision,
-        completeness=completeness,
         route_decision=route_decision,
         session_id=session_id,
         clean_text_no_accent=clean_text_no_accent,

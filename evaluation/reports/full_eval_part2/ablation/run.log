@@ -1,0 +1,198 @@
+
+================================================================================================
+ABLATION  2026-08-07T07:58:27.688205+00:00
+  dataset   evaluation\datasets\eval_set.v3.jsonl  (197 câu)
+  arms      RRR, ORR, RNO, RNR, ROR, RRO
+  output    evaluation\reports\full_eval_part2\ablation\results.json
+================================================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+▶ RRR  real_intake+real_rag+local_generator
+────────────────────────────────────────────────────────────────────────────────────────────────
+┌─ RRR  q-0001  (1/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên giải thích rằng mụn có thể bị kích thích bởi mỹ phẩm hoặc      │
+│            thuốc, hỏi thêm về loại thuốc dị ứng và sản phẩm cụ thể, đồng thời tư vấn các lựa │
+│            chọn điều trị phù hợp với mức độ viêm.                                            │
+│ query     Dạ cô ơi con bị mụn lâu rồi mà giờ nó nặng hơn... con ms đổi sữa rửa mặt vs kem    │
+│            dưỡng ẩm mấy tuần nay, k biết có phải do đó k nx... với con cx đang uống thuốc gì │
+│            đó cho dị ứng nữa... con lo quá cô ơi, mụn nổi nhiều ở má vs cằm, có mấy cái sưng │
+│            đỏ vs mủ nữa... cô thấy con nên lm sao ạ?                                         │
+│ intaker   real · intent=advise · rút=[allergies, current_products, inflammation_level,       │
+│            is_breastfeeding, is_pregnant, lesion_distribution, lesion_types, medications]    │
+│ context   real · 5 chunk · vnexpress-suckhoe_9a946eb318::0028, hellobacsi_95a9f5752d::0003,  │
+│            vnexpress-suckhoe_2ec5b58fc2::0002                                                │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Cô hiểu cảm giác lo lắng của bạn. Để cải thiện tình trạng mụn, bạn nên chú ý đến   │
+│            việc chăm sóc da hàng ngày. Rửa mặt 2 lần/ngày với sữa rửa mặt dịu nhẹ, tránh trang│
+│            điểm khi da đang bị mụn. Đồng thời… [442 ký tự]                                   │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=2.800/5 · precision=0.600 · sufficiency=3.000/5 · ranking=0.864 ·        │
+│            grounded=5.000/5                                                                  │
+└─ ok · 130.3s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0002  (2/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên tư vấn dựa trên mức độ mụn (trung bình đến nặng) và đề xuất các│
+│            lựa chọn điều trị đầu tay, đồng thời nhấn mạnh việc hoàn thành liệu trình 12 tuần │
+│            và kiên nhẫn vì hiệu quả có thể thấy sau 6-8 tuần. Cũng nên khuyên dùng sữa rửa mặt│
+│            dịu nhẹ không kiềm và tránh sản phẩm gây bít tắc lỗ chân lông.                    │
+│ query     chào bạn, mình bị mụn mấy tháng nay rồi, lúc đầu chỉ có mấy cái mụn nhỏ ở trán     │
+│            thôi, nhưng giờ lan xuống má và cằm, có mấy cái mụn sưng đỏ, ấn vô thấy đau, có mụn│
+│            thì nổi mủ trắng nữa. mình đang dùng sữa rửa mặt hằng ngày nhưng ko thấy đỡ. bạn  │
+│            cho mình hỏi mình nên làm j vs tình trạng này? mình sợ để lâu bị thâm với sẹo lắm.│
+│ intaker   real · intent=advise · rút=[current_products, inflammation_level, is_breastfeeding,│
+│            is_pregnant, lesion_distribution, lesion_types]                                   │
+│ context   real · 5 chunk · vnexpress-suckhoe_9a946eb318::0028, tuoitre-                      │
+│            suckhoe_e862f7c64f::0002, hellobacsi_650f94312b::0004                             │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Mình hiểu cảm giác của bạn, mụn có thể gây khó chịu và lo lắng. Đầu tiên, bạn nên  │
+│            giữ cho da sạch sẽ, rửa mặt nhẹ nhàng bằng sữa rửa mặt dịu nhẹ, tránh dùng tay chạm│
+│            vào mặt. Nếu tình trạng không cải… [375 ký tự]                                    │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=2.400/5 · precision=0.200 · sufficiency=3.000/5 · ranking=0.845 ·        │
+│            grounded=5.000/5                                                                  │
+└─ ok · 132.9s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0003  (3/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên an ủi, giải thích đây là viêm da tiếp xúc do kiến khoang, hướng│
+│            dẫn sơ cứu và điều trị tại chỗ theo tài liệu, khuyên không gãi, không tự ý dùng   │
+│            thuốc, nếu nặng nên đi khám.                                                      │
+│ query     mình ms bi mun boc o ma, do hoi hom truoc co con kien khoang no bay vao phong, minh│
+│            ngu day thay ngua va do, gio no thanh mun nuoc, mun mu, rat la kho chiu 😭 ban oi  │
+│            minh nen lam gi day?                                                              │
+│ intaker   real · intent=advise · rút=[inflammation_level, is_breastfeeding, is_pregnant,     │
+│            lesion_distribution, lesion_types]                                                │
+│ context   real · 0 chunk                                                                     │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Mình hiểu rằng bạn đang cảm thấy khó chịu. Để giảm tình trạng mụn bọc, bạn nên     │
+│            tránh chạm vào vùng da bị tổn thương và giữ cho vùng da sạch sẽ. Bạn có thể sử dụng│
+│            sản phẩm chứa benzoyl peroxide hoặc … [348 ký tự]                                 │
+│ metric    quality=1.0 · tone=3.0 · safety=pass · refusal=True                                │
+└─ ok · 83.1s──────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0004  (4/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      knowledge · Trợ lý nên giải thích các triệu chứng điển hình và không điển hình của │
+│            nhiễm HSV-2 sinh dục dựa trên đoạn 2, nhấn mạnh rằng có thể có loét mà không có mụn│
+│            nước.                                                                             │
+│ query     Chào bác sĩ, em muốn hỏi là bệnh mụn rộp sinh dục có những biểu hiện như thế nào ạ?│
+│            Em nghe nói bệnh này có thể gây loét mà không có mụn nước, có đúng không ạ?       │
+│ intaker   real · intent=knowledge · rút=[is_breastfeeding, is_pregnant]                      │
+│ context   real · 5 chunk · guideline:7ad701a50347_39, guideline:5c0caddaddf6_40,             │
+│            hellobacsi_632555b939::0007                                                       │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Có, mụn rộp sinh dục có thể có biểu hiện như vết loét mà không có mụn nước. Ngoài  │
+│            ra, bệnh này còn có thể gây đau, ngứa và khó tiểu. Nếu bạn có những triệu chứng   │
+│            này, hãy đi khám bác sĩ để được tư vấ… [222 ký tự]                                │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=2.600/5 · precision=0.400 · sufficiency=5.000/5 · ranking=0.988 ·        │
+│            grounded=5.000/5                                                                  │
+└─ ok · 126.8s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0005  (5/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      knowledge · Trợ lý nên giải thích rằng theo nghiên cứu, việc kết hợp isotretinoin  │
+│            với vitamin D không cho thấy sự khác biệt về hiệu quả điều trị và tác dụng phụ so │
+│            với dùng isotretinoin đơn trị liệu, dựa trên các đoạn tài liệu cung cấp.          │
+│ query     dạ em chào ad, em đang băn khoăn không biết là uống thuốc trị mụn isotretinoin mà  │
+│            uống chung với vitamin D có tốt hơn không ad? em thấy trên mạng người ta nói      │
+│            vitamin D giúp da khỏe mà em cũng đang uống isotretinoin theo toa bác sĩ, em muốn │
+│            hỏi là có nên uống thêm vitamin D không, hay là uống isotretinoin một mình cũng đủ│
+│            rồi? em cảm ơn ad                                                                 │
+│ intaker   real · intent=knowledge · rút=[is_breastfeeding, is_pregnant, medications]         │
+│ context   real · 5 chunk · hellobacsi_af74b130c2::0007, guideline:019c9f4f141a_16,           │
+│            vinmec_93350248a6::0006                                                           │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Cảm ơn bạn đã chia sẻ tình trạng của mình. Về việc uống isotretinoin cùng vitamin  │
+│            D, hiện tại chưa có nghiên cứu nào cho thấy việc này mang lại lợi ích cụ thể. Do  │
+│            đó, nếu bạn đang sử dụng isotretinoi… [433 ký tự]                                 │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=1.400/5 · precision=0.200 · sufficiency=3.000/5 · ranking=0.851 ·        │
+│            grounded=5.000/5                                                                  │
+└─ ok · 119.8s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0006  (6/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên tư vấn dựa trên tình trạng da dầu và mụn đầu đen, đề xuất      │
+│            benzoyl peroxide 2.5% gel như lựa chọn ban đầu, giải thích về hiệu quả và dạng bào│
+│            chế phù hợp.                                                                      │
+│ query     toi bi mun com o tran va may, da dau nhieu, hoi boi, co nen dung benzoyl peroxide  │
+│            2.5% gel khong?                                                                   │
+│ intaker   real · intent=knowledge · rút=[inflammation_level, is_breastfeeding, is_pregnant,  │
+│            lesion_distribution, lesion_types]                                                │
+│ context   real · 0 chunk                                                                     │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Benzoyl peroxide 2.5% gel có thể giúp giảm mụn, nhưng bạn nên thử nghiệm trên một  │
+│            vùng nhỏ trước để xem có bị kích ứng không. Nếu không có phản ứng, bạn có thể sử  │
+│            dụng toàn bộ vùng da bị mụn. Tuy nhi… [303 ký tự]                                 │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+└─ ok · 76.8s──────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0007  (7/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên đồng cảm, giải thích nguyên nhân có thể do mồ hôi bị giữ lại   │
+│            dưới áo và stress làm tăng cortisol dẫn đến tăng tiết bã nhờn, sau đó đưa ra lời  │
+│            khuyên giữ vệ sinh, tránh chà xát, dùng sản phẩm không gây bít tắc, và khuyên đi  │
+│            khám nếu nặng.                                                                    │
+│ query     em bị mụn ở lưng với vai, mọc nhiều chỗ sưng đỏ đau lắm, có mấy cái nổi cục cứng   │
+│            dưới da nữa. em hay đổ mồ hôi khi tập gym, mặc áo bó sát. em nên làm gì để hết mụn│
+│            ạ? với cả có phải do stress không ạ? 😩                                            │
+│ intaker   real · intent=advise · rút=[inflammation_level, is_breastfeeding, is_pregnant,     │
+│            lesion_distribution, lesion_types]                                                │
+│ context   real · 5 chunk · vnexpress-suckhoe_5126c70ec0::0001, youmed_e518950611::0003,      │
+│            hellobacsi_f8b6e8bd50::0017                                                       │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Mụn ở lưng và vai có thể do nhiều nguyên nhân, trong đó có việc đổ mồ hôi và mặc áo│
+│            bó sát khi tập luyện. Để giảm tình trạng này, bạn nên mặc quần áo rộng rãi, thoáng│
+│            mát, và thường xuyên làm sạch da… [524 ký tự]                                     │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=4.000/5 · precision=1.000 · sufficiency=3.000/5 · ranking=1.000 ·        │
+│            grounded=3.000/5                                                                  │
+└─ ok · 165.1s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0008  (8/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      advise · Trợ lý nên tư vấn cách làm mặt nạ từ tinh dầu tràm trà và gel lô hội để   │
+│            giảm sưng viêm, kiểm soát dầu, đồng thời nhấn mạnh việc làm sạch da trước khi đắp │
+│            và thời gian đắp 10-15 phút.                                                      │
+│ query     chị ơi, em bị mụn sưng đỏ, mấy cái nốt mụn nó to lắm, ấn vô thấy đau. Em có đọc    │
+│            trên mạng thấy ngta nói dùng tinh dầu tràm trà với gel lô hội thì đỡ, mà em sợ k  │
+│            biết có đúng k. Em da dầu lắm, mụn mọc nhiều ở vùng chữ T, em cx đang dùng sữa rửa│
+│            mặt cho da dầu hoy, chưa dùng thuốc gì. Em muốn hỏi là mình tự làm mặt nạ tràm trà│
+│            vs lô hội ở nhà thì có hiệu quả k, với cả làm sao để nó đỡ sưng viêm? Em cảm ơn chị│
+│            nhiều.                                                                            │
+│ intaker   real · intent=advise · rút=[current_products, inflammation_level, is_breastfeeding,│
+│            is_pregnant, lesion_distribution, lesion_types, skin_type]                        │
+│ context   real · 5 chunk · hellobacsi_27413fe967::0003, happyskin-vn_938d90e97f::0004,       │
+│            happyskin-vn_cb6f7cbe8d::0003                                                     │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Có thể thử cách làm mặt nạ từ tinh dầu tràm trà và gel lô hội. Bạn có thể pha loãng│
+│            tinh dầu tràm trà với nước hoặc gel lô hội trước khi bôi lên vùng da bị mụn. Tuy  │
+│            nhiên, nếu mụn sưng đỏ và đau nhiề… [347 ký tự]                                   │
+│ metric    quality=2.0 · tone=4.0 · safety=pass · refusal=True                                │
+│ context+  relevance=2.600/5 · precision=0.600 · sufficiency=3.000/5 · ranking=0.870 ·        │
+│            grounded=3.000/5                                                                  │
+└─ ok · 175.7s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0009  (9/197)  real_intake+real_rag+local_generator                                  ┐
+│ task      knowledge · Giải thích rằng hầu hết trẻ em bị mụn không cần xét nghiệm thêm, nhưng │
+│            nếu có dấu hiệu tăng trưởng nhanh, dậy thì sớm, hoặc mụn nặng/không đáp ứng điều  │
+│            trị thì cần chuyển nội tiết và đo hormone.                                        │
+│ query     mình nghe nói trẻ con bị mụn thì có thể dùng thuốc bôi như benzoyl peroxide với    │
+│            retinoid, nhưng mình không biết khi nào thì nên cho bé đi khám thêm hay xét nghiệm│
+│            gì. bạn giải thích giúp mình với                                                  │
+│ intaker   real · intent=knowledge · rút=[is_breastfeeding, is_pregnant]                      │
+│ context   real · 5 chunk · medlatec_295354079c::0005, vinmec_8234de771b::0001, vnexpress-    │
+│            suckhoe_c4293ecac6::0001                                                          │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Khi trẻ nhỏ bị mụn, việc chăm sóc da cần được thực hiện cẩn thận. Benzoyl peroxide │
+│            là một hoạt chất có thể giúp cải thiện tình trạng mụn, nhưng nếu mụn viêm nặng hoặc│
+│            không giảm, việc đưa trẻ đến bác… [450 ký tự]                                     │
+│ metric    quality=2.0 · tone=3.0 · safety=pass · refusal=True                                │
+│ context+  relevance=3.000/5 · precision=0.600 · sufficiency=5.000/5 · ranking=0.830 ·        │
+│            grounded=5.000/5                                                                  │
+└─ ok · 122.2s─────────────────────────────────────────────────────────────────────────────────┘
+┌─ RRR  q-0010  (10/197)  real_intake+real_rag+local_generator                                 ┐
+│ task      knowledge · Giải thích sự khác biệt giữa mụn đầu đen (open comedones) và mụn đầu   │
+│            trắng (closed comedones), và định nghĩa macrocomedones dựa trên tài liệu.         │
+│ query     bạn ơi cho mình hỏi tí, mình ms đọc đc cái bài nói về mụn mà nó có mấy cái loại như│
+│            là mụn đầu đen vs mụn đầu trắng á, mình k hiểu lắm, nó khác nhau ntn vậy? vs cả   │
+│            mình thấy có cái gọi là macrocomedones nữa, đó là gì vậy? giải thích giúp mình vs │
+│            nha, thanks bạn nhiều                                                             │
+│ intaker   real · intent=knowledge · rút=[is_breastfeeding, is_pregnant]                      │
+│ context   real · 5 chunk · vnexpress-suckhoe_8428de1cc7::0001, healthline-                   │
+│            acne_689e4f8e70::0000, guideline:3b76c7af6e65_21                                  │
+│ generator acne-generator-simple · temperature_0                                              │
+│ answer    Nguồn 1 của bạn nói rằng mụn đầu trắng là những đốm nhỏ, có màu thịt, hình thành   │
+│            khi tế bào da chết, dầu nhờn và vi khuẩn mắc kẹt trong lỗ chân lông. Mụn đầu đen  │
+│            thì có màu tối hơn, nhưng không phải … [569 ký tự]                                │
+│ metric    quality=2.0 · tone=2.0 · safety=pass · refusal=True                                │
+│ context+  relevance=3.800/5 · precision=0.800 · sufficiency=5.000/5 · ranking=0.956 ·        │
+│            grounded=3.000/5                                                                  │
+└─ ok · 143.4s─────────────────────────────────────────────────────────────────────────────────┘

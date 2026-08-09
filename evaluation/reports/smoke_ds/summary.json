@@ -1,0 +1,45 @@
+{
+  "run_id": "smoke_ds",
+  "out_dir": "evaluation/reports/smoke_ds",
+  "started_at": "2026-08-07T05:29:00.045202+00:00",
+  "finished_at": null,
+  "current_step": "retrieval",
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Kiểm tra môi trường",
+      "status": "ok",
+      "started_at": "2026-08-07T05:29:00.055492+00:00",
+      "finished_at": "2026-08-07T05:29:00.124634+00:00",
+      "duration_s": 0.1,
+      "detail": ""
+    },
+    {
+      "id": "intake",
+      "label": "Khâu 1 — Intaker",
+      "status": "ok",
+      "started_at": "2026-08-07T05:29:00.127639+00:00",
+      "finished_at": "2026-08-07T05:29:53.421753+00:00",
+      "duration_s": 53.3,
+      "detail": ""
+    },
+    {
+      "id": "retrieval",
+      "label": "Khâu 2 — Tài liệu RAG (judge chấm)",
+      "status": "running",
+      "started_at": "2026-08-07T05:29:53.424406+00:00",
+      "finished_at": null,
+      "duration_s": null,
+      "detail": ""
+    },
+    {
+      "id": "ablation",
+      "label": "Khâu 3 — Ablation oracle",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": null,
+      "detail": ""
+    }
+  ]
+}

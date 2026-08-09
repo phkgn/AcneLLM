@@ -26,7 +26,11 @@ def test_valid_file_passes(tmp_path):
     p = _write(tmp_path, [GOOD])
     assert validate_file(p) == []
     rows = load_dataset(p)
-    assert rows[0]["conversation_history"] == []          # default filled
+    assert rows[0]["expected_answer_points"] == []        # default filled
+    # expected_behavior / conversation_history đã gỡ khỏi schema — không được
+    # lặng lẽ quay lại qua OPTIONAL_DEFAULTS mà không có consumer.
+    assert "expected_behavior" not in rows[0]
+    assert "conversation_history" not in rows[0]
 
 
 def test_missing_required_and_dup_id(tmp_path):

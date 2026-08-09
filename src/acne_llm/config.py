@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     llm_model: str = "acne-generator"
     llm_fallback_model: str = "qwen2.5:3b"
     # num_ctx: window context. Giảm = tiết kiệm VRAM cho KV-cache, fit model GPU.
-    llm_num_ctx: int = 4096 #3072
-    llm_num_predict: int = 1200
+    llm_num_ctx: int = 8192 #4096 #3072
+    llm_num_predict: int = 2048
     llm_temperature: float = 0.35
     llm_top_p: float = 0.85
     llm_top_k: int = 40
@@ -178,7 +178,7 @@ class Settings(BaseSettings):
     # ton tai de xep lai pool rong; cho no 6 chon 3 thi recall bi chan cung boi
     # retriever va model dat tien chi xao lai 6 mon. 20 -> 5 la ty le thong dung.
     # Truoc day 6/3, trong khi eval s2/s3 chay 15/5 => do mot he, deploy he khac.
-    chat_retrieve_top_k: int = 15
+    chat_retrieve_top_k: int = 25
     chat_rerank_top_k: int = 5
     # Tổng ký tự context inject vào prompt chat
     chat_max_context_chars: int = 6000
@@ -268,8 +268,8 @@ class Settings(BaseSettings):
     metrics_enabled: bool = True
 
     # ── Judge (eval) ─────────────────────────────────────────────────────────
-    judge_provider: Literal["openai", "anthropic", "deepseek"] = "openai"
-    judge_model: str = "gpt-5.4-mini"
+    judge_provider: Literal["openai", "anthropic", "deepseek"] = "deepseek"
+    judge_model: str = "deepseek-v4-pro"
 
     # ── Crawler ────────────────────────────────────────────────────────────────
     crawl_concurrency: int = 8

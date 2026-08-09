@@ -138,50 +138,95 @@ def test_intent_hint_theo_ca_chu_khong_hardcode_advise():
     assert spec_of(next(c for c in CASES if c.name == "cyst")).intent_hint == "advise"
 
 
-def test_patch_seed_thay_cue_xung_dot_chu_khong_chi_them():
-    """`synthesize_seed` chỉ biết 6 lesion / 6 distribution. Nếu chỉ THÊM cue
-    'sẹo rỗ' mà giữ 'mụn đầu đen' thì hai cue đánh nhau và seed thắng — đúng
-    hiện tượng ở lượt thử: lesion_types ra đúng 6 giá trị của seed."""
+def test_khong_bom_noi_dung_dat_hang_vao_cue():
+    """Cue la hop dong khop NGUYEN VAN, ma `satisfies()` da kiem gia tri bang
+    ngu nghia roi. Bom vao ca hai -> kiem hai lan, va lan chuoi luon thua:
+    lượt 500 dòng cho cyst 0/30, allergy 0/40, medication 8/35 vì model viết
+    "cục to sâu dưới da" chứ không viết đúng chuỗi "mụn nang, cục to sâu dưới da".
+    """
     rng = random.Random(0)
-    case = next(c for c in CASES if c.name == "scar")
-    seed = patch_seed(case, {"required_user_cues": ["mụn đầu đen", "ở cằm"],
-                             "lesion": "blackhead", "second_lesion": "papule"}, rng)
-    cues = seed["required_user_cues"]
-    assert CUE["scar"] in cues
-    assert "mụn đầu đen" not in cues          # cue xung đột bị gỡ
-    assert "ở cằm" in cues                    # cue KHÔNG xung đột thì giữ
+    for name in ("scar", "cyst", "chest", "medication", "allergy"):
+        case = next(c for c in CASES if c.name == name)
+        seed = patch_seed(case, {"required_user_cues": ["ở cằm", "38 tuổi"]}, rng)
+        cues = seed["required_user_cues"]
+        assert all(c in ("ở cằm", "38 tuổi") for c in cues), (name, cues)
+
+
+def test_van_go_cue_xung_dot_cua_seed():
+    """Seed chỉ biết 6 lesion / 6 distribution. Giữ cue 'mụn đầu đen' khi đang
+    đặt hàng 'scar' thì hai bên đánh nhau trong cùng prompt và seed thắng."""
+    rng = random.Random(0)
+    seed = patch_seed(
+        next(c for c in CASES if c.name == "scar"),
+        {"required_user_cues": ["mụn đầu đen", "ở cằm"],
+         "lesion": "blackhead", "second_lesion": "papule"}, rng)
+    assert "mụn đầu đen" not in seed["required_user_cues"]
+    assert "ở cằm" in seed["required_user_cues"]      # không xung đột thì giữ
     assert seed["lesion"] == "scar" and "second_lesion" not in seed
 
-
-def test_patch_seed_vi_tri_go_dung_cue_vi_tri():
-    rng = random.Random(0)
-    case = next(c for c in CASES if c.name == "chest")
-    seed = patch_seed(case, {"required_user_cues": ["ở cằm", "mụn đỏ"],
-                             "distribution": "chin"}, rng)
-    cues = seed["required_user_cues"]
-    assert CUE["chest"] in cues and "ở cằm" not in cues
-    assert "mụn đỏ" in cues                   # tổn thương không liên quan, giữ
+    seed = patch_seed(
+        next(c for c in CASES if c.name == "chest"),
+        {"required_user_cues": ["ở cằm", "mụn đỏ"], "distribution": "chin"}, rng)
+    assert "ở cằm" not in seed["required_user_cues"]
+    assert "mụn đỏ" in seed["required_user_cues"]
     assert seed["distribution"] == "chest"
 
 
-def test_medications_dat_hang_thuoc_UONG_khong_phai_kem_boi():
-    """Lượt thử: medications nhận về 'benzoyl peroxide', 'adapalene' — đó là kem
-    bôi, thuộc current_products. Seed chỉ có sản phẩm bôi nên phải tự cấp thuốc uống."""
+def test_thuoc_uong_va_di_ung_di_vao_SEED_khong_vao_cue():
+    """SEED được dump nguyên vào prompt nên model vẫn thấy; nhưng không bị ràng
+    buộc khớp chuỗi. "bị dị ứng benzoyl peroxide" trượt vì model viết
+    "bị dị ứng VỚI benzoyl peroxide"."""
     rng = random.Random(0)
-    case = next(c for c in CASES if c.name == "medication")
-    cues = patch_seed(case, {"required_user_cues": []}, rng)["required_user_cues"]
-    assert any(c.startswith("đang uống ") for c in cues)
-    assert not any("benzoyl peroxide" in c for c in cues)
+    med = patch_seed(next(c for c in CASES if c.name == "medication"),
+                     {"required_user_cues": []}, rng)
+    assert med["medication"] and med["required_user_cues"] == []
+    alg = patch_seed(next(c for c in CASES if c.name == "allergy"),
+                     {"required_user_cues": []}, rng)
+    assert alg["allergy"] and alg["required_user_cues"] == []
 
 
-def test_patch_seed_khong_dung_vao_ca_dang_chay_duoc():
-    """Thai kỳ, cho bú, mức độ đều đạt quota ở lượt thử. Sửa thứ đang chạy được
+def test_ca_muc_do_khong_bi_dung_toi():
+    """Mức độ đạt quota và phân bố tốt ở lượt 500 dòng — sửa thứ đang chạy được
     là tự chuốc rủi ro."""
     rng = random.Random(0)
     seed = {"required_user_cues": ["19 tuổi"], "lesion": "papule"}
-    for name in ("pregnant_true", "breastfeeding_true", "sev_severe"):
+    for name in ("sev_severe", "sev_mild", "sev_none"):
         case = next(c for c in CASES if c.name == name)
         assert patch_seed(case, dict(seed), rng) == seed
+
+
+def test_thai_ky_va_cho_bu_ep_ve_nu_nhung_khong_bat_viet_chu_nu():
+    """Ép nhãn về nữ vì lượt 500 dòng có 25/45 ca mang thai mang nhãn sex=male.
+    Nhưng KHÔNG thêm cue "nữ": "đang cho con bú" đã hàm ý nữ, bắt viết thêm chữ
+    "nữ" là ép câu thành gượng — lượt sau đó rớt 33 lần đúng vì cue này."""
+    rng = random.Random(0)
+    for name in ("pregnant_true", "breastfeeding_true"):
+        case = next(c for c in CASES if c.name == name)
+        seed = patch_seed(case, {"sex": "male",
+                                 "required_user_cues": ["31 tuổi", "nam"]}, rng)
+        assert seed["sex"] == "female"
+        assert seed["required_user_cues"] == ["31 tuổi"]    # gỡ "nam", không thêm gì
+
+
+def test_moc_thoi_gian_thai_ky_da_dang_va_di_vao_SEED():
+    """37/45 câu ra đúng '5 tháng' vì behavior nêu ví dụ đó và model chép thẳng.
+    Mốc do seed cấp ngẫu nhiên, đi vào SEED chứ không vào cue — "bầu được 3 tháng"
+    là đúng nội dung nhưng trượt cue "bầu 3 tháng"."""
+    case = next(c for c in CASES if c.name == "pregnant_true")
+    assert "5 tháng" not in case.behavior
+
+    rng = random.Random(0)
+    moc = {patch_seed(case, {"required_user_cues": []}, rng)["stage"]
+           for _ in range(20)}
+    assert len(moc) >= 5, "mốc thời gian phải đổi giữa các lần gọi"
+
+
+def test_ca_pregnant_false_khong_bi_ep_gioi():
+    """Nói 'em không có bầu' thì không suy ra được giới tính."""
+    rng = random.Random(0)
+    case = next(c for c in CASES if c.name == "pregnant_false")
+    seed = patch_seed(case, {"sex": "male", "required_user_cues": ["nam"]}, rng)
+    assert seed["sex"] == "male"
 
 
 # ── đường chạy ──────────────────────────────────────────────────────────────
@@ -202,7 +247,11 @@ def wired(monkeypatch):
     import evaluation.datasets.make_intake_set as mod
 
     def fake_to_record(spec, generated, anchor, *, source, seed=None):
-        user = f"câu {generated['i']}"
+        # Generator giả phải tuân ĐÚNG hợp đồng của generator thật: user_turn
+        # chứa nguyên văn mọi cue. Không thì `cue_violations` loại sạch và test
+        # đo nhầm thứ khác.
+        cues = " ".join((seed or {}).get("required_user_cues") or ())
+        user = f"câu {generated['i']} {cues}".strip()
         return {"id": f"r{generated['i']}",
                 "messages": [{"role": "system", "content": anchor},
                              {"role": "user", "content": user},
@@ -219,11 +268,49 @@ def wired(monkeypatch):
     return mod
 
 
-def _run(mod, cases, provider, contaminated=frozenset()):
+def _run(mod, cases, provider, contaminated=frozenset(), concurrency=1):
     return asyncio.run(mod.build(
         ANCHOR, cases, provider=provider, contaminated=set(contaminated),
-        seed=0, attempts_factor=3, verbose=False,
+        seed=0, attempts_factor=3, verbose=False, concurrency=concurrency,
     ))
+
+
+def test_song_song_khong_lam_vuot_quota(wired):
+    """Ban theo lo thi de ban thua. Quota 2, concurrency 8 -> van dung 2 dong,
+    va khong goi provider qua 2 lan cho lo dau."""
+    provider = FakeProvider([_payload(lesion_types=[{"value": "cyst"}])])
+    kept, got, _ = _run(wired, (_case("clinical.lesion_types", "cyst", "cyst", 2),),
+                        provider, concurrency=8)
+    assert got["cyst"] == 2 and len(kept) == 2
+    assert provider.calls == 2, f"ban {provider.calls} request cho quota 2"
+
+
+def test_song_song_khong_pha_chong_trung(wired, monkeypatch):
+    """`state.duplicate_user` la trang thai chia se. Neu xet duyet chay song song
+    thi hai dong giong nhau cung lot. Fake tra CUNG mot cau moi lan.
+
+    Dung monkeypatch chu KHONG gan thang vao class: gan thang thi mutation ro
+    sang test khac va `datagen/.../test_gates.py` do theo, chi khi chay ca bo.
+    """
+    def same_record(spec, generated, anchor, *, source, seed=None):
+        return {"id": "r", "messages": [
+            {"role": "system", "content": ANCHOR},
+            {"role": "user", "content": "y hệt nhau"},
+            {"role": "assistant", "content": json.dumps(
+                _payload(lesion_types=[{"value": "cyst"}]))}], "meta": {}}
+
+    seen: set[str] = set()
+    monkeypatch.setattr(wired.CorpusGateState, "duplicate_user",
+                        lambda self, t: t in seen)
+    monkeypatch.setattr(wired.CorpusGateState, "accept",
+                        lambda self, r, p: seen.add(r["messages"][-2]["content"]))
+    monkeypatch.setattr(wired, "to_record", same_record)
+
+    kept, _, rejects = _run(
+        wired, (_case("clinical.lesion_types", "cyst", "cyst", 3),),
+        FakeProvider([_payload(lesion_types=[{"value": "cyst"}])]), concurrency=8)
+    assert len(kept) == 1, "trùng nội dung phải bị chặn dù chạy song song"
+    assert rejects["cyst:trung_trong_bo"] >= 1
 
 
 def test_loai_dong_khong_dat_yeu_cau_va_sinh_bu(wired):
@@ -241,14 +328,26 @@ def test_loai_dong_khong_dat_yeu_cau_va_sinh_bu(wired):
             "is_pregnant"]["value"] is True
 
 
+def test_loai_dong_co_nhan_khong_co_can_cu_trong_cau():
+    """`build_gen_prompt` ra lệnh user_turn phải chứa NGUYÊN VĂN từng cue. Bộ cũ
+    vi phạm 5,1% ở train / 6,2% ở val — mỗi lần là một nhãn vàng không có căn cứ,
+    và model trích đúng (không bịa) lại bị chấm sai."""
+    from evaluation.datasets.make_intake_set import cue_violations
+    seed = {"required_user_cues": ["22 tuổi", "nữ", "đang dùng adapalene"]}
+    assert cue_violations(seed, "Em 22 tuổi, nữ, đang dùng adapalene được 3 tuần") == []
+    assert cue_violations(seed, "Em 22 tuổi, nữ, da dầu") == ["đang dùng adapalene"]
+    assert cue_violations({}, "bất kỳ câu nào") == []
+
+
 def test_loai_cau_da_nam_trong_tap_train(wired):
+    """`patch_seed` không còn thêm cue nào cho ca này, nên câu giả là "câu 1"."""
     from datagen.intakedata.generator import user_turn_hash
     kept, _, rejects = _run(
-        wired, (_case("context.is_pregnant", True, "preg", 1),),
-        FakeProvider([_payload(is_pregnant={"value": True})]),
+        wired, (_case("clinical.lesion_types", "cyst", "cyst", 1),),
+        FakeProvider([_payload(lesion_types=[{"value": "cyst"}])]),
         contaminated={user_turn_hash("câu 1")})
     assert all(r["messages"][-2]["content"] != "câu 1" for r in kept)
-    assert rejects["preg:trung_tap_train"] == 1
+    assert rejects["cyst:trung_tap_train"] == 1
 
 
 def test_khong_treo_vo_han_khi_provider_luon_sai(wired):
@@ -263,6 +362,61 @@ def test_gan_nhan_ca_vao_meta(wired):
     kept, _, _ = _run(wired, (_case("clinical.lesion_types", "cyst", "cyst", 1),),
                       FakeProvider([_payload(lesion_types=[{"value": "cyst"}])]))
     assert kept[0]["meta"]["eval_case"] == "cyst"
+
+
+def test_seed_duoc_truyen_vao_record_lam_bang_chung_dat_hang(monkeypatch):
+    """Không ghi seed thì không ai dựng lại được bộ dữ liệu, và câu hỏi
+    'data này từ đâu ra' không có gì để trả lời ngoài 'AI sinh ra'."""
+    import evaluation.datasets.make_intake_set as mod
+    nhan = {}
+
+    def spy(spec, generated, anchor, *, source, seed=None):
+        nhan["seed"] = seed
+        nhan["source"] = source
+        return {"id": "r1", "messages": [
+            {"role": "system", "content": ANCHOR},
+            {"role": "user", "content": "u"},
+            {"role": "assistant", "content": json.dumps(
+                _payload(is_pregnant={"value": True}))}], "meta": {}}
+
+    monkeypatch.setattr(mod, "to_record", spy)
+    monkeypatch.setattr(mod, "build_gen_prompt", lambda spec, seed: [])
+    monkeypatch.setattr(mod, "evaluate_record",
+                        lambda r, s: type("R", (), {"passed": True, "reasons": []}))
+    monkeypatch.setattr(mod.CorpusGateState, "accept", lambda self, r, p: None)
+
+    case = next(c for c in CASES if c.name == "pregnant_true")
+    _run(mod, (Case(case.name, 1, case.base, case.path, case.expect, case.behavior),),
+         FakeProvider([None]))
+
+    assert nhan["source"] == "intake_eval:pregnant_true"
+    assert nhan["seed"] is not None and nhan["seed"] != {}
+    # Seed phải là seed ĐÃ VÁ, không phải seed thô — nếu không thì bằng chứng
+    # ghi lại khác với thứ thật sự gửi đi.
+    assert nhan["seed"]["sex"] == "female"
+
+
+def test_khu_trung_ngu_nghia_chay_o_CUOI_va_giu_ban_dau(monkeypatch):
+    """`duplicate_user` chi khop chuoi, nen 500 dong sinh ra van co the na na
+    nhau — dung loi da lam bo v2 lot 15 ban trung va lam CI hep gia."""
+    import evaluation.datasets.make_eval_set as mes
+    import numpy as np
+
+    vecs = {"a": [1.0, 0.0], "a gần giống": [1.0, 0.02], "khác hẳn": [0.0, 1.0]}
+
+    class E:
+        def embed_passages(self, texts):
+            return np.asarray([vecs[t] for t in texts], dtype=np.float32)
+
+    monkeypatch.setattr(mes, "_embedder", lambda: E())
+
+    recs = [{"messages": [{"role": "u"}, {"role": "user", "content": t},
+                          {"role": "assistant", "content": "{}"}]} for t in vecs]
+    from evaluation.datasets.make_intake_set import drop_near_duplicates
+    kept, dropped = drop_near_duplicates(recs, threshold=0.9)
+
+    assert [r["messages"][-2]["content"] for r in kept] == ["a", "khác hẳn"]
+    assert len(dropped) == 1
 
 
 def test_verify_dem_lai_tu_FILE_khong_tin_bo_dem_luc_sinh():

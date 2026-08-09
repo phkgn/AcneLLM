@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -64,7 +65,7 @@ from acne_llm.schemas import RetrievedChunk, RetrievalOutput  # noqa: E402
 from acne_llm.schemas.extraction import FieldResult, ListFieldResult  # noqa: E402
 from evaluation.adapters._repo import build_eval_container  # noqa: E402
 from evaluation.common import read_jsonl, utcnow  # noqa: E402
-from evaluation.judges.clients import JudgeClient  # noqa: E402
+from evaluation.judges.clients import PROVIDERS, JudgeClient  # noqa: E402
 from evaluation.judges import context as context_judge  # noqa: E402
 from evaluation.judges import rubrics  # noqa: E402
 from evaluation.trace import (  # noqa: E402
@@ -82,11 +83,16 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 
 DEFAULT_DATASET = Path("evaluation/datasets/eval_set.v3.jsonl")
 DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
-ARM_Y_MODEL = "gpt-5.6-terra"
-# GHIM THEO NGÀY. "gpt-5.4-mini" là bí danh — nhà cung cấp dời bí danh thì
-# điểm đổi lặng lẽ, mà cache cũ vẫn giữ điểm của bản trước. Cache 20MB của
-# lần chạy 804 dòng cho thấy nó phân giải về đúng bản dưới đây.
-DEFAULT_JUDGE_MODEL = "gpt-5.4-mini-2026-03-17"
+GENERATOR_SYSTEM_PROMPT_PATH = ROOT / "model" / "system_prompt.canonical.txt"
+ARM_Y_PROVIDER = "deepseek"
+ARM_Y_MODEL = "deepseek-v4-pro"   # arm Y = "generator API MẠNH"; dùng flash ở đây
+                                  # là arm mất nghĩa, nên nó không theo mặc định flash
+# GHIM THEO NGÀY khi nhà cung cấp có bản ghim ngày. "gpt-5.4-mini" là bí danh —
+# nhà cung cấp dời bí danh thì điểm đổi lặng lẽ, mà cache cũ vẫn giữ điểm của
+# bản trước. DeepSeek hiện không phát hành bí danh ghim ngày nên không ghim được;
+# ponytail: ghim lại ngay khi DeepSeek có bản ghim ngày.
+DEFAULT_JUDGE_PROVIDER = "deepseek"
+DEFAULT_JUDGE_MODEL = "deepseek-v4-pro"
 # Arm = 3 ký tự, mỗi ký tự một khâu: [intaker][rag][generator].
 #   R = chạy thật · O = thay bằng bản hoàn hảo (oracle) · N = tắt hẳn
 # Không gian đầy đủ 2 × 3 × 2 = 12 tổ hợp; DEFAULT_ARMS là gói 6 arm khuyên dùng.
@@ -113,6 +119,37 @@ def arm_label(arm: str) -> str:
 # ORR intaker đáng sửa không · RRO generator có phải nút thắt
 # RNO model mạnh có cần RAG không
 DEFAULT_ARMS = ("RRR", "RNR", "ROR", "ORR", "RRO", "RNO")
+
+
+@lru_cache(maxsize=1)
+def _frontier_system_prompt() -> str:
+    """Return the exact SYSTEM embedded in the local production generator.
+
+    PromptBuilder intentionally returns an empty system string because Ollama
+    injects this prompt from the local Modelfile.  The frontier API has no such
+    Modelfile, so its generator arm must send the canonical bytes explicitly;
+    otherwise the experiment changes both model and system instructions.
+    """
+    try:
+        prompt = GENERATOR_SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise RuntimeError(
+            f"frontier generator system prompt is unavailable: "
+            f"{GENERATOR_SYSTEM_PROMPT_PATH}"
+        ) from exc
+    if not prompt.strip():
+        raise RuntimeError(
+            f"frontier generator system prompt is empty: "
+            f"{GENERATOR_SYSTEM_PROMPT_PATH}"
+        )
+    return prompt
+
+
+def _generator_prompt_pair(turn: Any, gen_variant: str) -> tuple[str, str]:
+    """Keep the rendered runtime input fixed while swapping only generator."""
+    if gen_variant == "O":
+        return _frontier_system_prompt(), turn.user_prompt
+    return turn.system_prompt, turn.user_prompt
 
 
 class _OracleIntake:
@@ -262,9 +299,10 @@ def _api_chat_once(
     model: str,
     temperature: float | None,
 ) -> str:
-    api_key = _read_secret("OPENAI_API_KEY")
+    base_url, key_env, _ = PROVIDERS[ARM_Y_PROVIDER]
+    api_key = _read_secret(key_env)
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is required for arm Y")
+        raise RuntimeError(f"{key_env} is required for arm Y")
     payload: dict[str, Any] = {
         "model": model,
         "messages": [
@@ -275,7 +313,7 @@ def _api_chat_once(
     if temperature is not None:
         payload["temperature"] = temperature
     request = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
+        base_url.rstrip("/") + "/v1/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -398,12 +436,9 @@ def _replace_retrieval_prompt(container: Any, turn: Any, retrieval: RetrievalOut
         user=turn.intake.user,
         retrieval=retrieval,
         template=turn.template,
-        detected_language="unknown",
-        query_vi="",
         max_context_chars=getattr(container.settings, "chat_max_context_chars", 4500),
         history=turn.intake.history,
-        route_metadata=turn.route_metadata,
-        completeness_hint=turn.completeness_hint,
+        prompt_note=turn.prompt_note,
         confirmed_profile=turn.intake.confirmed_profile,
     )
 
@@ -439,6 +474,10 @@ Chỉ trả về JSON object:
 Viết "reason" TRƯỚC, nêu ngắn gọn điểm mạnh/yếu của câu trả lời rồi mới cho
 điểm. Chấm trước rồi mới viết lý do là hợp lý hoá ngược, không phải lập luận.
 
+Viết "reason" 100% BẰNG TIẾNG VIỆT. Rubric dưới đây viết bằng tiếng Việt; chấm
+xong giải thích bằng tiếng khác nghĩa là đã chấm theo một thang đã dịch, không
+còn cùng một thước với các dòng khác.
+
 {rubrics.ANSWER_QUALITY}
 
 {rubrics.ROLE_TONE}
@@ -458,7 +497,6 @@ Không chấm bám tài liệu, an toàn hoặc từ chối trong hai ĐIỂM S�
 
 Câu hỏi: {sample.get('user_query', '')}
 Ngữ cảnh người dùng: {json.dumps(sample.get('user_context') or {}, ensure_ascii=False)}
-Hành vi mong đợi: {sample.get('expected_behavior') or ''}
 Các ý mong đợi: {json.dumps(sample.get('expected_answer_points') or [], ensure_ascii=False)}
 Forbidden claims: {json.dumps(sample.get('forbidden_claims') or [], ensure_ascii=False)}
 Câu trả lời cần chấm:
@@ -553,7 +591,7 @@ def _run_arm(
     if oracle is not None:
         container.llm_router = oracle
         container.llm_extractor = oracle
-    judge = JudgeClient(provider="openai", model=judge_model,
+    judge = JudgeClient(model=judge_model,
                         use_cache=not judge_no_cache)
     rows: list[dict[str, Any]] = []
     temperature_policy = "temperature_0"
@@ -570,7 +608,6 @@ def _run_arm(
                 "user_query": sample.get("user_query"),
                 "user_context": sample.get("user_context") or {},
                 "intent_label": sample.get("intent_label"),
-                "expected_behavior": sample.get("expected_behavior"),
                 "expected_answer_points": sample.get("expected_answer_points") or [],
                 "forbidden_claims": sample.get("forbidden_claims") or [],
                 "ok": False,
@@ -633,12 +670,22 @@ def _run_arm(
                         # là None; prompt dựng không có khối ngữ cảnh nào.
                         retrieval_source = "none"
 
+                    generator_system_prompt, generator_user_prompt = (
+                        _generator_prompt_pair(turn, gen_variant)
+                    )
                     if gen_variant == "O":
                         candidates, temperature_policy = _api_candidates(
-                            turn.system_prompt,
-                            turn.user_prompt,
+                            generator_system_prompt,
+                            generator_user_prompt,
                         )
                         generator_model = ARM_Y_MODEL
+                        candidates = [
+                            chat_orchestrator.normalize_generated_prose(
+                                candidate,
+                                model=generator_model,
+                            )
+                            for candidate in candidates
+                        ]
                     else:
                         candidates = [
                             chat_orchestrator.generate_prose(
@@ -718,6 +765,17 @@ def _run_arm(
                                 ),
                                 "retrieval_source": retrieval_source,
                                 "generator_model": generator_model,
+                                "generator_system_prompt_sha256": hashlib.sha256(
+                                    _frontier_system_prompt().encode("utf-8")
+                                ).hexdigest(),
+                                "generator_user_prompt_sha256": hashlib.sha256(
+                                    generator_user_prompt.encode("utf-8")
+                                ).hexdigest(),
+                                "generator_system_prompt_source": (
+                                    "canonical_api_message"
+                                    if gen_variant == "O"
+                                    else "ollama_modelfile"
+                                ),
                                 "temperature_policy": temperature_policy,
                                 "candidate_scores": [
                                     {
@@ -1323,10 +1381,20 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         "arms": arms,
         "paired": _paired_summary(arms),
         "protocol": {
-            "judge_provider": "openai",
+            "judge_provider": Settings().judge_provider,
             "judge_model": args.judge_model,
             "judge_cache_read": not args.no_cache,
             "generator_model": args.model or Settings().llm_model,
+            "generator_system_prompt_path": str(
+                GENERATOR_SYSTEM_PROMPT_PATH.relative_to(ROOT)
+            ),
+            "generator_system_prompt_sha256": hashlib.sha256(
+                _frontier_system_prompt().encode("utf-8")
+            ).hexdigest(),
+            "generator_system_prompt_contract": (
+                "local=ollama_modelfile; frontier=canonical_api_message; "
+                "content_byte_identical"
+            ),
             "generator_oracle_selection": "candidate_0",
             "generator_oracle_temperature": (
                 "temperature_0_or_provider_default_three_runs"

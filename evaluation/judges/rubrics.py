@@ -26,7 +26,7 @@ Thang ở đây có MỐC NEO cho từng bậc điểm. Đó là khác biệt qu
     context awareness · communication quality · instruction following.
     Tiêu chí viết RIÊNG cho từng câu hỏi, có TRỌNG SỐ.
     -> Ta lấy: rubric phải tựa vào tiêu chí riêng của từng câu
-       (`expected_answer_points`, `forbidden_claims`, `expected_behavior`),
+       (`expected_answer_points`, `forbidden_claims`),
        không chỉ một thang chung chung.
 
 [4] RAGAS — Es et al., "RAGAS: Automated Evaluation of RAG".
@@ -61,8 +61,7 @@ ANSWER_QUALITY = """answer_quality — 1 đến 5, neo như sau:
   3  Đúng và có ý chính, nhưng thiếu ít nhất một ý mong đợi quan trọng, hoặc
      chung chung đến mức áp cho ai cũng được.
   4  Đúng, đủ các ý chính, người đọc hành động được. Chỉ thiếu chi tiết phụ.
-  5  Đúng, phủ hết các ý mong đợi, bám đúng "hành vi mong đợi", hành động được
-     ngay và không lan man."""
+  5  Đúng, phủ hết các ý mong đợi, hành động được ngay và không lan man."""
 
 # ── Khâu 3b: TÁCH sai khỏi thiếu ──────────────────────────────────────────
 # Med-PaLM [1] hỏi hai câu nhị phân riêng: "có nội dung KHÔNG NÊN có không" và

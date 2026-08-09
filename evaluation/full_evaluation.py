@@ -170,9 +170,11 @@ def _intake_is_complete(report: Path) -> bool:
         payload = json.loads(report.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return False
-    return payload.get("rows_input", 0) >= _dataset_rows(
-        ROOT / "datagen/intakedata/output/intake/intake.val.jsonl"
-    )
+    # Phải là bộ `run_intake` THẬT SỰ đọc. Trỏ vào intake.val.jsonl (400 dòng) thì
+    # so với report của intake_eval.v1 (353 dòng) luôn ra thiếu → nhánh bỏ qua
+    # chết lặng, chạy lại là 353 dòng từ đầu dù report đã đủ.
+    from evaluation.runners.run_intake import DEFAULT_EVAL
+    return payload.get("rows_input", 0) >= _dataset_rows(ROOT / DEFAULT_EVAL)
 
 
 def _dataset_rows(path: Path) -> int:
@@ -183,10 +185,20 @@ def _dataset_rows(path: Path) -> int:
         return 0
 
 
-def _has_openai_key() -> bool:
+def _judge_key_env() -> str:
+    """Tên biến chứa key của provider judge đang bật (JUDGE_PROVIDER trong .env)."""
+    from evaluation.judges.clients import DEFAULT_JUDGE_PROVIDER, PROVIDERS
+    from acne_llm.config import settings
+
+    provider = getattr(settings, "judge_provider", "") or DEFAULT_JUDGE_PROVIDER
+    return PROVIDERS.get(provider, PROVIDERS[DEFAULT_JUDGE_PROVIDER])[1]
+
+
+def _has_judge_key() -> bool:
+    key = _judge_key_env()
     env = (ROOT / ".env").read_text(encoding="utf-8") if (ROOT / ".env").exists() else ""
-    return bool(os.environ.get("OPENAI_API_KEY")) or bool(
-        re.search(r"^\s*OPENAI_API_KEY\s*=\s*[^#\s].*$", env, re.MULTILINE)
+    return bool(os.environ.get(key)) or bool(
+        re.search(rf"^\s*{key}\s*=\s*[^#\s].*$", env, re.MULTILINE)
     )
 
 
@@ -211,9 +223,41 @@ def preflight(skip: set[str]) -> list[str]:
         model = settings.llm_model
         if tags and model not in tags and f"{model}:latest" not in tags:
             problems.append(f"Ollama thiếu model '{model}'")
-        if not _has_openai_key():
-            problems.append("⚠ Thiếu OPENAI_API_KEY; bước ablation sẽ bị bỏ qua")
+        if not _has_judge_key():
+            problems.append(f"⚠ Thiếu {_judge_key_env()}; bước ablation sẽ bị bỏ qua")
+        problems.extend(_judge_consistency_warnings())
     return problems
+
+
+def _judge_consistency_warnings() -> list[str]:
+    """Trộn hai judge trong một artifact làm paired delta vô nghĩa.
+
+    Cache khoá theo provider::model::prompt, nên đổi provider/model là miss 100%
+    — không sai, nhưng điểm mới KHÔNG so được với dòng cũ cùng thư mục. Đây là
+    lỗi im lặng: mọi thứ vẫn chạy, chỉ có kết luận là sai.
+    """
+    from evaluation.judges.clients import CACHE_DB
+    from acne_llm.config import settings
+    import sqlite3
+
+    warnings: list[str] = []
+    want = getattr(settings, "judge_model", "") or "?"
+    if not CACHE_DB.exists():
+        return warnings
+    try:
+        with sqlite3.connect(f"file:{CACHE_DB}?mode=ro", uri=True, timeout=5) as db:
+            seen = [m for (m,) in db.execute(
+                "SELECT DISTINCT model FROM cache WHERE model IS NOT ''")]
+    except sqlite3.Error:
+        return warnings
+    other = sorted(m for m in seen if m != want)
+    if other:
+        warnings.append(
+            f"⚠ Cache judge đang chứa điểm của {other} nhưng lần này chấm bằng "
+            f"'{want}'. Cache sẽ miss toàn bộ (không sai), NHƯNG đừng gộp kết quả "
+            f"mới với artifact cũ — khác judge là khác thang. Dùng --out thư mục mới."
+        )
+    return warnings
 
 
 def main() -> None:
@@ -298,9 +342,9 @@ def main() -> None:
     # ── Khâu 2 — Tài liệu RAG ───────────────────────────────────────────
     if "retrieval" in skip:
         _skip_step(summary, summary_path, "retrieval", "--skip retrieval")
-    elif not _has_openai_key():
+    elif not _has_judge_key():
         _skip_step(summary, summary_path, "retrieval",
-                   "Thiếu OPENAI_API_KEY (judge chấm tài liệu cần API).")
+                   f"Thiếu {_judge_key_env()} (judge chấm tài liệu cần API).")
     else:
         step_started = _start_step(summary, summary_path, "retrieval")
         ok = sh("retrieval", [
@@ -316,9 +360,9 @@ def main() -> None:
     # ── Khâu 3 — Ablation ───────────────────────────────────────────────
     if "ablation" in skip:
         _skip_step(summary, summary_path, "ablation", "--skip ablation")
-    elif not _has_openai_key():
+    elif not _has_judge_key():
         _skip_step(summary, summary_path, "ablation",
-                   "Thiếu OPENAI_API_KEY (judge + arm RRO cần API).")
+                   f"Thiếu {_judge_key_env()} (judge + arm RRO cần API).")
     elif not (args.yes or _confirm_cost()):
         _skip_step(summary, summary_path, "ablation",
                    "Chưa chấp thuận cost gate; dùng --yes để bỏ qua hỏi lại.")

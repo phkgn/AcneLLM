@@ -1,4 +1,4 @@
-"""OpenAI-only LLM judge client.
+"""LLM judge client (OpenAI / DeepSeek — cùng một API surface).
 
 Kỷ luật §7 blueprint: log model+timestamp, cache theo hash, JSON output bắt buộc,
 parse fail → retry 1 lần → invalid (không đoán). Lỗi API/quota/auth phải làm
@@ -10,6 +10,7 @@ import json
 import os
 import re
 import sqlite3
+import sys
 import threading
 import time
 import urllib.error
@@ -20,14 +21,31 @@ from acne_llm.config import settings
 from evaluation.common import EVAL_DIR, ROOT, sha256_text, utcnow
 
 CACHE_DB = EVAL_DIR / "reports" / "judge_cache.sqlite"
-DEFAULT_JUDGE_PROVIDER = "openai"
+DEFAULT_JUDGE_PROVIDER = "deepseek"
 DEFAULT_OPENAI_JUDGE_MODEL = "gpt-5-mini-2025-08-07"
 DEFAULT_OPENAI_FAITHFULNESS_MODEL = "gpt-5-nano-2025-08-07"
+DEFAULT_DEEPSEEK_JUDGE_MODEL = "deepseek-v4-pro"      # judge — cần chấm chắc tay
+DEFAULT_DEEPSEEK_WORK_MODEL = "deepseek-v4-flash"     # sinh/generator — rẻ, nhanh
 DEFAULT_JUDGE_WORKERS = 4
 
-# USD per 1M tokens (input cache-miss, output). OpenAI prices are kept here so
-# every successful API attempt, including a malformed response retry, is metered.
+# provider -> (base_url, env var chứa key, model mặc định).
+# DeepSeek dùng đúng OpenAI chat-completions schema nên chỉ khác 3 thứ này.
+PROVIDERS = {
+    "openai": ("https://api.openai.com", "OPENAI_API_KEY",
+               DEFAULT_OPENAI_JUDGE_MODEL),
+    "deepseek": ("https://api.deepseek.com", "DEEPSEEK_API_KEY",
+                 DEFAULT_DEEPSEEK_JUDGE_MODEL),
+}
+
+# USD per 1M tokens (input cache-miss, output). Giá giữ ở đây để mọi lần gọi API
+# thành công, kể cả lần retry do output hỏng, đều được tính tiền.
+# ponytail: giá DeepSeek chưa đối chiếu với bảng giá chính thức — model nào
+# thiếu ở đây thì _track_cost kêu lên, không im lặng báo $0.
 PRICES = {
+    "deepseek-chat": (0.27, 1.10),
+    "deepseek-reasoner": (0.55, 2.19),
+    "deepseek-v4-flash": (0.27, 1.10),
+    "deepseek-v4-pro": (0.55, 2.19),
     "gpt-4o-mini": (0.15, 0.60),
     "gpt-4.1-nano": (0.10, 0.40),
     "gpt-4o": (2.50, 10.00),
@@ -73,21 +91,28 @@ class JudgeClient:
         provider = provider or getattr(
             settings, "judge_provider", DEFAULT_JUDGE_PROVIDER
         )
-        if provider != "openai":
-            raise ValueError("Evaluation Judge chỉ hỗ trợ provider=openai")
-        self.base_url = "https://api.openai.com"
-        self.api_key = _read_env("OPENAI_API_KEY")
-        self.model = (
-            model
-            or getattr(settings, "judge_model", "")
-            or DEFAULT_OPENAI_JUDGE_MODEL
+        if provider not in PROVIDERS:
+            raise ValueError(
+                f"provider={provider!r} không hỗ trợ; chọn {sorted(PROVIDERS)}"
+            )
+        self.base_url, key_env, default_model = PROVIDERS[provider]
+        self.api_key = _read_env(key_env)
+        # JUDGE_MODEL trong .env chỉ áp cho JUDGE_PROVIDER của chính nó. Nếu gọi
+        # tay một provider khác mà vẫn nhặt model kia thì được openai/deepseek-*
+        # → 404 lúc chạy thật, sau khi đã tốn cả bước setup.
+        env_model = (
+            getattr(settings, "judge_model", "")
+            if getattr(settings, "judge_provider", DEFAULT_JUDGE_PROVIDER) == provider
+            else ""
         )
+        self.model = model or env_model or default_model
         if not self.api_key:
-            raise RuntimeError(f"Thiếu API key cho {provider} (.env)")
+            raise RuntimeError(f"Thiếu {key_env} cho provider={provider} (.env)")
         self.provider = provider
         self.use_cache = use_cache
         self.total_cost_usd = 0.0
         self.calls = 0
+        self._price_warned = False
         self._lock = threading.RLock()
         CACHE_DB.parent.mkdir(parents=True, exist_ok=True)
         self._db = sqlite3.connect(CACHE_DB, timeout=30, check_same_thread=False)
@@ -201,6 +226,12 @@ class JudgeClient:
         return content, body.get("usage", {})
 
     def _track_cost(self, usage: dict) -> None:
+        if self.model not in PRICES and not self._price_warned:
+            # Thiếu giá thì cost report ra $0.00 — trông như miễn phí, mà không
+            # phải. Kêu một lần thay vì im lặng.
+            self._price_warned = True
+            print(f"⚠ chưa khai giá cho model {self.model!r} trong PRICES — "
+                  f"cost report của lần chạy này sẽ là $0", file=sys.stderr)
         pin, pout = PRICES.get(self.model, (0.0, 0.0))
         with self._lock:
             self.total_cost_usd += (

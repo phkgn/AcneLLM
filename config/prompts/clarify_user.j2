@@ -1,14 +1,11 @@
-{# Chỉ gửi DỮ LIỆU + hợp đồng của endpoint clarify (hỏi đúng 1 câu).
-   Luật ngôn ngữ/phong cách/grounding nằm ở Modelfile SYSTEM. #}
-<user_data>
-<message>{{ description }}</message>
-{% if history_block %}
-<conversation_history>
+{# Hợp đồng endpoint clarify: đúng 1 câu hỏi. Không RAG.
+   Bản XML-tag cũ giữ ở clarify_user.legacy.j2. #}
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
 {{ history_block }}
-</conversation_history>
+
 {% endif %}
-</user_data>
-<task>
-Chỉ xuất đúng 1 câu hỏi làm rõ cần thiết nhất trước khi tư vấn, với đúng 1 dấu “?”.
-Không viết câu dẫn hay câu hỏi thứ hai; chưa đưa routine và chưa dùng tài liệu tham khảo.
-</task>
+Tin nhắn hiện tại:
+{{ description }}
+
+(Hỏi lại đúng một câu cần nhất trước khi tư vấn, đúng một dấu hỏi. Không câu dẫn,
+không câu hỏi thứ hai, chưa đưa routine.)

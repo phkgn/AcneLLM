@@ -1,0 +1,10 @@
+{# Chỉ gửi DỮ LIỆU/ngữ cảnh có nhãn. Luật phạm vi/an toàn/ngôn ngữ/grounding
+   (kể cả an toàn trẻ sơ sinh) nằm ở Modelfile SYSTEM, không lặp ở đây. #}
+{% if history_block %}[NGỮ CẢNH USER GẦN NHẤT - CHỈ ĐỂ GIẢI FOLLOW-UP]
+{{ history_block }}
+{% endif %}
+{% if has_retrieved_context %}[TÀI LIỆU Y KHOA THAM KHẢO]
+{{ retrieved_context }}
+{% endif %}
+[CÂU HỎI HIỆN TẠI]
+{{ description }}

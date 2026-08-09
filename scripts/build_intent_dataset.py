@@ -41,6 +41,9 @@ INTENTS = ("advise", "knowledge", "clarify")
 TARGETS = {"advise": 500, "knowledge": 500, "clarify": 300}
 MODEL_PRICING_PER_MILLION = {
     # Standard processing prices. Cached-input usage is accounted separately.
+    "deepseek-v4-flash": {"input": 0.27, "cached_input": 0.07, "output": 1.10},
+    "deepseek-chat": {"input": 0.27, "cached_input": 0.07, "output": 1.10},
+    "deepseek-reasoner": {"input": 0.55, "cached_input": 0.14, "output": 2.19},
     "gpt-4o-mini": {"input": 0.15, "cached_input": 0.075, "output": 0.60},
     "gpt-4o-mini-2024-07-18": {
         "input": 0.15,
@@ -697,10 +700,15 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             file=sys.stderr,
         )
 
-    api_key = _env_value("OPENAI_API_KEY")
+    # DeepSeek nói đúng OpenAI chat-completions schema nên SDK dùng lại được,
+    # chỉ đổi base_url. Vẫn chấp nhận OPENAI_API_KEY nếu ai đó còn quota.
+    api_key = _env_value("DEEPSEEK_API_KEY")
+    base_url = _env_value("DEEPSEEK_BASE_URL") or "https://api.deepseek.com"
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is missing from environment/.env")
-    client = OpenAI(api_key=api_key, timeout=args.timeout)
+        api_key, base_url = _env_value("OPENAI_API_KEY"), None
+    if not api_key:
+        raise RuntimeError("Thiếu DEEPSEEK_API_KEY (hoặc OPENAI_API_KEY) trong .env")
+    client = OpenAI(api_key=api_key, base_url=base_url, timeout=args.timeout)
     tracker = CostTracker(
         budget_usd=args.budget_usd,
         total_usd=args.prior_spend_usd,
@@ -840,8 +848,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--metrics-output",
         default="data/intent_classify.build_metrics.json",
     )
-    parser.add_argument("--model", default="gpt-4o-mini")
-    parser.add_argument("--judge-model", default="gpt-4o-mini")
+    parser.add_argument("--model", default="deepseek-v4-flash")
+    parser.add_argument("--judge-model", default="deepseek-v4-pro")
     parser.add_argument("--budget-usd", type=float, default=1.5)
     parser.add_argument(
         "--prior-spend-usd",

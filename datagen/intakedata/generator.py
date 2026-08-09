@@ -622,6 +622,25 @@ def build_gen_prompt(
     ]
 
 
+def _usage_breakdown(response: Any) -> str:
+    """Ai dang an het token: reasoning hay noi dung that.
+
+    Model reasoning tinh CA token suy nghi vao max_tokens. Neu reasoning nuot het
+    ngan sach thi `content` ve rong hoac cut, va nang max_tokens la vo ich --
+    phai tat suy nghi hoac doi model.
+    """
+    usage = getattr(response, "usage", None)
+    if usage is None:
+        return "(khong co usage)"
+    detail = getattr(usage, "completion_tokens_details", None)
+    reasoning = getattr(detail, "reasoning_tokens", None) if detail else None
+    parts = [f"prompt={getattr(usage, 'prompt_tokens', '?')}",
+             f"completion={getattr(usage, 'completion_tokens', '?')}"]
+    if reasoning is not None:
+        parts.append(f"reasoning={reasoning}")
+    return " ".join(parts)
+
+
 def _parse_json_object(text: str) -> dict[str, Any]:
     try:
         value = json.loads(text.strip())
@@ -653,10 +672,13 @@ class OpenAIGenerator:
         async with self._semaphore:
             await self.client.models.retrieve(str(self.cfg.model))
 
-    async def generate(self, messages: list[dict[str, str]]) -> dict[str, Any]:
-        delay = 1.0
-        last_error: Exception | None = None
-        response_format = {
+    def _response_format(self) -> dict[str, Any]:
+        """Structured Outputs cua OpenAI. Provider khac ghi de ham nay.
+
+        DeepSeek chi nhan {"type": "json_object"} -- gui json_schema vao la 400
+        BadRequest o MOI request.
+        """
+        return {
             "type": "json_schema",
             "json_schema": {
                 "name": "unified_intake_candidate",
@@ -664,6 +686,11 @@ class OpenAIGenerator:
                 "schema": build_generation_schema(),
             },
         }
+
+    async def generate(self, messages: list[dict[str, str]]) -> dict[str, Any]:
+        delay = 1.0
+        last_error: Exception | None = None
+        response_format = self._response_format()
         for attempt in range(1, int(self.cfg.max_api_retries) + 1):
             try:
                 async with self._semaphore:
@@ -674,15 +701,36 @@ class OpenAIGenerator:
                         max_tokens=int(self.cfg.max_output_tokens),
                         response_format=response_format,
                     )
-                content = response.choices[0].message.content or ""
+                choice = response.choices[0]
+                content = choice.message.content or ""
+                if not content.strip():
+                    # Content RONG khac han JSON hong. Hai nguyen nhan thuong gap:
+                    # het max_tokens (finish_reason="length"), hoac model reasoning
+                    # de output o truong khac. Noi thang ra thay vi de
+                    # _parse_json_object bao "Expecting value: line 1 column 1".
+                    raise ValueError(
+                        f"Provider tra content RONG (finish_reason="
+                        f"{getattr(choice, 'finish_reason', '?')}, "
+                        f"max_tokens={self.cfg.max_output_tokens}). "
+                        "Het token hoac model dat output o truong khac."
+                    )
+                if getattr(choice, "finish_reason", None) == "length":
+                    raise ValueError(
+                        f"Provider cat giua chung o {self.cfg.max_output_tokens} "
+                        f"token. {_usage_breakdown(response)}"
+                    )
                 return _parse_json_object(content)
             except Exception as exc:
                 last_error = exc
+                # In ca THAN loi. Ban cu chi in ten class nen mot loi 400 lap lai
+                # 4 lan van khong cho biet vi sao -- vd DeepSeek tu choi
+                # response_format json_schema.
                 logger.warning(
-                    "Provider attempt %d/%d failed: %s",
+                    "Provider attempt %d/%d failed: %s: %s",
                     attempt,
                     self.cfg.max_api_retries,
                     type(exc).__name__,
+                    str(exc)[:300],
                 )
                 if attempt < int(self.cfg.max_api_retries):
                     await asyncio.sleep(delay + random.random() * 0.25)

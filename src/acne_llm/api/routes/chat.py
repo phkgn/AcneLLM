@@ -79,7 +79,7 @@ async def debug_trace(
     # ① Preprocess
     prepared = prepare_user_text(message)
 
-    # ②–⑤ Intake (normalize, guardrails, route, fold, completeness).
+    # ②–⑤ Intake (normalize, guardrails, route, fold).
     prepared_turn = await asyncio.to_thread(
         prepare_chat_turn, c, message, mode, session_id,
         include_analytics=True,
@@ -89,7 +89,7 @@ async def debug_trace(
     route = intake.route_decision
     route_metadata = route.metadata() if route else {}
 
-    # Confidence per-field (kênh phụ — chính cái dùng ở completeness)
+    # Confidence per-field -> hedge trong prompt (confidence_hint)
     ec = extract_with_confidence(
         message,
         clean_text=prepared.clean_text,
@@ -154,17 +154,6 @@ async def debug_trace(
             "route_flags": route_metadata.get("route_flags", []),
             "reason_code": getattr(route, "reason_code", None),
         },
-        "stage_5_completeness": (
-            {
-                "kind": intake.completeness.kind,
-                "level": intake.completeness.level,
-                "missing_fields": intake.completeness.missing_fields,
-                "question": intake.completeness.followup_question,
-                "checked": True,
-            }
-            if intake.completeness is not None
-            else {"checked": False, "reason": "skipped (knowledge/clarify/reject hoặc không acne-scope)"}
-        ),
         "effective_mode": intake.effective_mode,
     }
 
@@ -175,8 +164,8 @@ async def debug_trace(
         trace["stage_8_prompt"] = {
             "built": False,
             "reason": "reject/clarify → trả lời cố định, không build prompt tư vấn",
-            "fixed_reply": (intake.scope_refusal.disclaimer if intake.scope_refusal
-                            else (intake.completeness.followup_question if intake.completeness else "")),
+            "fixed_reply": (intake.scope_refusal.disclaimer
+                            if intake.scope_refusal else ""),
         }
         trace["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
         return trace

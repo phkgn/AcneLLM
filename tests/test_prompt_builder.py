@@ -65,7 +65,7 @@ def test_knowledge_prompt_renders_previous_user_without_assistant_turn():
 
     _, usr_p = pb.build(user, None, "knowledge_user.j2", history=history)
 
-    assert "[NGỮ CẢNH USER GẦN NHẤT" in usr_p
+    assert "Ngữ cảnh gần nhất" in usr_p
     assert "[User]: Mụn đầu đen là gì?" in usr_p
     assert usr_p.index("Mụn đầu đen là gì?") < usr_p.index("Còn loại này có nguy hiểm không?")
 
@@ -87,9 +87,51 @@ def test_prompt_builder_prose_sections():
     pb = PromptBuilder(PROMPTS)
     user = UserInput(description="Mụn đầu đen")
     sys_p, usr_p = pb.build(user, None, "stream_user.j2")
-    assert "[CÂU HỎI HIỆN TẠI]" in usr_p
+    assert "Tin nhắn hiện tại:" in usr_p
     assert "Mụn đầu đen" in usr_p
     assert "Trả JSON" not in usr_p
+
+
+def test_user_message_is_last_block():
+    """Hợp đồng thứ tự: câu hỏi của user phải nằm cuối prompt.
+
+    SYSTEM xếp 'tin nhắn hiện tại' cao nhất; template xếp ngược thứ hạng nên nó
+    ở cuối — cũng là chỗ model chú ý mạnh nhất. Test này vỡ nếu ai đó đảo lại.
+    """
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(description="CAU_HOI_CUOI_CUNG")
+    retrieval = RetrievalOutput(
+        query="q",
+        chunks=[RetrievedChunk(chunk_id="c1", source="S", text="TAI_LIEU",
+                               score=0.9, metadata={"title": "T", "source": "S"})],
+    )
+    history = [ConversationTurn(role="user", content="LICH_SU")]
+
+    for template in ("stream_user.j2", "knowledge_user.j2", "clarify_user.j2"):
+        _, usr_p = pb.build(
+            user, retrieval, template,
+            history=history,
+            confirmed_profile={"is_pregnant": True},
+        )
+        assert usr_p.rstrip().endswith("CAU_HOI_CUOI_CUNG") or (
+            usr_p.index("CAU_HOI_CUOI_CUNG") > usr_p.index("LICH_SU")
+        ), template
+
+
+def test_inferred_clinical_labels_are_not_injected():
+    """known_facts đã bị bỏ: nhãn regex suy đoán không được vào prompt nữa."""
+    pb = PromptBuilder(PROMPTS)
+    user = UserInput(
+        description="mụn ở cằm",
+        context=UserContext(skin_type="oily"),
+        clinical=AcneClinicalInput(lesion_types=["blackhead"], inflammation_level="moderate"),
+    )
+
+    _, usr_p = pb.build(user, None, "stream_user.j2")
+
+    assert "da dầu" not in usr_p
+    assert "mụn đầu đen" not in usr_p
+    assert "mụn ở cằm" in usr_p
 
 
 def test_prompt_builder_age_zero():
@@ -161,17 +203,14 @@ def test_prompt_builder_hybrid():
         user,
         retrieval,
         "stream_user.j2",
-        detected_language="vi",
-        query_vi="mụn viêm ở cằm",
         confirmed_profile={"is_pregnant": True},
     )
     assert sys_p == ""
-    assert "mang thai" in usr_p.lower() or "CÓ" in usr_p
+    assert "đang mang thai" in usr_p.lower()
     assert "Nguồn 1 —" in usr_p
-    assert "mụn ở cằm" in usr_p.lower() or "mụn" in usr_p.lower()
-    assert "[CÂU HỎI HIỆN TẠI]" in usr_p
-    assert "query_vi" not in usr_p
-    assert "mụn viêm đỏ" in usr_p
+    assert "Tài liệu tham khảo:" in usr_p
+    assert "Tin nhắn hiện tại:" in usr_p
+    assert "Em bị mụn ở cằm" in usr_p
 
 
 def test_prompt_builder_llm_only():
@@ -182,17 +221,8 @@ def test_prompt_builder_llm_only():
         clinical=AcneClinicalInput(lesion_types=["blackhead"]),
     )
     sys_p, usr_p = pb.build(user, None, "stream_user.j2")
-    assert "[CÂU HỎI HIỆN TẠI]" in usr_p
-    assert "mụn đầu đen" in usr_p
-
-
-def test_prompt_builder_renders_explicit_turn_skin_type():
-    pb = PromptBuilder(PROMPTS)
-    user = UserInput(description="mụn ở cằm", context=UserContext(skin_type="oily"))
-
-    _, usr_p = pb.build(user, None, "stream_user.j2")
-
-    assert "da dầu" in usr_p
+    assert "Tin nhắn hiện tại:" in usr_p
+    assert "Mô tả mụn" in usr_p
 
 
 def test_knowledge_prompt_omits_kb_block_when_no_context():
@@ -202,7 +232,7 @@ def test_knowledge_prompt_omits_kb_block_when_no_context():
     _, usr_p = pb.build(user, None, "knowledge_user.j2")
 
     # Không còn nhồi chỉ dẫn "chưa có KB"; sự vắng mặt của block tài liệu đã đủ tín hiệu.
-    assert "[TÀI LIỆU Y KHOA THAM KHẢO]" not in usr_p
+    assert "Tài liệu tham khảo:" not in usr_p
     assert "mụn mủ là gì" in usr_p
 
 
@@ -223,24 +253,10 @@ def test_prompt_builder_includes_bounded_recent_pair():
 
     _, usr_p = pb.build(user, None, "stream_user.j2", history=history)
 
-    assert "[NGỮ CẢNH GẦN NHẤT" in usr_p
+    assert "Ngữ cảnh gần nhất" in usr_p
     assert "tôi 22 tuổi da dầu bị mụn ở cằm" in usr_p
     assert "khuyến nghị chi tiết" in usr_p
     assert "..." in usr_p
-
-
-def test_prompt_builder_marks_knowledge_as_non_personal():
-    pb = PromptBuilder(PROMPTS)
-    user = UserInput(description="Benzoyl peroxide hoạt động thế nào?")
-
-    _, usr_p = pb.build(
-        user,
-        None,
-        "stream_user.j2",
-        route_metadata={"primary_intent": "knowledge"},
-    )
-
-    assert "hồ sơ cá nhân" in usr_p
 
 
 def test_reject_prompt_is_data_minimal_without_facts_history_or_rag():
@@ -300,8 +316,8 @@ def test_clarify_template_keeps_prompt_minimal():
         history=[ConversationTurn(role="user", content="tôi bị mụn")],
     )
 
-    assert "<message>" in usr_p
-    assert "<conversation_history>" in usr_p
-    assert "<context>" not in usr_p
-    assert "<known_facts>" not in usr_p
-    assert "<query_vi>" not in usr_p
+    assert "ý mình là sao?" in usr_p
+    assert "tôi bị mụn" in usr_p
+    assert "một dấu hỏi" in usr_p
+    # Clarify không bao giờ nhận tài liệu
+    assert "Tài liệu tham khảo:" not in usr_p

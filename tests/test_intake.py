@@ -125,15 +125,18 @@ def test_intake_soft_scope_followups_select_recent_pair_and_fold_facts(tmp_path)
     assert cooking_oil.clean_text == "tôi dùng dầu ăn dc kop"
 
 
-def test_intake_treats_generic_acne_case_as_soft_missing_core_hint():
+def test_intake_treats_generic_acne_case_as_soft_llm_only():
+    """"tôi bị mụn" van di duong tu van, KHONG bi chan.
+
+    Truoc day cho nay con khang dinh completeness.level == "none" va
+    missing_fields == ["lesion_types"] -- module completeness da bi xoa: viec
+    quyet dinh hoi hay khong tra ve cho generator, no thay du kien trong va tu hoi.
+    `level` cung chua bao gio chan gi, chi chay ra log."""
     c = _container()
 
     result = run_intake(c, "tôi bị mụn")
 
     assert result.effective_mode == "llm_only"
-    assert result.completeness is not None
-    assert result.completeness.level == "none"
-    assert result.completeness.missing_fields == ["lesion_types"]
 
 
 def test_intake_extracts_safety_terms_without_clinical_plan_for_knowledge():
@@ -179,7 +182,6 @@ def test_intake_does_not_fold_self_history_into_general_knowledge():
         assert second.route_decision.primary_intent == "knowledge"
         assert second.user.context.age is None
         assert second.user.context.skin_type is None
-        assert second.completeness is None
     finally:
         store.delete(session_id)
 
@@ -206,10 +208,9 @@ def test_intake_advise_for_other_person_uses_personal_gate_by_design():
 
         assert second.route_decision.primary_intent == "advise"
         # query_subject was intentionally removed. All advise turns now use the
-        # same memory/completeness gate, accepting known "other" contamination.
+        # same memory gate, accepting known "other" contamination.
         assert second.user.context.age == 22
         assert second.turn_snapshot is not None
-        assert second.completeness is not None
         assert "bạn tôi bị mụn ở lưng" in second.normalized_query
     finally:
         store.delete(session_id)

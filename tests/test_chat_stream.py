@@ -309,7 +309,13 @@ def test_stream_endpoint_acne_partial_goes_to_llm():
     assert "Xin chào" in body
 
 
-def test_stream_coordinates_router_clarify_and_completeness_to_one_ask():
+def test_duong_advise_khong_con_noi_cau_hoi_cung():
+    """Hoi hay khong gio la viec cua generator.
+
+    Ban cu: luat tinh ra mot cau hoi, prompt bao model "KHONG dat cau hoi bo
+    sung", roi runtime noi cau cung vao cuoi -> model van hoi, nguoi dung nhan
+    HAI cau hoi. Gio khong noi gi ca: model mock khong hoi thi output khong co
+    dau hoi nao.""" 
     advise_container = _MockContainer()
     advise_container.semantic_router = SimpleNamespace(
         classify=lambda text: RouteDecision(
@@ -326,7 +332,8 @@ def test_stream_coordinates_router_clarify_and_completeness_to_one_ask():
 
     assert advise_response.status_code == 200
     assert advise_container.prompt.templates[-1] == "stream_user.j2"
-    assert advise_response.text.count("?") == 1
+    # Mock LLM khong sinh cau hoi -> khong duoc co dau hoi nao chen them.
+    assert advise_response.text.count("?") == 0
 
     class _ClarifyQuestionLLM(_MockLLM):
         def stream_text(self, system: str, user: str, temperature: float = 0.3):
@@ -523,8 +530,11 @@ def test_stream_endpoint_advise_metadata_has_no_subject_and_persists_snapshot():
         )
 
         assert r.status_code == 200
-        assert container.prompt.route_metadata[-1]["primary_intent"] == "advise"
-        assert "query_subject" not in container.prompt.route_metadata[-1]
+        # `route_metadata` khong con di vao prompt (orchestrator da bo tham so
+        # do khi don prompt). Kiem tren SSE metadata -- day moi la thu client
+        # thay, va la hop dong that su can giu.
+        assert '"primary_intent": "advise"' in r.text
+        assert "query_subject" not in r.text
         history = store.get_history(session_id)
         assert history[0].normalized_snapshot is not None
     finally:

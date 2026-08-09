@@ -61,6 +61,10 @@ thống tìm kiếm đã lấy về cho một câu hỏi về da mụn.
 Tài liệu có thể bằng tiếng Việt HOẶC tiếng Anh. Ngôn ngữ không ảnh hưởng điểm —
 chỉ chấm nội dung có trả lời được câu hỏi hay không.
 
+Viết "reason" 100% BẰNG TIẾNG VIỆT, kể cả khi tài liệu và câu trả lời bằng tiếng
+Anh. Rubric viết bằng tiếng Việt; chấm rồi giải thích bằng tiếng khác là chấm
+theo một thang đã dịch, không còn cùng một thước.
+
 {rubrics.CHUNK_RELEVANCE}
 
 {rubrics.SUFFICIENCY}
@@ -112,16 +116,29 @@ def score(
     if not chunks:
         return {face: None for face in FACES} | {"details": {"n_chunks": 0}}
 
-    result = judge.judge(build_prompt(question, chunks, expected_points, answer))
+    prompt = build_prompt(question, chunks, expected_points, answer)
+    result = judge.judge(prompt)
     if not isinstance(result, Mapping):
         raise RuntimeError("context judge returned invalid JSON")
 
     raw = result.get("grades")
     if not isinstance(raw, list) or len(raw) != len(chunks):
-        raise RuntimeError(
-            f"context judge grades sai độ dài: {len(raw) if isinstance(raw, list) else raw!r}"
-            f" != {len(chunks)} chunk"
+        # Judge thỉnh thoảng trả thừa/thiếu một grade (7/1182 dòng run trước chết
+        # vì đúng chuyện này). Đây là lỗi ĐẾM, không phải judge từ chối chấm —
+        # nhắc lại số lượng một lần rồi mới bỏ cuộc. Bỏ cache để không đọc lại
+        # đúng câu trả lời hỏng vừa rồi.
+        retry = (
+            f"{prompt}\n\nLƯU Ý BẮT BUỘC: có ĐÚNG {len(chunks)} đoạn "
+            f"([Đoạn 1] đến [Đoạn {len(chunks)}]). Mảng \"grades\" phải có ĐÚNG "
+            f"{len(chunks)} phần tử, theo đúng thứ tự đoạn, không thừa không thiếu."
         )
+        result = judge.judge(retry, use_cache=False)
+        raw = result.get("grades") if isinstance(result, Mapping) else None
+        if not isinstance(raw, list) or len(raw) != len(chunks):
+            raise RuntimeError(
+                f"context judge grades sai độ dài sau 1 lần nhắc: "
+                f"{len(raw) if isinstance(raw, list) else raw!r} != {len(chunks)} chunk"
+            )
     grades = [_grade(g, "grade") for g in raw]
 
     return {
@@ -177,10 +194,26 @@ def demo() -> None:
                 {"grades": [1, 2, 9], "sufficiency": 3},       # ngoài thang
                 {"grades": [1, 2, 3], "sufficiency": None}):   # thiếu
         try:
-            score(type("J", (), {"judge": lambda s, p, b=bad: b})(), "q", ["a", "b", "c"])
+            score(type("J", (), {"judge": lambda s, p, *_, b=bad, **__: b})(),
+                  "q", ["a", "b", "c"])
         except RuntimeError:
             continue
         raise AssertionError(f"phải raise với {bad}")
+
+    # Đếm sai grades là lỗi ĐẾM, không phải judge từ chối chấm: nhắc một lần thì
+    # cứu được dòng. 7/1182 dòng run trước chết vì không có nhánh này.
+    class FlakyJudge:
+        calls = 0
+
+        def judge(self, prompt: str, **kwargs) -> dict:
+            FlakyJudge.calls += 1
+            if FlakyJudge.calls == 1:
+                return {"grades": [1, 2, 3, 4], "sufficiency": 3}   # thừa 1
+            assert "ĐÚNG 3 phần tử" in prompt, "lần nhắc phải nêu rõ số lượng"
+            assert kwargs.get("use_cache") is False, "lần nhắc không được đọc cache"
+            return {"grades": [1, 2, 3], "sufficiency": 3}
+    out = score(FlakyJudge(), "q", ["a", "b", "c"])
+    assert FlakyJudge.calls == 2 and out["context_relevance"] == 2.0
     print("context judge demo OK")
 
 

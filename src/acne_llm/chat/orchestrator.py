@@ -6,16 +6,29 @@ import re
 import time
 from typing import TYPE_CHECKING
 
+from loguru import logger
+
 from ..schemas import RetrievalOutput, UserInput
 from ._retrieval import retrieve_for_chat
 from .confidence_hint import build_confidence_hint
 from .intake import IntakeResult, run_intake
-from .fallback.intent_router import RouteDecision
-from .preprocess import prepare_user_text
 from ..utils.logging import log_pipeline_stage
 
 if TYPE_CHECKING:
     from ..di import Container
+
+_CJK = re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
+
+
+def normalize_generated_prose(text: str, *, model: str = "?") -> str:
+    """Apply the shared non-stream output normalization after generation."""
+    cleaned = _CJK.sub("", text)
+    if cleaned != text:
+        logger.warning(
+            "[generate_prose] cat {} ky tu CJK khoi output — model={}",
+            len(text) - len(cleaned), model,
+        )
+    return cleaned
 
 
 @dataclass
@@ -23,25 +36,12 @@ class PreparedChatTurn:
     intake: IntakeResult
     route_metadata: dict
     mode: str
-    template: str | None
+    template: str
     retrieval_query: str
     retrieval: RetrievalOutput | None
     system_prompt: str
     user_prompt: str
-    completeness_hint: str
-    retrieval_ms: int = 0
-
-
-def _completeness_hint(intake: IntakeResult) -> str:
-    completeness = intake.completeness
-    if completeness is None or not completeness.followup_question:
-        return ""
-    missing = ", ".join(completeness.missing_fields)
-    return (
-        f"Thông tin còn thiếu: {missing}. Tư vấn từ dữ kiện hiện tại nhưng "
-        "KHÔNG đặt câu hỏi bổ sung trong phần sinh; hệ thống sẽ nối chính xác "
-        f"một câu hỏi sau: {completeness.followup_question}"
-    )
+    prompt_note: str
 
 
 def prepare_chat_turn(
@@ -92,7 +92,6 @@ def prepare_chat_turn(
         and primary_intent not in {"clarify", "reject"}
         and (intake.is_acne_signal or bool(intake.safety_terms) or bool(intake.history))
     )
-    retrieval_ms = 0
     if should_retrieve:
         retrieval = retrieve_for_chat(
             c,
@@ -101,7 +100,6 @@ def prepare_chat_turn(
             normalized_query=intake.normalized_query,
             safety_terms=intake.safety_terms,
         )
-        retrieval_ms = int((time.perf_counter() - retrieval_started) * 1000)
     log_pipeline_stage(
         session_id,
         "RAG",
@@ -126,30 +124,31 @@ def prepare_chat_turn(
     else:
         template = "stream_user.j2"
 
-    system_prompt = user_prompt = ""
-    hint = _completeness_hint(intake)
+    # Ô này chỉ mang DỮ KIỆN, không mang mệnh lệnh. Bản cũ nhồi vào đây câu
+    # "KHÔNG đặt câu hỏi bổ sung trong phần sinh; hệ thống sẽ nối một câu sau"
+    # — model không nghe, vẫn tự hỏi, rồi runtime nối thêm câu nữa nên người
+    # dùng nhận HAI câu hỏi. Việc quyết định hỏi hay không trả lại cho generator:
+    # nó thấy lịch sử và thấy dữ kiện trống nên tự biết.
+    hint = ""
     refusal = intake.scope_refusal
     if refusal is not None:
         hint = refusal.disclaimer or "\n".join(refusal.causes)
-    # Hedge cho known_facts: field trích xuất confidence thấp -> nhắc LLM hỏi lại
-    # thay vì khẳng định (known_facts hiện inject như "đã xác nhận + bất biến").
+    # Field trích xuất confidence thấp -> nhắc LLM hỏi lại thay vì khẳng định.
+    # (known_facts đã bị bỏ khỏi prompt; hedge này giờ là kênh duy nhất báo cho
+    # model biết extractor không chắc.)
     if intake.extraction_confidence is not None:
         conf_hint = build_confidence_hint(intake.extraction_confidence, field_threshold=0.6)
         if conf_hint:
             hint = (hint + " " + conf_hint).strip() if hint else conf_hint
-    if template is not None:
-        system_prompt, user_prompt = c.prompt.build(
-            user=intake.user,
-            retrieval=retrieval,
-            template=template,
-            detected_language="unknown",
-            query_vi="",
-            max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
-            history=intake.history,
-            route_metadata=route_metadata,
-            completeness_hint=hint,
-            confirmed_profile=intake.confirmed_profile,
-        )
+    system_prompt, user_prompt = c.prompt.build(
+        user=intake.user,
+        retrieval=retrieval,
+        template=template,
+        max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
+        history=intake.history,
+        prompt_note=hint,
+        confirmed_profile=intake.confirmed_profile,
+    )
 
     return PreparedChatTurn(
         intake=intake,
@@ -160,8 +159,7 @@ def prepare_chat_turn(
         retrieval=retrieval,
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        completeness_hint=hint,
-        retrieval_ms=retrieval_ms,
+        prompt_note=hint,
     )
 
 
@@ -180,5 +178,7 @@ def generate_prose(
         prepared.user_prompt,
         temperature=temperature,
     )
-    text = re.sub(r"[一-鿿぀-ゟ゠-ヿ가-힯]+", "", text)
-    return text
+    return normalize_generated_prose(
+        text,
+        model=getattr(c.llm, "model", "?"),
+    )

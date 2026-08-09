@@ -176,7 +176,6 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
   "dataset_version": "v3.0",
   "source_provenance": "synthetic_deepseek",
   "user_context": {"age": 22, "skin_type": "oily"},
-  "conversation_history": [],
 
   "relevant_chunk_ids": ["hellobacsi_280…::0004", "…::0005", "…::0003"],
   "relevance_grade":   {"hellobacsi_280…::0004": 2, "…::0005": 1, "…::0003": 1},
@@ -185,7 +184,6 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
   "intent_label_source": "derived_from_intaker_modelfile",
   "spec_category": "không_chẩn_đoán",
   "generator_constraints": ["không_chẩn_đoán"],
-  "expected_behavior": "Giải thích nguyên nhân, không kê đơn, khuyên khám nếu nặng",
   "expected_answer_points": ["mụn vùng cằm liên quan androgen", "…"],
   "forbidden_claims": ["khẳng định chắc chắn nguyên nhân", "chỉ định thuốc kê đơn"],
 
@@ -198,7 +196,7 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
 | `user_query`, `user_context` | mọi arm |
 | `relevant_chunk_ids` + `relevance_grade` | arm có `O` ở vị trí RAG |
 | `intent_label` | arm có `O` ở vị trí intaker · `refusal_fidelity` |
-| `expected_answer_points`, `expected_behavior` | rubric của judge |
+| `expected_answer_points` | `missing_content` · `answer_quality` · `context_sufficiency` |
 | `forbidden_claims` | `safety_pass` |
 
 `relevance_grade` chỉ quyết định **thứ tự chọn** khi có nhiều hơn

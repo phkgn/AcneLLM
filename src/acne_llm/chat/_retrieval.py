@@ -18,41 +18,6 @@ if TYPE_CHECKING:
     from ..di import Container
 
 
-# -- Query builder ------------------------------------------------------------
-
-def build_query_from_user(user: UserInput) -> str:
-    """Tao query ngan gon tu UserInput de truyen vao retriever."""
-    parts = [user.description]
-    c = user.context
-    context_bits: list[str] = []
-    if c.age is not None:
-        context_bits.append(f"{c.age} tuoi")
-    if c.skin_type:
-        context_bits.append(f"da {c.skin_type}")
-    if c.is_pregnant:
-        context_bits.append("mang thai")
-    if c.is_breastfeeding:
-        context_bits.append("cho con bu")
-    if c.current_products:
-        context_bits.append("dang dung " + ", ".join(c.current_products))
-    if c.duration_weeks is not None:
-        context_bits.append(f"keo dai {c.duration_weeks} tuan")
-    if context_bits:
-        parts.append("; ".join(context_bits))
-
-    if user.clinical:
-        clinical_bits = []
-        if user.clinical.lesion_types:
-            clinical_bits.append("loai mun " + ", ".join(user.clinical.lesion_types))
-        if user.clinical.lesion_distribution:
-            clinical_bits.append("vi tri " + ", ".join(user.clinical.lesion_distribution))
-        if user.clinical.inflammation_level:
-            clinical_bits.append("muc viem " + user.clinical.inflammation_level)
-        if clinical_bits:
-            parts.append("; ".join(clinical_bits))
-    return "\n".join(parts)
-
-
 # -- RRF fusion ---------------------------------------------------------------
 
 def rrf_fusion(rank_lists: list[list[str]], k: int = 60) -> dict[str, float]:
@@ -107,14 +72,6 @@ _MEDICAL_SAFETY_TERMS = frozenset({
     "isotretinoin", "retinoid", "tretinoin", "adapalene", "tazarotene",
     "doxycycline", "minocycline", "tetracycline", "khang sinh", "kháng sinh", "antibiotic",
 })
-
-# Query fallback dùng khi plan=False + không có concrete acne signal trong query gốc.
-# Giúp dense retriever kéo đúng chunk kiến thức chung về mụn thay vì chunk ngẫu nhiên.
-_VAGUE_QUERY_FALLBACK = (
-    "mụn trứng cá nguyên nhân cơ chế tuyến bã nhờn acne pathophysiology "
-    "vulgaris cause sebum follicle"
-)
-
 
 def _has_medical_safety_terms(safety_terms: list[str]) -> bool:
     return any(

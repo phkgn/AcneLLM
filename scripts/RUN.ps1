@@ -1,6 +1,9 @@
 # AcneLLM - run all services on Windows PowerShell
 param(
-    [switch]$Log
+    [switch]$Log,
+    [string]$RunpodIp = "213.173.107.79",
+    [int]$RunpodSshPort = 40463,
+    [string]$RunpodSshKey = "$env:USERPROFILE\.ssh\runpod_acnellm_ed25519"
 )
 
 $ErrorActionPreference = "Stop"
@@ -60,20 +63,75 @@ function Wait-ForHttpOk {
     return $false
 }
 
+function Ensure-RemoteOllamaReady {
+    $listener = Get-NetTCPConnection -LocalPort 11434 -State Listen -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if (-not $listener) {
+        if (-not (Test-Path $RunpodSshKey)) {
+            throw "RunPod SSH key not found: $RunpodSshKey"
+        }
+
+        Write-Host "Starting RunPod SSH tunnel on http://localhost:11434..." -ForegroundColor Green
+        $tunnelArguments = @(
+            "-N",
+            "-L", "127.0.0.1:11434:127.0.0.1:11434",
+            "-p", "$RunpodSshPort",
+            "-i", $RunpodSshKey,
+            "-o", "BatchMode=yes",
+            "-o", "StrictHostKeyChecking=accept-new",
+            "-o", "ExitOnForwardFailure=yes",
+            "-o", "ServerAliveInterval=30",
+            "-o", "ServerAliveCountMax=3",
+            "root@$RunpodIp"
+        )
+        $tunnelProcess = Start-Process -FilePath "ssh.exe" -ArgumentList $tunnelArguments -WindowStyle Hidden -PassThru
+
+        if (-not (Wait-ForHttpOk -Uri "http://localhost:11434/api/tags" -TimeoutSeconds 30)) {
+            if (-not $tunnelProcess.HasExited) {
+                Stop-Process -Id $tunnelProcess.Id -ErrorAction SilentlyContinue
+            }
+            throw "Could not connect to RunPod Ollama through SSH ($RunpodIp`:$RunpodSshPort). Check the current SSH over exposed TCP port in RunPod."
+        }
+
+        $listener = Get-NetTCPConnection -LocalPort 11434 -State Listen -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+    }
+
+    $owner = Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    if (-not $owner -or $owner.ProcessName -ne "ssh") {
+        $ownerName = if ($owner) { $owner.ProcessName } else { "unknown" }
+        throw "Port 11434 is owned by '$ownerName', not the RunPod SSH tunnel. Close local Ollama and start the SSH tunnel first."
+    }
+
+    try {
+        $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 15 -ErrorAction Stop
+    } catch {
+        throw "The SSH tunnel is listening on port 11434, but remote Ollama is not responding: $($_.Exception.Message)"
+    }
+
+    $availableModels = @($tags.models | ForEach-Object { $_.name -replace ":latest$", "" })
+    $requiredModels = @("acne-generator", "acne-intaker")
+    $missingModels = @($requiredModels | Where-Object { $_ -notin $availableModels })
+    if ($missingModels.Count -gt 0) {
+        throw "Remote Ollama is missing required model(s): $($missingModels -join ', ')."
+    }
+
+    Write-Host "RunPod Ollama tunnel is ready (acne-generator + acne-intaker)." -ForegroundColor Green
+}
+
 Write-Host ""
 Write-Host "=== AcneLLM - Running All Services ===" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "This script will open 3 windows:" -ForegroundColor Yellow
-Write-Host "  1. Ollama Server  (http://localhost:11434)"
-Write-Host "  2. Backend API    (http://localhost:8000)"
-Write-Host "  3. Frontend UI    (http://localhost:3000)"
+Write-Host "This script ensures the RunPod Ollama tunnel and opens 2 windows:" -ForegroundColor Yellow
+Write-Host "  Automatic: RunPod Ollama (http://localhost:11434)"
+Write-Host "  1. Backend API          (http://localhost:8000)"
+Write-Host "  2. Frontend UI          (http://localhost:3000)"
 Write-Host ""
 Read-Host "Press Enter to continue"
 
-Write-Host "Starting Ollama server..." -ForegroundColor Green
-Stop-PortProcess -Port 11434
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "ollama serve"
-Start-Sleep -Seconds 2
+Write-Host "Checking RunPod Ollama tunnel..." -ForegroundColor Cyan
+Ensure-RemoteOllamaReady
 
 Write-Host "Starting Backend API..." -ForegroundColor Green
 Stop-PortProcess -Port 8000
@@ -116,4 +174,4 @@ Write-Host "Opening http://localhost:3000 now..." -ForegroundColor Cyan
 Start-Process "http://localhost:3000"
 
 Write-Host ""
-Write-Host "Services started. Close any service window to stop it." -ForegroundColor Green
+Write-Host "Services started. Close the backend/frontend windows to stop them." -ForegroundColor Green

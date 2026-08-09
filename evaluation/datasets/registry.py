@@ -16,8 +16,16 @@ from evaluation.common import read_jsonl, sha256_file, utcnow  # noqa: E402
 REQUIRED = ["sample_id", "user_query", "task_type", "split", "dataset_version",
             "source_provenance"]
 OPTIONAL_DEFAULTS = {
-    "session_id": None, "conversation_history": [], "intent_label": None,
-    "subject_label": None, "clinical_risk_level": None, "expected_behavior": None,
+    # ĐÃ GỠ khỏi schema — đừng thêm lại mà không có consumer:
+    #   expected_behavior     — trùng vai với expected_answer_points (văn xuôi vs
+    #                           danh sách, cùng mô tả "trả lời đúng trông ra sao").
+    #                           Hai bản mô tả cùng một thứ là chỗ sinh mâu thuẫn.
+    #   conversation_history  — null 197/197, chưa từng có dữ liệu. Móc đa lượt
+    #                           vẫn còn ở run_ablation._populate_history: thêm
+    #                           field này lại vào file là nó chạy, không phải sửa
+    #                           code. Cần khi muốn đo `clarify` (vốn là đa lượt).
+    "session_id": None, "intent_label": None,
+    "subject_label": None, "clinical_risk_level": None,
     "expected_answer_points": [], "forbidden_claims": [], "relevant_chunk_ids": [],
     "relevance_grade": {}, "reference_answer": None,
     "difficulty": None, "annotation_status": "draft", "human_notes": "",

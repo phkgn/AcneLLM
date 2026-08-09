@@ -1,14 +1,43 @@
 import json
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from evaluation.runners.run_ablation import (
+    GENERATOR_SYSTEM_PROMPT_PATH,
     _OracleIntake,
+    _frontier_system_prompt,
+    _generator_prompt_pair,
     _paired_summary,
     _select_candidate,
     main,
     summarize_report,
 )
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_frontier_generator_gets_exact_local_modelfile_system_prompt():
+    canonical = GENERATOR_SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+    modelfile = (ROOT / "model" / "Modelfile").read_text(encoding="utf-8")
+    embedded = modelfile.split('SYSTEM """', 1)[1].rsplit('"""', 1)[0]
+    turn = SimpleNamespace(system_prompt="", user_prompt="rendered-user-prompt")
+
+    frontier_pair = _generator_prompt_pair(turn, "O")
+    local_pair = _generator_prompt_pair(turn, "R")
+
+    assert _frontier_system_prompt() == canonical
+    assert embedded == canonical
+    assert frontier_pair == (canonical, turn.user_prompt)
+    assert local_pair == ("", turn.user_prompt)
+
+
+def test_frontier_and_local_share_non_stream_output_normalization():
+    from acne_llm.chat.orchestrator import normalize_generated_prose
+
+    assert normalize_generated_prose("mụn炎đỏ", model="frontier") == "mụnđỏ"
 
 
 def _scorecard(value: float = 3.0, *, safety_pass: bool = True) -> dict:
