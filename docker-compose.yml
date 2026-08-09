@@ -1,102 +1,128 @@
-version: "3.9"
+name: acnellm
 
 services:
   ollama:
-    image: ollama/ollama:latest
-    container_name: acne_ollama
-    ports:
-      - "11434:11434"
+    image: ollama/ollama:${OLLAMA_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "11434"
     volumes:
       - ollama_data:/root/.ollama
-      # Mount model dir read-only so ollama-init can create the model from local gguf
       - ./model:/models:ro
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
 
-  # One-shot: waits for ollama to be healthy, then loads acnellm-v2-q4.
-  # - Nếu model/V2/Q4/Modelfile + gguf có sẵn → dùng local (nhanh, offline)
-  # - Nếu không có → fallback pull qwen2.5:7b từ Ollama registry (cần internet)
-  # Idempotent: skip nếu model đã được load rồi.
   ollama-init:
-    image: ollama/ollama:latest
-    container_name: acne_ollama_init
+    image: ollama/ollama:${OLLAMA_IMAGE_TAG:-latest}
+    restart: "no"
     depends_on:
       ollama:
         condition: service_healthy
-    volumes:
-      - ./model:/models:ro
-      - ollama_data:/root/.ollama
     environment:
-      - OLLAMA_HOST=http://ollama:11434
-    entrypoint: >
-      sh -c "
-        if ollama list | grep -q 'acnellm-v2-q4'; then
-          echo 'Model acnellm-v2-q4 already loaded, skipping.';
-          exit 0;
-        fi;
-        if [ -f /models/V2/Q4/Modelfile ]; then
-          echo 'Creating acnellm-v2-q4 from local gguf...';
-          cd /models/V2/Q4 && ollama create acnellm-v2-q4 -f Modelfile;
-          echo 'Done (local).';
-        else
-          echo 'Local model not found. Pulling qwen2.5:7b as fallback (requires internet)...';
-          ollama pull qwen2.5:7b;
-          echo 'Done (pulled). Set LLM_MODEL=qwen2.5:7b in environment if using fallback.';
-        fi;
-      "
-    restart: "no"
+      OLLAMA_HOST: http://ollama:11434
+      GENERATOR_MODEL_NAME: ${GENERATOR_MODEL_NAME:-acne-generator}
+      INTAKE_MODEL_NAME: ${INTAKE_MODEL_NAME:-acne-intaker}
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./model:/models:ro
+      - ./docker/ollama-init.sh:/scripts/ollama-init.sh:ro
+    entrypoint: ["/bin/sh", "/scripts/ollama-init.sh"]
 
   acne-llm:
-    build: .
-    container_name: acne_llm_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     depends_on:
       ollama:
         condition: service_healthy
       ollama-init:
         condition: service_completed_successfully
     environment:
-      - OLLAMA_URL=http://ollama:11434
-      - LLM_MODEL=acnellm-v2-q4
-      - LLM_FALLBACK_MODEL=qwen2.5:3b
-      - OLLAMA_HEALTH_TIMEOUT=5
-      - OLLAMA_GENERATE_TIMEOUT=180
-      - DEVICE=cpu
-      - API_KEY=
-      - RATE_LIMIT_PER_MINUTE=60
-      - METRICS_ENABLED=true
+      OLLAMA_URL: http://ollama:11434
+      LLM_MODEL: ${GENERATOR_MODEL_NAME:-acne-generator}
+      LLM_FALLBACK_MODEL: ""
+      LLM_KEEP_ALIVE: ${LLM_KEEP_ALIVE:--1}
+      LLM_NUM_CTX: ${LLM_NUM_CTX:-8192}
+      LLM_NUM_PREDICT: ${LLM_NUM_PREDICT:-2048}
+      LLM_USE_MODELFILE_SYSTEM: "true"
+      OLLAMA_HEALTH_TIMEOUT: ${OLLAMA_HEALTH_TIMEOUT:-10}
+      OLLAMA_GENERATE_TIMEOUT: ${OLLAMA_GENERATE_TIMEOUT:-300}
+      INTAKE_MODE: unified
+      INTAKE_MODEL: ${INTAKE_MODEL_NAME:-acne-intaker}
+      INTAKE_TIMEOUT: ${INTAKE_TIMEOUT:-120}
+      EXTRACTOR_MODE: llm
+      DEVICE: ${DEVICE:-cpu}
+      CHROMA_DIR: /app/data/chroma_db
+      BM25_PATH: /app/data/bm25_index.pkl
+      SEMANTIC_ROUTER_TRAIN_PATH: /app/data/intent_classify.train.jsonl
+      SEMANTIC_ROUTER_CACHE_PATH: /app/data/intent_router_index.npz
+      CACHE_DIR: /app/data/cache
+      AUDIT_DB_PATH: /app/data/audit.db
+      SESSION_DB_PATH: /app/data/sessions.db
+      HF_HOME: /app/data/model_cache/huggingface
+      SENTENCE_TRANSFORMERS_HOME: /app/data/model_cache/sentence-transformers
+      HOME: /tmp
+      CORS_ORIGINS: '["*"]'
+      FRONTEND_URL: http://localhost:${APP_PORT:-3000}
+      API_KEY: ${API_KEY:-}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+      METRICS_ENABLED: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - ./data:/app/data
-      - ./config:/app/config
-    ports:
-      - "8000:8000"
-    restart: unless-stopped
+      - ./config:/app/config:ro
+    expose:
+      - "8000"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/v1/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json,urllib.request as u; d=json.load(u.urlopen('http://localhost:8000/api/v1/health', timeout=5)); assert d['status']=='ok' and d['ollama'] and d['bm25_loaded'] and d['kb_chunks']>0"
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 300s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      # NEXT_PUBLIC_API_URL phải trỏ đến host machine vì browser gọi trực tiếp,
-      # không đi qua Docker network nội bộ.
       args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8000
-    container_name: acne_llm_frontend
+        NEXT_PUBLIC_API_URL: ""
+    restart: unless-stopped
     depends_on:
       acne-llm:
         condition: service_healthy
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
+
+  gateway:
+    image: nginx:1.27-alpine
     restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_healthy
+      acne-llm:
+        condition: service_healthy
+    environment:
+      API_KEY: ${API_KEY:-}
+      NGINX_ENVSUBST_FILTER: API_KEY
+    volumes:
+      - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "${APP_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
 volumes:
   ollama_data:

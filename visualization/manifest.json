@@ -1,0 +1,1966 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-09T09:57:18.289850+00:00",
+  "generator": "visualization/generate_all.py",
+  "artifact_policy": "fresh_compute_from_current_worktree",
+  "figures": [
+    {
+      "section": "KB",
+      "path": "visualization/KB/01_chunk_sources_pie.png",
+      "title": "KB chunks theo nguồn",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/02_top_chunk_sources.png",
+      "title": "Top nguồn đóng góp chunks",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/03_source_type_distribution.png",
+      "title": "Cơ cấu loại nguồn KB",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/04_trust_level_distribution.png",
+      "title": "Mức độ tin cậy của chunks",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/05_language_distribution.png",
+      "title": "Ngôn ngữ của KB",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/06_category_distribution.png",
+      "title": "Chủ đề được gắn cho chunks",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/07_chunk_length_histogram.png",
+      "title": "Phân phối độ dài chunk",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/08_chunks_per_document_histogram.png",
+      "title": "Số chunks trên mỗi tài liệu",
+      "sources": [
+        "data/raw/chunks.jsonl",
+        "data/raw/documents.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/09_chunk_length_by_source.png",
+      "title": "Độ dài chunk của 6 nguồn lớn nhất",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/10_document_chunk_coverage.png",
+      "title": "Độ phủ tài liệu và chunk theo nguồn (chuẩn hóa theo cột)",
+      "sources": [
+        "data/raw/chunks.jsonl",
+        "data/raw/documents.jsonl"
+      ]
+    },
+    {
+      "section": "KB",
+      "path": "visualization/KB/11_chunk_position_histogram.png",
+      "title": "Vị trí chunk trong tài liệu",
+      "sources": [
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/01_train_val_split.png",
+      "title": "Intaker: train/validation split",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.train.jsonl",
+        "datagen/intakedata/output/intake/intake.val.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/02_intent_distribution.png",
+      "title": "Intaker: phân phối intent đích",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/03_case_type_distribution.png",
+      "title": "Intaker: độ phủ case type",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/04_case_intent_matrix.png",
+      "title": "Intaker: ánh xạ case type → intent",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/05_user_length_histogram.png",
+      "title": "Intaker: độ dài câu người dùng",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/06_confidence_histogram.png",
+      "title": "Intaker: confidence trong output",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/07_extracted_field_presence.png",
+      "title": "Intaker: trường có giá trị trong nhãn",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/08_generation_sources.png",
+      "title": "Intaker: nguồn tạo dữ liệu",
+      "sources": [
+        "datagen/intakedata/output/intake/intake.records.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/09_rejected_attempt_reasons.png",
+      "title": "Intaker: lý do loại attempt khi datagen",
+      "sources": [
+        "datagen/intakedata/output/intake/summary.json"
+      ]
+    },
+    {
+      "section": "finetune_intaker",
+      "path": "visualization/finetune_intaker/10_target_vs_actual.png",
+      "title": "Intaker: quota mục tiêu và số đã nhận",
+      "sources": [
+        "datagen/intakedata/output/intake/summary.json"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/01_split_distribution.png",
+      "title": "Roledata Generator: train / validation / holdout",
+      "sources": [
+        "datagen/roledata/output/splits/train.jsonl",
+        "datagen/roledata/output/splits/val.jsonl",
+        "datagen/roledata/output/splits/holdout.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/02_generation_completion.png",
+      "title": "Roledata Generator: tiến độ full target",
+      "sources": [
+        "datagen/roledata/output/generation_summary.json"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/03_sample_kind_distribution.png",
+      "title": "Roledata Generator: sample_kind",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl",
+        "datagen/roledata/taxonomy.yaml"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/04_sample_family_distribution.png",
+      "title": "Roledata Generator: họ R / B / K",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl",
+        "datagen/roledata/taxonomy.yaml"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/05_input_style_distribution.png",
+      "title": "Roledata Generator: input_style",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/06_context_coverage.png",
+      "title": "Roledata Generator: record có synthetic context",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/07_context_source_count.png",
+      "title": "Roledata Generator: số context sources / record",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/08_context_source_names.png",
+      "title": "Roledata Generator: nguồn synthetic context",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl",
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/09_user_length_histogram.png",
+      "title": "Roledata Generator: tổng độ dài user turns",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/10_answer_length_histogram.png",
+      "title": "Roledata Generator: tổng độ dài assistant turns",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/11_message_count_distribution.png",
+      "title": "Roledata Generator: số messages / record",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/12_audience_distribution.png",
+      "title": "Roledata Generator: audience metadata",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/13_generation_model_distribution.png",
+      "title": "Roledata Generator: gen_model",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/14_gate_result_distribution.png",
+      "title": "Roledata Generator: stored gate result",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/15_sample_kind_by_split.png",
+      "title": "Roledata Generator: sample_kind theo split",
+      "sources": [
+        "datagen/roledata/output/splits/train.jsonl",
+        "datagen/roledata/output/splits/val.jsonl",
+        "datagen/roledata/output/splits/holdout.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/16_input_style_by_sample_kind.png",
+      "title": "Roledata Generator: input_style theo sample_kind",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/17_rejection_reasons.png",
+      "title": "Roledata Generator: lý do rejected audit",
+      "sources": [
+        "datagen/roledata/output/rejected.audit.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/18_rejection_cases.png",
+      "title": "Roledata Generator: rejected attempts theo case",
+      "sources": [
+        "datagen/roledata/output/rejected.audit.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/19_rejection_attempt_number.png",
+      "title": "Roledata Generator: content_attempt trong audit",
+      "sources": [
+        "datagen/roledata/output/rejected.audit.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/20_retry_outcomes.png",
+      "title": "Roledata Generator: kết quả theo ID có retry history",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl",
+        "datagen/roledata/output/rejected.audit.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/21_anchor_group_pair_sizes.png",
+      "title": "Roledata Generator: kích thước B5 anchor groups",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl"
+      ]
+    },
+    {
+      "section": "finetune_generator",
+      "path": "visualization/finetune_generator/22_integrity_checks.png",
+      "title": "Roledata Generator integrity checks",
+      "sources": [
+        "datagen/roledata/output/roledata.train.jsonl",
+        "datagen/roledata/output/splits/train.jsonl",
+        "datagen/roledata/output/splits/val.jsonl",
+        "datagen/roledata/output/splits/holdout.jsonl",
+        "datagen/roledata/output/generation_summary.json",
+        "datagen/roledata/output/rejected.audit.jsonl",
+        "datagen/roledata/output/export/acnellm_role_lora.jsonl",
+        "datagen/roledata/output/checksum.sha256",
+        "datagen/roledata/taxonomy.yaml"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/01_dataset_task_types.png",
+      "title": "Eval v3.2: task type",
+      "sources": [
+        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/02_dataset_intents.png",
+      "title": "Eval v3.2: intent labels",
+      "sources": [
+        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/03_expected_kb_sources.png",
+      "title": "Eval v3.2: nguồn chunk được gắn relevant",
+      "sources": [
+        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl",
+        "data/raw/chunks.jsonl"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/04_relevant_chunks_per_question.png",
+      "title": "Eval v3.2: số relevant chunks / câu hỏi",
+      "sources": [
+        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/05_run_timeline.png",
+      "title": "Lần gọi cuối của run_full_v3_2",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/summary.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/06_intake_headline_metrics.png",
+      "title": "Intaker headline metrics",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/07_intake_confusion_matrix.png",
+      "title": "Intaker: confusion matrix (gold × predicted)",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/08_intake_per_intent_prf.png",
+      "title": "Intaker: precision / recall / F1 theo intent",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/09_intake_extraction_field_f1.png",
+      "title": "Intaker: extraction F1 theo field",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/10_intake_scalar_list_quality.png",
+      "title": "Intaker: scalar accuracy và list F1",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/11_intake_latency.png",
+      "title": "Intaker: latency percentiles",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/intake/report.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/12_retrieval_headline_metrics.png",
+      "title": "Retrieval: judge metrics",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/retrieval/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/13_retrieval_source_types.png",
+      "title": "Retrieval: source types xuất hiện trong context",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/retrieval/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/14_retrieval_sources.png",
+      "title": "Retrieval: top nguồn xuất hiện trong context",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/retrieval/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/15_retrieved_chunk_count.png",
+      "title": "Retrieval: số chunks trả về mỗi câu hỏi",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/retrieval/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/16_retrieval_score_distributions.png",
+      "title": "Retrieval score distributions",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/retrieval/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/17_ablation_arm_design.png",
+      "title": "Thiết kế sáu ablation arms",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/17_ablation_execution.png",
+      "title": "Ablation: thành công, failed/unavailable và safety failures",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/18_ablation_answer_tone.png",
+      "title": "Ablation: answer quality và role tone",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/19_ablation_content_errors.png",
+      "title": "Ablation: incorrect và missing content (thấp hơn tốt hơn)",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/20_ablation_rag_faces.png",
+      "title": "Ablation: RAG judge faces",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/21_ablation_precision_ranking.png",
+      "title": "Ablation: context precision và ranking quality",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/22_ablation_paired_delta_forest.png",
+      "title": "Paired answer-quality delta",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/summary.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/23_ablation_cost_quality.png",
+      "title": "Judge cost và answer quality",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/24_ablation_answer_quality_boxplot.png",
+      "title": "Answer quality distributions",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "evaluation",
+      "path": "visualization/evaluation/25_ablation_latency_boxplot.png",
+      "title": "Ablation latency distributions",
+      "sources": [
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/01_runtime_input_to_output.png",
+      "title": "Runtime workflow: input → output",
+      "sources": [
+        "src/acne_llm/api/routes/chat.py",
+        "src/acne_llm/chat/runtime.py",
+        "src/acne_llm/chat/orchestrator.py",
+        "src/acne_llm/chat/intake.py",
+        "src/acne_llm/chat/_retrieval.py",
+        "src/acne_llm/llm/prompt_builder.py",
+        "src/acne_llm/llm/ollama_backend.py",
+        "src/acne_llm/db/session_store.py",
+        "src/acne_llm/db/audit.py"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/02_rag_retrieval_pipeline.png",
+      "title": "RAG retrieval workflow",
+      "sources": [
+        "src/acne_llm/chat/_retrieval.py",
+        "src/acne_llm/rag/retriever.py",
+        "src/acne_llm/rag/sparse.py",
+        "src/acne_llm/rag/vectorstore.py",
+        "src/acne_llm/rag/reranker.py"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/03_intaker_data_pipeline.png",
+      "title": "Intaker fine-tune data workflow",
+      "sources": [
+        "datagen/intakedata/pipeline.py",
+        "datagen/intakedata/generator.py",
+        "datagen/intakedata/gates.py",
+        "datagen/intakedata/writer.py",
+        "datagen/intakedata/output/intake/summary.json"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/04_generator_data_pipeline.png",
+      "title": "Generator fine-tune data workflow",
+      "sources": [
+        "datagen/roledata/taxonomy.yaml",
+        "datagen/roledata/pipeline.py",
+        "datagen/roledata/gates.py",
+        "datagen/roledata/output/roledata.train.jsonl",
+        "datagen/roledata/output/generation_summary.json"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/05_evaluation_workflow.png",
+      "title": "Evaluation workflow: run_full_v3_2",
+      "sources": [
+        "evaluation/full_evaluation.py",
+        "evaluation/runners/run_intake.py",
+        "evaluation/runners/run_retrieval.py",
+        "evaluation/runners/run_ablation.py",
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/06_docker_deployment.png",
+      "title": "Docker Compose deployment",
+      "sources": [
+        "docker-compose.yml",
+        "docker-compose.gpu.yml",
+        "docker/nginx/default.conf.template"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/01_backend_files_by_package.png",
+      "title": "Backend Python files theo package",
+      "sources": [
+        "src/acne_llm/cache.py",
+        "src/acne_llm/cli.py",
+        "src/acne_llm/config.py",
+        "src/acne_llm/di.py",
+        "src/acne_llm/__init__.py",
+        "src/acne_llm/api/app.py",
+        "src/acne_llm/api/deps.py",
+        "src/acne_llm/api/observability.py",
+        "src/acne_llm/api/__init__.py",
+        "src/acne_llm/chat/confidence_hint.py",
+        "src/acne_llm/chat/intake.py",
+        "src/acne_llm/chat/orchestrator.py",
+        "src/acne_llm/chat/preprocess.py",
+        "src/acne_llm/chat/runtime.py",
+        "src/acne_llm/chat/session.py",
+        "src/acne_llm/chat/unified_intake.py",
+        "src/acne_llm/chat/_intake_parse.py",
+        "src/acne_llm/chat/_intent_patch.py",
+        "src/acne_llm/chat/_retrieval.py",
+        "src/acne_llm/chat/_safety.py",
+        "src/acne_llm/chat/_terms.py",
+        "src/acne_llm/chat/__init__.py",
+        "src/acne_llm/crawler/base.py",
+        "src/acne_llm/crawler/checkpoint.py",
+        "src/acne_llm/crawler/dedup.py",
+        "src/acne_llm/crawler/discovery.py",
+        "src/acne_llm/crawler/extractor.py",
+        "src/acne_llm/crawler/fetcher.py",
+        "src/acne_llm/crawler/normalizer.py",
+        "src/acne_llm/crawler/playwright_fetcher.py",
+        "src/acne_llm/crawler/quality_filter.py",
+        "src/acne_llm/crawler/stats.py",
+        "src/acne_llm/crawler/__init__.py",
+        "src/acne_llm/db/audit.py",
+        "src/acne_llm/db/base.py",
+        "src/acne_llm/db/session_store.py",
+        "src/acne_llm/db/__init__.py",
+        "src/acne_llm/guardrails/drug_checker.py",
+        "src/acne_llm/guardrails/ood_detector.py",
+        "src/acne_llm/guardrails/runner.py",
+        "src/acne_llm/guardrails/__init__.py",
+        "src/acne_llm/llm/base.py",
+        "src/acne_llm/llm/language.py",
+        "src/acne_llm/llm/ollama_backend.py",
+        "src/acne_llm/llm/prompt_builder.py",
+        "src/acne_llm/llm/qa_generator.py",
+        "src/acne_llm/llm/__init__.py",
+        "src/acne_llm/pipeline/base.py",
+        "src/acne_llm/pipeline/__init__.py",
+        "src/acne_llm/rag/base.py",
+        "src/acne_llm/rag/chunker.py",
+        "src/acne_llm/rag/cleaning.py",
+        "src/acne_llm/rag/embedder.py",
+        "src/acne_llm/rag/reranker.py",
+        "src/acne_llm/rag/retriever.py",
+        "src/acne_llm/rag/sparse.py",
+        "src/acne_llm/rag/vectorstore.py",
+        "src/acne_llm/rag/__init__.py",
+        "src/acne_llm/schemas/clinical.py",
+        "src/acne_llm/schemas/core.py",
+        "src/acne_llm/schemas/extraction.py",
+        "src/acne_llm/schemas/kb.py",
+        "src/acne_llm/schemas/__init__.py",
+        "src/acne_llm/utils/chunk_filter.py",
+        "src/acne_llm/utils/fuzzy_match.py",
+        "src/acne_llm/utils/hashing.py",
+        "src/acne_llm/utils/logging.py",
+        "src/acne_llm/utils/retrieval_query.py",
+        "src/acne_llm/utils/text_cleaning.py",
+        "src/acne_llm/utils/timer.py",
+        "src/acne_llm/utils/__init__.py",
+        "src/acne_llm/vision/base.py",
+        "src/acne_llm/vision/mock.py",
+        "src/acne_llm/vision/__init__.py",
+        "src/acne_llm/api/routes/admin.py",
+        "src/acne_llm/api/routes/chat.py",
+        "src/acne_llm/api/routes/health.py",
+        "src/acne_llm/api/routes/kb.py",
+        "src/acne_llm/api/routes/metrics.py",
+        "src/acne_llm/api/routes/__init__.py",
+        "src/acne_llm/chat/fallback/intent_router.py",
+        "src/acne_llm/chat/fallback/llm_extractor.py",
+        "src/acne_llm/chat/fallback/llm_router.py",
+        "src/acne_llm/chat/fallback/rule_extractor.py",
+        "src/acne_llm/chat/fallback/rule_normalizer.py",
+        "src/acne_llm/chat/fallback/semantic_router.py",
+        "src/acne_llm/chat/fallback/__init__.py",
+        "src/acne_llm/crawler/sources/generic_html.py",
+        "src/acne_llm/crawler/sources/pubmed.py",
+        "src/acne_llm/crawler/sources/__init__.py"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/02_backend_loc_by_package.png",
+      "title": "Backend Python LOC theo package",
+      "sources": [
+        "src/acne_llm/cache.py",
+        "src/acne_llm/cli.py",
+        "src/acne_llm/config.py",
+        "src/acne_llm/di.py",
+        "src/acne_llm/__init__.py",
+        "src/acne_llm/api/app.py",
+        "src/acne_llm/api/deps.py",
+        "src/acne_llm/api/observability.py",
+        "src/acne_llm/api/__init__.py",
+        "src/acne_llm/chat/confidence_hint.py",
+        "src/acne_llm/chat/intake.py",
+        "src/acne_llm/chat/orchestrator.py",
+        "src/acne_llm/chat/preprocess.py",
+        "src/acne_llm/chat/runtime.py",
+        "src/acne_llm/chat/session.py",
+        "src/acne_llm/chat/unified_intake.py",
+        "src/acne_llm/chat/_intake_parse.py",
+        "src/acne_llm/chat/_intent_patch.py",
+        "src/acne_llm/chat/_retrieval.py",
+        "src/acne_llm/chat/_safety.py",
+        "src/acne_llm/chat/_terms.py",
+        "src/acne_llm/chat/__init__.py",
+        "src/acne_llm/crawler/base.py",
+        "src/acne_llm/crawler/checkpoint.py",
+        "src/acne_llm/crawler/dedup.py",
+        "src/acne_llm/crawler/discovery.py",
+        "src/acne_llm/crawler/extractor.py",
+        "src/acne_llm/crawler/fetcher.py",
+        "src/acne_llm/crawler/normalizer.py",
+        "src/acne_llm/crawler/playwright_fetcher.py",
+        "src/acne_llm/crawler/quality_filter.py",
+        "src/acne_llm/crawler/stats.py",
+        "src/acne_llm/crawler/__init__.py",
+        "src/acne_llm/db/audit.py",
+        "src/acne_llm/db/base.py",
+        "src/acne_llm/db/session_store.py",
+        "src/acne_llm/db/__init__.py",
+        "src/acne_llm/guardrails/drug_checker.py",
+        "src/acne_llm/guardrails/ood_detector.py",
+        "src/acne_llm/guardrails/runner.py",
+        "src/acne_llm/guardrails/__init__.py",
+        "src/acne_llm/llm/base.py",
+        "src/acne_llm/llm/language.py",
+        "src/acne_llm/llm/ollama_backend.py",
+        "src/acne_llm/llm/prompt_builder.py",
+        "src/acne_llm/llm/qa_generator.py",
+        "src/acne_llm/llm/__init__.py",
+        "src/acne_llm/pipeline/base.py",
+        "src/acne_llm/pipeline/__init__.py",
+        "src/acne_llm/rag/base.py",
+        "src/acne_llm/rag/chunker.py",
+        "src/acne_llm/rag/cleaning.py",
+        "src/acne_llm/rag/embedder.py",
+        "src/acne_llm/rag/reranker.py",
+        "src/acne_llm/rag/retriever.py",
+        "src/acne_llm/rag/sparse.py",
+        "src/acne_llm/rag/vectorstore.py",
+        "src/acne_llm/rag/__init__.py",
+        "src/acne_llm/schemas/clinical.py",
+        "src/acne_llm/schemas/core.py",
+        "src/acne_llm/schemas/extraction.py",
+        "src/acne_llm/schemas/kb.py",
+        "src/acne_llm/schemas/__init__.py",
+        "src/acne_llm/utils/chunk_filter.py",
+        "src/acne_llm/utils/fuzzy_match.py",
+        "src/acne_llm/utils/hashing.py",
+        "src/acne_llm/utils/logging.py",
+        "src/acne_llm/utils/retrieval_query.py",
+        "src/acne_llm/utils/text_cleaning.py",
+        "src/acne_llm/utils/timer.py",
+        "src/acne_llm/utils/__init__.py",
+        "src/acne_llm/vision/base.py",
+        "src/acne_llm/vision/mock.py",
+        "src/acne_llm/vision/__init__.py",
+        "src/acne_llm/api/routes/admin.py",
+        "src/acne_llm/api/routes/chat.py",
+        "src/acne_llm/api/routes/health.py",
+        "src/acne_llm/api/routes/kb.py",
+        "src/acne_llm/api/routes/metrics.py",
+        "src/acne_llm/api/routes/__init__.py",
+        "src/acne_llm/chat/fallback/intent_router.py",
+        "src/acne_llm/chat/fallback/llm_extractor.py",
+        "src/acne_llm/chat/fallback/llm_router.py",
+        "src/acne_llm/chat/fallback/rule_extractor.py",
+        "src/acne_llm/chat/fallback/rule_normalizer.py",
+        "src/acne_llm/chat/fallback/semantic_router.py",
+        "src/acne_llm/chat/fallback/__init__.py",
+        "src/acne_llm/crawler/sources/generic_html.py",
+        "src/acne_llm/crawler/sources/pubmed.py",
+        "src/acne_llm/crawler/sources/__init__.py"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/03_file_types.png",
+      "title": "Repository: file types chính",
+      "sources": [
+        "pyproject.toml",
+        "frontend/package.json"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/04_files_by_top_directory.png",
+      "title": "Repository: số file theo thư mục cấp một",
+      "sources": [
+        "pyproject.toml",
+        "frontend/package.json"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/05_source_artifact_size.png",
+      "title": "Repository: dung lượng source/artifact theo thư mục",
+      "sources": [
+        "pyproject.toml",
+        "frontend/package.json"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/06_model_artifact_sizes.png",
+      "title": "Model artifacts lớn",
+      "sources": [
+        "model/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/role_finetune/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+        "model/qwen25_acne_role_gguf_q4_k_m.zip",
+        "model/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf",
+        "model/acne_intake_release.zip",
+        "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
+        "model/qwen25_acne_role_lora.zip",
+        "model/acne_intake_release/qwen25_intake_lora.zip",
+        "model/qwen25_acne_role_lora/adapter_model.safetensors"
+      ]
+    },
+    {
+      "section": "repository",
+      "path": "visualization/repository/07_tests_by_domain.png",
+      "title": "Test functions theo domain tên file",
+      "sources": [
+        "tests/test_api.py",
+        "tests/test_approve_eval_labels.py",
+        "tests/test_audit.py",
+        "tests/test_chat_normalizer.py",
+        "tests/test_chat_stream.py",
+        "tests/test_chunker.py",
+        "tests/test_chunk_filter_relevance.py",
+        "tests/test_chunk_qa_clinical_factory.py",
+        "tests/test_cleaning.py",
+        "tests/test_clinical_dataset_validator.py",
+        "tests/test_clinical_planner.py",
+        "tests/test_confidence_behavior.py",
+        "tests/test_dedup.py",
+        "tests/test_env_keys.py",
+        "tests/test_extraction_confidence.py",
+        "tests/test_extraction_fieldresult.py",
+        "tests/test_extraction_negation.py",
+        "tests/test_guardrails.py",
+        "tests/test_intake.py",
+        "tests/test_intent_router_new.py",
+        "tests/test_llm_extractor.py",
+        "tests/test_llm_router.py",
+        "tests/test_normalizer_regression.py",
+        "tests/test_ollama_backend.py",
+        "tests/test_prompt_builder.py",
+        "tests/test_propose_eval_labels.py",
+        "tests/test_prose_only_contract.py",
+        "tests/test_quality_filter.py",
+        "tests/test_reranker.py",
+        "tests/test_retrieval_merge.py",
+        "tests/test_retrieval_query.py",
+        "tests/test_retriever.py",
+        "tests/test_schemas.py",
+        "tests/test_semantic_router.py",
+        "tests/test_session.py",
+        "tests/test_settings.py",
+        "tests/test_sparse_bm25.py",
+        "tests/test_sqlite_session_store.py",
+        "tests/test_stream_safety.py"
+      ]
+    },
+    {
+      "section": "workflow",
+      "path": "visualization/workflow/07_source_module_architecture.png",
+      "title": "Source module architecture",
+      "sources": [
+        "src/acne_llm/cache.py",
+        "src/acne_llm/cli.py",
+        "src/acne_llm/config.py",
+        "src/acne_llm/di.py",
+        "src/acne_llm/__init__.py",
+        "src/acne_llm/api/app.py",
+        "src/acne_llm/api/deps.py",
+        "src/acne_llm/api/observability.py",
+        "src/acne_llm/api/__init__.py",
+        "src/acne_llm/chat/confidence_hint.py",
+        "src/acne_llm/chat/intake.py",
+        "src/acne_llm/chat/orchestrator.py",
+        "src/acne_llm/chat/preprocess.py",
+        "src/acne_llm/chat/runtime.py",
+        "src/acne_llm/chat/session.py",
+        "src/acne_llm/chat/unified_intake.py",
+        "src/acne_llm/chat/_intake_parse.py",
+        "src/acne_llm/chat/_intent_patch.py",
+        "src/acne_llm/chat/_retrieval.py",
+        "src/acne_llm/chat/_safety.py",
+        "src/acne_llm/chat/_terms.py",
+        "src/acne_llm/chat/__init__.py",
+        "src/acne_llm/crawler/base.py",
+        "src/acne_llm/crawler/checkpoint.py",
+        "src/acne_llm/crawler/dedup.py",
+        "src/acne_llm/crawler/discovery.py",
+        "src/acne_llm/crawler/extractor.py",
+        "src/acne_llm/crawler/fetcher.py",
+        "src/acne_llm/crawler/normalizer.py",
+        "src/acne_llm/crawler/playwright_fetcher.py",
+        "src/acne_llm/crawler/quality_filter.py",
+        "src/acne_llm/crawler/stats.py",
+        "src/acne_llm/crawler/__init__.py",
+        "src/acne_llm/db/audit.py",
+        "src/acne_llm/db/base.py",
+        "src/acne_llm/db/session_store.py",
+        "src/acne_llm/db/__init__.py",
+        "src/acne_llm/guardrails/drug_checker.py",
+        "src/acne_llm/guardrails/ood_detector.py",
+        "src/acne_llm/guardrails/runner.py",
+        "src/acne_llm/guardrails/__init__.py",
+        "src/acne_llm/llm/base.py",
+        "src/acne_llm/llm/language.py",
+        "src/acne_llm/llm/ollama_backend.py",
+        "src/acne_llm/llm/prompt_builder.py",
+        "src/acne_llm/llm/qa_generator.py",
+        "src/acne_llm/llm/__init__.py",
+        "src/acne_llm/pipeline/base.py",
+        "src/acne_llm/pipeline/__init__.py",
+        "src/acne_llm/rag/base.py",
+        "src/acne_llm/rag/chunker.py",
+        "src/acne_llm/rag/cleaning.py",
+        "src/acne_llm/rag/embedder.py",
+        "src/acne_llm/rag/reranker.py",
+        "src/acne_llm/rag/retriever.py",
+        "src/acne_llm/rag/sparse.py",
+        "src/acne_llm/rag/vectorstore.py",
+        "src/acne_llm/rag/__init__.py",
+        "src/acne_llm/schemas/clinical.py",
+        "src/acne_llm/schemas/core.py",
+        "src/acne_llm/schemas/extraction.py",
+        "src/acne_llm/schemas/kb.py",
+        "src/acne_llm/schemas/__init__.py",
+        "src/acne_llm/utils/chunk_filter.py",
+        "src/acne_llm/utils/fuzzy_match.py",
+        "src/acne_llm/utils/hashing.py",
+        "src/acne_llm/utils/logging.py",
+        "src/acne_llm/utils/retrieval_query.py",
+        "src/acne_llm/utils/text_cleaning.py",
+        "src/acne_llm/utils/timer.py",
+        "src/acne_llm/utils/__init__.py",
+        "src/acne_llm/vision/base.py",
+        "src/acne_llm/vision/mock.py",
+        "src/acne_llm/vision/__init__.py",
+        "src/acne_llm/api/routes/admin.py",
+        "src/acne_llm/api/routes/chat.py",
+        "src/acne_llm/api/routes/health.py",
+        "src/acne_llm/api/routes/kb.py",
+        "src/acne_llm/api/routes/metrics.py",
+        "src/acne_llm/api/routes/__init__.py",
+        "src/acne_llm/chat/fallback/intent_router.py",
+        "src/acne_llm/chat/fallback/llm_extractor.py",
+        "src/acne_llm/chat/fallback/llm_router.py",
+        "src/acne_llm/chat/fallback/rule_extractor.py",
+        "src/acne_llm/chat/fallback/rule_normalizer.py",
+        "src/acne_llm/chat/fallback/semantic_router.py",
+        "src/acne_llm/chat/fallback/__init__.py",
+        "src/acne_llm/crawler/sources/generic_html.py",
+        "src/acne_llm/crawler/sources/pubmed.py",
+        "src/acne_llm/crawler/sources/__init__.py"
+      ]
+    },
+    {
+      "section": "_overview",
+      "path": "visualization/_overview/01_artifact_scale.png",
+      "title": "Quy mô các artifact chính",
+      "sources": [
+        "data/raw/chunks.jsonl",
+        "data/raw/documents.jsonl",
+        "datagen/intakedata/output/intake/intake.records.jsonl",
+        "datagen/roledata/output/roledata.train.jsonl",
+        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl",
+        "evaluation/reports/run_full_v3_2/ablation/results.json"
+      ]
+    }
+  ],
+  "sources": {
+    "data/raw/chunks.jsonl": {
+      "bytes": 38080662,
+      "mtime_utc": "2026-08-04T13:26:47.653903+00:00",
+      "sha256": "8bde65e5296bcab24473430e4b4a7f437da7879d3dd6a7ff741489854057931a"
+    },
+    "data/raw/documents.jsonl": {
+      "bytes": 39084640,
+      "mtime_utc": "2026-06-06T13:41:21.265247+00:00",
+      "sha256": "990fe409e9dc1dc9ca725cdc93ead9bf94116c7366d9cc3c4c5a1f88e918a7ee"
+    },
+    "datagen/intakedata/output/intake/intake.train.jsonl": {
+      "bytes": 13600650,
+      "mtime_utc": "2026-07-24T12:50:09.365584+00:00",
+      "sha256": "5dfb87fb950271c7d7689a2b8611d2479315e7e24f3b15be9a6494e94afe8679"
+    },
+    "datagen/intakedata/output/intake/intake.val.jsonl": {
+      "bytes": 1513495,
+      "mtime_utc": "2026-07-24T12:50:09.381011+00:00",
+      "sha256": "0469e61c266f0dd4529420f9d88068272aad72ac8ca3f6912c716f0b0ddee2ad"
+    },
+    "datagen/intakedata/output/intake/intake.records.jsonl": {
+      "bytes": 15114145,
+      "mtime_utc": "2026-07-24T12:50:08.776535+00:00",
+      "sha256": "d6c52bafca8b63e434b8aa1bacadc4d121030ec2d777533cd72d63b83245b0ef"
+    },
+    "datagen/intakedata/output/intake/summary.json": {
+      "bytes": 3255,
+      "mtime_utc": "2026-07-24T12:50:09.401135+00:00",
+      "sha256": "0caed2e5e9ab283dc1bc164716916b9dc93a1ce161db2baf5520ddb15381241a"
+    },
+    "datagen/roledata/output/splits/train.jsonl": {
+      "bytes": 19185535,
+      "mtime_utc": "2026-07-25T15:43:38.060592+00:00",
+      "sha256": "6face3f5e8f61dc57947ffc86fce319db8f370468ac22af2dd39d74c6f2c36df"
+    },
+    "datagen/roledata/output/splits/val.jsonl": {
+      "bytes": 1798426,
+      "mtime_utc": "2026-07-22T12:45:22.709491+00:00",
+      "sha256": "9236a07ef90d5e1cd9685b76d0f73494a7e92838d669fb69d65367010a757943"
+    },
+    "datagen/roledata/output/splits/holdout.jsonl": {
+      "bytes": 1583849,
+      "mtime_utc": "2026-07-22T12:45:23.227161+00:00",
+      "sha256": "3871771a05482719ccb1d4c696db553dee6c0f0caf4e38e849965af1d41ad7ea"
+    },
+    "datagen/roledata/output/generation_summary.json": {
+      "bytes": 1083,
+      "mtime_utc": "2026-07-22T12:20:19.962637+00:00",
+      "sha256": "c529f3d67162df02461678351c8903293aa04caea97ba4b45dfd150e08a773c9"
+    },
+    "datagen/roledata/output/roledata.train.jsonl": {
+      "bytes": 22567810,
+      "mtime_utc": "2026-07-22T12:20:18.211862+00:00",
+      "sha256": "3ccac7139c7c3cf135fcc4bcfc9029a63873b007c7444c0857c36c5a7b183edc"
+    },
+    "datagen/roledata/taxonomy.yaml": {
+      "bytes": 3442,
+      "mtime_utc": "2026-07-21T03:22:01.753796+00:00",
+      "sha256": "35b5c6ea54af8c0ab7db1e7e53acb6f894364412afe23ecb2b3d7e346c496bcd"
+    },
+    "datagen/roledata/output/rejected.audit.jsonl": {
+      "bytes": 602767,
+      "mtime_utc": "2026-07-22T12:20:14.042196+00:00",
+      "sha256": "dccd91754bc813dfd20644eac7dfbd05d25c39ffc2b7978f4814024afbdfbbae"
+    },
+    "datagen/roledata/output/export/acnellm_role_lora.jsonl": {
+      "bytes": 16328629,
+      "mtime_utc": "2026-07-22T12:45:33.213322+00:00",
+      "sha256": "1541855bbde13479997375a4eadca2d4d8fe0864ccebd22eb5f48adba5fa5d40"
+    },
+    "datagen/roledata/output/checksum.sha256": {
+      "bytes": 97,
+      "mtime_utc": "2026-07-22T12:45:33.347581+00:00",
+      "sha256": "de34a9e6b5e3e10212336078e9bc0111cc414cb09d8e3eeb5f5a39e7e98cf0d9"
+    },
+    "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl": {
+      "bytes": 244828,
+      "mtime_utc": "2026-08-08T05:15:48.817265+00:00",
+      "sha256": "0aacbbcb3682196f9fe4698307bd65a3e01600724ce55eab3762daf48e277c79"
+    },
+    "evaluation/reports/run_full_v3_2/summary.json": {
+      "bytes": 1687,
+      "mtime_utc": "2026-08-09T08:16:58.866270+00:00",
+      "sha256": "7bea1f2047741d6a9ffe2bd6940f8843e272b10500d88bc937ef6e832516ad12"
+    },
+    "evaluation/reports/run_full_v3_2/intake/report.json": {
+      "bytes": 459738,
+      "mtime_utc": "2026-08-08T06:54:36.750129+00:00",
+      "sha256": "e75680d5497f5bd6293497bd63a5550fce96cad0068bc7a69b1e5827b67af3de"
+    },
+    "evaluation/reports/run_full_v3_2/retrieval/results.json": {
+      "bytes": 219065,
+      "mtime_utc": "2026-08-08T10:29:56.011594+00:00",
+      "sha256": "28969c1660ee01654293724e39d29a159c21c2d3f078de662c7efc4fcd2cac69"
+    },
+    "evaluation/reports/run_full_v3_2/ablation/results.json": {
+      "bytes": 7877901,
+      "mtime_utc": "2026-08-09T08:16:56.065956+00:00",
+      "sha256": "299d7e2791b0699c2761c2bf38e9d9a2ce8e62c533afa971b1c0c6496719f228"
+    },
+    "evaluation/reports/run_full_v3_2/ablation/summary.json": {
+      "bytes": 78222,
+      "mtime_utc": "2026-08-09T08:16:56.271533+00:00",
+      "sha256": "dd6c491e2cae6823521c0dc8b6cee83c19b86b97c548c8919bbb7e40623b6d29"
+    },
+    "src/acne_llm/api/routes/chat.py": {
+      "bytes": 12625,
+      "mtime_utc": "2026-08-06T15:42:01.383649+00:00",
+      "sha256": "8fc9c3c0397e616637b953cb9fa246ae41d6be41de9439ac23dd5a7b5ad73682"
+    },
+    "src/acne_llm/chat/runtime.py": {
+      "bytes": 13061,
+      "mtime_utc": "2026-08-06T15:41:44.743870+00:00",
+      "sha256": "65825dc55fb2a6473ba9c6554e9b412f97f8420ddc3ce145c5800f8285ee7337"
+    },
+    "src/acne_llm/chat/orchestrator.py": {
+      "bytes": 7027,
+      "mtime_utc": "2026-08-07T05:21:32.961579+00:00",
+      "sha256": "6208f99dee2a902700043b002e47613465358af6f2449bad0927f4ebb8bd4901"
+    },
+    "src/acne_llm/chat/intake.py": {
+      "bytes": 33678,
+      "mtime_utc": "2026-08-06T15:48:05.760329+00:00",
+      "sha256": "02e6773038b1ce481113d2410dbf8a461540788645bc12c2bdbb7594f59a9590"
+    },
+    "src/acne_llm/chat/_retrieval.py": {
+      "bytes": 17769,
+      "mtime_utc": "2026-08-06T16:07:05.717202+00:00",
+      "sha256": "9a08293452f52d0aa46c70a6e7241c7b735a350ab60597d248f35c6bc56a757a"
+    },
+    "src/acne_llm/llm/prompt_builder.py": {
+      "bytes": 10996,
+      "mtime_utc": "2026-08-06T15:59:03.504230+00:00",
+      "sha256": "7167c165bae407b7f90318f1f223e66fa560ce3376e1636c4e01c4f5ff7e8fd7"
+    },
+    "src/acne_llm/llm/ollama_backend.py": {
+      "bytes": 12085,
+      "mtime_utc": "2026-08-06T13:34:51.646411+00:00",
+      "sha256": "fd219c9b952b8d55a6aedd84ffb77d958922a816ebf99aa67a4522ffa84a1624"
+    },
+    "src/acne_llm/db/session_store.py": {
+      "bytes": 13874,
+      "mtime_utc": "2026-07-13T15:10:13.493619+00:00",
+      "sha256": "7f0f89579afc936c594c170b121fc69af124fa48c975e62323cf5e440d476a18"
+    },
+    "src/acne_llm/db/audit.py": {
+      "bytes": 6763,
+      "mtime_utc": "2026-07-25T15:36:46.737525+00:00",
+      "sha256": "58b73101f133db7059806995228bc26e6f81ce0f9b7865908b6eee0ee4c7c820"
+    },
+    "src/acne_llm/rag/retriever.py": {
+      "bytes": 19781,
+      "mtime_utc": "2026-08-01T16:52:36.616368+00:00",
+      "sha256": "64deaf20b2e36f32f1a315d127936d187b41ae4c18dea11999fdd5560142b136"
+    },
+    "src/acne_llm/rag/sparse.py": {
+      "bytes": 4467,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "5f175b7f086e1e47b9407a1b394b0c9de0b84f6a85fba6cfb131c23bb14da5de"
+    },
+    "src/acne_llm/rag/vectorstore.py": {
+      "bytes": 5817,
+      "mtime_utc": "2026-07-25T15:35:57.112898+00:00",
+      "sha256": "0773dd010dca1e2a2614a2648388fe394ae005f582488ee085266d9953c1d65b"
+    },
+    "src/acne_llm/rag/reranker.py": {
+      "bytes": 6747,
+      "mtime_utc": "2026-08-01T17:34:58.074710+00:00",
+      "sha256": "6ea1e1de440ab066687d1e67ce1638839aa7e370353ee7fca4d9d429d420f31d"
+    },
+    "datagen/intakedata/pipeline.py": {
+      "bytes": 25113,
+      "mtime_utc": "2026-07-24T12:34:32.521474+00:00",
+      "sha256": "56c6f6286cccea89d9726875134310015b8c081bbed7c6a26016f6a18b470c57"
+    },
+    "datagen/intakedata/generator.py": {
+      "bytes": 36599,
+      "mtime_utc": "2026-08-06T16:45:03.447690+00:00",
+      "sha256": "d1310c70283ae7cb5f5c1eaad5ef98f5327e4fd56fbdc4793f31bcb018bb3458"
+    },
+    "datagen/intakedata/gates.py": {
+      "bytes": 29982,
+      "mtime_utc": "2026-07-24T08:55:22.961028+00:00",
+      "sha256": "bbaa43c93d437b7fd3df8fe827679112eb9c7aca3f79cec3d87941e935e38b06"
+    },
+    "datagen/intakedata/writer.py": {
+      "bytes": 4014,
+      "mtime_utc": "2026-07-24T05:57:38.120131+00:00",
+      "sha256": "8751cabd771615fae1066820dc899535037242f7d36665c9c5f130d7ba085c99"
+    },
+    "datagen/roledata/pipeline.py": {
+      "bytes": 23633,
+      "mtime_utc": "2026-07-21T05:53:39.025622+00:00",
+      "sha256": "6bb5ff31cfa0b763d95310dfba70ba505a2c3f8418ca7ad6ef0f42b96ee04ab7"
+    },
+    "datagen/roledata/gates.py": {
+      "bytes": 13247,
+      "mtime_utc": "2026-07-22T11:29:33.744443+00:00",
+      "sha256": "494242612e37675bfbaed476250e1dd2e7a1fc977b25cb3b33cd94421b7533c5"
+    },
+    "evaluation/full_evaluation.py": {
+      "bytes": 18047,
+      "mtime_utc": "2026-08-07T08:40:47.375976+00:00",
+      "sha256": "0edf010693104b58baba56c043abca22f9211be4c51876c4976816997fa44fd0"
+    },
+    "evaluation/runners/run_intake.py": {
+      "bytes": 41694,
+      "mtime_utc": "2026-08-06T09:04:37.415385+00:00",
+      "sha256": "ecef02a7e7fc75716873c6c0f7e0baeb2825760d1460950363bd8ff299ccb840"
+    },
+    "evaluation/runners/run_retrieval.py": {
+      "bytes": 8833,
+      "mtime_utc": "2026-08-07T05:07:03.702132+00:00",
+      "sha256": "22cfed1c5f22a2b63cfe3c6eebe0f1eab2503f9f7d4a6e6a6a2f4e13915b2816"
+    },
+    "evaluation/runners/run_ablation.py": {
+      "bytes": 59577,
+      "mtime_utc": "2026-08-07T09:07:59.291301+00:00",
+      "sha256": "20ef4f38ed018d768e7b43a7bea414e4d7b5ba92d191a2469176ca833b43ebbf"
+    },
+    "docker-compose.yml": {
+      "bytes": 3765,
+      "mtime_utc": "2026-08-09T08:54:48.290098+00:00",
+      "sha256": "7472829b2da4e78081924222611f7298407f802379d89d16ecd74a801d606123"
+    },
+    "docker-compose.gpu.yml": {
+      "bytes": 176,
+      "mtime_utc": "2026-08-09T08:50:57.389041+00:00",
+      "sha256": "226bc04b1d0ced216776c1ffa807936c59c5c88ed72a479e81ca266b49d30085"
+    },
+    "docker/nginx/default.conf.template": {
+      "bytes": 1755,
+      "mtime_utc": "2026-08-09T08:52:17.704828+00:00",
+      "sha256": "6b7c2686c37a62768a9cdcaa9501ee3844bd1847c6ffcbd83a56fa365611cb10"
+    },
+    "src/acne_llm/cache.py": {
+      "bytes": 5670,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "b2d7eff0c86fbfeccb869e287e9698140743e49443425b2cf479183fb613e76b"
+    },
+    "src/acne_llm/cli.py": {
+      "bytes": 1581,
+      "mtime_utc": "2026-07-17T14:06:00.362406+00:00",
+      "sha256": "1dc057a7f3ba0ee1146524d604b2208d87d517eea009346fc5b1f87b35dfd63f"
+    },
+    "src/acne_llm/config.py": {
+      "bytes": 16372,
+      "mtime_utc": "2026-08-07T14:14:17.763564+00:00",
+      "sha256": "3fccbb4bd70efdacdd6ffadfdb876250aa0b88818fa75928ec2ce00ded37cf85"
+    },
+    "src/acne_llm/di.py": {
+      "bytes": 13251,
+      "mtime_utc": "2026-07-29T14:08:11.359505+00:00",
+      "sha256": "59c56dc701fac9c22c72e11045ae00500e9f6335cde2acf8e2936736ea3a1c28"
+    },
+    "src/acne_llm/__init__.py": {
+      "bytes": 106,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "a6b89513c28ed35f99950f1dc6e0729ac540866b3306c89b832a172bfc122f7d"
+    },
+    "src/acne_llm/api/app.py": {
+      "bytes": 2162,
+      "mtime_utc": "2026-07-24T16:28:02.628304+00:00",
+      "sha256": "18d9be566f84e126175fd3cad593e011035896da8725557dc14ff839fd867488"
+    },
+    "src/acne_llm/api/deps.py": {
+      "bytes": 239,
+      "mtime_utc": "2026-07-12T02:26:29.944889+00:00",
+      "sha256": "fae5057e53d1a7d8c4bc32876291f1c4a34884510a753221a192af1158e951d7"
+    },
+    "src/acne_llm/api/observability.py": {
+      "bytes": 5542,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "f941035ba634502008fc800ee4d369d02e13f4172c643338246f0c6cebb01c04"
+    },
+    "src/acne_llm/api/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/chat/confidence_hint.py": {
+      "bytes": 4831,
+      "mtime_utc": "2026-07-26T15:33:45.073235+00:00",
+      "sha256": "d6ede998c42df45c7cfdb8bc47551381dc0443af6ab51282882ebb414e5feb45"
+    },
+    "src/acne_llm/chat/preprocess.py": {
+      "bytes": 3564,
+      "mtime_utc": "2026-07-26T15:33:45.057348+00:00",
+      "sha256": "7252de34148879c1e2b0c925f097fd4163214debfbe986749ca7f92c8ae55e6f"
+    },
+    "src/acne_llm/chat/session.py": {
+      "bytes": 32606,
+      "mtime_utc": "2026-08-06T15:59:03.489215+00:00",
+      "sha256": "f6400cb74d1a6b5207ec627d84d8643eeb30b0f90c8445516ce53ff10c915cea"
+    },
+    "src/acne_llm/chat/unified_intake.py": {
+      "bytes": 10484,
+      "mtime_utc": "2026-08-06T08:30:11.690037+00:00",
+      "sha256": "918949c904f1b68f2807320a22ab7015b40733647142a7f233c77bc0bb81de03"
+    },
+    "src/acne_llm/chat/_intake_parse.py": {
+      "bytes": 17851,
+      "mtime_utc": "2026-07-29T14:08:11.388138+00:00",
+      "sha256": "42f555e47be7236131812a824336e4d1b552a50f0fc1fb5d375a71a44764f243"
+    },
+    "src/acne_llm/chat/_intent_patch.py": {
+      "bytes": 3611,
+      "mtime_utc": "2026-08-06T15:47:57.201857+00:00",
+      "sha256": "194b96948b434f40a9249f482c9991a7ba3a418a68e5ffa17d682bb51bb214c2"
+    },
+    "src/acne_llm/chat/_safety.py": {
+      "bytes": 14059,
+      "mtime_utc": "2026-08-06T15:59:03.469231+00:00",
+      "sha256": "320d995a70454d0f9a225c8591bd48161ac5a73b7d49dd68718023ca46ff112d"
+    },
+    "src/acne_llm/chat/_terms.py": {
+      "bytes": 8454,
+      "mtime_utc": "2026-07-25T14:03:08.833708+00:00",
+      "sha256": "89ebdfb03bbd6de764176fded034daf03f401b67306c7d549fce3d8ed20434c9"
+    },
+    "src/acne_llm/chat/__init__.py": {
+      "bytes": 272,
+      "mtime_utc": "2026-07-26T15:35:55.462364+00:00",
+      "sha256": "4199b863dc919846bd31381755eca118f6ef8c6379377f6e766ada57d4cd0663"
+    },
+    "src/acne_llm/crawler/base.py": {
+      "bytes": 256,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "01a1021bc4351083dddc87f3607525d3355b65f20fa79f94751aa755ff7f8213"
+    },
+    "src/acne_llm/crawler/checkpoint.py": {
+      "bytes": 9125,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "90972af53dcc4b10185407a5bd263dd38716a7daca245341f3f86ba2777b409b"
+    },
+    "src/acne_llm/crawler/dedup.py": {
+      "bytes": 4280,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "14989c3102e6501364c333898585aa621cee7ae2b89cd5be717fa968b7a02fbd"
+    },
+    "src/acne_llm/crawler/discovery.py": {
+      "bytes": 24925,
+      "mtime_utc": "2026-07-26T15:33:31.978687+00:00",
+      "sha256": "28a9b168e9726e97692166274b4dd66bade14861facef989e58c9cfd45ae1135"
+    },
+    "src/acne_llm/crawler/extractor.py": {
+      "bytes": 3347,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "b7a1fb1d85af9b5c9b630e547e20e28000a97b79521da3f1fd365eaf9931cc3c"
+    },
+    "src/acne_llm/crawler/fetcher.py": {
+      "bytes": 4792,
+      "mtime_utc": "2026-07-24T16:32:53.937810+00:00",
+      "sha256": "50df7930d4b307a44b926cd9060f7c442d27a07c0033628b36b5bfb57ce65620"
+    },
+    "src/acne_llm/crawler/normalizer.py": {
+      "bytes": 314,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "801c6852a32486741ea243491b5579c7ff6b6ad9b12545fb61a8a288da118988"
+    },
+    "src/acne_llm/crawler/playwright_fetcher.py": {
+      "bytes": 13050,
+      "mtime_utc": "2026-07-10T13:53:50.947301+00:00",
+      "sha256": "0846c9e56547485aee2a6507f20f1b5c14b0da05543e24415cbf0380f0cd85ac"
+    },
+    "src/acne_llm/crawler/quality_filter.py": {
+      "bytes": 14093,
+      "mtime_utc": "2026-07-24T16:32:53.937810+00:00",
+      "sha256": "59a7ffc545033a397cb33dc9709935648879665bc2121293efdcf99dbc911060"
+    },
+    "src/acne_llm/crawler/stats.py": {
+      "bytes": 6910,
+      "mtime_utc": "2026-07-24T16:32:53.937810+00:00",
+      "sha256": "bfd5099a57d3e2436e62184a9c93e606ddb55a7e03dfb0c2a8b398ddc1971b27"
+    },
+    "src/acne_llm/crawler/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/db/base.py": {
+      "bytes": 4018,
+      "mtime_utc": "2026-07-25T15:36:46.718763+00:00",
+      "sha256": "78ba9c235e1e6c01d7232ab2b35f5fc40755fb264c57182e5c51c3e075247122"
+    },
+    "src/acne_llm/db/__init__.py": {
+      "bytes": 185,
+      "mtime_utc": "2026-07-13T15:09:55.847339+00:00",
+      "sha256": "b70cb278fd16b28a3d557a60859f3deed42dbb3d8a70f05fa2dea3c8139ca2b3"
+    },
+    "src/acne_llm/guardrails/drug_checker.py": {
+      "bytes": 13505,
+      "mtime_utc": "2026-07-24T16:32:53.937810+00:00",
+      "sha256": "c4d8f2b9c9dae11f306b98063c78b75c83e1ce9744de459ec649ff30c1d17b3f"
+    },
+    "src/acne_llm/guardrails/ood_detector.py": {
+      "bytes": 10412,
+      "mtime_utc": "2026-07-24T16:32:53.952761+00:00",
+      "sha256": "5316f24f49aaa7be70151bd807ea2a1a53aa05491f1d17885c187827763eb38a"
+    },
+    "src/acne_llm/guardrails/runner.py": {
+      "bytes": 42904,
+      "mtime_utc": "2026-07-19T14:35:42.286539+00:00",
+      "sha256": "e64ff917ea5c5dee5f758dd05958be9d2c9d04b36461330a45b008f238377567"
+    },
+    "src/acne_llm/guardrails/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/llm/base.py": {
+      "bytes": 189,
+      "mtime_utc": "2026-07-17T14:06:13.048806+00:00",
+      "sha256": "0f67ff7a1f3b066080c06123938a335183f5f8aca1a0d4590e458492853ddc9b"
+    },
+    "src/acne_llm/llm/language.py": {
+      "bytes": 1158,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "79cd4223d870efde79f80e266c96cfa4933904cabaf3ff50e3bc42c5e044f5ef"
+    },
+    "src/acne_llm/llm/qa_generator.py": {
+      "bytes": 11406,
+      "mtime_utc": "2026-07-24T16:32:53.952761+00:00",
+      "sha256": "a3caa91fde2d3c701623b3338b11737be6b5aba4bc99921523d97dbb728c98b4"
+    },
+    "src/acne_llm/llm/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/pipeline/base.py": {
+      "bytes": 172,
+      "mtime_utc": "2026-07-10T13:53:50.965088+00:00",
+      "sha256": "e5e3a16cce3e518d278d674c454944439f317eeba0aa9c292052f94008e7f1cd"
+    },
+    "src/acne_llm/pipeline/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/rag/base.py": {
+      "bytes": 173,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "960ed11b1e46929d0d4ab893baa41d6de912e810801cc408e78697536a8f94cf"
+    },
+    "src/acne_llm/rag/chunker.py": {
+      "bytes": 7749,
+      "mtime_utc": "2026-07-10T13:53:50.969931+00:00",
+      "sha256": "cb647d5c8f6639966b03360baf4991b8acddab91c5c23ddeecbd3e47b2f5bf0f"
+    },
+    "src/acne_llm/rag/cleaning.py": {
+      "bytes": 5090,
+      "mtime_utc": "2026-07-30T10:15:32.294012+00:00",
+      "sha256": "8f230e76e4460b5226a8953ef82869e40e248a898c18520821e2c5452f1c5216"
+    },
+    "src/acne_llm/rag/embedder.py": {
+      "bytes": 2621,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "bccf9a0fb3ca285a5ec170436aa0a128d81b906115ec9794006c2be65d5fef83"
+    },
+    "src/acne_llm/rag/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/schemas/clinical.py": {
+      "bytes": 2572,
+      "mtime_utc": "2026-07-23T11:47:44.826586+00:00",
+      "sha256": "2208a687e847882775ba6449312a826d5b2caaa694b1a4ae6a11c777688cc1d9"
+    },
+    "src/acne_llm/schemas/core.py": {
+      "bytes": 5667,
+      "mtime_utc": "2026-07-25T15:35:44.887529+00:00",
+      "sha256": "90d50b22f5af22e398f943dbf52a8075e8d3c848aa422832185ed898e12a8133"
+    },
+    "src/acne_llm/schemas/extraction.py": {
+      "bytes": 5863,
+      "mtime_utc": "2026-07-26T15:33:45.073235+00:00",
+      "sha256": "5f731797326e090786553ee5fa560ea7ad1dfabc5bbdc0024f5e21d2a6bc2245"
+    },
+    "src/acne_llm/schemas/kb.py": {
+      "bytes": 6837,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "042ebc6b8edeb38c876e5ee905bb256e29a9c96125759c88b43bfd007c2cb775"
+    },
+    "src/acne_llm/schemas/__init__.py": {
+      "bytes": 749,
+      "mtime_utc": "2026-07-23T11:48:03.019300+00:00",
+      "sha256": "49721644283ac622d3cfdc1306d66eeb9e9b05e26bef2836327902aba24cceef"
+    },
+    "src/acne_llm/utils/chunk_filter.py": {
+      "bytes": 7496,
+      "mtime_utc": "2026-07-12T14:08:45.413602+00:00",
+      "sha256": "a005e2ae0fdfaf7b89ed6c880a850b1ba57c71eaacb719a62bf8ed99b35a4c7d"
+    },
+    "src/acne_llm/utils/fuzzy_match.py": {
+      "bytes": 3158,
+      "mtime_utc": "2026-07-10T13:53:50.975412+00:00",
+      "sha256": "64e408f36578fda1fc182677849d3ecf33eeae7b76f294281f370ba8d69bef9b"
+    },
+    "src/acne_llm/utils/hashing.py": {
+      "bytes": 259,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "bcc8a68e3aa4df7c857fcfaa1ca94155fb238bde6edf299d34c2079f217fdaa5"
+    },
+    "src/acne_llm/utils/logging.py": {
+      "bytes": 7921,
+      "mtime_utc": "2026-07-25T18:04:23.191381+00:00",
+      "sha256": "9eb67d3beb6bda3f7924d0ba560685e7f8cb1adb2a9f7fd0cc2e964d611f7cb4"
+    },
+    "src/acne_llm/utils/retrieval_query.py": {
+      "bytes": 8049,
+      "mtime_utc": "2026-07-25T14:24:28.967393+00:00",
+      "sha256": "2311a543812c9932e4fa19eb69a2a42b97e06d0b1fdafccac6b57d85c8c12786"
+    },
+    "src/acne_llm/utils/text_cleaning.py": {
+      "bytes": 3983,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "89d8a0035d5b64092e8d2809738387c3b602de6ec6d829ca4d94691750afd043"
+    },
+    "src/acne_llm/utils/timer.py": {
+      "bytes": 250,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "60c7d169d4fb8eb1bf12ee1834177e04905e543d9f777551e5a2f1944be3e928"
+    },
+    "src/acne_llm/utils/__init__.py": {
+      "bytes": 111,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "a97934b47fa13182c977aeed349125132b6eb92769ed81cba845b9433ad15720"
+    },
+    "src/acne_llm/vision/base.py": {
+      "bytes": 160,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "aff61d313127edc0387e9ed3a2e9ef8183e86a1e4290a0a0500725865493ccae"
+    },
+    "src/acne_llm/vision/mock.py": {
+      "bytes": 548,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3f3b0b4e11d763c0bd4b7ba60fd1664b5f7d0f16f9dafa4721b3ba916ad94a3"
+    },
+    "src/acne_llm/vision/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/api/routes/admin.py": {
+      "bytes": 2157,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "65f82fe41f826ab0d6f1b6a0f4e2d15517a34df0233b3a1d096ae65387dad64d"
+    },
+    "src/acne_llm/api/routes/health.py": {
+      "bytes": 774,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "281efd2ac8f1761945272088ee12214fdfbeac37168692d5779cc3a973b4e32f"
+    },
+    "src/acne_llm/api/routes/kb.py": {
+      "bytes": 3063,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "5e9949096f5ff6968dd4016806ef57d3e65141e2c0c7bf55c305fdfc724ac476"
+    },
+    "src/acne_llm/api/routes/metrics.py": {
+      "bytes": 912,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "20a0fcb4ed7f8618e8e6729291c80a0ff74bde9d591ad3c413b97d1bebff3e9f"
+    },
+    "src/acne_llm/api/routes/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/acne_llm/chat/fallback/intent_router.py": {
+      "bytes": 23651,
+      "mtime_utc": "2026-07-26T15:36:46.579030+00:00",
+      "sha256": "c89ad12e92e8385a4f43ae6fb794628d0ea0a00e61b103864bcf29e2a6b40766"
+    },
+    "src/acne_llm/chat/fallback/llm_extractor.py": {
+      "bytes": 3417,
+      "mtime_utc": "2026-07-24T16:19:04.072031+00:00",
+      "sha256": "e17993f2c9aa53c73f83b23e98f037ec50bb7f2faa0dad485ba8d8ac77cebf0e"
+    },
+    "src/acne_llm/chat/fallback/llm_router.py": {
+      "bytes": 5505,
+      "mtime_utc": "2026-07-24T16:19:04.069790+00:00",
+      "sha256": "2d33b1ebe41b153231b3ecb93dbb28ffd6eb9a31edc7fbea875456003cd84eb0"
+    },
+    "src/acne_llm/chat/fallback/rule_extractor.py": {
+      "bytes": 16491,
+      "mtime_utc": "2026-07-26T15:33:56.627338+00:00",
+      "sha256": "fc68b0f8cddebba5e875df3f84d813aa6b0ff334bcfbe077b079d7a02b484cd2"
+    },
+    "src/acne_llm/chat/fallback/rule_normalizer.py": {
+      "bytes": 78492,
+      "mtime_utc": "2026-07-26T15:33:56.585202+00:00",
+      "sha256": "dd2223554f3bd9c3953cbca506e0a8ec4f04ad3031a12c71f0b09bf09c0390af"
+    },
+    "src/acne_llm/chat/fallback/semantic_router.py": {
+      "bytes": 15418,
+      "mtime_utc": "2026-07-24T16:19:04.066282+00:00",
+      "sha256": "8ab267b69d8d63b7e412b6584ec67fb3f999a515d397554bdbe792cc40f152ed"
+    },
+    "src/acne_llm/chat/fallback/__init__.py": {
+      "bytes": 69,
+      "mtime_utc": "2026-07-24T16:19:04.075077+00:00",
+      "sha256": "14e83f4947b6e45e3b5d94401c117a1b8aeee1d2dedab7d264f6e0f391891d04"
+    },
+    "src/acne_llm/crawler/sources/generic_html.py": {
+      "bytes": 14077,
+      "mtime_utc": "2026-07-24T16:32:53.937810+00:00",
+      "sha256": "fac158ec307df2d7e9fc1a20cd17034bf5177ee36a54eb9f13b289e573789f28"
+    },
+    "src/acne_llm/crawler/sources/pubmed.py": {
+      "bytes": 3720,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "b6e89fcd89a64f8e73d90e6939a699dc60f96be495d3fa8af3957fc98e2b8621"
+    },
+    "src/acne_llm/crawler/sources/__init__.py": {
+      "bytes": 0,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pyproject.toml": {
+      "bytes": 551,
+      "mtime_utc": "2026-04-20T09:54:58.822320+00:00",
+      "sha256": "7bf1466dce2db3277a386d2917ab8a09245eeb432bdba5a74bc4d68df05f58f2"
+    },
+    "frontend/package.json": {
+      "bytes": 772,
+      "mtime_utc": "2026-07-12T12:20:54.006808+00:00",
+      "sha256": "79af81078db9991a7e5db63511fc2ee782d2a987122641a20b7b2d6f9d8dc27f"
+    },
+    "model/qwen25_acne_role_gguf_q4_k_m/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+      "bytes": 4683073600,
+      "mtime_utc": "2026-07-23T10:34:43.064567+00:00",
+      "sha256": "e8aee77a3d13658b5936cb8922fc0fdac17dc48682783ad4f3de7ecdb56776da"
+    },
+    "model/role_finetune/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+      "bytes": 4683073600,
+      "mtime_utc": "2026-07-23T10:34:43.064567+00:00",
+      "sha256": "e8aee77a3d13658b5936cb8922fc0fdac17dc48682783ad4f3de7ecdb56776da"
+    },
+    "model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf": {
+      "bytes": 4683073600,
+      "mtime_utc": "2026-05-23T15:10:17.530177+00:00",
+      "sha256": "91fa3855d9d21dfdaacaa0aa8b4ec441cf4beff41d47a3b0f19ffe7bc1145c55"
+    },
+    "model/qwen25_acne_role_gguf_q4_k_m.zip": {
+      "bytes": 4596799740,
+      "mtime_utc": "2026-07-23T10:17:42.827573+00:00",
+      "sha256": "2a3035d1975bac7a35b224cd46540b2835af0838d77feb1c35df27672c1f1d71"
+    },
+    "model/V2/Q2/Qwen2.5-7B-Instruct.Q2_K.gguf": {
+      "bytes": 3015940160,
+      "mtime_utc": "2026-05-23T15:10:10.279037+00:00",
+      "sha256": "1dcb94e95b33d3b65820b71bb76b42c5ce1a59d7ddd8882f82a2f892232be812"
+    },
+    "model/acne_intake_release.zip": {
+      "bytes": 2508713588,
+      "mtime_utc": "2026-07-24T14:41:55.220389+00:00",
+      "sha256": "04f4ab366ea078ba724539f3c590e74034b8a2cea0ad5193457f78b504842bfd"
+    },
+    "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf": {
+      "bytes": 1929902592,
+      "mtime_utc": "2026-07-24T14:42:47.092211+00:00",
+      "sha256": "5c4e13d45e53704032a5d98199312e4bd7e4840dc69d8b8f207c2d0af8c58315"
+    },
+    "model/qwen25_acne_role_lora.zip": {
+      "bytes": 832666140,
+      "mtime_utc": "2026-07-23T10:08:54.038545+00:00",
+      "sha256": "e1a78032da732e2220bca8a96dff61d5055d971c897caae4e7a22e684ff942c9"
+    },
+    "model/acne_intake_release/qwen25_intake_lora.zip": {
+      "bytes": 619415446,
+      "mtime_utc": "2026-07-24T14:42:25.868851+00:00",
+      "sha256": "218bce13f09ae6c40cca080592e14dc719dec749272514a5f3dc734e22f88d0d"
+    },
+    "model/qwen25_acne_role_lora/adapter_model.safetensors": {
+      "bytes": 161533192,
+      "mtime_utc": "2026-07-23T10:28:13.889931+00:00",
+      "sha256": "6b2ed1b85a550b47f25680a25b77597a01f54821c31f3894827aec05a7a9ae5f"
+    },
+    "tests/test_api.py": {
+      "bytes": 2148,
+      "mtime_utc": "2026-07-25T15:37:38.937788+00:00",
+      "sha256": "15748247da5d3b0e1541562744a89298f7bce83285053677bab40dfa05916406"
+    },
+    "tests/test_approve_eval_labels.py": {
+      "bytes": 321,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "ecf9e33c1e981c5f055524781b5b85106e4190acaa35761a0ee44761c9114347"
+    },
+    "tests/test_audit.py": {
+      "bytes": 1870,
+      "mtime_utc": "2026-07-25T15:37:05.544751+00:00",
+      "sha256": "dc926c739d526e079be34f1609347e9c398a5793523437625fee372cb77cde50"
+    },
+    "tests/test_chat_normalizer.py": {
+      "bytes": 8792,
+      "mtime_utc": "2026-07-26T15:35:55.606841+00:00",
+      "sha256": "b3a9c8487edbadadaac30128f9f2ca87c3ff6886bd6a76e2946e79aa59914f01"
+    },
+    "tests/test_chat_stream.py": {
+      "bytes": 22402,
+      "mtime_utc": "2026-08-06T15:44:22.334639+00:00",
+      "sha256": "bf3c61809a6686fed3d7e16fac7e2b19d4e82a2da8885398b176f8392a10950c"
+    },
+    "tests/test_chunker.py": {
+      "bytes": 873,
+      "mtime_utc": "2026-07-10T13:53:50.982420+00:00",
+      "sha256": "47b3b9559497d86fa61579c768ef5795b9334a663baefccacbf7fb085e2d6986"
+    },
+    "tests/test_chunk_filter_relevance.py": {
+      "bytes": 3110,
+      "mtime_utc": "2026-07-12T09:32:16.308479+00:00",
+      "sha256": "dcdf179b0673d5691b9477af8d2f5b36f313cffb640efa2cc23afcc8f7a7ee17"
+    },
+    "tests/test_chunk_qa_clinical_factory.py": {
+      "bytes": 6311,
+      "mtime_utc": "2026-07-10T13:53:50.979937+00:00",
+      "sha256": "ded3dcafdded7e13ba4c0a70caa0bab286341f2e751b56014cac26d7ee6680ac"
+    },
+    "tests/test_cleaning.py": {
+      "bytes": 749,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "92f120fdc32ea561f21d65ad8a625120542481bd3169283173ccc15d37dab36a"
+    },
+    "tests/test_clinical_dataset_validator.py": {
+      "bytes": 2886,
+      "mtime_utc": "2026-07-10T13:53:50.983418+00:00",
+      "sha256": "e38e6752e7f1880d153c3b346bd36e19b7246adae8ee9bcc1748b023837bb831"
+    },
+    "tests/test_clinical_planner.py": {
+      "bytes": 530,
+      "mtime_utc": "2026-07-24T15:30:57.790061+00:00",
+      "sha256": "532d1801089dcc674a5dc1ce4ee06462955574f2488a50c5d89173e1ca263252"
+    },
+    "tests/test_confidence_behavior.py": {
+      "bytes": 2959,
+      "mtime_utc": "2026-08-06T15:43:00.667191+00:00",
+      "sha256": "bd55b4298f11cc17a65cddb9ad9baccc8e872586980ac54f8dc3eba77cb75ca6"
+    },
+    "tests/test_dedup.py": {
+      "bytes": 679,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "75c505b28c77b11177ce7369ff2bd6687bb3cbf966000b9c77c11220a5a708ac"
+    },
+    "tests/test_env_keys.py": {
+      "bytes": 2316,
+      "mtime_utc": "2026-07-26T03:31:27.566936+00:00",
+      "sha256": "e5f87fd8f80ce312b2181bee9e1b942cd3ccffe5b274c4735d8a09af30e54d30"
+    },
+    "tests/test_extraction_confidence.py": {
+      "bytes": 3783,
+      "mtime_utc": "2026-07-26T15:35:55.627808+00:00",
+      "sha256": "ebcf3d91f163e0800b9985402eb3776799a5d70741f8081713ab6809f9aa3f5f"
+    },
+    "tests/test_extraction_fieldresult.py": {
+      "bytes": 3098,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "c7a776e4281a956a98bdeddd43cb3e503bdd3e9009c75754edc3002b71a22344"
+    },
+    "tests/test_extraction_negation.py": {
+      "bytes": 2961,
+      "mtime_utc": "2026-07-26T15:52:12.545200+00:00",
+      "sha256": "88acf0da412e6b51a516e5cbd5cf1c351785a6847ca3d259fa826ede1ccb509a"
+    },
+    "tests/test_guardrails.py": {
+      "bytes": 11888,
+      "mtime_utc": "2026-07-19T14:36:27.127296+00:00",
+      "sha256": "553e13003424b4b667d8069cb63b420dc8dd743a34de9b3ffa69fdd09debc8a8"
+    },
+    "tests/test_intake.py": {
+      "bytes": 20320,
+      "mtime_utc": "2026-08-06T15:43:47.641360+00:00",
+      "sha256": "6f486abeaa2e8ef2809637210f2fee958e2d4723355f05933e26e7317565d066"
+    },
+    "tests/test_intent_router_new.py": {
+      "bytes": 7162,
+      "mtime_utc": "2026-07-26T15:35:55.646458+00:00",
+      "sha256": "0ab9db6fb7d027589b7e5798f20fbe0951ded9bc8271b4e87066efdbb4c04197"
+    },
+    "tests/test_llm_extractor.py": {
+      "bytes": 12213,
+      "mtime_utc": "2026-07-24T16:19:36.562908+00:00",
+      "sha256": "10464696575919b35fbda8d3ccb8202cb6b4e21ec8e92da5adb00fc6597fb774"
+    },
+    "tests/test_llm_router.py": {
+      "bytes": 4718,
+      "mtime_utc": "2026-07-24T16:19:36.565420+00:00",
+      "sha256": "3e36de6b2b43797241d84f6de33fb735ad5c9d2cdd631f896f472aaed6e3c2c6"
+    },
+    "tests/test_normalizer_regression.py": {
+      "bytes": 16145,
+      "mtime_utc": "2026-07-26T15:35:55.656951+00:00",
+      "sha256": "4e86f68dac4744b3d6813ae97c90c16df5a48f98789b2c338ade7ac8b87fbfef"
+    },
+    "tests/test_ollama_backend.py": {
+      "bytes": 3619,
+      "mtime_utc": "2026-07-17T14:06:13.049808+00:00",
+      "sha256": "db49563d5684c3c587cbf824ecaa7207b36104e54e4e93cac4e0592be5d37288"
+    },
+    "tests/test_prompt_builder.py": {
+      "bytes": 11438,
+      "mtime_utc": "2026-08-06T14:07:43.125853+00:00",
+      "sha256": "a5a80ceae1b4b825f5a92e9587633054b6bb24ad889754e1e73eaf3380e1fabf"
+    },
+    "tests/test_propose_eval_labels.py": {
+      "bytes": 851,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "6a75d6006842d38a909cc4759d09b7454f6d78d4d44992647fa7d29890034d35"
+    },
+    "tests/test_prose_only_contract.py": {
+      "bytes": 709,
+      "mtime_utc": "2026-07-25T15:53:27.859750+00:00",
+      "sha256": "d7d81fa0c4f0feca4dbe8510dd143cc53cd5fb3f03c665793665b0925ef5a090"
+    },
+    "tests/test_quality_filter.py": {
+      "bytes": 5806,
+      "mtime_utc": "2026-07-10T13:53:50.995886+00:00",
+      "sha256": "a51234d18ffcc1967c9ad722fc9e45f5ddfbf6aae65d024ce3fee009a77a7ddc"
+    },
+    "tests/test_reranker.py": {
+      "bytes": 1169,
+      "mtime_utc": "2026-07-10T13:53:50.996883+00:00",
+      "sha256": "ed69063584330488093d876f6c3ff529cab0b3b7647443747d7cb7f91ef2ebb8"
+    },
+    "tests/test_retrieval_merge.py": {
+      "bytes": 1125,
+      "mtime_utc": "2026-07-17T14:06:30.471683+00:00",
+      "sha256": "f8ca4a09177c86bc2ecb651aad886f06fb95c461811235f7b8f6c0829b38f39f"
+    },
+    "tests/test_retrieval_query.py": {
+      "bytes": 1979,
+      "mtime_utc": "2026-07-26T15:35:55.664407+00:00",
+      "sha256": "f44720b7e9e48c409ba58557f1ab348359b4c0dc27d4903cecdf1653cae7c04a"
+    },
+    "tests/test_retriever.py": {
+      "bytes": 4564,
+      "mtime_utc": "2026-08-03T12:01:09.557511+00:00",
+      "sha256": "c04b1b0b4dab0a164bf117453b0549fc45eb0266f9dee8d2392b8b3f15bf8f8d"
+    },
+    "tests/test_schemas.py": {
+      "bytes": 2425,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "f6e5cc5d2c8790e75ad2356d33854fdc67686ab8eb773be37cd3d9f41bc792bc"
+    },
+    "tests/test_semantic_router.py": {
+      "bytes": 4776,
+      "mtime_utc": "2026-07-24T16:19:36.566622+00:00",
+      "sha256": "643fa9b00b639435cfc0bde055b088c7b0a928a82beb4ef007edd3fb5e4f2ba1"
+    },
+    "tests/test_session.py": {
+      "bytes": 13267,
+      "mtime_utc": "2026-07-26T15:35:55.674767+00:00",
+      "sha256": "933140e24e8262b3b20b5a7d5c3f6f8c1de60c5e3af5991f3bf79b1b94cd0a55"
+    },
+    "tests/test_settings.py": {
+      "bytes": 2072,
+      "mtime_utc": "2026-08-06T14:42:30.717945+00:00",
+      "sha256": "719735ea129a0a2c4c173ae205d1e495eb499ad762a873f30ece6baad18b4ca3"
+    },
+    "tests/test_sparse_bm25.py": {
+      "bytes": 1029,
+      "mtime_utc": "2026-06-12T16:58:00+00:00",
+      "sha256": "4cf6fe28b1d0e052ec2101cfccd55b47a08ac71b42cb325360724e1435c2c72d"
+    },
+    "tests/test_sqlite_session_store.py": {
+      "bytes": 3899,
+      "mtime_utc": "2026-07-13T15:02:32.832425+00:00",
+      "sha256": "7df163de0ff52ed8fdd94af09f04ecf4e17301b6233aa50709149ce2dc57b1dc"
+    },
+    "tests/test_stream_safety.py": {
+      "bytes": 3370,
+      "mtime_utc": "2026-07-10T13:53:51.001805+00:00",
+      "sha256": "62850beef53b539d6876909b252547c3a75390b37f23975a7a748a8d184c8198"
+    }
+  },
+  "stats": {
+    "kb": {
+      "chunk_count": 24393,
+      "document_count": 6835,
+      "source_count": 39
+    },
+    "intaker": {
+      "records": 4000,
+      "train": 3600,
+      "validation": 400,
+      "parse_failures": 0
+    },
+    "generator": {
+      "source_root": "datagen/roledata",
+      "status": "incomplete",
+      "target": 3500,
+      "rows": 3465,
+      "deficit": 35,
+      "splits": {
+        "train": 2945,
+        "val": 277,
+        "holdout": 243
+      },
+      "sample_kinds": 16,
+      "audit_attempts": 2582,
+      "audit_unique_ids": 1096,
+      "split_overlap": 0,
+      "export_checksum_match": true
+    },
+    "evaluation": {
+      "dataset_rows": 145,
+      "intake_rows": 1490,
+      "retrieval_rows": 120,
+      "ablation_arms": 6,
+      "ablation_rows": 870
+    },
+    "repository": {
+      "backend_python_files": 90,
+      "backend_python_loc": 17440
+    }
+  }
+}

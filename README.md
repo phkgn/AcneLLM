@@ -3,6 +3,30 @@
 Chatbot tư vấn mụn trứng cá bằng tiếng Việt. Backend dùng FastAPI, LLM chạy local qua
 Ollama, có thể bật RAG hybrid bằng ChromaDB + BM25.
 
+## Chạy trọn bộ bằng Docker — khuyến nghị để bàn giao
+
+Gói Compose hiện chạy gateway Nginx, Next.js, FastAPI, Ollama, hai model
+`acne-generator` + `acne-intaker`, ChromaDB và BM25. Backend/Ollama chỉ nằm trong
+Docker network; browser dùng một địa chỉ duy nhất `http://localhost:3000`.
+
+```powershell
+Copy-Item .env.docker.example .env.docker
+.\scripts\check_docker_assets.ps1
+
+# NVIDIA GPU
+docker compose --env-file .env.docker `
+  -f docker-compose.yml `
+  -f docker-compose.gpu.yml `
+  up -d --build
+
+# CPU (chạy được nhưng LLM rất chậm)
+# docker compose --env-file .env.docker up -d --build
+```
+
+Hai GGUF và nguyên Chroma vector segment không nằm đầy đủ trong một clone Git
+thông thường. Xem danh sách artifact, cách tạo bundle để gửi người khác, hướng dẫn
+GPU/CPU/LAN và troubleshooting tại [docs/DOCKER_QUICKSTART.md](docs/DOCKER_QUICKSTART.md).
+
 ## Yêu Cầu
 
 - Git + Git LFS
