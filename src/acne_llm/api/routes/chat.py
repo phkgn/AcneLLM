@@ -1,12 +1,11 @@
 import asyncio
-import json
 import time
 
-from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
-from loguru import logger
 from pydantic import BaseModel
 
+from ..deps import require_admin
 from ...chat.intake import MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, _count_words
 from ...chat.runtime import stream_chat_sse
 from ...chat.orchestrator import prepare_chat_turn
@@ -50,7 +49,7 @@ async def chat_stream(
     )
 
 
-@router.get("/debug/trace")
+@router.get("/debug/trace", dependencies=[Depends(require_admin)])
 async def debug_trace(
     request: Request,
     message: str,
@@ -202,98 +201,10 @@ async def debug_trace(
     return trace
 
 
-def _parse_sse_frame(frame: str) -> dict | None:
-    """Parse SSE frame string thanh dict. Tra None neu khong hop le."""
-    line = next(
-        (item for item in frame.splitlines() if item.startswith("data: ")),
-        "",
-    )
-    if not line:
-        return None
-    try:
-        return json.loads(line[6:])
-    except json.JSONDecodeError:
-        return None
-
-
-@router.websocket("/ws/chat")
-async def chat_ws(websocket: WebSocket):
-    await websocket.accept()
-    c = websocket.app.state.container
-    loop = asyncio.get_event_loop()
-    try:
-        while True:
-            raw = await websocket.receive_text()
-            try:
-                payload = json.loads(raw)
-                message = str(payload.get("message", ""))
-                mode = str(payload.get("mode", "auto"))
-                session_id = payload.get("session_id")
-            except json.JSONDecodeError:
-                message = raw
-                mode = "auto"
-                session_id = None
-
-            if not message.strip():
-                await websocket.send_json({"event": "error", "data": "message is required"})
-                continue
-            if len(message) > MAX_MESSAGE_CHARS:
-                await websocket.send_json({
-                    "event": "error",
-                    "data": f"message must be <= {MAX_MESSAGE_CHARS} characters",
-                })
-                continue
-            if _count_words(message) > MAX_MESSAGE_WORDS:
-                await websocket.send_json({
-                    "event": "error",
-                    "data": f"Tin nhắn quá dài. Vui lòng rút gọn xuống tối đa {MAX_MESSAGE_WORDS} từ.",
-                })
-                continue
-
-            # FIX: Stream tung frame ngay khi LLM generate — khong buffer toan bo.
-            # Truoc day: list(stream_chat_sse(...)) buffer het truoc khi gui → user
-            # thay man hinh trang trong suot thoi gian LLM chay.
-            # Sau fix: dung asyncio.Queue lam bridge giua sync generator (thread)
-            # va async WebSocket sender — token xuat hien tren UI ngay khi co.
-            _SENTINEL = object()
-            queue: asyncio.Queue = asyncio.Queue(maxsize=64)
-
-            def _producer():
-                """Chay trong thread rieng; push tung SSE frame vao queue."""
-                def _put(item) -> None:
-                    asyncio.run_coroutine_threadsafe(queue.put(item), loop).result()
-
-                try:
-                    for frame in stream_chat_sse(
-                        c,
-                        message=message,
-                        requested_mode=mode,
-                        session_id=session_id,
-                    ):
-                        _put(frame)
-                except Exception as exc:
-                    logger.exception("WS stream producer error")
-                    _err = json.dumps({"event": "error", "data": str(exc)})
-                    _put(f"data: {_err}\n\n")
-                finally:
-                    _put(_SENTINEL)
-
-            producer_future = loop.run_in_executor(None, _producer)
-
-            # Consume: gui moi frame ngay khi nhan duoc tu queue
-            while True:
-                frame = await queue.get()
-                if frame is _SENTINEL:
-                    break
-                parsed = _parse_sse_frame(frame)
-                if parsed is not None:
-                    await websocket.send_json(parsed)
-
-            # Dam bao thread producer da ket thuc
-            await producer_future
-
-    except WebSocketDisconnect:
-        return
+# ponytail: endpoint /ws/chat va _parse_sse_frame da bi xoa. Frontend chi
+# dung SSE (frontend/src/lib/api.ts), khong client nao mo WebSocket. Doan cu
+# la cau noi asyncio.Queue giua sync generator va async sender -- doan phuc
+# tap nhat file nay, phuc vu zero request. Xem git history neu can khoi phuc.
 
 
 # ── Feedback endpoint ─────────────────────────────────────────────────────────

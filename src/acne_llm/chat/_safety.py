@@ -1,7 +1,49 @@
 """Safety post-check cho chat stream."""
 from __future__ import annotations
 
+import re
+
 from ..schemas import UserInput
+
+# ── Liều lượng cụ thể trong câu trả lời (port từ guardrails._apply_medication_safety)
+#
+# Đây là luật DUY NHẤT được giữ lại từ tầng post_check cũ. Lý do: cổng đầu vào
+# (medication_safety_refusal) chỉ thấy thứ NGƯỜI DÙNG nhắc tới. Nó không thấy
+# được model tự sinh ra một liều cụ thể mà người dùng chưa hề hỏi:
+#
+#   User: "mụn viêm đỏ khắp hai má, em nên làm gì"
+#   Model: "...uống doxycycline 100mg mỗi ngày trong 8 tuần..."
+#
+# Người dùng không nhắc tên thuốc nào, cổng đầu vào thấy sạch và cho qua.
+# Đây là mẫu nguy hiểm nhất mà một model fine-tune trên tài liệu y khoa sẽ sinh
+# ra, vì tài liệu huấn luyện đầy liều lượng.
+_DOSE_RE = re.compile(
+    r"(?:isotretinoin|tretinoin|adapalene|tazarotene|doxycycline|"
+    r"minocycline|tetracycline|lymecycline|clindamycin|erythromycin|"
+    r"spironolactone|corticoid|prednisone|prednisolone)"
+    r"[^\n]{0,90}\d+(?:[.,]\d+)?\s*(?:mg/kg|mg|mcg|%|viên|lần/ngày|ngày|tuần)",
+    re.IGNORECASE | re.UNICODE,
+)
+_SELF_USE_RE = re.compile(
+    r"(?:tự\s*(?:mua|dùng|uống|bôi)|mua\s+về\s+dùng)[^\n]{0,80}"
+    r"(?:isotretinoin|kháng\s*sinh|antibiotic|doxycycline|minocycline|"
+    r"tetracycline|clindamycin|erythromycin)",
+    re.IGNORECASE | re.UNICODE,
+)
+_DOSE_WARNING = (
+    "\n\n⚠️ Lưu ý: câu trả lời trên có nhắc tới liều lượng thuốc cụ thể. "
+    "Liều dùng của thuốc kê đơn phải do bác sĩ da liễu chỉ định sau khi thăm khám "
+    "và theo dõi tác dụng phụ — đừng tự áp dụng con số nào ở đây."
+)
+_DOSE_ANCHOR = (
+    "do bác sĩ chỉ định", "do bac si chi dinh",
+    "bác sĩ da liễu chỉ định", "phải do bác sĩ",
+    "đừng tự áp dụng",
+)
+
+
+def _mentions_specific_dose(text: str) -> bool:
+    return bool(_DOSE_RE.search(text) or _SELF_USE_RE.search(text))
 
 _RETINOID_TERMS = (
     "isotretinoin", "tretinoin", "adapalene", "retinol",
@@ -312,6 +354,12 @@ def get_safety_suffix(
         full_text, _SELF_PROCEDURE_ANCHOR
     ):
         warnings.append(_SELF_PROCEDURE_WARNING)
+
+    # Liều cụ thể trong câu trả lời — xem chú thích ở đầu file.
+    if _mentions_specific_dose(full_text) and not _already_has_warning(
+        full_text, _DOSE_ANCHOR
+    ):
+        warnings.append(_DOSE_WARNING)
 
     # Generic disclaimer: skip for knowledge/product queries
     if not skip_generic_disclaimer and not warnings:

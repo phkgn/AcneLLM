@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from acne_llm.chat.session import get_session_store
 from acne_llm.chat.intake import (
     IntakeResult,
     run_intake,
@@ -97,7 +98,7 @@ def _container(*, extractor_mode: str, llm_extractor=None):
             scope_check=lambda user: None,
         ),
         clinical_planner=None,
-        session_store=None,
+        session_store=get_session_store(),
     )
 
 
@@ -192,8 +193,17 @@ def test_partial_and_flat_json_parse_without_fallback():
     assert result.user.context.skin_type is None
 
 
-def test_raw_pregnancy_signal_overrides_model_false_for_user_and_confidence():
-    extractor, _ = _extractor()
+def test_intaker_la_nguon_duy_nhat_cho_thai_ky():
+    """Regex KHONG con ghi de model.
+
+    Truoc day mot lop regex quet raw text roi ep is_pregnant=True voi confidence
+    1.0. Da bo: no doc duoc chu chu khong doc duoc ngu nghia -- "truoc em mang
+    thai nhung gio sinh roi" va "chi toi dang mang thai" deu bi no gan cho nguoi
+    dung. Phu dinh, thi va quy chu ngu tra ve cho intaker.
+    """
+    data = _payload()
+    data["context"]["is_pregnant"] = {"value": False, "confidence": 0.93}
+    extractor, _ = _extractor(data)
 
     result = extractor.run(
         clean_text="em đang mang thai và bị mụn viêm",
@@ -202,33 +212,43 @@ def test_raw_pregnancy_signal_overrides_model_false_for_user_and_confidence():
         history=[],
     )
 
+    # Van ban co chu "mang thai" nhung model noi False -> theo model.
+    assert result.user.context.is_pregnant is False
+    assert result.confidence.is_pregnant.value is False
+
+
+def test_thai_ky_theo_dung_gia_tri_model_tra_ve():
+    data = _payload()
+    data["context"]["is_pregnant"] = {"value": True, "confidence": 0.88}
+    extractor, _ = _extractor(data)
+
+    result = extractor.run(
+        clean_text="em bầu 5 tháng, mụn nhiều ở cằm",
+        clean_text_no_accent="em bau 5 thang, mun nhieu o cam",
+        mode="llm_only",
+        history=[],
+    )
+
     assert result.user.context.is_pregnant is True
-    assert result.confidence.is_pregnant.value is True
-    assert result.confidence.is_pregnant.confidence == 1.0
-    assert result.confidence.is_pregnant.method == "llm"
+    assert result.confidence.is_pregnant.confidence == 0.88
 
 
-def test_raw_medication_and_allergy_regexes_are_ored_with_model_fields():
+def test_thuoc_va_di_ung_khong_con_duoc_regex_bo_sung():
+    """Model bo sot thi coi nhu khong co -- khong con lop regex OR vao."""
     data = _payload()
     data["context"]["medications"] = []
     data["context"]["allergies"] = []
     extractor, _ = _extractor(data)
 
     result = extractor.run(
-        clean_text=(
-            "tôi đang uống doxycycline và bị dị ứng với benzoyl peroxide"
-        ),
-        clean_text_no_accent=(
-            "toi dang uong doxycycline va bi di ung voi benzoyl peroxide"
-        ),
+        clean_text="tôi đang uống doxycycline và bị dị ứng với benzoyl peroxide",
+        clean_text_no_accent="toi dang uong doxycycline va bi di ung voi benzoyl peroxide",
         mode="llm_only",
         history=[],
     )
 
-    assert "doxycycline" in result.user.context.medications
-    assert "benzoyl_peroxide" in result.user.context.allergies
-    assert "doxycycline" in result.confidence.medications.confident_values(0.9)
-    assert "benzoyl_peroxide" in result.confidence.allergies.confident_values(0.9)
+    assert result.user.context.medications == []
+    assert result.user.context.allergies == []
 
 
 def test_prompt_contains_only_three_latest_short_history_turns():

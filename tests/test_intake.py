@@ -17,12 +17,12 @@ def _container(
 ):
     guardrails = SimpleNamespace(
         pre_check=lambda user: None,
-        scope_check=lambda user: None,
     )
     return SimpleNamespace(
         rag_ready=rag_ready,
+        # Runtime doc thang c.session_store; test double tu cap store in-memory.
+        session_store=session_store if session_store is not None else get_session_store(),
         guardrails=guardrails,
-        session_store=session_store,
         llm_router=llm_router,
         semantic_router=semantic_router,
     )
@@ -526,7 +526,16 @@ def test_semantic_mode_container_shape_preserves_previous_primary_behavior():
     assert result.route_decision.source == "semantic"
 
 
-def test_current_turn_hard_safety_blocks_before_semantic_router():
+def test_cong_muc_van_ban_van_chan_truoc_khi_goi_bat_ky_model_nao():
+    """Ranh gioi: regex cho THUC THE, model cho TRANG THAI.
+
+    Ten thuoc va vung co the la thuc the -- chung xuat hien trong van ban hoac
+    khong, phu dinh khong lam chu do bien mat. Nen hai cong nay van chan duoc
+    truoc khi bat ky model nao chay.
+
+    Thai ky KHONG con o day: no la trang thai, co phu dinh/thi/chu ngu, nen phai
+    doi intaker. Xem test duoi.
+    """
     class _MustNotRoute:
         calls = 0
 
@@ -534,7 +543,6 @@ def test_current_turn_hard_safety_blocks_before_semantic_router():
             self.calls += 1
             raise AssertionError("semantic router ran before hard guardrail")
 
-    router = _MustNotRoute()
     class _MustNotExtract:
         calls = 0
 
@@ -542,17 +550,11 @@ def test_current_turn_hard_safety_blocks_before_semantic_router():
             self.calls += 1
             raise AssertionError("extractor ran before hard guardrail")
 
-    extractor = _MustNotExtract()
-    guardrails = GuardrailRunner(
-        "config/guardrails.yaml",
-        enable_ood=False,
-        scope_mode="soft",
-    )
+    router, extractor = _MustNotRoute(), _MustNotExtract()
+    guardrails = GuardrailRunner("config/guardrails.yaml")
     messages = (
-        "em đang mang thai và muốn dùng tretinoin trị mụn",
-        "em đang cho con bú, dùng retinoid trị mụn được không",
-        "tôi đang uống isotretinoin và doxycycline trị mụn",
-        "tôi bị mụn ở vùng kín",
+        "tôi đang uống isotretinoin và doxycycline trị mụn",  # cap thuoc ky nhau
+        "tôi bị mụn ở vùng kín",                              # vung ngoai pham vi
     )
 
     for message in messages:
@@ -562,12 +564,47 @@ def test_current_turn_hard_safety_blocks_before_semantic_router():
         c.llm_extractor = extractor
         result = run_intake(c, message)
 
-        assert result.effective_mode == "refuse"
-        assert result.scope_decision == "refuse_hard"
-        assert result.scope_refusal is not None
+        assert result.effective_mode == "refuse", message
+        assert result.scope_decision == "refuse_hard", message
+        assert result.scope_refusal is not None, message
 
     assert router.calls == 0
     assert extractor.calls == 0
+
+
+def test_thai_ky_chan_sau_khi_intaker_xac_nhan_trang_thai():
+    """Doi lai so voi truoc: can mot lan goi intaker, nhung khong con chan nham.
+
+    Ban cu chan ngay tu van ban tho -- va chan ca "em khong mang thai, dung
+    tretinoin duoc khong". Gio phai doi model doc ngu nghia xong moi quyet.
+    Van chan TRUOC retrieval va TRUOC generator, chi la sau extract.
+    """
+    class _Intaker:
+        def run(self, **kwargs):
+            from acne_llm.chat.fallback.llm_extractor import LLMExtractResult
+            from acne_llm.schemas import UserContext, UserInput
+            from acne_llm.schemas.extraction import ExtractionConfidence, FieldResult
+
+            user = UserInput(
+                description=kwargs["clean_text"],
+                mode=kwargs["mode"],
+                context=UserContext(is_pregnant=True, medications=["tretinoin"]),
+            )
+            conf = ExtractionConfidence(
+                is_pregnant=FieldResult.make(True, "llm", confidence=0.93)
+            )
+            return LLMExtractResult(user=user, confidence=conf)
+
+    c = _container(llm_router=None)
+    c.guardrails = GuardrailRunner("config/guardrails.yaml")
+    c.settings = SimpleNamespace(extractor_mode="llm")
+    c.llm_extractor = _Intaker()
+
+    result = run_intake(c, "em đang mang thai và muốn dùng tretinoin trị mụn")
+
+    assert result.effective_mode == "refuse"
+    assert result.scope_decision == "refuse_hard"
+    assert "thai kỳ" in result.scope_refusal.disclaimer
 
 
 def test_prompt_injection_hard_refuses_before_router_and_extractor():
@@ -584,11 +621,7 @@ def test_prompt_injection_hard_refuses_before_router_and_extractor():
 
     blocker = _MustNotRun()
     c = _container(semantic_router=blocker)
-    c.guardrails = GuardrailRunner(
-        "config/guardrails.yaml",
-        enable_ood=False,
-        scope_mode="soft",
-    )
+    c.guardrails = GuardrailRunner("config/guardrails.yaml")
     c.settings = SimpleNamespace(extractor_mode="llm")
     c.llm_extractor = blocker
 

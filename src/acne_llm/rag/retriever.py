@@ -5,7 +5,6 @@ thuộc config vì production DI luôn truyền Settings; hằng số dưới đ
 default đồng bộ cho caller trực tiếp và test.
 """
 from __future__ import annotations
-import numpy as np
 from loguru import logger
 from ..schemas import RetrievedChunk, RetrievalOutput
 from ..schemas.kb import infer_source_type
@@ -80,46 +79,6 @@ def rrf_fusion(rank_lists: list[list[str]], k: int = 60) -> dict[str, float]:
         for i, cid in enumerate(ranks):
             scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + i + 1)
     return scores
-
-
-def mmr_select(
-    chunks: list[RetrievedChunk],
-    embedder: Embedder | None,
-    top_k: int,
-    lambda_mult: float = 0.6,
-) -> list[RetrievedChunk]:
-    """Maximal Marginal Relevance — giảm chunk lặp nội dung."""
-    if embedder is None or len(chunks) <= top_k:
-        return chunks[:top_k]
-    texts = [c.text for c in chunks]
-    try:
-        embs = embedder.embed_passages(texts)
-    except Exception as e:
-        logger.debug(f"[MMR] embed failed, skip MMR: {e}")
-        return chunks[:top_k]
-    raw_scores = np.array([c.score for c in chunks], dtype=float)
-    s_min, s_max = raw_scores.min(), raw_scores.max()
-    norm_scores = (raw_scores - s_min) / (s_max - s_min) if s_max > s_min else np.ones_like(raw_scores)
-    selected_idx: list[int] = []
-    remaining = list(range(len(chunks)))
-    for _ in range(top_k):
-        if not remaining:
-            break
-        if not selected_idx:
-            best = max(remaining, key=lambda i: norm_scores[i])
-        else:
-            sel_embs = embs[selected_idx]
-            best, best_mmr = -1, -float("inf")
-            for i in remaining:
-                rel = float(norm_scores[i])
-                sim = float(np.max(embs[i] @ sel_embs.T))
-                mmr = lambda_mult * rel - (1 - lambda_mult) * sim
-                if mmr > best_mmr:
-                    best_mmr = mmr
-                    best = i
-        selected_idx.append(best)
-        remaining.remove(best)
-    return [chunks[i] for i in selected_idx]
 
 
 class HybridRetriever:
@@ -271,85 +230,6 @@ class HybridRetriever:
             query=query, chunks=chunks,
             retrieval_mode=mode if mode in ("dense", "sparse", "hybrid") else "hybrid",
             num_chunks=len(chunks), avg_score=avg,
-        )
-
-    def retrieve_with_mmr(self, query: str, top_k: int = 15, rerank_top_k: int = 10,
-                          mode: str = "hybrid", domain_filter: dict | None = None,
-                          mmr_lambda: float = 0.6) -> RetrievalOutput:
-        """Retrieve rồi áp MMR diversity filter để giảm chunk lặp nội dung."""
-        raw = self.retrieve(query, top_k=top_k, mode=mode, domain_filter=domain_filter)
-        if not raw.chunks:
-            return raw
-        diverse = mmr_select(raw.chunks, self.embedder, top_k=rerank_top_k, lambda_mult=mmr_lambda)
-        avg = sum(c.score for c in diverse) / len(diverse) if diverse else 0.0
-        return RetrievalOutput(
-            query=raw.query, chunks=diverse,
-            retrieval_mode=raw.retrieval_mode,
-            num_chunks=len(diverse), avg_score=avg,
-        )
-
-    def expand_context(self, retrieval: RetrievalOutput) -> RetrievalOutput:
-        """Fetch prev/next chunk liền kề sau rerank để mở rộng ngữ cảnh."""
-        if not retrieval.chunks:
-            return retrieval
-
-        existing_ids = {c.chunk_id for c in retrieval.chunks}
-        id_to_score = {c.chunk_id: c.score for c in retrieval.chunks}
-        neighbor_parent: dict[str, str] = {}
-        neighbor_ids: list[str] = []
-
-        for chunk in retrieval.chunks:
-            for nk in ("prev_chunk_id", "next_chunk_id"):
-                nid = chunk.metadata.get(nk, "")
-                if not nid or nid in existing_ids or nid in neighbor_parent:
-                    continue
-                neighbor_parent[nid] = chunk.chunk_id
-                neighbor_ids.append(nid)
-
-        if not neighbor_ids:
-            return retrieval
-
-        try:
-            got = self.store.get_by_ids(neighbor_ids)
-        except Exception as e:
-            logger.debug(f"[expand_context] Không lấy được neighbor chunks: {e}")
-            return retrieval
-
-        ids = got.get("ids") or []
-        docs = got.get("documents") or []
-        metas = got.get("metadatas") or []
-        by_id: dict[str, tuple[str, dict]] = {}
-        for cid, text, meta in zip(ids, docs, metas):
-            by_id[cid] = (text or "", meta or {})
-
-        extras: list[RetrievedChunk] = []
-        for nid in neighbor_ids:
-            found = by_id.get(nid)
-            if found is None:
-                continue
-            text, meta = found
-            parent_score = id_to_score.get(neighbor_parent.get(nid, ""), 0.0)
-            extras.append(RetrievedChunk(
-                chunk_id=nid,
-                source=meta.get("source", ""),
-                text=text,
-                score=parent_score * 0.5,
-                metadata=meta,
-            ))
-
-        if not extras:
-            return retrieval
-
-        combined = retrieval.chunks + extras
-        combined.sort(key=lambda c: c.score, reverse=True)
-        avg = sum(c.score for c in combined) / len(combined) if combined else 0.0
-        logger.debug(f"[expand_context] +{len(extras)} neighbor chunks -> tong {len(combined)}")
-        return RetrievalOutput(
-            query=retrieval.query,
-            chunks=combined,
-            retrieval_mode=retrieval.retrieval_mode,
-            num_chunks=len(combined),
-            avg_score=avg,
         )
 
     # Tang khuyen cao CHINH THUC. Hep hon SAFETY_SOURCE_TYPES vi bo pubmed_review

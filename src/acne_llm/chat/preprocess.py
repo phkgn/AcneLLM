@@ -16,16 +16,6 @@ _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _WORD_JOINER_RE = re.compile(r"(?<=\w)_(?=\w)")
 _REPEATED_PUNCT_RE = re.compile(r"([!?.,])\1{2,}")
 
-# Chỉ dùng cho retrieval query: BM25 khớp token literal nên "ko"/"vs" không match
-# corpus viết chuẩn. LLM không cần bảng này — intaker được train trên teencode thô.
-_TEENCODE_MAP: dict[str, str] = {
-    "dc": "được", "kop": "không", "ko": "không", "vs": "với",
-    "sp": "sản phẩm", "xit": "xịt", "bt": "bình thường", "bh": "bây giờ",
-}
-_TEENCODE_RE = re.compile(
-    r"(?<!\w)(" + "|".join(re.escape(k) for k in sorted(_TEENCODE_MAP, key=len, reverse=True)) + r")(?!\w)",
-    flags=re.IGNORECASE,
-)
 _WHITESPACE_RE = re.compile(r"\s+")
 
 @dataclass(frozen=True)
@@ -54,13 +44,10 @@ def strip_accents(text: str) -> str:
 
 
 
-def expand_teencode_for_retrieval(text: str) -> str:
-    """Expand teencode for BM25 only — never for text the model reads.
-
-    ponytail: "k" bị bỏ khỏi bảng (trùng vitamin K, "50 k", ký hiệu). Thêm lại
-    khi đo được recall thực sự sụt vì nó.
-    """
-    return _TEENCODE_RE.sub(lambda m: _TEENCODE_MAP[m.group(1).lower()], text or "")
+# ponytail: expand_teencode_for_retrieval + bang teencode da bi xoa. Caller cuoi
+# cung la build_retrieval_query_from_user, cung bi xoa cung dot. Duong retrieval
+# hien tai (build_current_turn_query) dung nguyen van luot hien tai, va intaker
+# duoc train tren teencode tho nen mo rong o runtime tao train/serve skew.
 
 
 def prepare_user_text(text: str) -> PreparedText:

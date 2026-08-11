@@ -19,5 +19,7 @@ def test_structured_prompt_templates_are_removed():
 
 
 def test_legacy_json_pipeline_modules_are_removed():
-    assert importlib.util.find_spec("acne_llm.pipeline.hybrid") is None
-    assert importlib.util.find_spec("acne_llm.pipeline.llm_only") is None
+    # Phase 1 xoa luon ca package `acne_llm.pipeline` (chi con moi base.py chua
+    # mot Protocol khong ai import), nen find_spec nem ModuleNotFoundError thay
+    # vi tra None. Rang buoc manh hon rang buoc cu.
+    assert importlib.util.find_spec("acne_llm.pipeline") is None

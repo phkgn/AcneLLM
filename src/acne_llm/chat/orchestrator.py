@@ -144,7 +144,7 @@ def prepare_chat_turn(
         user=intake.user,
         retrieval=retrieval,
         template=template,
-        max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
+        max_context_chars=getattr(c.settings, "chat_max_context_chars", 6000),
         history=intake.history,
         prompt_note=hint,
         confirmed_profile=intake.confirmed_profile,

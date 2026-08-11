@@ -1,19 +1,11 @@
 """Cross-encoder reranker (bge-reranker-v2-m3) voi score threshold va normalization."""
 from __future__ import annotations
-import math
 from collections import OrderedDict
 
 from loguru import logger
 from ..schemas import RetrievedChunk, RetrievalOutput
 
 _RERANK_MIN_SIGMOID: float = 0.30
-
-
-def _sigmoid(x: float) -> float:
-    if x >= 0:
-        return 1.0 / (1.0 + math.exp(-x))
-    e = math.exp(x)
-    return e / (1.0 + e)
 
 
 class Reranker:

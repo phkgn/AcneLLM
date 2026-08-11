@@ -342,7 +342,6 @@ def test_real_followup_uses_the_five_message_window():
             role="assistant",
             content="x" * 500,
             mode="clarify",
-            turn_type="clarify",
         ),
     ]
 
@@ -401,8 +400,6 @@ class _SessionStore:
     def get_user_context(self, session_id):
         return {}
 
-    def get_asked_fields(self, session_id):
-        return set()
 
 
 def _container(adapter: UnifiedIntake):
@@ -418,7 +415,6 @@ def _container(adapter: UnifiedIntake):
         semantic_router=None,
         guardrails=SimpleNamespace(
             pre_check=lambda user: None,
-            scope_check=lambda user: None,
         ),
         session_store=_SessionStore(),
     )

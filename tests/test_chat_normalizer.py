@@ -1,5 +1,5 @@
 from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
-from acne_llm.chat.preprocess import expand_teencode_for_retrieval, prepare_user_text, preprocess_user_text
+from acne_llm.chat.preprocess import prepare_user_text, preprocess_user_text
 
 
 def test_preprocess_user_text_light_cleanup():
@@ -14,15 +14,13 @@ def test_preprocess_user_text_light_cleanup():
 
 
 def test_prepare_user_text_leaves_teencode_for_the_model():
-    """Model đọc nguyên văn; teencode chỉ được mở rộng ở retrieval query."""
+    """Model doc nguyen van. Bang mo rong teencode da bi xoa o Phase 1 -- caller
+    cuoi cung (build_retrieval_query_from_user) khong con."""
     raw = "BHA 2% ko dc dùng vs sp này sáng tối"
     prepared = prepare_user_text(raw)
 
     assert prepared.clean_text == raw
     assert prepared.teencode_replaced == []
-    assert expand_teencode_for_retrieval(raw) == (
-        "BHA 2% không được dùng với sản phẩm này sáng tối"
-    )
 
 
 def test_normalizer_preserves_raw_description_but_extracts_from_clean_text():

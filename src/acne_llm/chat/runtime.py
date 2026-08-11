@@ -20,7 +20,7 @@ from ._retrieval import compute_evidence_quality, source_data
 from .orchestrator import prepare_chat_turn
 from ._safety import get_safety_suffix
 from ..db.audit import AuditEntry
-from ..guardrails.ood_detector import mask_pii
+from ..guardrails.pii import mask_pii
 from ..utils.logging import log_pipeline_stage
 
 if TYPE_CHECKING:
@@ -83,8 +83,7 @@ def stream_chat_sse(
         _primary_intent = (
             intake.route_decision.primary_intent if intake.route_decision else "advise"
         )
-        # Dung container session store (JSONL in production; in-memory fallback for tests).
-        sess = getattr(c, "session_store", None) or get_session_store()
+        sess = c.session_store
 
         # M5: Progress/follow-up intent — annotate route_metadata so prompt builder
         # and session store know this is a treatment check-in turn.
@@ -118,7 +117,7 @@ def stream_chat_sse(
         # -- 5. LLM stream ----------------------------------------------------
         # Keep factual generation at the configured low temperature. Raising
         # knowledge temperature increased invented sources and unsupported claims.
-        _default_temp = getattr(c.settings, "llm_temperature", 0.3)
+        _default_temp = getattr(c.settings, "llm_temperature", 0.35)
         effective_temperature = (
             temperature
             if temperature is not None
@@ -216,8 +215,10 @@ def stream_chat_sse(
                 yield _event("source", source_data(chunk))
 
         # -- 6. Safety suffix -------------------------------------------------
-        # Streaming text is not an AdviseOutput, so avoid constructing a dummy
-        # object for post_check. Keep only text-aware suffix rules here.
+        # Tang hau kiem tren text la tang hau kiem DUY NHAT. Ban cu dua tren
+        # AdviseOutput (guardrails.post_check) da bi xoa o Phase 3 vi prose
+        # streaming khong co object nao de dua vao; luat dang giu duy nhat tu do
+        # -- lieu luong cu the -- da duoc port vao get_safety_suffix.
         route_flags = intake.route_decision.route_flags if intake.route_decision else []
         is_knowledge_intent = (
             intake.route_decision is not None

@@ -8,8 +8,6 @@ from typing import Any
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 from ..schemas.extraction import FieldResult, ListFieldResult
-from .fallback import rule_extractor as legacy_confidence
-from .fallback import rule_normalizer as legacy_rules
 from ..schemas.extraction import ExtractionConfidence
 from .preprocess import strip_accents
 
@@ -279,74 +277,17 @@ def _lfr(
     return ListFieldResult(items=tuple(by_value.values()))
 
 
-def _raw_safety_overrides(clean_text: str) -> tuple[bool, bool]:
-    """Detect explicit first-person pregnancy/breastfeeding statements.
-
-    The patterns are intentionally narrower than generic topic mentions such as
-    "nguy hiểm khi mang thai".  This safety net exists so a small model cannot
-    turn an explicit current-state safety fact from true to false.
-    """
-    text = strip_accents(clean_text.lower())
-    pregnant_negative = re.search(
-        r"\b(?:khong|ko|k|chua)\s+(?:dang\s+)?(?:mang thai|co thai|bau)\b", text
-    )
-    breastfeeding_negative = re.search(
-        r"\b(?:khong|ko|k|chua)\s+(?:dang\s+)?cho con bu\b", text
-    )
-    pregnant_positive = re.search(
-        r"\b(?:toi|minh|em|chau|con)\s+(?:dang\s+)?(?:mang thai|co thai|bau)\b"
-        r"|\bdang\s+(?:mang thai|co thai|bau)\b|\bmoi\s+co thai\b",
-        text,
-    )
-    breastfeeding_positive = re.search(
-        r"\b(?:toi|minh|em|chau|con)\s+(?:dang\s+)?cho con bu\b"
-        r"|\bdang\s+cho con bu\b",
-        text,
-    )
-    return (
-        bool(pregnant_positive and not pregnant_negative),
-        bool(breastfeeding_positive and not breastfeeding_negative),
-    )
-
-
-def _raw_safety_lists(clean_text: str) -> tuple[list[str], list[str]]:
-    """Run only the existing medication/allergy regexes as a safety net."""
-    clean_text_no_accent = strip_accents(clean_text)
-    texts = legacy_rules._texts_for_extraction(clean_text, clean_text_no_accent)
-    medications = legacy_rules._dedupe_accent_insensitive(
-        legacy_rules._merge_extracted(texts, legacy_rules._extract_medications)
-    )
-    allergy_patterns = legacy_rules._merge_extracted(texts, legacy_rules._extract_allergies)
-    if legacy_confidence._has_allergy_context(clean_text, clean_text_no_accent):
-        allergies = legacy_confidence._list_vocab_aliases(
-            allergy_patterns,
-            clean_text_no_accent,
-            legacy_confidence._ALLERGY_ALIAS_TO_LABEL,
-            accept=0.86,
-            review=0.82,
-        ).values
-    else:
-        allergies = allergy_patterns
-    return medications, allergies
-
-
-def _merge_safety_lfr(
-    model_values: ListFieldResult[str], raw_values: list[str]
-) -> ListFieldResult[str]:
-    """OR model values with deterministic raw-text safety matches."""
-    by_value = {str(item.value).lower(): item for item in model_values.items if item.value}
-    for value in raw_values:
-        key = str(value).lower()
-        rule_value = FieldResult.make(
-            value,
-            "pattern",
-            confidence=0.95,
-            evidence="raw_text_safety_override",
-        )
-        current = by_value.get(key)
-        if current is None or current.confidence < rule_value.confidence:
-            by_value[key] = rule_value
-    return ListFieldResult(items=tuple(by_value.values()))
+# ponytail: _raw_safety_overrides / _raw_safety_lists / _merge_safety_lfr da bi
+# xoa. Ba ham nay chay regex tren MOI luot unified roi OR vao ket qua model.
+#
+# Ly do bo: chung tra loi sai cau hoi. Regex tra loi "chu 'mang thai' co xuat
+# hien khong", con cong an toan can biet "nguoi dung CO DANG mang thai khong".
+# Hai menh de khac nhau. Do tren 13 cau doi khang: sai 3 -- qua khu ("truoc em
+# mang thai nhung gio sinh roi"), tu dinh chinh, va chu ngu ("chi toi dang mang
+# thai" -> danh dau nguoi dung). Phu dinh/thi/quy chu ngu la viec cua model.
+#
+# rule_normalizer + rule_extractor van con nguyen, nhung chi chay khi
+# UnifiedIntake nem ExtractorFallback (JSON khong parse duoc).
 
 
 def _to_user_input(data: Mapping[str, Any], clean_text: str, mode: str) -> UserInput:
@@ -362,9 +303,6 @@ def _to_user_input(data: Mapping[str, Any], clean_text: str, mode: str) -> UserI
     allergies = _lfr(context, "allergies", "context")
     products = _lfr(context, "current_products", "context")
     medications = _lfr(context, "medications", "context")
-    raw_medications, raw_allergies = _raw_safety_lists(clean_text)
-    medications = _merge_safety_lfr(medications, raw_medications)
-    allergies = _merge_safety_lfr(allergies, raw_allergies)
 
     lesions = _lfr(clinical, "lesion_types", "clinical", _LESION)
     inflammation = _enum_fr(
@@ -377,11 +315,13 @@ def _to_user_input(data: Mapping[str, Any], clean_text: str, mode: str) -> UserI
     hormonal = _lfr(clinical, "hormonal_factors", "clinical")
     goals = _lfr(clinical, "treatment_goals", "clinical")
 
-    raw_pregnant, raw_breastfeeding = _raw_safety_overrides(clean_text)
-    # safety net: regex raw-text overrides the model so hard-refuse does not
-    # depend on a single 1.5B extraction decision.
-    is_pregnant = raw_pregnant or bool(pregnant.value)
-    is_breastfeeding = raw_breastfeeding or bool(breastfeeding.value)
+    # Trich xuat HOAN TOAN do intaker. Truoc day co mot lop regex ghi de o day
+    # ("safety net"), da bo: no khong doc duoc ngu nghia. Do thuc te tren 13 cau
+    # doi khang -- "truoc em mang thai nhung gio sinh roi" -> True,
+    # "chi toi dang mang thai" -> danh dau NGUOI DUNG mang thai. Phu dinh, thi va
+    # chu ngu la viec cua model, khong phai cua bieu thuc chinh quy.
+    is_pregnant = bool(pregnant.value)
+    is_breastfeeding = bool(breastfeeding.value)
 
     clinical_has_signal = bool(
         lesions.values
@@ -430,19 +370,6 @@ def _to_extraction_confidence(
     breastfeeding = _bool_fr(context, "is_breastfeeding", "context")
     medications = _lfr(context, "medications", "context")
     allergies = _lfr(context, "allergies", "context")
-    raw_pregnant, raw_breastfeeding = _raw_safety_overrides(clean_text)
-    raw_medications, raw_allergies = _raw_safety_lists(clean_text)
-    medications = _merge_safety_lfr(medications, raw_medications)
-    allergies = _merge_safety_lfr(allergies, raw_allergies)
-    if raw_pregnant:
-        pregnant = FieldResult.make(
-            True, "llm", confidence=1.0, evidence="raw_text_safety_override"
-        )
-    if raw_breastfeeding:
-        breastfeeding = FieldResult.make(
-            True, "llm", confidence=1.0, evidence="raw_text_safety_override"
-        )
-
     return ExtractionConfidence(
         skin_type=_enum_fr(context, "skin_type", "context", _SKIN),
         sex=_enum_fr(context, "sex", "context", _SEX),

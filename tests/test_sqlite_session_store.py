@@ -60,18 +60,17 @@ def test_sqlite_store_ttl_expires_history_and_resets_on_append(tmp_path):
     assert [t.content for t in store.get_history("s")] == ["new"]
 
 
-def test_sqlite_store_asked_fields_and_delete(tmp_path):
+def test_sqlite_store_delete(tmp_path):
+    # mark_fields_asked / get_asked_fields da bi xoa cung co che "dung hoi lai"
+    # (Phase 2). Con lai kiem tra delete that su xoa lich su.
     db = _db(tmp_path)
     store = SQLiteSessionStore(db)
     store.get_or_create("s")
-    store.mark_fields_asked("s", ["duration_weeks", "distribution"])
-    store.mark_fields_asked("s", ["distribution"])
-
-    assert store.get_asked_fields("s") == {"duration_weeks", "distribution"}
+    store.append_turn("s", ConversationTurn(role="user", content="xin chao"))
+    assert len(store.get_history("s")) == 1
 
     store.delete("s")
     assert store.get_history("s") == []
-    assert store.get_asked_fields("s") == set()
 
 
 def test_sqlite_store_increment_followup_count(tmp_path):

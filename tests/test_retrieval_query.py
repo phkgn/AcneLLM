@@ -1,25 +1,8 @@
-from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
-from acne_llm.chat.preprocess import prepare_user_text
 from acne_llm.chat.session import ConversationTurn
-from acne_llm.utils.retrieval_query import build_current_turn_query, build_retrieval_query_from_user
+from acne_llm.utils.retrieval_query import build_current_turn_query
 
-
-def test_retrieval_query_uses_normalized_text_not_raw_slang():
-    prepared = prepare_user_text("mụn bọc ở cằm vs BHA 2% k dc dùng sáng tối")
-    user = normalize_chat_message(
-        "mụn bọc ở cằm vs BHA 2% k dc dùng sáng tối",
-        clean_text=prepared.clean_text,
-        clean_text_no_accent=prepared.clean_text_no_accent,
-    )
-
-    query = build_retrieval_query_from_user(user, clean_text_normalized=prepared.clean_text)
-
-    assert " vs " not in f" {query} "
-    assert "với" in query  # "vs" được mở rộng cho BM25
-    assert "được" in query
-    assert "salicylic_acid" in query
-    assert "twice_daily" in query
-    assert "0.02" in query
+# test_retrieval_query_uses_normalized_text_not_raw_slang da bi xoa cung voi
+# build_retrieval_query_from_user (Phase 1) -- ham do chi con test goi.
 
 
 def test_danger_query_expands_to_general_red_flags_not_a_body_location():

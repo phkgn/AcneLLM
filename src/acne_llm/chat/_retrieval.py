@@ -197,7 +197,7 @@ def retrieve_for_chat(
 
     settings = c.settings
     min_score = float(getattr(settings, "chat_min_chunk_score", 0.25))
-    top_k = getattr(settings, "chat_retrieve_top_k", 8)
+    top_k = getattr(settings, "chat_retrieve_top_k", 25)
     route_flags = route_flags or []
     safety_terms = list(dict.fromkeys(safety_terms or []))
 
@@ -217,11 +217,11 @@ def retrieve_for_chat(
         "chat-query-v6",
         query,
         top_k,
-        getattr(settings, "chat_rerank_top_k", 3),
+        getattr(settings, "chat_rerank_top_k", 5),
         min_score,
         _cache_safety_terms,
     )
-    effective_rerank_top_k = getattr(settings, "chat_rerank_top_k", 3)
+    effective_rerank_top_k = getattr(settings, "chat_rerank_top_k", 5)
 
     def _do_retrieve_and_rerank() -> RetrievalOutput | None:
         def _noise_filter(output: RetrievalOutput) -> RetrievalOutput:
@@ -308,7 +308,7 @@ def retrieve_for_chat(
             # OOD guard: nếu reranker không tìm được chunk nào liên quan
             # (avg sigmoid thấp + max score gần 0.5 = random logit),
             # trả None để LLM trả lời không dùng RAG thay vì inject chunk nhiễu.
-            _keep_floor = float(getattr(settings, "chat_rerank_floor", 0.58))
+            _keep_floor = float(getattr(settings, "chat_rerank_floor", 0.50))
             if reranked.chunks:
                 _avg = sum(c.score for c in reranked.chunks) / len(reranked.chunks)
                 _max = max(c.score for c in reranked.chunks)

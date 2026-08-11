@@ -145,10 +145,9 @@ def log_runtime_banner(container: Any) -> None:
         )
     else:
         lines.append("RAG         : unavailable (llm_only fallback)")
-    drug_checker = getattr(container.guardrails, "_drug_checker", None)
-    drug_count = len(getattr(drug_checker, "_db", ())) if drug_checker else 0
+    # DrugChecker da bi xoa (Phase 5) -- khong con bang thuoc de dem.
     lines.extend([
-        f"safety      : substrate always-on | guardrails {drug_count} drugs",
+        "safety      : substrate always-on | cong tat dinh: injection, genital, thuoc",
         "────────────────────────────────────────────────",
     ])
     logger.info("\n{}", "\n".join(lines))

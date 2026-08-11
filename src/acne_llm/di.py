@@ -18,7 +18,6 @@ from .rag.vectorstore import ChromaStore
 from .rag.sparse import BM25Index
 from .rag.retriever import HybridRetriever
 from .rag.reranker import Reranker
-from .vision.mock import MockVision
 from .db.base import DBConnection
 from .db.session_store import SQLiteSessionStore
 from .db.audit import AuditStore
@@ -35,7 +34,6 @@ class Container:
         llm: OllamaBackend,
         prompt: PromptBuilder,
         guardrails: GuardrailRunner,
-        vision: MockVision,
         session_store: SQLiteSessionStore,
         audit_store: AuditStore,
         embedder: Optional[Embedder] = None,
@@ -51,7 +49,6 @@ class Container:
         self.llm              = llm
         self.prompt           = prompt
         self.guardrails       = guardrails
-        self.vision           = vision
         self.session_store    = session_store
         self.audit_store      = audit_store
         self.embedder         = embedder
@@ -223,13 +220,9 @@ def build_container(settings) -> Container:
             )
 
     prompt = PromptBuilder(settings.prompts_dir)
-    guardrails = GuardrailRunner(
-        settings.guardrails_yaml,
-        embedder=None,
-        # Soft OOS moved to SemanticRouter; hard guardrails are unchanged.
-        enable_ood=False,
-        scope_mode=getattr(settings, "guardrails_scope_mode", "soft"),
-    )
+    # Soft OOS thuoc ve SemanticRouter/intaker. GuardrailRunner chi con giu cac
+    # cong tat dinh (injection, genital, thuoc) nen khong con tham so nao.
+    guardrails = GuardrailRunner(settings.guardrails_yaml)
     # -- RAG (chi load neu KB da build) ---------------------------------------
     chroma_dir = Path(settings.chroma_dir)
     bm25_path  = Path(settings.bm25_path)
@@ -336,7 +329,6 @@ def build_container(settings) -> Container:
         llm=llm,
         prompt=prompt,
         guardrails=guardrails,
-        vision=MockVision(),
         session_store=session_store,
         audit_store=audit_store,
         embedder=embedder,

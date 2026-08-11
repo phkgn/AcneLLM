@@ -35,8 +35,6 @@ def _build_mock_app():
         prompt = PromptBuilder(str(Path(__file__).resolve().parents[1] / "config" / "prompts"))
         guardrails = MagicMock()
         guardrails.pre_check.return_value = None
-        guardrails.scope_check.return_value = None
-        guardrails.post_check.side_effect = lambda output, user: output
         clinical_planner = None
         session_store = None
 

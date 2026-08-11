@@ -166,9 +166,8 @@ class Settings(BaseSettings):
     seed_sources: str = "./data/seed_sources.yaml"
 
     # ── Guardrails ───────────────────────────────────────────────────────────
-    # Legacy scope-mode API is retained for direct callers/tests. Live soft OOS
-    # is owned by the semantic router's nearest-neighbor distance threshold.
-    guardrails_scope_mode: str = "soft"
+    # ponytail: guardrails_scope_mode da bi xoa (Phase 4). No chi dieu khien
+    # scope_check -- ham da chet tu khi soft OOS chuyen sang SemanticRouter.
 
     # ── Retrieval ────────────────────────────────────────────────────────────
     # Giữ lại sau cross-encoder rerank
@@ -219,7 +218,11 @@ class Settings(BaseSettings):
     # ── Extraction confidence (rule-based intake) ────────────────────────────
     # Ngưỡng cho tầng confidence bọc quanh normalizer (extraction_confidence.py).
     # Heuristic khởi điểm; golden set (scripts/tune_extraction_thresholds.py) dò lại.
-    extract_min_field_conf: float = 0.60  # completeness coi field "đã có" khi ≥ ngưỡng
+    # Nguong cho cac truong NGU CANH vao confirmed_profile (tuoi, gioi, loai da,
+    # san pham, thuoc). Neo theo dai confidence trong system prompt cua intaker:
+    # 0.6 = mep duoi dai "suy luan hop ly". Thai ky/cho con bu KHONG di qua nguong
+    # nay -- xem CONTEXT_FIELD_THRESHOLD trong chat/session.py de biet ly do.
+    extract_min_field_conf: float = 0.60
     route_min_confidence: float = 0.55   # routing dưới ngưỡng → clarify thay vì đoán
     # ── Reranker tuning ──────────────────────────────────────────────────────
     reranker_batch_size: int = 16
@@ -264,6 +267,11 @@ class Settings(BaseSettings):
     # Override: CORS_ORIGINS=["https://your-domain.com","http://localhost:3000"]
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
     api_key: str = ""
+    # Khoa RIENG cho /api/v1/admin/* va /debug/trace -- hai nhom endpoint lo
+    # toan van hoi thoai nguoi dung. Tach khoi api_key vi EventSource khong gui
+    # duoc header, nen api_key toan cuc se lam hong /chat/stream.
+    # Rong = tu choi truy cap (fail closed), khong phai tat xac thuc.
+    admin_api_key: str = ""
     rate_limit_per_minute: int = 60
     metrics_enabled: bool = True
 

@@ -1,8 +1,10 @@
 """One-model adapter for unified intent routing and clinical extraction."""
 from __future__ import annotations
 
+from collections import OrderedDict
 from collections.abc import Mapping
 import json
+import threading
 from typing import Any
 
 from ..llm.ollama_backend import OllamaBackend
@@ -62,12 +64,22 @@ class _UnifiedContractError(Exception):
 class UnifiedIntake:
     """Expose one inference through both legacy intake interfaces."""
 
+    # BUG FIX: truoc day cache la MOT o duy nhat tren instance dung chung cho moi
+    # request. Luong binh thuong classify() -> run() trung o nen chi 1 lan goi
+    # model; nhung hai request song song ghi de o cua nhau giua hai buoc, nen
+    # request bi de se miss va goi intaker LAN HAI. Duoi tai, chi phi intake gap
+    # doi mot cach khong xac dinh.
+    # ponytail: LRU 8 o + lock, khong phai cache per-request. 8 du cho vai request
+    # dong thoi; neu do duoc van thrash thi nang len hoac chuyen sang truyen
+    # payload qua tham so.
+    _CACHE_SLOTS = 8
+
     def __init__(self, llm: OllamaBackend, model: str, timeout: float):
         self._llm = llm
         self._model = model
         self._timeout = float(timeout)
-        self._cache_key: tuple[str, str] | None = None
-        self._cache_value: dict[str, Any] | None = None
+        self._cache: OrderedDict[tuple[str, str], dict[str, Any]] = OrderedDict()
+        self._cache_lock = threading.Lock()
         self._closed = False
 
     @property
@@ -86,8 +98,11 @@ class UnifiedIntake:
                 short_history, ensure_ascii=False, separators=(",", ":")
             )
             cache_key = (text, history_key)
-            if self._cache_key == cache_key and self._cache_value is not None:
-                return self._cache_value
+            with self._cache_lock:
+                hit = self._cache.get(cache_key)
+                if hit is not None:
+                    self._cache.move_to_end(cache_key)
+                    return hit
 
             # JSON mode chung thay vì grammar (llama.cpp không parse nổi nested
             # anyOf-null -> 400). Hậu kiểm duy nhất: parse được JSON object.
@@ -102,8 +117,11 @@ class UnifiedIntake:
             data = json.loads(_extract_json(raw))
             _validate_contract(data)
             parsed = dict(data)
-            self._cache_key = cache_key
-            self._cache_value = parsed
+            with self._cache_lock:
+                self._cache[cache_key] = parsed
+                self._cache.move_to_end(cache_key)
+                while len(self._cache) > self._CACHE_SLOTS:
+                    self._cache.popitem(last=False)
             return parsed
         except _UnifiedContractError:
             raise

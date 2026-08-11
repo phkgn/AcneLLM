@@ -136,31 +136,6 @@ def cached_retrieve(
     return result
 
 
-def invalidate_retrieve_cache() -> int:
-    """Xoa toan bo retrieve cache (goi sau khi rebuild KB).
-    Tra ve so entry da xoa.
-
-    Dung diskcache tag-based eviction — nhanh hon shadow index (khong R/W set).
-    """
-    cache = get_cache()
-    if cache is None:
-        return 0
-    try:
-        deleted = cache.evict(RETRIEVE_TAG)
-        logger.info(f"[Cache] Invalidated {deleted} retrieve entries (tag={RETRIEVE_TAG})")
-        return deleted
-    except Exception as e:
-        logger.warning(f"[Cache] invalidate error: {e}")
-        return 0
-
-
-def clear_all_caches() -> None:
-    """Xoa toan bo cache (embed + retrieve). Dung khi doi model."""
-    cache = get_cache()
-    if cache is None:
-        return
-    try:
-        cache.clear()
-        logger.info("[Cache] All caches cleared")
-    except Exception as e:
-        logger.warning(f"[Cache] clear error: {e}")
+# ponytail: invalidate_retrieve_cache / clear_all_caches da bi xoa -- khong caller
+# nao goi, ke ca scripts/build_kb.py. Dung `rm -rf data/cache` khi can xoa tay.
+# Them lai khi co quy trinh rebuild KB thuc su goi den.

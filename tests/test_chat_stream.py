@@ -1,10 +1,25 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from acne_llm.api.routes import chat
+from acne_llm.config import settings as _settings
+
+# /debug/trace nam sau cong admin (fail closed). Test nao goi no phai dung
+# fixture nay de cap khoa.
+_ADMIN_KEY = "test-admin-key"
+_ADMIN_HEADERS = {"x-admin-key": _ADMIN_KEY}
+
+
+@pytest.fixture
+def admin_key():
+    old = _settings.admin_api_key
+    _settings.admin_api_key = _ADMIN_KEY
+    yield _ADMIN_HEADERS
+    _settings.admin_api_key = old
 from acne_llm.chat.fallback.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn, get_session_store
 from acne_llm.db.session_store import SQLiteSessionStore
@@ -101,24 +116,15 @@ class _MockContainer:
     reranker = None
     guardrails = SimpleNamespace(
         pre_check=lambda user: None,
-        post_check=lambda output, user: output,
-        scope_check=lambda user, has_acne_history=False: (
-            AdviseOutput(
-                severity="unknown",
-                acne_type_primary="unknown",
-                causes=["out of scope"],
-                confidence=0.0,
-                disclaimer="Câu hỏi ngoài phạm vi tư vấn da mụn.",
-            )
-            if "giải phương trình" in user.description.lower()
-            else None
-        ),
     )
     clinical_planner = None
 
     def __init__(self):
         self.llm = _MockLLM()
         self.prompt = _MockPrompt()
+        # Runtime doc thang c.session_store (khong con fallback ngam), nen test
+        # double phai tu cap store. SessionStore in-memory la test double chinh thuc.
+        self.session_store = get_session_store()
         self.settings = SimpleNamespace(
             llm_temperature=0.3,
             chat_max_context_chars=4500,
@@ -581,11 +587,15 @@ def test_batch_prepare_and_stream_share_current_turn_retrieval_query():
     assert stream_query == batch_query
     assert stream_query.startswith(message)
     assert "salicylic acid" in stream_query
-def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planner():
+def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planner(admin_key):
     container = _MockContainer()
     client = TestClient(_app(container))
 
-    response = client.get("/api/v1/debug/trace", params={"message": "Retinol là gì?"})
+    response = client.get(
+        "/api/v1/debug/trace",
+        params={"message": "Retinol là gì?"},
+        headers=admin_key,
+    )
 
     assert response.status_code == 200
     trace = response.json()
@@ -594,7 +604,7 @@ def test_debug_trace_exposes_selected_context_query_and_non_authoritative_planne
     assert trace["stage_7_retrieve"]["confirmed_profile"] == {}
 
 
-def test_debug_trace_knowledge_followup_matches_user_only_context(tmp_path):
+def test_debug_trace_knowledge_followup_matches_user_only_context(tmp_path, admin_key):
     session_id = "test-debug-knowledge-followup"
     container = _MockContainer()
     container.session_store = SQLiteSessionStore(str(tmp_path / "sessions.db"))
@@ -611,6 +621,7 @@ def test_debug_trace_knowledge_followup_matches_user_only_context(tmp_path):
     response = client.get(
         "/api/v1/debug/trace",
         params={"message": "Còn loại này có nguy hiểm không?", "session_id": session_id},
+        headers=admin_key,
     )
 
     assert response.status_code == 200

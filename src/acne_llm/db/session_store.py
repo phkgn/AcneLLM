@@ -281,38 +281,9 @@ class SQLiteSessionStore:
                 return {}
             return json.loads(row["user_context"] or "{}")
 
-    def get_asked_fields(self, session_id: str | None) -> set:
-        if not self._is_valid_sid(session_id):
-            return set()
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            row = self._row(sid)
-            if row is None:
-                return set()
-            if self._is_expired(row["last_active"]):
-                self._delete(sid)
-                return set()
-            return set(json.loads(row["asked_fields"] or "[]"))
-
-    def mark_fields_asked(self, session_id: str | None, fields: list[str]) -> None:
-        if not self._is_valid_sid(session_id) or not fields:
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            row = self._row(sid)
-            if row is None or self._is_expired(row["last_active"]):
-                if row is not None:
-                    self._delete(sid)
-                return
-            existing = set(json.loads(row["asked_fields"] or "[]"))
-            new = existing.union(fields)
-            if new != existing:
-                c = self._conn()
-                c.execute(
-                    "UPDATE sessions SET asked_fields=? WHERE session_id=?",
-                    (json.dumps(sorted(new), ensure_ascii=False), sid),
-                )
-                c.commit()
+    # ponytail: get_asked_fields / mark_fields_asked da bi xoa (co che bi go o
+    # runtime.py). Cot `asked_fields` giu lai trong schema -- DEFAULT '[]',
+    # khong ton gi, va tranh mot lan migration.
 
     def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
         if not self._is_valid_sid(session_id):

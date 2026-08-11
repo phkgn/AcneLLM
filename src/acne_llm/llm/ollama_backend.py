@@ -186,25 +186,6 @@ class OllamaBackend:
         except Exception:
             return []
 
-    def show_params(self) -> dict:
-        """Đọc params Ollama THỰC SỰ áp dụng (qua /api/show).
-
-        Dùng để verify Modelfile có override Python config không. Gọi lúc boot
-        và log ra — nếu thấy num_ctx/temperature ở đây không khớp config.py,
-        nghĩa là Modelfile đang nướng param → cần `ollama create` lại.
-        """
-        try:
-            r = self._health_client.post("/api/show", json={"name": self.model})
-            r.raise_for_status()
-            data = r.json()
-            return {
-                "parameters": data.get("parameters", ""),
-                "template_preview": (data.get("template") or "")[:200],
-            }
-        except Exception as e:
-            logger.warning(f"Ollama /api/show failed: {e}")
-            return {}
-
     def _build_messages(self, system: str, user: str) -> list[dict]:
         """Build messages list.
 

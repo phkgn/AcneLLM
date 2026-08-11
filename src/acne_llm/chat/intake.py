@@ -23,6 +23,7 @@ from ..schemas.extraction import ExtractionConfidence
 from .fallback.rule_extractor import extract_with_confidence
 from .preprocess import prepare_user_text, strip_accents
 from .session import (
+    CONTEXT_FIELD_THRESHOLD,
     ConversationTurn,
     NormalizedSnapshot,
     build_confirmed_profile,
@@ -31,7 +32,7 @@ from .session import (
     select_relevant_history,
     snapshot_from_user,
 )
-from ..guardrails.ood_detector import contains_pii
+from ..guardrails.pii import contains_pii
 from ..utils.logging import log_pipeline_stage
 from ..utils.retrieval_query import build_current_turn_query, extracted_entities_from_user
 
@@ -107,10 +108,14 @@ def _has_allowed_acne_region(message: str) -> bool:
 def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
     lowered = message.lower()
     terms = [term for term in _SAFETY_SIGNAL_TERMS if term in lowered]
-    # Cổng thuốc cứng (medication_safety_refusal) tra khoá canonical tiếng Anh.
-    # Trước đây khoá này chỉ tới từ user.context.is_pregnant do extractor rule
-    # điền — nên gate im lặng phụ thuộc extractor. Map thẳng từ text để nó tự
-    # đứng được, không cần bất kỳ tầng trích xuất nào chạy trước.
+    # Danh sách này trả lời câu "văn bản CÓ NHẮC TỚI chủ đề gì" — và chỉ nên được
+    # dùng cho retrieval, nơi "có nhắc tới" đúng là tín hiệu cần: câu hỏi kiến
+    # thức về isotretinoin và thai kỳ thì nên kéo về đoạn guideline thai kỳ.
+    #
+    # KHÔNG dùng nó để suy TRẠNG THÁI. Nó khớp chuỗi con, không kiểm phủ định:
+    # "em không mang thai" cũng sinh ra "pregnancy". Cổng thuốc từng đọc nó như
+    # bằng chứng đang mang thai và chặn nhầm 4/5 câu — nay đã đọc thẳng
+    # user.context.is_pregnant do intaker điền. Xem guardrails/runner.py.
     if any(term in lowered for term in ("mang thai", "pregnant", "pregnancy", "co thai", "có thai")):
         terms.append("pregnancy")
     if any(term in lowered for term in ("cho con bu", "cho con bú", "breastfeeding", "lactation")):
@@ -149,22 +154,6 @@ def _profile_safety_terms(profile: dict) -> list[str]:
 
 
 
-def _has_clinical_data(clinical: AcneClinicalInput) -> bool:
-    return any(
-        (
-            clinical.lesion_types,
-            clinical.lesion_distribution,
-            clinical.inflammation_level,
-            clinical.scarring_signs,
-            clinical.medication_history,
-            clinical.hormonal_factors,
-            clinical.skincare_products,
-            clinical.treatment_goals,
-            clinical.red_flags_input,
-        )
-    )
-
-
 def _snapshot_has_values(snapshot: NormalizedSnapshot | None) -> bool:
     if snapshot is None:
         return False
@@ -188,18 +177,6 @@ def _snapshot_has_values(snapshot: NormalizedSnapshot | None) -> bool:
         for value in clinical.values()
     )
     return bool(meaningful_context or meaningful_clinical)
-
-
-def _is_intake_reply(message: str, history: list[ConversationTurn]) -> bool:
-    if not history:
-        return False
-    last_assistant = next(
-        (t for t in reversed(history) if t.role == "assistant"),
-        None,
-    )
-    if last_assistant is None:
-        return False
-    return last_assistant.mode == "clarify"
 
 
 def _has_established_case(history: list[ConversationTurn]) -> bool:
@@ -262,14 +239,14 @@ def run_intake(
     prepared = prepare_user_text(raw_message)
     clean_text = prepared.clean_text
     clean_text_no_accent = prepared.clean_text_no_accent
-    store = getattr(c, "session_store", None) or get_session_store()
+    store = c.session_store
     history = store.get_history(session_id)
     mode = _resolve_mode(mode_request, c, clean_text=clean_text, history=history)
     intake_settings = getattr(c, "settings", None)
     # Extractor rule giờ CHỈ là fallback. Trước đây nó chạy ở đây mọi turn và
     # guardrails phán trên số của nó — nên "ngưng tretinoin rồi" vẫn ra
     # medications=['tretinoin'] và bắn safety trước khi intaker kịp nói.
-    # Pre-LLM chỉ cần description cho pre_check/scope_check.
+    # Pre-LLM chỉ cần description cho pre_check.
     def _rule_user() -> UserInput:
         return normalize_chat_message(
             raw_message,
@@ -792,6 +769,16 @@ def run_intake(
         inflammation=(_cl.inflammation_level if _cl else None),
     )
 
+    # BUG FIX: compute_route_flags o tren chay TRUOC extract nen khong co `user`,
+    # khien nhanh `has_red_flags` trong intent_router luon False -- moi red flag
+    # ma intaker trich duoc deu khong bat duoc canh bao khan o _safety.
+    # Co nay phu thuoc clinical nen phai gan LAI sau khi da co base_user.clinical.
+    if _cl and _cl.red_flags_input and "urgency_red_flag" not in route_decision.route_flags:
+        route_decision = replace(
+            route_decision,
+            route_flags=[*route_decision.route_flags, "urgency_red_flag"],
+        )
+
     # Preserve the full-field hard gates after extraction and before any fold,
     # retrieval, prompt build, or generation.
     c.guardrails.pre_check(base_user)
@@ -852,13 +839,20 @@ def run_intake(
         if session_id and hasattr(store, "get_or_create"):
             store.get_or_create(session_id)
         existing_profile = store.get_user_context(session_id)
+        # Nut vat that su, khong con bi max(0.82, ...) khoa cung. Ban cu khien
+        # extract_min_field_conf chi tang duoc, khong giam duoc -- gia tri mac dinh
+        # 0.60 chua bao gio co tac dung. Thai ky/cho bu khong di qua nguong nay,
+        # xem CONTEXT_FIELD_THRESHOLD trong session.py.
         confirmed_profile = build_confirmed_profile(
             existing_profile,
             _extraction_conf,
             clean_text,
-            threshold=max(
-                0.82,
-                float(getattr(getattr(c, "settings", None), "extract_min_field_conf", 0.60)),
+            threshold=float(
+                getattr(
+                    getattr(c, "settings", None),
+                    "extract_min_field_conf",
+                    CONTEXT_FIELD_THRESHOLD,
+                )
             ),
         )
         if session_id and confirmed_profile != existing_profile:

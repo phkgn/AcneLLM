@@ -66,11 +66,10 @@ class ConversationTurn:
     used_chunks: list[str] = field(default_factory=list)
     normalized_snapshot: NormalizedSnapshot | None = None
     metadata: dict = field(default_factory=dict)
-    # ── Intent routing fields ────────────────────────────────────────────────
-    # Typed fields cho intent data — dễ query hơn metadata dict chung chung.
-    intent_label: str = ""          # "advise" | "knowledge" | "clarify" | "reject" | ""
-    intent_confidence: float = 0.0
-    turn_type: str = ""             # "answer" | "clarify" | "reject" | "safety_clarify" | ...
+    # ponytail: intent_label / intent_confidence / turn_type da bi xoa. Chung chi
+    # duoc GHI (boi SessionStore in-memory) va khong dong nao doc ra -- ban SQLite
+    # con khong khoi phuc chung khi doc, nen hai store lech nhau ma khong ai biet.
+    # Du lieu intent van con nguyen trong `metadata`.
 
 
 @dataclass
@@ -86,7 +85,6 @@ class Session:
     # e.g. {"lesion_types", "distribution", "duration_weeks"}
     asked_fields: set = field(default_factory=set)
     # ── Session-level intent tracking (task #6) ──────────────────────────────
-    last_intent: str = ""           # intent label của turn user gần nhất
     total_clarify_count: int = 0    # số lần bot hỏi clarify trong session này
     accumulated_clinical_score: float = 0.0  # tổng score completeness tích lũy
     schema_version: int = SESSION_SCHEMA_VERSION
@@ -174,7 +172,6 @@ class SessionStore:
         """Append a turn to the session's history.
 
         No-op when session_id is falsy.
-        Cũng tự động populate typed intent fields từ metadata nếu chưa set.
         """
         if not self._is_valid_sid(session_id):
             return
@@ -185,18 +182,6 @@ class SessionStore:
                 self._sessions[sid] = Session(session_id=sid)
             sess = self._sessions[sid]
 
-            # Populate typed intent fields từ metadata (backward-compat với code cũ)
-            if turn.role == "user" and turn.metadata:
-                if not turn.intent_label:
-                    turn.intent_label = str(turn.metadata.get("primary_intent", ""))
-                if not turn.intent_confidence:
-                    turn.intent_confidence = float(turn.metadata.get("intent_confidence", 0.0))
-                if not turn.turn_type:
-                    turn.turn_type = str(turn.metadata.get("turn_type", ""))
-
-            # Cập nhật session-level counters
-            if turn.role == "user" and turn.intent_label:
-                sess.last_intent = turn.intent_label
             if turn.role == "assistant" and turn.mode == "clarify":
                 sess.total_clarify_count += 1
 
@@ -232,24 +217,9 @@ class SessionStore:
             sess = self._sessions.get(sid)
             return dict(sess.user_context) if sess else {}
 
-    def get_asked_fields(self, session_id: str | None) -> set:
-        """Return the set of follow-up fields already asked for this session."""
-        if not self._is_valid_sid(session_id):
-            return set()
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            sess = self._sessions.get(sid)
-            return set(sess.asked_fields) if sess else set()
-
-    def mark_fields_asked(self, session_id: str | None, fields: list[str]) -> None:
-        """Record that these follow-up fields have been asked, to avoid repetition."""
-        if not self._is_valid_sid(session_id) or not fields:
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            sess = self._sessions.get(sid)
-            if sess is not None:
-                sess.asked_fields.update(fields)
+    # ponytail: get_asked_fields / mark_fields_asked da bi xoa. Co che "dung hoi
+    # lai field da hoi" bi go o runtime.py -- model doc duoc luot truoc no da hoi
+    # gi. Cot `asked_fields` van con trong schema SQLite (DEFAULT '[]'), khong ton gi.
 
     def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
         """Increment accumulated follow-up/progress score for this session."""
@@ -325,13 +295,36 @@ def select_relevant_history(
     return window
 
 
+# ── Ngưỡng confidence theo nhóm trường ───────────────────────────────────────
+#
+# Neo theo dải mà system prompt của intaker tự định nghĩa:
+#     0.9–1.0 khi nêu rõ | 0.6–0.85 khi suy luận hợp lý | 0.3–0.55 khi mơ hồ
+# Đổi hướng dẫn confidence lúc train lại intaker thì đổi hằng số này theo dải mới.
+#
+# Con số được chọn theo HƯỚNG HỎNG, không theo mức quan trọng của trường:
+#
+#   Thai kỳ / cho con bú — KHÔNG gác. Cổng thuốc chỉ nổ khi giá trị là True, nên
+#   bỏ sót một ca mang thai thật là hướng hỏng nguy hiểm (khuyên retinoid cho
+#   thai phụ), còn nhận nhầm chỉ gây chặn oan. Ngưỡng cao đẩy hệ về phía nguy
+#   hiểm, nên bỏ ngưỡng. Lỗi quy chủ ngữ ("chị tôi mang thai") không phải việc
+#   của ngưỡng — model tốt trả null ở đó, ngưỡng không cứu được.
+#
+#   Còn lại — 0.6, mép dưới dải "suy luận hợp lý". Đây là ngữ cảnh; nhớ nhiều
+#   hơn thì câu trả lời sát hơn, đoán sai thì hơi lệch chứ không hại ai.
+#
+# Ngưỡng cũ 0.82 nằm giữa dải "suy luận": dữ kiện model đoán ở 0.84 thì lọt, 0.80
+# thì rớt — một ranh giới không mang ý nghĩa gì, tàn dư của thang điểm rule cũ.
+CONTEXT_FIELD_THRESHOLD: float = 0.60
+_UNGATED_FIELDS = frozenset({"is_pregnant", "is_breastfeeding"})
+
+
 def build_confirmed_profile(
     existing: dict,
     extraction_confidence: object | None,
     clean_text: str,
-    threshold: float = 0.82,
+    threshold: float = CONTEXT_FIELD_THRESHOLD,
 ) -> dict:
-    """Apply only high-confidence, explicit and stable facts to a profile.
+    """Apply explicit, stable facts to the confirmed profile.
 
     Clinical descriptors intentionally never enter this structure. Latest
     explicit scalar wins; explicit stop phrases remove products/medications.
@@ -343,7 +336,8 @@ def build_confirmed_profile(
     for field_name in ("age", "sex", "is_pregnant", "is_breastfeeding"):
         result = getattr(extraction_confidence, field_name, None)
         if result is not None and getattr(result, "value", None) is not None:
-            if float(getattr(result, "confidence", 0.0)) >= threshold:
+            field_threshold = 0.0 if field_name in _UNGATED_FIELDS else threshold
+            if float(getattr(result, "confidence", 0.0)) >= field_threshold:
                 profile[field_name] = result.value
 
     for result_name, profile_name in (
