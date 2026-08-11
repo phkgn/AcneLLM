@@ -1,0 +1,35 @@
+# ============================================================
+# requirements-dev.txt — công cụ NGOẠI TUYẾN của AcneLLM
+#
+# Không thứ nào ở đây tham gia phục vụ một request. Docker không cài file này.
+# Cài khi cần crawl KB, sinh dữ liệu fine-tune, chạy eval, vẽ biểu đồ, chạy test:
+#
+#     pip install -r requirements.txt -r requirements-dev.txt
+# ============================================================
+
+-r requirements.txt
+
+# ── Crawler (src/acne_llm/crawler/, scripts/crawl_*.py) ──────
+trafilatura>=1.12
+readability-lxml>=0.8
+beautifulsoup4>=4.12
+lxml>=5.2
+tenacity>=8.5
+datasketch>=1.6           # near-dedup bằng MinHash
+langdetect>=1.0.9
+ddgs>=9.14                # tìm nguồn mới
+playwright>=1.44          # fallback render JS; chạy thêm: playwright install chromium
+
+# ── Datagen + Evaluation (datagen/, evaluation/, ablation/) ──
+openai>=1.0,<3.0          # client dùng chung cho DeepSeek (judge + sinh dữ liệu)
+
+# ── Biểu đồ (scripts/visualize/visualize_chromadb.py) ────────
+# Bốn gói này TỪNG THIẾU trong requirements.txt dù script đã import chúng.
+matplotlib>=3.8
+plotly>=5.20
+scikit-learn>=1.4
+umap-learn>=0.5
+
+# ── Test ─────────────────────────────────────────────────────
+pytest>=8.2
+pytest-asyncio>=0.23      # asyncio_mode=auto, khai trong pyproject.toml

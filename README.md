@@ -1,13 +1,52 @@
 # AcneLLM
 
-Chatbot tư vấn mụn trứng cá bằng tiếng Việt. Backend dùng FastAPI, LLM chạy local qua
-Ollama, có thể bật RAG hybrid bằng ChromaDB + BM25.
+Chatbot tư vấn mụn trứng cá bằng tiếng Việt. Backend FastAPI, hai model chạy local
+qua Ollama, RAG hybrid bằng ChromaDB + BM25 + cross-encoder rerank.
+
+Một request đi qua bốn chặng:
+
+```
+/chat/stream → intake (guardrails tất định + intaker LLM đọc ý định & trích xuất)
+             → retrieval (Chroma + BM25 → RRF → rerank → 5 đoạn)
+             → generator LLM (stream từng token)
+             → _safety (nối cảnh báo) → SSE
+```
+
+Hai model: `acne-intaker` đọc hiểu đầu vào và trả JSON, `acne-generator` viết câu
+trả lời. Cả hai đều fine-tune và nạp bằng Modelfile trong `model/`.
+
+## Cấu trúc thư mục
+
+Ranh giới quan trọng nhất: **`src/` là thứ duy nhất Docker copy vào image.** Mọi
+thư mục khác là công cụ ngoại tuyến hoặc dữ liệu.
+
+```
+src/acne_llm/     code chạy production (15.8k dòng)
+  api/            FastAPI routes, middleware, DI container
+  chat/           intake, session, orchestrator, runtime SSE, safety suffix
+  rag/            Chroma, BM25, hybrid retriever, cross-encoder reranker
+  llm/            Ollama backend, prompt builder
+  guardrails/     cổng tất định: prompt injection, vùng ngoài phạm vi, thuốc
+  db/             SQLite session store + audit log
+  crawler/        NGOẠI TUYẾN — không nằm trên đường chạy request nào
+config/           prompt .j2, guardrails.yaml, drugs_acne.yaml
+frontend/         Next.js, nói chuyện với backend bằng SSE
+tests/            507 test, chạy ~10 giây
+scripts/          build_kb, crawl, convert dataset, RUN.ps1
+data/  model/     artifact sinh ra — chroma, bm25, sqlite, GGUF
+evaluation/       ngoại tuyến: chấm điểm hệ thống
+datagen/          ngoại tuyến: sinh dữ liệu fine-tune (import lẫn nhau với evaluation)
+ablation/         ngoại tuyến: so sánh các arm cấu hình
+docs/             tài liệu còn hiệu lực
+  docs/archive/     prompt & plan đã xong việc, giữ để truy vết
+  docs/reports/     báo cáo dài: context.md, report.md, audit
+```
 
 ## Chạy trọn bộ bằng Docker — khuyến nghị để bàn giao
 
-Gói Compose hiện chạy gateway Nginx, Next.js, FastAPI, Ollama, hai model
-`acne-generator` + `acne-intaker`, ChromaDB và BM25. Backend/Ollama chỉ nằm trong
-Docker network; browser dùng một địa chỉ duy nhất `http://localhost:3000`.
+Gói Compose chạy gateway Nginx, Next.js, FastAPI, Ollama, hai model, ChromaDB và
+BM25. Backend/Ollama chỉ nằm trong Docker network; browser dùng một địa chỉ duy
+nhất `http://localhost:3000`.
 
 ```powershell
 Copy-Item .env.docker.example .env.docker
@@ -27,7 +66,7 @@ Hai GGUF và nguyên Chroma vector segment không nằm đầy đủ trong một
 thông thường. Xem danh sách artifact, cách tạo bundle để gửi người khác, hướng dẫn
 GPU/CPU/LAN và troubleshooting tại [docs/DOCKER_QUICKSTART.md](docs/DOCKER_QUICKSTART.md).
 
-## Yêu Cầu
+## Yêu cầu
 
 - Git + Git LFS
 - Python 3.10+
@@ -35,9 +74,7 @@ GPU/CPU/LAN và troubleshooting tại [docs/DOCKER_QUICKSTART.md](docs/DOCKER_QU
 - Node.js 18+ nếu muốn chạy frontend
 - RAM tối thiểu 8 GB, khuyến nghị 16 GB
 
-## Clone / Pull Repo
-
-Nếu clone lần đầu:
+## Clone / pull repo
 
 ```powershell
 git clone https://github.com/phkgn/AcneLLM.git
@@ -46,127 +83,120 @@ git lfs install
 git lfs pull
 ```
 
-Nếu đã có repo local:
+Nếu đã có repo local: `git pull && git lfs pull`.
 
-```powershell
-git pull
-git lfs pull
-```
+`git lfs pull` là bắt buộc để tải `data/chroma_db/`.
 
-`git lfs pull` là bắt buộc để tải `data/chroma_db/` vì ChromaDB đang được lưu bằng
-Git LFS.
+## Cài backend
 
-## Cài Backend
-
-Windows PowerShell:
+Torch phải cài **trước và riêng**, vì chọn CPU hay CUDA là quyết định của máy bạn
+chứ không phải của file requirements.
 
 ```powershell
 py -3.10 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 
-# Chọn một bản Torch phù hợp máy bạn.
 # CPU:
 pip install "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu
+# CUDA: lấy wheel tương ứng ở trang PyTorch
 
-# Sau đó cài app:
 pip install -r requirements.txt
 pip install -e .
 ```
 
-Linux/macOS:
+Linux/macOS giống hệt, đổi `py -3.10 -m venv .venv` thành
+`python3 -m venv .venv-linux` và activate bằng `source`.
 
-```bash
-python3 -m venv .venv-linux
-source .venv-linux/bin/activate
-python -m pip install --upgrade pip
-pip install "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
-pip install -e .
-```
+**Hai file requirements:**
 
-Nếu dùng CUDA, thay dòng cài Torch CPU bằng wheel CUDA phù hợp từ trang PyTorch.
+- `requirements.txt` — chỉ thứ một request cần. Danh sách này được dò bằng AST
+  trên `src/acne_llm/` trừ `crawler/`, nên đừng thêm gói "cho chắc".
+- `requirements-dev.txt` — crawler, datagen, evaluation, biểu đồ, pytest.
+  Cài thêm khi cần: `pip install -r requirements-dev.txt`
 
-## Cấu Hình `.env`
+Docker chỉ cài file đầu.
 
-Tạo file `.env` từ mẫu:
+## Cấu hình `.env`
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item .env.baseline .env
 ```
 
-Linux/macOS:
-
-```bash
-cp .env.example .env
-```
-
-`.env` chỉ giữ secret và giá trị thay đổi theo máy/lần chạy. Các biến tối thiểu
-nên kiểm tra:
+`.env` chỉ giữ secret và giá trị đổi theo máy. Mọi hằng số tuning có default duy
+nhất tại `src/acne_llm/config.py` — đừng chép chúng vào `.env`.
 
 ```env
 OLLAMA_URL=http://localhost:11434
-LLM_MODEL=acnellm-role
+LLM_MODEL=acne-generator
 INTAKE_MODE=unified
-INTAKE_MODEL=acne-intake
+INTAKE_MODEL=acne-intaker
 DEVICE=cpu
-JUDGE_PROVIDER=openai
-JUDGE_MODEL=gpt-5.4-mini
+
+# Khoá cho /api/v1/admin/* và /debug/trace — hai nhóm endpoint lộ toàn văn
+# hội thoại người dùng. ĐỂ TRỐNG = TỪ CHỐI TRUY CẬP (fail closed).
+ADMIN_API_KEY=<sinh bằng: python -c "import secrets;print(secrets.token_urlsafe(32))">
+
+# Whitelist cụ thể. Đừng dùng "*".
+CORS_ORIGINS=["http://localhost:3000"]
+
+# Judge cho eval — không cần để chạy chatbot
+JUDGE_PROVIDER=deepseek
+JUDGE_MODEL=deepseek-v4-pro
 ```
 
-Không commit `.env`. Các path, retrieval knob và timeout dùng default duy nhất tại
-`src/acne_llm/config.py`; xem `docs/config_layout.md` và
-`docs/config_reference.md`. API key judge/datagen không cần để chạy chatbot local.
+Không commit `.env`. Chi tiết từng knob: [docs/config_reference.md](docs/config_reference.md).
 
-## Chuẩn Bị Ollama Model
+Lưu ý `API_KEY` (khoá toàn cục) cố ý để trống: `EventSource` của trình duyệt không
+gửi được header tuỳ chỉnh, nên bật nó lên sẽ làm chết `/chat/stream`. Bảo vệ
+endpoint nhạy cảm bằng `ADMIN_API_KEY` thay vì khoá toàn bộ API.
 
-Mở một terminal riêng:
+## Chuẩn bị model Ollama
 
 ```powershell
 ollama serve
 ```
 
-Terminal khác:
+Terminal khác, tạo hai model từ Modelfile:
 
 ```powershell
-ollama pull qwen2.5:7b
-ollama pull qwen2.5:3b
+cd model\generator
+ollama create acne-generator -f Modelfile.full
+
+cd ..\intaker
+ollama create acne-intaker -f Modelfile
 ```
 
-Nếu bạn có file GGUF local và muốn dùng model custom `acnellm-v2-q4`, đặt GGUF cạnh
-`model/V2/Q4/Modelfile`, rồi chạy:
+Kiểm tra: `ollama list` phải thấy cả `acne-generator` và `acne-intaker`. Thiếu một
+trong hai thì `RUN.ps1` dừng ngay với thông báo rõ ràng.
+
+File GGUF lớn không nằm trong Git repo — xem `docs/DOCKER_QUICKSTART.md`.
+
+## Chạy
+
+### Nhanh nhất, Windows
 
 ```powershell
-cd model\V2\Q4
-ollama create acnellm-v2-q4 -f Modelfile
+.\scripts\RUN.ps1
 ```
 
-Sau đó đổi trong `.env`:
+Mở 3 cửa sổ PowerShell: `ollama serve`, backend, frontend — rồi tự mở trình duyệt.
+Thêm `-Log` để backend ghi ra file và mở kèm cửa sổ tail log.
 
-```env
-LLM_MODEL=acnellm-v2-q4
+Chạy model trên RunPod thay vì máy mình:
+
+```powershell
+.\scripts\runpod.ps1          # mở SSH tunnel tới :11434
+.\scripts\RUN.ps1             # backend + frontend dùng tunnel đó
+.\scripts\runpod.ps1 -Status  # xem tunnel + model trên pod
+.\scripts\runpod.ps1 -Stop
 ```
 
-Lưu ý: file GGUF lớn không nằm trong Git repo.
-
-## Chạy Backend
+### Thủ công
 
 ```powershell
 uvicorn acne_llm.api.app:app --host 0.0.0.0 --port 8000 --reload
 ```
-
-Mở:
-
-- API docs: http://localhost:8000/docs
-- Health check: http://localhost:8000/api/v1/health
-
-Test nhanh:
-
-```powershell
-curl "http://localhost:8000/api/v1/chat/stream?message=toi%20bi%20mun%20o%20cam&mode=auto"
-```
-
-## Chạy Frontend
 
 ```powershell
 cd frontend
@@ -174,102 +204,78 @@ npm install
 npm run dev
 ```
 
-Mở http://localhost:3000.
+- UI: http://localhost:3000
+- API docs: http://localhost:8000/docs
+- Health: http://localhost:8000/api/v1/health
 
-Nếu backend không chạy ở `http://localhost:8000`, tạo `frontend/.env.local`:
+Backend không ở `http://localhost:8000` thì tạo `frontend/.env.local` với
+`NEXT_PUBLIC_API_URL=...`.
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-## Chạy Nhanh Trên Windows
-
-Sau khi đã cài Python deps, frontend deps và Ollama model:
+Thử nhanh:
 
 ```powershell
-.\scripts\RUN.ps1
+curl "http://localhost:8000/api/v1/chat/stream?message=toi%20bi%20mun%20o%20cam"
 ```
-
-Script này mở Ollama, backend và frontend ở các cửa sổ PowerShell riêng.
 
 ## RAG / Knowledge Base
 
-Repo hiện đã push `data/chroma_db/` qua Git LFS. Tuy nhiên app chỉ bật RAG khi có đủ:
+App chỉ bật RAG khi có đủ **cả hai**:
 
 - `data/chroma_db/`
 - `data/bm25_index.pkl`
 
-Nếu thiếu `data/bm25_index.pkl`, backend vẫn chạy nhưng sẽ log:
-
-```text
-KB not ready (...) -- only llm_only mode available
-```
-
-Muốn bật RAG đầy đủ, cần có raw chunks/documents để build BM25:
+Thiếu một trong hai thì backend vẫn chạy nhưng log `KB not ready (...) -- only
+llm_only mode available` và trả lời không dùng tài liệu.
 
 ```powershell
-python scripts/build_kb.py --step bm25
+python scripts/build_kb.py --step bm25   # chỉ dựng lại BM25
+python scripts/build_kb.py               # rebuild toàn bộ từ raw
 ```
 
-Hoặc rebuild toàn bộ KB từ raw data:
+`data/raw/`, `data/finetune/`, `data/cache/`, GGUF và audit DB không push mặc định.
 
-```powershell
-python scripts/build_kb.py
-```
+## API
 
-Lưu ý: `data/raw/`, `data/finetune/`, `data/cache/`, `data/sessions/`, model GGUF và
-audit DB không được push mặc định vì lớn hoặc có thể chứa dữ liệu runtime.
-
-## API Chính
-
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Ghi chú |
 |---|---|---|
-| `GET` | `/api/v1/chat/stream` | Chat streaming SSE |
-| `POST` | `/api/v1/chat/feedback` | Gửi feedback |
-| `GET` | `/api/v1/health` | Health check |
+| `GET` | `/api/v1/chat/stream` | Chat streaming SSE — endpoint chính |
+| `POST` | `/api/v1/chat/feedback` | Thumbs up/down |
+| `GET` | `/api/v1/health` | Health check (Ollama, KB, BM25) |
+| `GET` | `/api/v1/models` | Model Ollama đang có |
+| `POST` | `/api/v1/kb/retrieve` · `/kb/search` | Truy vấn KB trực tiếp |
+| `GET` | `/api/v1/kb/stats` · `/kb/chunk/{id}` | Thống kê / xem một chunk |
+| `GET` | `/api/v1/debug/trace` | 🔒 Trace từng stage pipeline, không gọi generator |
+| `GET` | `/api/v1/admin/audit` | 🔒 Audit log — **toàn văn hội thoại** |
+| `GET` | `/api/v1/admin/sessions/stats` · `/admin/feedback*` | 🔒 |
+| `GET` | `/metrics` | Prometheus |
 | `GET` | `/docs` | OpenAPI UI |
-| `GET` | `/metrics` | Prometheus metrics |
+
+🔒 = cần header `x-admin-key: <ADMIN_API_KEY>`. Không cấu hình khoá thì trả 403.
+
+Không có endpoint WebSocket. Frontend dùng SSE hoàn toàn.
 
 ## Test
-
-Các test liên quan chat pipeline:
-
-```powershell
-pytest tests/test_normalizer_regression.py tests/test_chat_normalizer.py tests/test_intent_router.py tests/test_intent_router_new.py tests/test_intake.py tests/test_chat_stream.py tests/test_stream_safety.py -q
-```
-
-Chạy toàn bộ suite:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-## Cấu Trúc Chính
+507 test, khoảng 10 giây — toàn bộ mock LLM và retriever, không cần Ollama.
 
-```text
-src/acne_llm/
-  api/          FastAPI routes/app
-  chat/         Intake, session, streaming runtime
-  rag/          Chroma, BM25, retrieval, reranker
-  llm/          Ollama backend, prompt builder, planner
-  guardrails/   Scope/OOD/drug safety
-  pipeline/     Hybrid and LLM-only pipelines
+Nhóm liên quan pipeline chat:
 
-config/prompts/ Prompt templates
-data/chroma_db/ ChromaDB vector index via Git LFS
-frontend/       Next.js UI
-scripts/        Build/eval/run utilities
+```powershell
+pytest tests/test_intake.py tests/test_chat_stream.py tests/test_chat_normalizer.py `
+       tests/test_medication_gates.py tests/test_safety_dose_rule.py `
+       tests/test_phase6_bugfixes.py tests/chat/ -q
 ```
 
-## Lưu Ý Khi Commit
+Eval thật (cần Ollama + KB + API key judge) nằm ở `evaluation/`, xem
+`evaluation/README.md`.
 
-Không commit:
+## Lưu ý khi commit
 
-- `.env`
-- `data/sessions/`
-- `data/audit.db*`
-- `data/cache/`
-- model `.gguf`
-- raw/finetune data lớn nếu chưa đưa vào LFS hoặc nơi lưu artifact riêng
+Không commit `.env`, `data/sessions.db*`, `data/audit.db*`, `data/cache/`,
+file `.gguf`, và raw/finetune data lớn chưa đưa vào LFS.
 
-Các file lớn cần push lên GitHub thì phải dùng Git LFS.
+File lớn cần push thì phải qua Git LFS.
