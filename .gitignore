@@ -83,3 +83,15 @@ src/acne_llm/_archive/
 guideline_docs/*_docs/
 # Tesseract language data 26MB - tai lai tu tessdata_best, xem pdf_to_text.py
 tessdata/
+
+# ── Thêm 2026-08 ─────────────────────────────────────────────
+# SQLite WAL/SHM: sinh ra lúc chạy, đổi liên tục, vô nghĩa khi commit
+data/*.db-shm
+data/*.db-wal
+data/sessions.db
+
+# Output của datagen: 22MB train.jsonl + audit log. Sinh lại được bằng
+#   python -m datagen.roledatav2.pipeline --yes
+#   python -m datagen.roledatav2.finalize
+# Giữ CODE của datagen, bỏ OUTPUT.
+datagen/*/output/
