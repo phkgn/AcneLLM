@@ -11,7 +11,7 @@ from acne_llm.chat.intake import (
     IntakeResult,
     run_intake,
 )
-from acne_llm.chat.fallback.llm_extractor import (
+from acne_llm.chat.routing.llm_extractor import (
     ExtractorFallback,
     LLMExtractor,
     _to_extraction_confidence,

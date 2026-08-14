@@ -8,8 +8,8 @@ generator biet extractor khong chac (known_facts da ra khoi prompt).
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
 from acne_llm.schemas.extraction import FieldResult, ListFieldResult, ExtractionConfidence
 from acne_llm.chat.confidence_hint import build_confidence_hint
-from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
-from acne_llm.chat.fallback.intent_router import route_intent
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
+from acne_llm.chat.routing.intent_router import route_intent
 from acne_llm.config import Settings
 
 

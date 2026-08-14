@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from acne_llm.chat.fallback.llm_router import LLMRouter, RouterFallback
+from acne_llm.chat.routing.llm_router import LLMRouter, RouterFallback
 
 
 class _Backend:

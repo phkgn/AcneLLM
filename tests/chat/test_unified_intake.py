@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import threading
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,8 +9,8 @@ from types import SimpleNamespace
 import pytest
 
 from acne_llm.chat.intake import run_intake
-from acne_llm.chat.fallback.llm_extractor import ExtractorFallback
-from acne_llm.chat.fallback.llm_router import RouterFallback
+from acne_llm.chat.routing.llm_extractor import ExtractorFallback
+from acne_llm.chat.routing.llm_router import RouterFallback
 from acne_llm.chat.session import ConversationTurn
 from acne_llm.chat.unified_intake import (
     UnifiedIntake,
@@ -130,7 +131,7 @@ def test_valid_unified_json_builds_route_and_user_with_one_inference():
 
 
 def test_runtime_anchor_is_byte_identical_to_training_anchor():
-    canonical = Path("datagen/intakedata/system_prompt.canonical.txt").read_text(
+    canonical = Path("research/datagen/intakedata/system_prompt.canonical.txt").read_text(
         encoding="utf-8"
     )
 
@@ -481,12 +482,12 @@ def test_run_intake_integration_uses_unified_contract_without_crashing(
 
 
 def test_unified_remains_default_and_legacy_adapters_live_in_fallback_package():
-    from acne_llm.chat.fallback.llm_extractor import LLMExtractor
-    from acne_llm.chat.fallback.llm_router import LLMRouter
+    from acne_llm.chat.routing.llm_extractor import LLMExtractor
+    from acne_llm.chat.routing.llm_router import LLMRouter
 
     assert Settings.model_fields["intake_mode"].default == "unified"
-    assert LLMExtractor.__module__ == "acne_llm.chat.fallback.llm_extractor"
-    assert LLMRouter.__module__ == "acne_llm.chat.fallback.llm_router"
+    assert LLMExtractor.__module__ == "acne_llm.chat.routing.llm_extractor"
+    assert LLMRouter.__module__ == "acne_llm.chat.routing.llm_router"
 
 
 def test_unified_route_van_co_route_flags():
@@ -504,3 +505,48 @@ def test_unified_route_van_co_route_flags():
     assert result.route_decision is not None
     assert result.route_decision.reason_code == "unified_intake"
     assert "urgency_red_flag" in result.route_decision.route_flags
+
+
+# ── Cache mot-o: khong duoc de boi request khac ──────────────────────────────
+# (chuyen tu test_phase6_bugfixes.py o Phase 7)
+
+class _CountingLLM:
+    """Dem so lan goi model, tra JSON hop le."""
+
+    def __init__(self):
+        self.calls = 0
+        self._lock = threading.Lock()
+
+    def generate_text(self, system, user, temperature=0.0, response_format=None):
+        with self._lock:
+            self.calls += 1
+        return (
+            '{"intent":"knowledge","confidence":0.9,'
+            f'"description":{user!r}'.replace("'", '"')
+            + ',"context":{},"clinical":null}'
+        )
+
+
+def test_cache_khong_bi_de_boi_request_khac():
+    """classify(A) -> classify(B) -> run(A): ban cu mat cache A, goi model 3 lan."""
+    llm = _CountingLLM()
+    intake = UnifiedIntake(llm, model="test", timeout=5.0)
+
+    intake.classify("cau hoi A", [])
+    intake.classify("cau hoi B", [])
+    intake.run(clean_text="cau hoi A", clean_text_no_accent="cau hoi A",
+               mode="hybrid", history=[])
+
+    # 2 truy van khac nhau -> dung 2 lan goi model, khong phai 3
+    assert llm.calls == 2
+
+
+def test_cache_van_gop_classify_va_run_cung_luot():
+    llm = _CountingLLM()
+    intake = UnifiedIntake(llm, model="test", timeout=5.0)
+
+    intake.classify("mot cau hoi", [])
+    intake.run(clean_text="mot cau hoi", clean_text_no_accent="mot cau hoi",
+               mode="hybrid", history=[])
+
+    assert llm.calls == 1

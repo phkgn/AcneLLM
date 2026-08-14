@@ -140,49 +140,18 @@ def drop_query_mismatched_chunks(
     )
 
 
-_FACE_REGION_TERMS = (
-    "mặt", "trán", "má", "cằm", "mũi", "quai hàm", "face", "forehead", "cheek", "chin",
-)
-_NON_FACE_REGION_TERMS = (
-    "mông", "vùng mông", "buttock", "lưng", "back acne", "ngực", "chest acne",
-)
-
-
-def drop_body_region_mismatched_chunks(
-    retrieval: RetrievalOutput | None,
-    query: str,
-) -> RetrievalOutput | None:
-    """Drop chunks that are explicitly about a conflicting body region.
-
-    This is intentionally conservative: it only activates when the query has a
-    face-region marker and the chunk has a non-face marker without any face marker.
-    """
-    if retrieval is None or not retrieval.chunks:
-        return retrieval
-    lowered_query = query.lower()
-    if not any(term in lowered_query for term in _FACE_REGION_TERMS):
-        return retrieval
-    kept: list[RetrievedChunk] = []
-    for chunk in retrieval.chunks:
-        meta = chunk.metadata or {}
-        haystack = " ".join((
-            str(meta.get("title") or ""),
-            str(meta.get("url") or ""),
-            chunk.text,
-        )).lower()
-        conflicting = any(term in haystack for term in _NON_FACE_REGION_TERMS)
-        has_face = any(term in haystack for term in _FACE_REGION_TERMS)
-        if not (conflicting and not has_face):
-            kept.append(chunk)
-    if len(kept) == len(retrieval.chunks):
-        return retrieval
-    avg = sum(chunk.score for chunk in kept) / len(kept) if kept else 0.0
-    return retrieval.model_copy(update={
-        "chunks": kept,
-        "num_chunks": len(kept),
-        "avg_score": avg,
-    })
-
+# ponytail: _FACE_REGION_TERMS / _NON_FACE_REGION_TERMS +
+# drop_body_region_mismatched_chunks da bi xoa o Phase 7.
+#
+# No vut chunk noi "lung"/"nguc" khi query co "mat" -- nhung phac do mun
+# lung va mun mat trung nhau phan lon, nen bang chung bi mat im lang, khong
+# log, model khong biet minh vua bi lay di cai gi. Comment ngay tren call site
+# o _retrieval.py da tu noi: "KHONG dung keyword mismatch filter vi
+# cross-encoder da score relevance roi -- mismatch filter se drop nham".
+#
+# drop_acne_boils_mismatched_chunks ben duoi thi GIU: no chi bat khi query noi
+# ro "mun boc" va khong noi "mun nhot", term deu 2+ tu, va phan biet
+# acne nodule / furuncle la phan biet lam sang that.
 
 def drop_acne_boils_mismatched_chunks(
     retrieval: RetrievalOutput | None,

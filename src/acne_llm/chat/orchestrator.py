@@ -90,7 +90,10 @@ def prepare_chat_turn(
         and intake.scope_refusal is None
         and intake.effective_mode not in {"refuse", "clarify"}
         and primary_intent not in {"clarify", "reject"}
-        and (intake.is_acne_signal or bool(intake.safety_terms) or bool(intake.history))
+        # ponytail: menh de `is_acne_signal or safety_terms or history` da bo.
+        # Router da loc clarify/reject o dong tren; menh de nay chi la guard thu
+        # hai, va no phu thuoc bang 420 term khop chuoi da xoa. Gia phai tra khi
+        # bo: doi khi chay them mot vector search. Re hon 420 term.
     )
     if should_retrieve:
         retrieval = retrieve_for_chat(

@@ -1,8 +1,11 @@
-"""Unit tests for intent router -- new flags and routing logic."""
+"""Intent routing: chon intent + gan route_flags."""
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
-from acne_llm.chat.fallback.intent_router import is_repeated_question, route_intent
-from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
-from acne_llm.chat.session import ConversationTurn
+from acne_llm.chat.routing.intent_router import is_repeated_question, route_intent
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
+from acne_llm.chat.session import ConversationTurn, get_session_store
+from acne_llm.chat.intake import run_intake
+from acne_llm.chat.routing.intent_router import RouteDecision
+from types import SimpleNamespace
 
 
 def _user(description="", clinical=None):
@@ -181,3 +184,48 @@ def test_advise_with_case_signal_high_confidence():
 def test_rule_source_when_classifier_disabled():
     r = route_intent("mun viem o cam", _user("mun viem"), [])
     assert r.source == "rule"
+
+
+# ── Co urgency phai thay red_flag lam sang, khong chi thay tu khoa ───────────
+# (truoc goi la 'Bug 2' trong test_phase6_bugfixes.py -- ten do khong noi len
+#  hanh vi nao dang duoc bao ve, nen da gop vao day o Phase 7.)
+
+class _StubRouter:
+    """Gia lap UnifiedIntake.classify: tra intent nhung route_flags RONG.
+
+    Day chinh la cau hinh production (INTAKE_MODE=unified). Duong rule fallback
+    khong dinh bug vi `route_intent` co truyen `user` vao compute_route_flags;
+    duong unified/semantic thi khong, nen co clinical bi mat im lang.
+    """
+
+    def classify(self, clean_text, history):
+        return RouteDecision(
+            primary_intent="advise",
+            confidence=0.95,
+            source="llm",
+            reason_code="unified_intake",
+        )
+
+
+def test_red_flag_lam_sang_bat_duoc_co_urgency():
+    """compute_route_flags chay TRUOC extract nen khong thay clinical.
+
+    Ban cu: tren duong unified, `has_red_flags` luon False -> moi red flag
+    intaker trich duoc deu khong bat canh bao khan o _safety.
+    """
+    c = SimpleNamespace(
+        rag_ready=False,
+        session_store=get_session_store(),
+        guardrails=SimpleNamespace(pre_check=lambda user: None),
+        llm_router=_StubRouter(),
+        semantic_router=None,
+        settings=SimpleNamespace(extractor_mode="rule"),
+    )
+    # "mụn bọc có mủ" KHONG khop tu nao trong _URGENCY_TERMS (bang do co
+    # "mụn mủ" chu khong phai "có mủ"), nen co urgency CHI co the den tu
+    # red_flags_input ma extractor sinh ra sau buoc extract.
+    result = run_intake(c, "mụn bọc có mủ")
+
+    assert result.user.clinical is not None
+    assert result.user.clinical.red_flags_input  # extractor co bat duoc
+    assert "urgency_red_flag" in result.route_decision.route_flags

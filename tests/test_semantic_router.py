@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
-from acne_llm.chat.fallback.semantic_router import SemanticRouter
+from acne_llm.chat.routing.semantic_router import SemanticRouter
 
 
 class _FakeEmbedder:

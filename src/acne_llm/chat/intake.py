@@ -10,18 +10,17 @@ from dataclasses import dataclass, field, replace
 import time
 from typing import TYPE_CHECKING, Literal
 
-from ..guardrails.runner import GuardrailRunner
 from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
-from ._terms import CASE_INTAKE_TERMS, contains_any
-from .fallback.intent_router import RouteDecision, compute_route_flags, route_intent
-from .fallback.llm_extractor import ExtractorFallback
-from .fallback.llm_router import RouterFallback
+from ._terms import CASE_INTAKE_TERMS
+from .routing.intent_router import RouteDecision, compute_route_flags, route_intent
+from .routing.llm_extractor import ExtractorFallback
+from .routing.llm_router import RouterFallback
 from ._intent_patch import CLARIFY_DOWNGRADED, repaired_intent
-from .fallback.rule_normalizer import normalize_chat_message
+from .routing.rule_normalizer import normalize_chat_message
 from .preprocess import light_normalize
 from ..schemas.extraction import ExtractionConfidence
-from .fallback.rule_extractor import extract_with_confidence
-from .preprocess import prepare_user_text, strip_accents
+from .routing.rule_extractor import extract_with_confidence
+from .preprocess import prepare_user_text
 from .session import (
     CONTEXT_FIELD_THRESHOLD,
     ConversationTurn,
@@ -74,24 +73,20 @@ class IntakeResult:
     extraction_confidence: ExtractionConfidence | None = None
     confirmed_profile: dict = field(default_factory=dict)
 
-    @property
-    def is_acne_signal(self) -> bool:
-        return self.scope_decision == "in_scope"
 
-
-def _is_acne_scope(message: str) -> bool:
-    return GuardrailRunner.is_acne_scope_text(message)
-
-
-def _is_genital_scope(message: str) -> bool:
-    return GuardrailRunner.is_genital_scope(message)
-
-
-_ALLOWED_ACNE_REGION_TERMS = (
-    "mat", "mat", "tran", "tran", "ma", "ma", "cam", "cam", "mui", "mui",
-    "quai ham", "quai ham", "ham", "ham", "mieng", "mieng",
-    "lung", "lung", "nguc", "nguc", "vai", "co", "co", "gay", "gay",
-)
+# ponytail: is_acne_signal / _is_acne_scope / _is_genital_scope /
+# _ALLOWED_ACNE_REGION_TERMS da bi xoa o Phase 7 (445 chuoi).
+#
+# Ca ba deu doan ngu nghia bang khop chuoi, va ca ba deu do duoc la sai:
+#   is_acne_scope_text("dui ga nuong")                   -> True  ("dui")
+#   is_acne_scope_text("lam sao het may cai not tren mat")-> False (recall thap)
+#   _has_allowed_acne_region("mun o biu co nguy hiem k")  -> True  ("co" = co)
+# Dong cuoi la nghiem trong nhat: escape hatch mixed_genital_scope mo ra chi vi
+# chu "co", nen cong genital khong chan duoc chinh cau no sinh ra de chan.
+#
+# Pham vi mun + vung sinh duc gio nam trong Modelfile system prompt, noi model
+# ap duoc ngu canh. Retrieval khong con phu thuoc acne_signal -- xem
+# orchestrator.should_retrieve.
 
 _SAFETY_SIGNAL_TERMS = (
     "mang thai", "pregnant", "pregnancy",
@@ -99,10 +94,6 @@ _SAFETY_SIGNAL_TERMS = (
     "isotretinoin", "retinoid", "retinol", "tretinoin", "adapalene", "tazarotene",
     "doxycycline", "minocycline", "tetracycline", "khang sinh", "antibiotic",
 )
-
-
-def _has_allowed_acne_region(message: str) -> bool:
-    return contains_any(strip_accents(message.lower()), _ALLOWED_ACNE_REGION_TERMS)
 
 
 def _extract_safety_terms(message: str, user: UserInput) -> list[str]:
@@ -181,12 +172,12 @@ def _snapshot_has_values(snapshot: NormalizedSnapshot | None) -> bool:
 
 def _has_established_case(history: list[ConversationTurn]) -> bool:
     """True when an earlier user turn already put a real acne case on the table."""
+    # ponytail: nhanh `_is_acne_scope(turn.content)` da bo. Chinh comment cua
+    # _boundary_regex tung canh bao no lam ham nay "gan nhu luon True" -- va do
+    # lai: term 2 ky tu ("co", "ma", "cam") khop moi cau tieng Viet. Con lai
+    # nhanh snapshot, von doc du lieu da trich xuat co cau truc.
     return any(
-        turn.role == "user"
-        and (
-            _snapshot_has_values(turn.normalized_snapshot)
-            or _is_acne_scope(turn.content)
-        )
+        turn.role == "user" and _snapshot_has_values(turn.normalized_snapshot)
         for turn in history
     )
 
@@ -349,87 +340,11 @@ def run_intake(
             teencode_replaced=prepared.teencode_replaced,
         )
 
-    acne_signal = _is_acne_scope(clean_text)
-    genital_scope = _is_genital_scope(clean_text)
-    mixed_genital_scope = genital_scope and acne_signal and _has_allowed_acne_region(clean_text)
-    if genital_scope and not mixed_genital_scope:
-        log_pipeline_stage(
-            session_id,
-            "SAFETY",
-            safety_started,
-            level="WARNING",
-            result="blocked",
-            reason="genital_scope_hard_reject",
-        )
-        log_pipeline_stage(
-            session_id,
-            "INTAKE",
-            safety_started,
-            result="blocked",
-            reason="genital_scope_hard_reject",
-        )
-        log_pipeline_stage(
-            session_id,
-            "ROUTE",
-            safety_started,
-            intent="reject",
-            source="deterministic",
-            reason="genital_scope_hard_reject",
-        )
-        log_pipeline_stage(
-            session_id,
-            "EXTRACT",
-            safety_started,
-            status="skipped",
-            reason="genital_scope_hard_reject",
-        )
-        genital_refusal = AdviseOutput(
-            severity="unknown",
-            acne_type_primary="unknown",
-            causes=["Vung sinh duc va hau mon ngoai pham vi tu van"],
-            recommendations=[],
-            red_flags=[],
-            used_chunks=[],
-            confidence=0.0,
-            disclaimer=(
-                "Minh chi tu van ve mun trung ca va cac van de da mat/lung/nguc thong thuong. "
-                "Mun hoac ton thuong o vung sinh duc/hau mon can duoc bac si da lieu kiem tra."
-            ),
-            mode=base_user.mode,
-            model_name="",
-            latency_ms=0,
-        )
-        return IntakeResult(
-            raw_message=raw_message,
-            clean_text=clean_text,
-            user=base_user,
-            turn_snapshot=None,
-            history=history,
-            effective_mode="refuse",
-            scope_decision="refuse_hard",
-            scope_refusal=genital_refusal,
-            route_decision=RouteDecision(
-                primary_intent="reject",
-                confidence=1.0,
-                turn_type="reject",
-                route_flags=["genital_scope"],
-                reason_code="genital_scope_hard_reject",
-            ),
-            session_id=session_id,
-            clean_text_no_accent=clean_text_no_accent,
-            safety_terms=safety_terms,
-            extracted_entities=extracted_entities_from_user(base_user),
-            pii_detected=contains_pii(clean_text),
-            teencode_replaced=prepared.teencode_replaced,
-        )
-    if mixed_genital_scope:
-        log_pipeline_stage(
-            session_id,
-            "SAFETY",
-            safety_started,
-            result="mixed_scope",
-            genital=True,
-        )
+    # ponytail: khoi genital hard-reject (73 dong + 2 nhanh phu) da bi xoa o
+    # Phase 7. Luat van con, nhung o Modelfile system prompt -- noi model ap
+    # duoc ngu canh. Bang 31 term khong ap duoc: escape hatch cua chinh no mo
+    # ra vi chu "co" trong "mun o biu CO nguy hiem khong", nen cau ro rang
+    # nhat lai lot qua.
 
     # Hard current-turn medication/pregnancy refusal must run before semantic
     # routing. A second identical guard remains after advise-only session fold
@@ -503,8 +418,6 @@ def run_intake(
         "SAFETY",
         safety_started,
         result="pass",
-        acne_signal=acne_signal,
-        genital=genital_scope,
         soft_oos="semantic_router",
     )
     scope_decision: ScopeDecision = "in_scope"
@@ -598,15 +511,6 @@ def run_intake(
                 *route_decision.route_flags,
                 *_text_flags,
             ])),
-        )
-    if mixed_genital_scope:
-        route_decision = replace(
-            route_decision,
-            route_flags=list(dict.fromkeys([
-                *route_decision.route_flags,
-                "mixed_genital_scope",
-            ])),
-            reason_code=f"{route_decision.reason_code}|mixed_genital_scope",
         )
     # Vá cho lỗi DỮ LIỆU, không phải luật nghiệp vụ — xem `_intent_patch.py`
     # để biết bằng chứng, phạm vi, và điều kiện xoá.

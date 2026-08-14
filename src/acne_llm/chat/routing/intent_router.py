@@ -1,8 +1,20 @@
-"""Legacy deterministic fallback for chat intent routing.
+"""Deterministic routing: mot ham LUON chay + mot duong du phong.
 
-The semantic router is the live primary path. ``route_intent`` remains
-available only when the local embedder/index cannot classify a turn. Hard
-guardrails live outside this module and run independently of either router.
+Doc ky truoc khi xoa bat cu thu gi o day -- module nay co HAI vai, va cai ten
+"fallback" cu (thu muc nay ten la chat/fallback truoc Phase 7) chi mo ta dung
+mot trong hai:
+
+1. ``compute_route_flags`` -- CHAY TREN 100% REQUEST, moi mode, moi router.
+   ``UnifiedIntake.classify()`` va ``SemanticRouter`` deu tra ``RouteDecision``
+   voi ``route_flags`` rong, nen intake.py:~570 goi ham nay de gan co cho MOI
+   duong. Bo no di thi canh bao khan cap (``chat/_safety``) va guidance
+   (``prompt_builder``) chet im lang. Day KHONG phai fallback.
+
+2. ``route_intent`` / ``_rule_decision`` -- tier 3 that su: chi chay khi
+   llm_router nem exception VA semantic_router cung khong dung duoc. Tuc la
+   khi Ollama chet, dung luc tai cao nhat.
+
+Hard guardrail nam ngoai module nay va chay doc lap voi moi router.
 """
 from __future__ import annotations
 
@@ -157,7 +169,12 @@ _EMOTIONAL_TERMS = (
     "hoảng loạn", "hoang loan", "hoang mang", "tuyệt vọng", "tuyet vong",
 )
 _CRISIS_TERMS = (
-    "tự tử", "tu tu", "tự sát", "tu sat", "không muốn sống", "khong muon song",
+    # ponytail: bo "tu tu" (khong dau) o Phase 7. No la "tu tu" cua "tự tử"
+    # NHUNG cung la "từ từ" viet khong dau -> "tu tu thoi ban" chen nguyen doan
+    # an ui khung hoang vao dau cau tra loi ve mun. Cac term con lai khong nhap
+    # nhang. Co GIU nguyen co che prefix cung o runtime.py: khung hoang tam ly
+    # dung la loai viec khong duoc ha xuong thanh goi y trong prompt.
+    "tự tử", "tự sát", "tu sat", "không muốn sống", "khong muon song",
 )
 _PROGRESS_TERMS = (
     "tuần rồi", "tuan roi", "tháng rồi", "thang roi", "vẫn lên", "van len",

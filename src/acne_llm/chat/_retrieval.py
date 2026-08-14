@@ -8,7 +8,6 @@ from loguru import logger
 from ..schemas import RetrievedChunk, RetrievalOutput, UserInput
 from ..utils.chunk_filter import (
     drop_acne_boils_mismatched_chunks,
-    drop_body_region_mismatched_chunks,
     drop_noisy_chunks,
     drop_query_mismatched_chunks,
 )
@@ -330,11 +329,10 @@ def retrieve_for_chat(
             # Sau reranker: chỉ loại noisy chunks, KHÔNG dùng keyword mismatch filter
             # vì cross-encoder đã score relevance rồi — mismatch filter sẽ drop nhầm.
             semantic_filtered = drop_acne_boils_mismatched_chunks(reranked, rerank_query)
-            region_filtered = drop_body_region_mismatched_chunks(semantic_filtered, rerank_query)
-            if region_filtered is not None and not region_filtered.chunks:
+            if semantic_filtered is not None and not semantic_filtered.chunks:
                 return None
             return ensure_guideline_slot(
-                _noise_filter(region_filtered or reranked), ret, effective_rerank_top_k)
+                _noise_filter(semantic_filtered or reranked), ret, effective_rerank_top_k)
         except Exception as e:
             logger.warning(f"Chat reranker unavailable, using raw retrieval: {e}")
             return ensure_guideline_slot(

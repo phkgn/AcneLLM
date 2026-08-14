@@ -18,9 +18,9 @@ from ._intake_parse import (
     _to_user_input,
     _validate_contract,
 )
-from .fallback.intent_router import RouteDecision
+from .routing.intent_router import RouteDecision
 from .session import HISTORY_WINDOW_TURNS
-from .fallback.llm_router import RouterFallback
+from .routing.llm_router import RouterFallback
 
 
 _RUNTIME_SYSTEM = """Bạn là Unified Intake cho hệ thống tư vấn da mụn. Đọc turn hiện tại và tối đa 3 turn lịch sử gần nhất, rồi chỉ trả về DUY NHẤT một JSON hợp lệ, không Markdown, không giải thích, không thêm khóa.

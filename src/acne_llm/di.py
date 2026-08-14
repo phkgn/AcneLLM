@@ -9,7 +9,7 @@ from loguru import logger
 
 from .llm.ollama_backend import OllamaBackend
 from .llm.prompt_builder import PromptBuilder
-from .chat.fallback.semantic_router import SemanticRouter
+from .chat.routing.semantic_router import SemanticRouter
 from .chat.session import HISTORY_WINDOW_TURNS
 from .chat.unified_intake import UnifiedIntake
 from .guardrails.runner import GuardrailRunner
@@ -162,8 +162,8 @@ def build_container(settings) -> Container:
         if getattr(settings, "extractor_mode", "llm") != "llm":
             settings.extractor_mode = "llm"
     else:
-        from .chat.fallback.llm_extractor import LLMExtractor
-        from .chat.fallback.llm_router import LLMRouter
+        from .chat.routing.llm_extractor import LLMExtractor
+        from .chat.routing.llm_router import LLMRouter
 
         llm_router = None
         if getattr(settings, "router_mode", "llm") == "llm":

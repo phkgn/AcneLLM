@@ -23,12 +23,6 @@ from typing import Literal
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 
-# NOTE: defined here (not in guardrails.runner) to avoid circular import
-_GENITAL_FILTER_TERMS = (
-    "bìu", "biu", "dương vật", "duong vat", "sinh dục", "sinh duc",
-    "âm đạo", "am dao", "âm hộ", "am ho", "hậu môn", "hau mon",
-    "vùng kín", "vung kin", "bộ phận sinh dục",
-)
 
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -280,8 +274,7 @@ def select_relevant_history(
     HISTORY_CHAR_BUDGET nên gửi cả cửa sổ là an toàn.
     """
     del message, route_flags
-    filtered = [turn for turn in history if not _is_genital_turn(turn)]
-    window = filtered[-HISTORY_WINDOW_TURNS:]
+    window = history[-HISTORY_WINDOW_TURNS:]
     if primary_intent == "knowledge":
         # Knowledge trả lời từ RAG: giữ prose cũ của bot ra ngoài prompt, và chỉ
         # lấy user turn gần nhất để giải đại từ ("loại này") mà không kéo cả
@@ -397,14 +390,6 @@ def snapshot_from_user(user: UserInput, clean_text: str = "") -> NormalizedSnaps
     return NormalizedSnapshot(context=context, clinical=clinical, clean_text=clean_text)
 
 
-_NEGATE_PREGNANCY_TERMS = (
-    "không mang thai", "khong mang thai", "không có thai", "khong co thai",
-    "không bầu", "khong bau", "đã sinh", "da sinh", "sau sinh",
-)
-_NEGATE_BREASTFEEDING_TERMS = (
-    "không cho con bú", "khong cho con bu", "cai sữa", "cai sua",
-    "ngưng cho bú", "ngung cho bu", "ngừng cho bú", "ngung cho bu",
-)
 _STOP_PRODUCT_TERMS = (
     "ngưng", "ngừng", "dừng", "không dùng", "khong dung", "bỏ",
     "không phải", "khong phai", "nói nhầm", "noi nham",
@@ -412,6 +397,22 @@ _STOP_PRODUCT_TERMS = (
 
 
 def _mentions_stop(clean_text: str, value: str) -> bool:
+    """ponytail: CO Y GIU o Phase 7, khac voi cac rule khop chuoi khac.
+
+    No dung la doan ngu nghia, va no co mot lo that: quet 40 ky tu truoc ten
+    thuoc nen "bac si bao KHONG DUNG isotretinoin chung voi doxycycline" go
+    isotretinoin khoi profile -- tat cong iso+tetra dung tren cau hoi ve chinh
+    tuong tac do.
+
+    Nhung xoa han thi te hon: fold_history_facts hop medications theo kieu
+    cong don qua moi turn, nen khong con duong nao go thuoc cu ra. Danh sach
+    phinh vinh vien -> cong iso+tetra ban nham tren du lieu chet. Doi mot FP
+    lay mot FP khac.
+
+    Duong ra dung: intaker phat tin hieu removal co cau truc (vd
+    medications_stopped[]), roi ham nay bi xoa. Chua lam duoc chung nao intaker
+    chua co truong do. KHONG mo rong ham nay them.
+    """
     lowered = clean_text.lower()
     value_lower = value.lower()
     aliases = {
@@ -463,14 +464,9 @@ def fold_history_facts(
     - allergies and clinical descriptors: union.
     """
     # Chỉ lấy snapshot từ user turns (assistant turns không có normalized_snapshot).
-    # _is_genital_turn lọc cả assistant turns trong format_history_block() để tránh
-    # history poisoning trong prompt — nhưng ở đây chỉ cần lọc user turns vì
-    # snapshot chỉ được tạo từ user input (xem snapshot_from_user).
     snapshots = [
         turn.normalized_snapshot for turn in history
-        if turn.role == "user"
-        and turn.normalized_snapshot is not None
-        and not _is_genital_turn(turn)
+        if turn.role == "user" and turn.normalized_snapshot is not None
     ]
     if not snapshots:
         return current
@@ -543,16 +539,19 @@ def fold_history_facts(
         # Pregnancy: chỉ fold từ history khi current turn KHÔNG mention pregnancy.
         # Tránh inject "mang thai" từ turn cũ vào session của người dùng mới hoặc
         # người dùng đã hỏi về chủ đề khác không liên quan đến thai kỳ.
+        # ponytail: hai nhanh phu dinh bang keyword da bi xoa o Phase 7.
+        # 17 chuoi tung co quyen set is_pregnant = False -- tuc la TAT cong
+        # chong chi dinh thai ky, cong tat dinh duy nhat con lai. Chung khong
+        # kiem chu ngu va khong kiem pham vi phu dinh:
+        #   "chi toi khong mang thai, con em thi co" -> is_pregnant = False
+        # Trang thai thai ky gio chi den tu intaker. Fail-safe la GIU True:
+        # rule khong bao gio duoc tu ha xuong False.
         if not _current_mentions_pregnant:
-            if any(term in clean for term in _NEGATE_PREGNANCY_TERMS):
-                is_pregnant = False
-            elif ctx.get("is_pregnant") and not is_pregnant:
+            if ctx.get("is_pregnant") and not is_pregnant:
                 is_pregnant = True
 
         if not _current_mentions_breastfeed:
-            if any(term in clean for term in _NEGATE_BREASTFEEDING_TERMS):
-                is_breastfeeding = False
-            elif ctx.get("is_breastfeeding") and not is_breastfeeding:
+            if ctx.get("is_breastfeeding") and not is_breastfeeding:
                 is_breastfeeding = True
 
         allergies.extend(ctx.get("allergies") or [])
@@ -665,16 +664,6 @@ def fold_history_facts(
 
 # ── Prompt helpers ────────────────────────────────────────────────────────────
 
-def _is_genital_turn(turn: ConversationTurn) -> bool:
-    """True khi turn chứa nội dung vùng sinh dục/hậu môn — cần lọc khỏi history.
-
-    Lọc cả user turn lẫn assistant turn liền kề để tránh history poisoning:
-    bot mention "bìu" trong câu trả lời cũng bị loại.
-    """
-    lowered = turn.content.lower()
-    return any(term in lowered for term in _GENITAL_FILTER_TERMS)
-
-
 def format_history_block(
     turns: list[ConversationTurn],
     char_budget: int = HISTORY_CHAR_BUDGET,
@@ -694,18 +683,11 @@ def format_history_block(
         return ""
 
     # Lọc bỏ các turn (và turn assistant ngay sau) có nội dung genital
-    filtered: list[ConversationTurn] = []
-    skip_next = False
-    for turn in turns:
-        if skip_next:
-            skip_next = False
-            continue
-        if turn.role == "user" and _is_genital_turn(turn):
-            skip_next = True
-            continue
-        if turn.role == "assistant" and _is_genital_turn(turn):
-            continue
-        filtered.append(turn)
+    # ponytail: loc turn genital khoi history da bo o Phase 7. No la ban sao
+    # thu hai cua bang term o runner.py (va da lech nhau: runner co "truc trang",
+    # "am vat"; ban nay khong). Cong genital gio o system prompt, nen loc history
+    # chi con cat mach hoi thoai ma khong chan them duoc gi.
+    filtered = turns
 
     if not filtered:
         return ""

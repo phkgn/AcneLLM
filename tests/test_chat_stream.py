@@ -20,7 +20,7 @@ def admin_key():
     _settings.admin_api_key = _ADMIN_KEY
     yield _ADMIN_HEADERS
     _settings.admin_api_key = old
-from acne_llm.chat.fallback.intent_router import RouteDecision
+from acne_llm.chat.routing.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn, get_session_store
 from acne_llm.db.session_store import SQLiteSessionStore
 from acne_llm.schemas import AdviseOutput, RetrievedChunk, RetrievalOutput

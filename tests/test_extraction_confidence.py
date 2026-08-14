@@ -1,6 +1,6 @@
 """Test tang confidence boc quanh normalizer (khong pha vo hanh vi cu)."""
-from acne_llm.chat.fallback.rule_extractor import extract_with_confidence
-from acne_llm.chat.fallback.rule_normalizer import normalize_chat_message
+from acne_llm.chat.routing.rule_extractor import extract_with_confidence
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
 
 
 def test_values_consistent_with_normalizer():

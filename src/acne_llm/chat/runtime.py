@@ -65,6 +65,7 @@ def stream_chat_sse(
     """Yield SSE-formatted strings cho chat UI (Next.js EventSource)."""
     started = time.perf_counter()
     sid_short = (session_id or "no-session")[:8]
+    prepared = None  # except doc lai de tra ban cung cua refusal khi generator chet
     try:
         prepared = prepare_chat_turn(
             c,
@@ -328,7 +329,15 @@ def stream_chat_sse(
             "OUTPUT",
             (time.perf_counter() - started) * 1000,
         )
-        yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
+        # Refusal di qua generator de model viet cau chu (xem orchestrator).
+        # Nghia la khi generator chet, canh bao an toan bien mat hoan toan --
+        # dung cai luot ma ta KHONG duoc phu thuoc LLM. Ban cung cua guardrail
+        # van con trong scope_refusal.disclaimer, tra thang no.
+        _refusal = getattr(getattr(prepared, "intake", None), "scope_refusal", None)
+        if _refusal is not None and getattr(_refusal, "disclaimer", ""):
+            yield _event("token", _refusal.disclaimer)
+        else:
+            yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
         yield _event("done", {
             "mode": "error",
             "latency_ms": int((time.perf_counter() - started) * 1000),

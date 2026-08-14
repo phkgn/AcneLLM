@@ -6,8 +6,8 @@ Covers:
   X as a currently-used product or as a canonical ingredient.
 - positive controls: genuine current use is still extracted.
 """
-from acne_llm.chat.fallback import rule_normalizer as N
-from acne_llm.chat.fallback.rule_extractor import extract_with_confidence
+from acne_llm.chat.routing import rule_normalizer as N
+from acne_llm.chat.routing.rule_extractor import extract_with_confidence
 from acne_llm.chat.preprocess import strip_accents
 
 
