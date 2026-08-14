@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "limit": 470,
+  "created_at": "2026-08-11T10:06:33.985151+00:00",
+  "start_total": 2287,
+  "target_total": 470,
+  "case_targets": {
+    "B1_grounded_role": 470
+  },
+  "status": "incomplete",
+  "current_total": 2616,
+  "updated_at": "2026-08-11T10:28:03.487542+00:00"
+}

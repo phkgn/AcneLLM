@@ -163,7 +163,7 @@ def convert_row(row: dict) -> dict:
 
 @app.command()
 def main(
-    input: str = typer.Option("LLMData/acne_dataset.jsonl", "--input"),
+    input: str = typer.Option("research/LLMData/acne_dataset.jsonl", "--input"),
     output: str = typer.Option("data/finetune/llm_only_chatml.jsonl", "--output"),
 ) -> None:
     in_path = Path(input)

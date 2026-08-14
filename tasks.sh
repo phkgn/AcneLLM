@@ -10,6 +10,10 @@
 
 set -euo pipefail
 
+# research/ khong nam tren sys.path mac dinh; cac package offline trong do
+# (datagen, evaluation, ablation, LLMData) import nhau bang ten tuyet doi.
+export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/research"
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TASK="${1:-help}"
 ARG="${2:-}"
@@ -189,9 +193,9 @@ case "$TASK" in
     visualize)
         activate_venv
         info "Generating dataset visualizations..."
-        warn "Output: visualize/*.png + visualize/report.html"
-        (cd visualize && python run_all.py)
-        ok "Done. Mo visualize/report.html de xem."
+        warn "Output: research/dataset_viz/*.png + research/dataset_viz/report.html"
+        (cd research/dataset_viz && python run_all.py)
+        ok "Done. Mo research/dataset_viz/report.html de xem."
         ;;
 
     serve|serve-lan)
@@ -283,7 +287,7 @@ from acne_llm.di import build_container
 root = Path(".")
 raw_docs = root / "data" / "raw" / "documents.jsonl"
 ft_data = root / "data" / "finetune" / "qa_finetuning.jsonl"
-llm_data = root / "LLMData" / "acne_dataset.jsonl"
+llm_data = root / "research" / "LLMData" / "acne_dataset.jsonl"
 
 n_docs = sum(1 for _ in open(raw_docs, encoding="utf-8")) if raw_docs.exists() else 0
 n_qa = sum(1 for _ in open(ft_data, encoding="utf-8")) if ft_data.exists() else 0

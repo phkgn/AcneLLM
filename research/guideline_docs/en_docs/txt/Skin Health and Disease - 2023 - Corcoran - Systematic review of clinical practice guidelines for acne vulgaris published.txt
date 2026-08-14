@@ -1,0 +1,323 @@
+SYSTEMATIC REVIEW
+
+<!-- image -->
+
+Systematic review of clinical practice guidelines for acne vulgaris published between January 2017 and July 2021
+
+Louise Corcoran 1 | Ingrid Muller 1 | Alison M. Layton 2 | Gwennan Rucinski 1 | Viktoria Venkatess 1 | Anicka Sufraz 3 | Sophie Dove 4 | Mark Lown 1 | Beth Stuart 5 | Nick Francis 1 | Miriam Santer 1
+
+1 University of Southampton, Southampton, UK
+
+2 Skin Research Centre, Hull York Medical School, University of York, York, UK
+
+3 Salisbury NHS Foundation Trust, Salisbury, UK
+
+4 Public Contributor, Southampton, UK
+
+5 Queen Mary University of London, London, UK
+
+Correspondence
+
+Louise Corcoran.
+
+Email: l.corcoran@soton.ac.uk
+
+Funding information
+
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors
+
+Abstract
+
+Background: Acne is very common, can cause considerable negative impact on quality of life and there is increasing concern over the use of long courses of oral antibiotics for this condition.
+
+Objectives: (1) To critically appraise reporting in acne guidelines and compare this with previous systematic review of acne guidelines. (2) Examine acne treatment guidance on pre-specified acne treatments of interest and compare between acne guidelines.
+
+Methods: Searches for new or updated guidelines were carried out in MEDLINE, Embase, Google Scholar, LILACS from 1 January 2017 to 31 July 2021, supplemented by searching a guideline-specific depository and checking for updates to guidelines included in previous review. We included guidelines, consensus statements or care protocols on the medical treatment of acne vulgaris in adults and/or children and excluded those that focused on a single intervention or subgroup of acne, regional adaptations of guidelines or guidelines included in previous review. AGREE II checklist was applied to critically appraise reporting of guidelines. Results were synthesised narratively.
+
+Results: Of 807 abstracts identified nine guidelines were identified that were eligible for inclusion. All guidelines had AGREE II scores above average in at least one domain and reporting was substantially improved compared to the systematic review of acne carried out 5 years previously. There was consensus between guidelines on the key role of topical treatments as first-line acne treatment and most recommended continuing topical treatments as maintenance therapy. There was considerable ation between guidelines on classification of severity, indications for commencing oral antibiotics and on maximum duration of oral antibiotics. However, there was consensus on the need for co-prescription of a nonantibiotic topical treatment when using oral antibiotics. There were notable differences on recommendations regarding provision of information for patients on how to use topical treatments or how to mitigate against side effects.
+
+Conclusions: Substantial differences in classification of acne severity hampered comparisons between guidelines. Although development and reporting of guidelines has improved over the past 5 years, differences in
+
+This is an open access article under the terms of the Creative Commons Attribution License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.
+
+© 2023 The Authors. Skin Health and Disease published by John Wiley & Sons Ltd on behalf of British Association of Dermatologists.
+
+-
+
+1 | BACKGROUND
+
+Acne vulgaris (hereon referred to as acne) is one of the most prevalent global skin conditions and causes substantial burden in terms of physical and psychosocial wellbeing and costs of management. 1 There is rising concern about the widespread use of antibiotics for acne and impact on antibiotic resistance. 2 Acne treatment guidelines have a key role in ensuring optimal treatment for the condition while also minimising antibiotic burden and potential antibiotic resistance.
+
+Previous reviews of acne treatment guidelines highlighted variable quality, low scores on trustworthiness and lack of stakeholder engagement. 3-5 The most recent of these reviews was published in 2017. Several acne treatment guidelines have been published since that time, so we aimed to update this review and compare quality by re-appraising using the AGREE II checklist. 6 Furthermore, we aimed to compare the degree of agreement on key aspects of acne management between guidelines.
+
+2 | METHODS
+
+Our research methods were designed to meet the following aims:
+
+- � To update the previous systematic review of acne clinical practice guidelines
+- � To use AGREE II checklist to critically appraise reporting in acne guidelines
+- � To examine guidance on pre-specified acne treatments of interest
+
+The protocol for this review was published prospectively on PROSPERO CRD42021269296.
+
+2.1 | Data sources and guideline selection
+
+Searches for new or updated guidelines were carried out in the following databases: MEDLINE, Embase, Google Scholar, LILACS applying search dates from 1 January 2017 to 31 July 2021 in order to update the previous systematic review. 3 Search criteria shown in Box 1. We supplemented this with searching a guideline-specific depository 7 and by checking for updates to guidelines included in previous review. 3
+
+pen Acces key recommendations remain, possibly reflecting uncertainties in the underlying evidence base. Differences between guidelines could have substantial implications for prevalence of antibiotic prescribing for acne.
+
+What is already known about this topic?
+
+- � Acne treatment guidelines have a key role in ensuring optimal treatment while minimising antibiotic burden and potential antibiotic resistance.
+- � Previous reviews of acne treatment guidelines highlighted variable quality and low scores on critical appraisal.
+
+What does this study add?
+
+- � New guidelines and updated guidelines score more highly on critical appraisal criteria than five years ago.
+- � Key differences between guidelines remain on several points, including around the prescribing of long courses of oral antibiotics.
+
+BOX 1 Search strategy
+
+[Bang 1] Source: Databases | Source: Search terms used.
+[Bang 1] Source: MEDLINE | Source: Acne (in title or abstract) OR acne vulgaris (mapped to the thesaurus) AND any one of the terms: Guideline, algorithm or recommend* (in title or abstract).
+[Bang 1] Source: Embase | Source: Acne (in title or abstract) OR acne vulgaris (mapped to the thesaurus) AND any one of the terms: Guideline, algorithm or recommend* (in title or abstract).
+[Bang 1] Source: LILACS | Source: Acne AND any of guideline, algorithm or recommend*.
+
+We included guidelines, consensus statements or care protocols on the medical treatment of acne vulgaris in adults and/or children that included a range of treatments. We excluded guidelines that focused on a single intervention or on a subgroup of acne, such as severe acne, truncal acne, or acne maintenance or other specific patient group, such as skin of colour. We excluded conference abstracts, editorials, letters, regional adaptations of guidelines or guidelines that
+
+BOX 2 AGREE II Reporting Checklist
+
+[Bang 2] AGREE II domains: 1; Scope and purpose | Key items: 1; The overall objective(s) of the guideline is (are) specifically described; 2; The health question(s) covered by the guideline is (are) specifically described; 3; The population (patients, public, etc;) to whom the guideline is meant to apply is specifically described.
+[Bang 2] AGREE II domains: 2; Stakeholder involvement | Key items: 4; The guideline development group includes individuals from all relevant professional groups; 5; The views and preferences of the target population (patients, public, etc;) have been sought; 6; The target users of the guideline are clearly defined.
+[Bang 2] AGREE II domains: 3; Rigour of development | Key items: 7; Systematic methods were used to search for evidence; 8; The criteria for selecting the evidence are clearly described; 9; The strengths and limitations of the body of evidence are clearly described; 10; The methods for formulating the recommendations are clearly described; 11; The health benefits, side effects, and risks have been considered in formulating the recommendations; 12; There is an explicit link between the recommendations and the supporting evidence; 13; The guideline has been externally reviewed by experts prior to its publication; 14; A procedure for updating the guideline is provided.
+[Bang 2] AGREE II domains: 4; Clarity of presentation | Key items: 15; The recommendations are specific and unambiguous; 16; The different options for management of the condition or health issue are clearly presented; 17; Key recommendations are easily identifiable.
+[Bang 2] AGREE II domains: 5; Applicability | Key items: 18; The guideline describes facilitators and barriers to its application; 19; The guideline provides advice and/or tools on how the recommendations can be put into practice; 20; The potential resource implications of applying the recommendations have been considered; 21; The guideline presents monitoring and/or auditing criteria.
+[Bang 2] AGREE II domains: 6; Editorial independance | Key items: 22; The views of the funding body have not influenced the content of the guideline; 23; Competing interests of guideline development group members have been recorded and addressed.
+
+BOX 3 Overall Guideline Assessment
+
+[Bang 3] Question: 1 | Question: Rate the overall quality of this guideline | Scoring options: 7 - point scale (1 is lowest possible quality, 7 is highest possible quality).
+[Bang 3] Question: 2 | Question: I would recommend this guideline for use | Scoring options: Yes Yes, with modifications No.
+
+were included in a previous systematic review. We included only the most recent update of any particular guideline. No language restrictions were applied.
+
+Two reviewers (GR and VV) scanned titles and abstracts for papers meeting the inclusion criteria; any disagreements were resolved by discussion with a third reviewer (MS). Where necessary, full text articles were obtained in order to assess whether inclusion criteria were met. Any guidelines not in English were translated prior to assessment and data extraction.
+
+BOX 4 5 -point Likert scale
+
+[Bang 4] Percentage (%) score: Over 80 | Rating: Excellent.
+[Bang 4] Percentage (%) score: Over 60 and up to 80 | Rating: Good.
+[Bang 4] Percentage (%) score: Over 40 and up to 60 | Rating: Average.
+[Bang 4] Percentage (%) score: Over 20 and up to 40 | Rating: Fair.
+[Bang 4] Percentage (%) score: 20 or under | Rating: Poor.
+
+2.2 | Guideline quality assessment
+
+We carried out a critical appraisal of guideline quality, using the Appraisal of Guidelines for Research and Evaluation (AGREE) II Reporting Checklist (AGREE II). 6 The AGREE II checklist, as shown in Box 2, comprises 23 items in six domains with each item scored on a scale from 1 to 7 (1 = strongly disagree; 7 = strongly agree).
+
+Open Access
+
+-
+
+-
+
+pen Acces
+
+In the final section of the AGREE II checklist the overall guideline assessment is carried out. Box 3 illustrates the two questions.
+
+Information relevant to the AGREE II checklist was extracted from included guidelines by two reviewers (GR/LC or VV/AS) and scores collated in the online platform. Discrepancies in scores were discussed and resolved with a third reviewer (MS) where necessary. To allow comparison with previous systematic review of acne guidelines, 3 we reported scores using a 5-point Likert scale as shown in Box 4.
+
+2.3 | Guideline recommendation extraction
+
+We extracted recommendations from all guidelines that met inclusion criteria regardless of quality score. Data on recommendations on pre-specified treatments of interest were extracted into a pre-piloted spreadsheet by two independent reviewers (GR/LC or VV/AS) with discrepancies resolved with a third reviewer (MS) where necessary.
+
+Where available, the following treatments of interest were extracted:
+
+1. First line treatment for acne
+2. Second line treatment for acne
+3. Third line treatment for acne
+4. Guidance on oral antibiotics
+5. � When to start
+6. � Duration of treatment
+7. � Co-prescribing
+5. Guidance on isotretinoin
+9. � Requirements prior to referral/treatment
+10. � Who can prescribe isotretinoin?
+6. Dietary guidance
+7. Guidance about providing information for patients on how to use topical treatments and mitigating against side effects
+
+No ethical approval was sought, as all data are publicly available.
+
+3 | RESULTS
+
+The search retrieved 807 titles, of which 19 were identified as potentially eligible after removing duplicates and screening the title and abstract. Following this process, the full-text articles were further assessed, and 10 articles were removed due to not meeting the inclusion criteria. There were nine guidelines that were included in this systematic review, and this pathway is illustrated in Figure 1.
+
+Of the nine guidelines fulfilling the eligibility criteria, three required translation, which was carried out using online software 8 and checked with a native speaker.
+
+3.1 | Guideline quality assessment Rigor scores
+
+The characteristics of included guidelines are shown in Note : Excellent (over 80%) in green, good (over 60%-80%) in green, average (over 40%-60%) in orange, fair (over 20%-40%) in orange and poor (20% or under) in red.
+
+Table 1. All guidelines had AGREE II scores above
+
+<!-- image -->
+
+TABLE 1 Summary of adjusted scores using the AGREE II reporting checklist.
+
+[Bang 5] Number of domains: 6.Editorial | above average (using 5 - point likert scale): independence 83 | 3: 83 | 4: 42 | 3: 46 | 1: 75 | 3: 71 | 5: 21 | 1: 75 | 4 5: 50.
+[Bang 5] Number of domains: 5.Applicability | above average (using 5 - point likert scale): 21 | 3: 13 | 4: 46 | 3: 17 | 1: 25 | 3: 54 | 5: 6 | 1: 17 | 4 5: 69.
+[Bang 5] Number of domains: 4.Clarity of presentation | above average (using 5 - point likert scale): 64 | 3: 100 | 4: 86 | 3: 67 | 1: 75 | 3: 89 | 5: 69 | 1: 81 | 4 5: 94.
+[Bang 5] Number of domains: 3.Rigour of development | above average (using 5 - point likert scale): 57 | 3: 74 | 4: 52 | 3: 22 | 1: 58 | 3: 81 | 5: 25 | 1: 52 | 4 5: 91.
+[Bang 5] Number of domains: 2.Stakeholder involvement | above average (using 5 - point likert scale): 56 | 3: 44 | 4: 64 | 3: 22 | 1: 19 | 3: 92 | 5: 17 | 1: 61 | 4 5: 92.
+[Bang 5] Number of domains: 1.Scope and | above average (using 5 - point likert scale): purpose 94 | 3: 92 | 4: 81 | 3: 56 | 1: 78 | 3: 83 | 5: 19 | 1: 92 | 4 5: 92.
+[Bang 5] Number of domains: Guideline | above average (using 5 - point likert scale): Belgium 9 | 3: France 10 | 4: Global Alliance 11 | 3: Ibero-Latin American 12 | 1: Japan 13 | 3: Netherlands 14 | 5: Norway 15 | 1: Singapore 16 | 4 5: UK 17.
+
+-
+
+average in at least one domain. The overall quality assessment rating of the guidelines were in the range of 2.5-6 (Table 2). It was also identified that the AGREE II scores were substantially improved compared to the previous systematic review of acne carried out (Figure 2).
+
+3.2 | Guideline recommendations on key pre -specified treatments of interest
+
+Key recommendations from the nine included guidelines on treatments of interest are summarised in Table S1.
+
+3.2.1 | First and second-line treatment recommendations for acne
+
+Comparisons of guidelines on recommendations regarding first and second-line treatments was challenging as the guidelines varied in their approach to classification of acne, and therefore in their treatment recommendations. Where some guidelines use a mild/moderate/severe acne classification, with related treatment recommendations, others differentiated treatment pathways depending on classifications such as: 'comedonal', 'papulopustular', 'inflammation and comedones.' Not all guidelines framed management recommendations in terms of specifying first, second, and third line treatments for acne. It was therefore decided to adjust the approach to consider only first and second line treatments. All guidelines recommended either topical benzoyl peroxide or topical retinoid (mainly adapalene) as first line treatments, but with marked differences regarding whether these were to be prescribed individually or in combination with each other or with another agent (e.g. topical clindamycin, azelaic acid or with oral antibiotics) (Table S1).
+
+3.2.2 | Indications for commencing oral antibiotics
+
+The recommendations regarding when to start oral antibiotics varied between guidelines. In five guidelines oral antibiotics were recommended for moderate or severe acne, 11,12,14,16,17 although one guideline suggested oral antibiotics for mild or moderate acne. 10 In one guideline it was advised that oral antibiotics should be started only in severe papulopustular acne, 9 but another guideline suggested initiation of oral antibiotics if topical treatments had been insufficient or if the truncal area was involved. 11 One guideline suggested oral antibiotics should be commenced for 'inflammatory acne' 13 (Table S1).
+
+-
+
+3.2.3 | Duration of treatment with oral antibiotics
+
+All guidelines were consistent in recommending limiting the duration of treatment with oral antibiotics for acne. However, the maximum duration of oral antibiotic treatment varied from 6 weeks to 6 months, although only one guideline 17 suggested treatment could be continued to 6 months (Table S1).
+
+3.2.4 | Co-prescribing with oral antibiotics and maintenance treatment following oral antibiotics
+
+All guidelines emphasised the importance of coprescribing non-antibiotic topical acne treatments alongside oral antibiotics. This is important to reduce the potential development of antibiotic resistance by improving efficacy (and therefore need for exposure to antibiotics) or by directly reducing both sensitive and resistant strains of Cutibacteria acnes. All guidelines included information on the use of topical treatments as maintenance therapy to prevent recurrence of acne after discontinuing oral antibiotics. Seven guidelines suggested this should be offered routinely, although the remaining two guidelines 15,17 suggested that this should be considered in some circumstances.
+
+TABLE 2 Summary of Overall Quality Assessment Rating using the AGREE II reporting checklist.
+
+[Bang 6] Guideline: Belgium 9 | Rate the overall quality of this guideline: 5/67% | I would recommend this guideline for use: Yes.
+[Bang 6] Guideline: France 10 | Rate the overall quality of this guideline: 5.5/75% | I would recommend this guideline for use: Yes + modifications.
+[Bang 6] Guideline: Global Alliance 11 | Rate the overall quality of this guideline: 5.5/75% | I would recommend this guideline for use: Yes.
+[Bang 6] Guideline: Ibero-Latin American 12 | Rate the overall quality of this guideline: 2.5/25% | I would recommend this guideline for use: No.
+[Bang 6] Guideline: Japan 13 | Rate the overall quality of this guideline: 5/67% | I would recommend this guideline for use: Yes + modifications.
+[Bang 6] Guideline: Netherlands 14 | Rate the overall quality of this guideline: 6/83% | I would recommend this guideline for use: Yes.
+[Bang 6] Guideline: Norway 15 | Rate the overall quality of this guideline: 4.5/58% | I would recommend this guideline for use: Yes + modifications.
+[Bang 6] Guideline: Singapore 16 | Rate the overall quality of this guideline: 5/67% | I would recommend this guideline for use: Yes + modifications.
+[Bang 6] Guideline: UK 17 | Rate the overall quality of this guideline: 6/83% | I would recommend this guideline for use: Yes.
+
+3.2.5 | Recommendations on isotretinoin for acne
+
+Dessinioti et al. 18 have published a comparison of guidelines and consensus articles on the management of acne with oral isotretinoin. They address the question regarding indications for treatment with oral isotretinoin with acne, but did not examine the question regarding who can prescribe oral isotretinoin, which varies between guidelines. Only four of the guidelines made reference to who can prescribe isotretinoin, but in some it was unclear (e.g. 'mainly a dermatologist/specialist in skin diseases'). Two guidelines suggested isotretinoin prescription should be carried out by a dermatologist only, 15,16 although another two guidelines recommended that this could be carried out by a dermatologist or by a GP 9,14 (Table S1).
+
+3.2.6 | Dietary guidance
+
+In one guideline no information was given on dietary recommendations. 12 The remaining eight guidelines mentioned diet, but only four gave specific recommendations such as 'low glycaemic index diet' 9,14,16,17 or avoiding certain foods, such as chocolate, whey or milk. 16 Two guidelines made reference to the importance of promoting a healthy, balanced diet and considering the risks of the development of eating disorders when giving dietary recommendations 13,17 (Table S1).
+
+Number of AGREE Il domains above average during systematic review 01/01/2013-08/12/2016
+
+<!-- image -->
+
+FI G U R E 2 AGREE II domains above average.
+
+<!-- image -->
+
+3.2.7 | Recommendations regarding provision of information for patients on how to use topical treatments and mitigating against side effects
+
+Measures for reducing side effects of topical treatments were discussed in most guidelines, but they differed in what advice they recommended. Seven guidelines recommended starting topical agents with less frequent applicationorlimitingthedurationofapplication. 9-11,14-17 Three guidelines advised informing patients to use emollients to reduce dry skin. 10,12,14 Only two guidelines recommended providing information to patients on the need to continue regular treatment for several weeks in order to see effects. 10,15 Oneguideline made no mention of advice to give patients regarding reducing side effects from topical treatments. 13
+
+4 | DISCUSSION
+
+We identified nine new clinical guidelines on acne that had been published since 2016 and found that many aspects of acne guideline development and reporting have improved, particularly transparency around conflicts of interest and inclusion of patients, methodologists and all target users (e.g. generalists) on guideline development groups. In other respects there seems to be slower progress, such as equal consideration to benefits and harms of included interventions to ensure recommendations take account of both.
+
+This review highlights the consistency in guidelines in some recommendations, such as the need to co-prescribe topical treatments alongside oral antibiotics, but also more subtle variations between guidelines in whether to continue maintenance therapy with topical treatments after discontinuing antibiotics. There were notable differences relating to use of oral antibiotics, for instance around indications for commencing therapy and maximum duration of therapy. There were also marked differences in some very common prescribing questions, such as whether to commence first line treatment with monotherapy or combination topical treatments, which may reflect gaps in the evidence base on acne treatments. Despite increasing international awareness of the need for antibiotic stewardship in acne, the differences in access to nonantibiotic treatments is striking, such as oral isotretinoin, due to professional barriers in who is able to prescribe this.
+
+4.1 | Findings in context of existing research
+
+A comparison of guidelines on the management of acne with oral isotretinoin similarly noted that Open Access
+
+-
+
+comparisons across guidelines are limited by the use of different classification systems for grading acne severity. 18
+
+4.2 | Strengths and limitations
+
+We increased the scope of previous systematic reviews on acne guidelines by extracting data and comparing recommendations from the guidelines identified in order to highlight differences, particularly as they relate to recommendations relevant to limiting the use of long-term oral antibiotics. However, there are limitations in this approach due to the variations in classification of grading acne severity. Furthermore, we were unable to compare the differing recommendations regarding use of hormonal treatments, such as combined oral contraceptive, co-cyprindiol and spironolactone. We fully acknowledge that this selection of guidelines reviews reflects a 'snapshot' in the constant evolution of guideline development.
+
+We did not extract data from guidelines on recommendations regarding assessment of mental health impact of acne, or on measurement of patient-reported outcome measures in acne, or on the methods used for patient involvement in guideline development, all of which would have strengthened this review.
+
+4.3 | Implications for research
+
+The previous review on this topic noted that, 'Although only a few classes of drug are used to treat acne vulgaris, they can be prescribed in numerous different two or three -way combinations, most of which have never been compared in randomised controlled trials. This results in significant evidence gaps and makes formulating any comprehensive guideline for acne difficult'. Although there are still very few direct comparisons, an increasing number of systematic reviews with network meta-analysis have directly or indirectly informed more recent guidelines, 17,19 although the heterogeneity of outcome assessment and differing classifications of severity between the different RCTs within the reviews may have hampered their findings. Harmonising outcome measures and classifications in acne is an urgent requirement in order to properly inform treatment recommendations. 20,21
+
+Although some differences between guideline recommendations are likely to arise from methodological differences in underpinning research, in other areas the discrepancies in advice reflect a lack of evidence. For instance, there is only slim evidence on which to base recommendations regarding dietary advice for acne, 22 the need for maintenance treatment and what specific advice is most necessary in order to mitigate against side effects of common treatments.
+
+-
+
+<!-- image -->
+
+4.4 | Implications for practice
+
+There is a clear role for topicals, and the provision of sufficient advice on how to use these is important. Given topical agents require treatment for several weeks, this may suggest that signposting patients towards high quality evidence-based advice to support treatment adherence. There is a need for increased emphasis and consensus on the risks of antibiotic resistance with oral antibiotics. This systematic review of acne guidelines has indicated that access to oral isotretinoin varies. Therefore, it may be helpful to consider how people with acne that meet the licensed indications for isotretinoin secure their treatment in their care pathway.
+
+ACKNOWLEDGEMENTS
+
+Help with translation: Kristen Veighey.
+
+CONFLICT OF INTEREST STATEMENT
+
+Alison M. Layton has provided unrestricted educational talks or acted as a consultant on research developments for Proctor & Gamble, Galderma Pharmaceuticals, La Roche-Posay, Leo Pharma, Novartis, L'Oreal, Beiersdorf and Origimm. She is currently a member of the British Association of Dermatologists Retinoid Working Group. She chairs a National UK Acne Group and is a member of the Personalising Acne Consensus of Experts which has superseded the Acne Global Alliance implemented to improve outcomes in acne management. The latter 2 groups are supported by Galderma Pharmaceuticals. The other authors declare that they have no known conflicts of interest.
+
+AUTHOR CONTRIBUTIONS
+
+Louise Corcoran : conceptualization (equal); data curation (equal); investigation (equal); writing-original draft (lead); writing-review & editing (lead). Ingrid Muller : conceptualization (equal); writing-review & editing (equal). Alison M. Layton : conceptualization (equal); writing-review & editing (equal). Gwennan Rucinski : conceptualization (equal); data curation (equal); investigation (equal); writing-review & editing (equal). Viktoria Venkatess : conceptualization (equal); data curation (equal); investigation (equal); writingreview & editing (equal). Anicka Sufraz : conceptualization (equal); data curation (equal); investigation (equal); writing-review & editing (equal). Sophie Dove : writing-review & editing (equal). Mark Lown : conceptualization (equal); writing-review & editing (equal). Beth Stuart : conceptualization (equal); methodology (lead); writing-review & editing (equal). Nick Francis : conceptualization (equal); writing-review & editing (equal). Miriam Santer : conceptualization (equal); data curation (equal); investigation (equal); writing-original draft (lead); writing-review & editing (lead).
+
+DATA AVAILABILITY STATEMENT
+
+Data derived from public domain resources.
+
+ETHICS STATEMENT
+
+Not applicable.
+
+REFERENCES
+
+1. Layton A, Thiboutot D, Tan J. Reviewing the Global Burden of acne: how could we improve care to reduce the burden? Br J Dermatol. 2020;184(2):219-25. https://doi.org/10.1111/bjd. 19477
+2. Walsh TR, Efthimiou J, Dréno B. Systematic review of antibiotic resistance in acne: an increasing topical and oral threat. Lancet Infect Dis. 2016;16(3):e23-33. https://doi.org/10.1016/s14733099(15)00527-7
+3. Eady E, Layton A, Sprakel J, Arents B, Fedorowicz Z, van Zuuren E. AGREE II assessments of recent acne treatment guidelines: how well do they reveal trustworthiness as defined by the US Institute of Medicine criteria? Br J Dermatol. 2017; 177(6):1716-25. https://doi.org/10.1111/bjd.15777
+4. Sanclemente G, Acosta JL, Tamayo ME, Bonfill X, AlonsoCoello P. Clinical practice guidelines for treatment of acne vulgaris: a critical appraisal using the AGREE II instrument. Arch Dermatol Res. 2014;306(3):269-77. https://doi.org/10.1007/ s00403-013-1394-x
+5. Kawala C, Fernando D, Tan JK. Quality appraisal of acne clinical practice guidelines, 2008-2013. J Cutan Med Surg. 2014;18(6):385-91. https://doi.org/10.2310/7750.2014.13190
+6. AGREE Next Steps Consortium. Appraisal of guidelines for research & evaluation II 2017; 2019.
+7. Guidelines international network. https://g-i-n.net/internationalguidelines-library (Accessed 1 December 2022)
+8. [Google translate. https://translate.google.com/](https://translate.google.com/)
+9. Koeck P, Germonpre S, Dewachter J, et al. Acne update. Working Group Development of Primary Care Guidelines; 2017.
+10. Le Cleach L, Lebrun-Vignes B, Bachelot A, Beer F, Berger P, Brugère S, et al. Guidelines for the management of acne: recommendations from a French multidisciplinary group. Br J Dermatol. 2017;177(4):908-13. https://doi.org/10.1111/bjd. 15843
+11. Thiboutot DM, Dréno B, Abanmi A, Alexis AF, Araviiskaia E, Barona Cabal MI, et al. Practical management of acne for clinicians: an international consensus from the global alliance to improve outcomes in acne. J Am Acad Dermatol. 2018;78(2): S1-S23. https://doi.org/10.1016/j.jaad.2017.09.078
+12. Bagatin E, Florez-White M, Arias-Gomez MI, Kaminsky A. Algorithm for acne treatment: Ibero-Latin American consensus. An Bras Dermatol. 2017;92(5):689-93. https://doi.org/10.1590/ abd1806-4841.20177003
+13. Hayashi N, Akamatsu H, Iwatsuki K, Shimada-Omori R, Kaminaka C, Kurokawa I, et al. Japanese dermatological association guidelines: guidelines for the treatment of acne vulgaris 2017. J Dermatol. 2018;45(8):898-935. https://doi.org/10.1111/13468138.14355
+14. Bruinsma M, Jaspar A, De Ruijter W, et al. NHG-werkgroep acne. NHG-Standaard Acne (derde herziening). Huisarts Wet. 2017;4:164-70.
+15. Stangeland KZ, Huldt-Nystrøm T, Li X, et al. Behandling av akne. Tidsskrift for Den norske legeforening; 2019.
+16. Oon HH, Wong SN, et al. Acne management guidelines by the dermatological society of Singapore. J Clin Aesthet Dermatol. 2019;12(7):34-50.
+17. NICE. Guideline NG198 acne vulgaris: management. https:// www.nice.org.uk/guidance/NG198
+
+18. Dessinioti C, Zouboulis C, Bettoli V, Rigopoulos D. Comparison of guidelines and consensus articles on the management of patients with acne with oral isotretinoin. J Eur Acad Dermatol Venereol. 2020;34(10):2229-40. https://doi.org/10.1111/jdv. 16430
+19. Stuart B, Maund E, Wilcox C, Sridharan K, Sivaramakrishnan G, Regas C, et al. Topical preparations for the treatment of mild to moderate acne vulgaris: systematic review and network metaanalysis. Br J Dermatol. 2021;185(3):512-25. https://doi.org/ 10.1111/bjd.20080
+20. ACORN. Welcome to ACORN. https://sites.psu.edu/acne coreoutcomes/
+21. Layton AM, Eady EA, Thiboutot DM, Tan J, Abad-Casintahan F, Bhate K, et al. Identifying What to measure in acne clinical trials: first steps towards development of a core outcome set. J Invest Dermatol. 2017;137(8):1784-86. https://doi.org/10.1016/j.jid. 2017.04.017
+22. Barbieri JS, Spaccarelli N, Margolis DJ, James WD. Approaches to limit systemic antibiotic use in acne: systemic alternatives, emerging topical therapies, dietary modification, and
+
+Open Access
+
+-
+
+laser and light-based treatments. J Am Acad Dermatol. 2019; 80(2):538-49. https://doi.org/10.1016/j.jaad.2018.09.055
+
+SUPPORTING INFORMATION
+
+Additional supporting information can be found online in the Supporting Information section at the end of this article.
+
+How to cite this article: Corcoran L, Muller I, Layton AM, Rucinski G, Venkatess V, Sufraz A, et al. Systematic review of clinical practice guidelines for acne vulgaris published between January 2017 and July. Skin Health Dis. 2023;3(4):e240. https://doi.org/10.1002/ski2.240

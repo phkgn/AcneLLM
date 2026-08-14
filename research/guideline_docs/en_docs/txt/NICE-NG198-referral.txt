@@ -1,0 +1,1024 @@
+National Institute for Health and Care Excellence
+
+Final
+
+Acne vulgaris: management
+
+[D] Referral to specialist care
+
+NG198
+
+Evidence review underpinning recommendations 1.4.1 to 1.4.6 and 1.5.4 in the NICE guideline June 2021
+
+Final
+
+These evidence reviews were developed by the National Guideline Alliance which is a part of the Royal College of Obstetricians and Gynaecologists Contents
+
+<!-- image -->
+
+Disclaimer
+
+The recommendations in this guideline represent the view of NICE, arrived at after careful consideration of the evidence available. When exercising their judgement, professionals are expected to take this guideline fully into account, alongside the individual needs, preferences and values of their patients or service users. The recommendations in this guideline are not mandatory and the guideline does not override the responsibility of healthcare professionals to make decisions appropriate to the circumstances of the individual patient, in consultation with the patient and/or their carer or guardian.
+
+Local commissioners and/or providers have a responsibility to enable the guideline to be applied when individual health professionals and their patients or service users wish to use it. They should do so in the context of local and national priorities for funding and developing services, and in light of their duties to have due regard to the need to eliminate unlawful discrimination, to advance equality of opportunity and to reduce health inequalities. Nothing in this guideline should be interpreted in a way that would be inconsistent with compliance with those duties.
+
+NICE guidelines cover health and care in England. Decisions on how they apply in other UK countries are made by ministers in the Welsh Government, Scottish Government, and Northern Ireland Executive. All NICE guidance is subject to regular review and may be updated or withdrawn.
+
+Copyright
+
+© NICE 2021. All rights reserved. Subject to Notice of Rights.
+
+ISBN:978-1-4731-4147-6
+
+Contents
+
+[Bang 1] Contents ..............................................................................................................................: Review question | 4: 6.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: When should people with acne vulgaris be referred to specialist care; | 4: 6.
+[Bang 1] Contents ..............................................................................................................................: Introduction | 4: 6.
+[Bang 1] Contents ..............................................................................................................................: Summary of the protocol | 4: 6.
+[Bang 1] Contents ..............................................................................................................................: Methods and process | 4: 6.
+[Bang 1] Contents ..............................................................................................................................: Clinical evidence | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: Summary of studies included in the evidence review | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: Quality assessment of studies included in the evidence review | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: Economic evidence | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: Economic model | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: The committee's di scussion of the evidence | 4: 7.
+[Bang 1] Contents ..............................................................................................................................: Recommendations supported by this evidence review | 4: 10.
+[Bang 1] Contents ..............................................................................................................................: References | 4: 10.
+[Bang 1] Contents ..............................................................................................................................: Appendices | 4: 11.
+[Bang 1] Contents ..............................................................................................................................: Appendix A - Review protocol | 4: 11.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Review protocol for review question: When should people with acne vulgaris be referred to specialist care; | 4: 11.
+[Bang 1] Contents ..............................................................................................................................: Appendix B - Literature search strategies | 4: 17.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Literature search strategies for review question: When should people with acne vulgaris be referred to specialist care; | 4: 17.
+[Bang 1] Contents ..............................................................................................................................: Appendix C - Clinical evidence study selection | 4: 20.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Study selection for: When should people with acne vulgaris be referred to specialist care; | 4: 20.
+[Bang 1] Contents ..............................................................................................................................: Appendix D - Evidence tables | 4: 21.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Evidence tables for review question: When should people with acne vulgaris be referred to specialist care; | 4: 21.
+[Bang 1] Contents ..............................................................................................................................: Appendix E - Forest plots | 4: 22.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Forest plots for review question: When should people with acne vulgaris be referred to specialist care; | 4: 22.
+[Bang 1] Contents ..............................................................................................................................: Appendix F - GRADE tables | 4: 23.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: GRADE tables for review question: When should people with acne vulgaris be referred to specialist care; | 4: 23.
+[Bang 1] Contents ..............................................................................................................................: Appendix G - Economic evidence study selection | 4: 24.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Economic evidence study selection for review question: When should people with acne vulgaris be referred to specialist care; | 4: 24.
+[Bang 1] Contents ..............................................................................................................................: Appendix H - Economic evidence tables | 4: 25.
+[Bang 1] Contents ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Economic evidence tables for review question: When should people with acne vulgaris be referred to specialist care; | 4: 25.
+[Bang 1] Contents ..............................................................................................................................: Appendix I - Economic evidence profiles | 4: 26.
+[Bang 1] Contents ..............................................................................................................................: Economic evidence profiles for review question: When should people with.
+
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Appendix J - Economic analysis | 26: 27.
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Economic analysis for review question: When should people with acne vulgaris be referred to specialist care; | 26: 27.
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Appendix K - Excluded studies | 26: 28.
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Excluded studies for review question: When should people with acne vulgaris be referred to specialist care; | 26: 28.
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Appendix L - Research recommendations | 26: 29.
+[Bang 2] acne vulgaris be referred to specialist care; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;: Research recommendations for review question: When should people with acne vulgaris be referred to specialist care; | 26: 29.
+
+1
+
+Referral to specialist care
+
+Review question 2
+
+When should people with acne vulgaris be referred to specialist care? 3
+
+Introduction 4
+
+- Appropriate and timely referral for people with acne vulgaris from primary care to specialist 5
+- care is important for both patient outcome and resource management. It may also play a role 6
+- in the prevention of scarring. Finding criteria that indicate that referral is needed is therefore 7
+- the aim of this review. 8
+
+Summary of the protocol 9
+
+10
+
+11
+
+See Table 1 for a summary of the Population, Intervention, Comparison and Outcome (PICO) characteristics of this review.
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+Table 1: Summary of the protocol
+
+[Bang 3] Population: Intervention | People with acne vulgaris: Referral based on pre-determined criteria to specialist care (e;g; to a GP with Extended Roles, secondary care, tertiary care, psychiatrist or psychologist).
+[Bang 3] Population: Comparison | People with acne vulgaris: • Any other referral criteria or no referral.
+[Bang 3] Population: Outcomes | People with acne vulgaris: Critical • Improvement of acne o Participant reported o Investigator-assessed • Serious adverse events • Skin-related quality of life (validated tools only, e;g; Dermatology Life Quality Index) • Scarring Important • Number of referrals.
+
+For further details see the review protocol in appendix A.
+
+Methods and process
+
+This evidence review was developed using the methods and process described in Developing NICE guidelines: the manual. Methods specific to this review question are described in the review protocol in appendix A and the methods document (supplementary document 1).
+
+- Declarations of interest were recorded according to NICE's conflicts of interest policy . 19
+
+Clinical evidence 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+34
+
+35
+
+36
+
+Included studies
+
+A systematic review of the literature was conducted but no studies were identified which were applicable to this review question.
+
+See the literature search strategy in appendix B and study selection flow chart in appendix C.
+
+Excluded studies
+
+Studies not included in this review are listed, and reasons for their exclusion are provided in appendix K.
+
+Summary of studies included in the evidence review
+
+No studies were identified which were applicable to this review question (and so there are no evidence tables in Appendix D). No meta-analysis was undertaken for this review (and so there are no forest plots in Appendix E).
+
+Quality assessment of studies included in the evidence review
+
+No studies were identified which were applicable to this review question.
+
+Economic evidence
+
+Included studies
+
+A single economic search was undertaken for all topics included in the scope of this guideline but no economic studies were identified which were applicable to this review question. See the literature search strategy in appendix B and economic study selection flow chart in appendix G.
+
+Excluded studies
+
+Economic studies not included in this review are listed, and reasons for their exclusion are provided in appendix K.
+
+Economic model
+
+No economic modelling was conducted for this question because other topics were agreed as higher priorities for economic evaluation.
+
+The committee's discussion of the evidence
+
+Interpreting the evidence
+
+The outcomes that matter most
+
+The committee agreed that participant reported and investigator-assessed improvement of acne, serious adverse events, and skin-related quality of life were critical outcomes. Effectiveness of any management strategy would depend on the reduction of acne lesions and therefore improvement of acne as judged by the person who has acne or by the relevant clinician or investigator are critical outcomes. Skin related quality of life would be an indication of whether any referral strategy would have an impact on the person's wellbeing, for instance even when the improvement was not very large. Serious adverse events due to
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+34
+
+35
+
+36
+
+37
+
+38
+
+39
+
+40
+
+41
+
+42
+
+43
+
+44
+
+45
+
+46
+
+47
+
+a lack of referral such as untreated skin reactions were also a critical indicator of effectiveness. The number of referrals was an important outcome due to its impact on resources.
+
+The quality of the evidence
+
+No evidence was identified for this review question.
+
+Benefits and harms
+
+No evidence was identified comparing different criteria of referral to specialist care. The committee therefore made recommendations based on their expertise and experience. They highlighted several distinct types of referral:
+
+- urgent referral because people with the most severe forms of acne would need to be seen within a day due to the seriousness of the condition
+- standard referral criteria because there are groups of people who need to be seen by a member of a consultant dermatologist-led team, for example where the condition is uncertain, or the acne is severe enough for specialist review or acne which has already caused persistent pigmentary changes.
+- referral to mental health services because people's mental health can be affected by acne causing them psychosocial distress or contributing to a mental health disorder.
+- referral to a relevant specialist who can treat an underlying medical cause for their acne because there are many medical conditions or medications that cause or contribute to the development of acne lesions. Amongst these are conditions or medications that impact on people's hormone level s (such as polycystic ovary syndrome or use of anabolic steroids).
+
+The committee also discussed what would constitute 'specialist care' and who the referral would be made to. They agreed that, in line with the MHRA safety advice on isotretinoin for severe acne: uses and effects (which would relate to people with severe form of acne vulgaris) referrals should be made to a consultant dermatologist-led team to ensure the safety of the person in relation to possible mental health concerns and in relation to specific acne treatment options such as oral isotretinoin which can only be prescribed by members of such teams.
+
+Urgent referral
+
+When drafting recommendations, the committee decided that people with acne fulminans have to be referred on the same day in order to be assessed by the on-call hospital dermatology team within 24 hours because this condition could make people seriously unwell, potentially needing them to be admitted to hospital
+
+Standard referral criteria
+
+The committee agreed referral should always take place when people have any of a number of different characteristics, which can be interrelated, to make sure the person can then receive optimal management of their condition. The committee noted that it can sometimes be unclear whether or not the condition people present with is acne vulgaris or another skin condition and therefore people should be referred if there is diagnostic uncertainty. People with nodulo-cystic acne or acne conglobata need to be referred because these are severe forms of acne which can be painful, with deep nodules and cysts and the severe nature of these means that they could lead to scarring.
+
+People who have acne vulgaris who tried a number of different treatments to no effect could also be referred to a consultant dermatologist-led team to establish whether there are other options for the management of their condition to help improve their symptoms. The committee agreed that currently people can remain on ineffective treatments too long and therefore decided that people with mild to moderate acne could be referred after 2 completed
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+34
+
+35
+
+36
+
+37
+
+38
+
+39
+
+40
+
+41
+
+42
+
+43
+
+44
+
+45
+
+46
+
+47
+
+48
+
+courses of treatment to explore further options. The committee noted that people with moderate to severe forms of acne may need treatment (such as oral isotretinoin) which can only be prescribed by members of a consultant dermatologist-led team and they therefore recommended that they should be referred. This should happen only if they had tried a treatment that included an oral antibiotic which is a prerequisite for oral isotretinoin treatment. The committee also recommended to that people with acne with persistent pigmentary changes associated with acne vulgaris (for example people with darker skin colour because post-inflammatory hyperpigmentation may occur as a result of acne) could be referred so that further changes in skin pigmentation can be prevented. People with acne with scarring can also be referred so that they receive optimal treatment to prevent further acne associated scarring.
+
+The committee also agreed that there needs to be referral if acne or acne related scarring is causing or contributing to persistent psychological distress or a mental health disorder to ensure that their acne is treated promptly which may alleviate their distress.
+
+Referral to mental health services
+
+The committee recognised that acne vulgaris can have a psychological and social impact on people, causing anxiety or depression. It can also exacerbate pre-existing mental health conditions. They discussed that it is important to refer people to mental health services if they experience significant psychological distress or a mental health disorder to ensure people's safety. In light of the MHRA safety advice on isotretinoin for severe acne: uses and effects related to, amongst other safety advice, adverse psychological events associated with oral isotretinoin treatment, referral to mental health services is particularly important when the use of this specific treatment is anticipated.
+
+When discussing the psychological distress related to acne, the committee recognised that acne of any severity can cause psychological distress and mental health disorders. They agreed that this was an important principle that should be taken into account during consultation and decided to raise awareness of this so that psychological wellbeing of people with acne is considered when they are seen by a healthcare professional.
+
+Referral of people with an underlying medical cause for their acne vulgaris
+
+Based on their experience the committee noted that there are conditions (for example polycystic ovary syndrome) or people on medications (including self-taken anabolic steroids) which can be the cause of acne. The committee highlighted that people with such causal conditions or on such medications should be treated for their acne, but the healthcare professional should also consider whether they can provide specific management for the causal condition or whether a referral should be made to a relevant specialist (for example to a reproductive endocrinologist) so that the underlying condition is reviewed and managed. This is to ensure that not only the acne but also the condition itself is appropriately managed.
+
+The committee discussed whether a research recommendation should be made for this topic, but decided that there are a multitude of reasons for referrals related to acne and also many different specialists to potentially refer to which means that it would be difficult to design such studies. They therefore decided not to prioritise this topic for a research recommendation.
+
+Cost effectiveness and resource use
+
+No economic evidence on the cost effectiveness of different criteria for referral of people with acne vulgaris to specialist services was identified. When drafting recommendations, the committee agreed that, for some groups of people with acne vulgaris (for example those with acne fulminans, nodulo-cystic acne, or where there is diagnostic uncertainty), specialist care is essential for people's safety and symptom improvem ent. The committee expressed the
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+opinion that referral to specialist care is also likely to be beneficial for other groups of people with acne, for example people with mild to moderate acne that has not responded to 2 completed courses of treatment and those with moderate to severe acne that has not responded to previous treatment which contains an oral antibiotic. These groups have more persistent forms of acne that are more likely to improve following more focused, specialist care, which may include (in the case of people with moderate to severe acne) treatment with isotretinoin that can only be provided in specialist dermatology settings. People with acne (or acne-related scarring) and psychological distress or a mental health disorder are also expected to benefit from specialist dermatology care that addresses their acne-related symptoms, which in turn is anticipated to alleviate psychological distress; they are also expected to benefit from specialist mental health care that can address any mental health concerns and reduce the risk of development of mental health problems. The committee was aware that referral to specialist care requires use of additional healthcare resources at extra costs, but decided to make recommendations based on their expertise because they expressed the view that benefits of referral to specialist care are likely to outweigh associated costs. Moreover, according to the committee's opinion, timely referral to specialist services is expected to lead to health improvements before clinical symptoms of acne and other related conditions (for example mental health problems) become more severe and require more resource intensive, and thus costlier, management. The committee made strong recommendations ('refer') for groups of people for who m specialist care was considered to be essential for their safety and symptom improvement and weaker recommendations ('consider referring') for groups of people for whom specialist care was considered to be most likely beneficial.
+
+Other factors the committee took into account
+
+The committee cross referred to other NICE guidance relevant to the recognition of mental health disorders that may be associated with acne (such as NICE guidelines on depression in children and young people: identification and management, depression in adults: recognition and management and self-harm in over 8s: long-term management).
+
+Recommendations supported by this evidence review
+
+This evidence review supports recommendations 1.4.1 to 1.4.6 and 1.5.4 in the guideline.
+
+References
+
+There were no studies identified that were applicable to this review question.
+
+1
+
+2
+
+3
+
+4
+
+Appendices
+
+Appendix A -Review protocol
+
+Review protocol for review question: When should people with acne vulgaris be referred to specialist care?
+
+Table 2: Review protocol 5
+
+[Bang 4] Field: PROSPERO registration number | Content: CRD42020165931.
+[Bang 4] Field: Review title | Content: Referral to specialist care.
+[Bang 4] Field: Review question | Content: When should people with acne vulgaris be referred to specialist care?.
+[Bang 4] Field: Objective | Content: The aim of this review is to provide guidance on criteria that may indicate when people with acne vulgaris may need specialist care.
+[Bang 4] Field: Searches | Content: The following databases will be searched: • CCTR • Cochrane Database of Systematic Reviews (CDSR) • Embase • MEDLINE • MEDLINE IN-PROCESS Searches will be restricted by: • Date: No restriction • Language of publication: English language only • Publication status: Conference abstracts will be excluded because these do not typically provide sufficient information to fully assess risk of bias • Standard exclusions filter (animal studies/low level publication types) will be applied • For each search (including economic searches), the principal database search strategy is quality assured by a second information specialist.
+[Bang 4] Field: Condition or domain being studied | Content: • Acne vulgaris.
+[Bang 4] Field: Population | Content: • Inclusion: People with acne vulgaris • Exclusion: o Neonatal acne o People with post-inflammatory dyspigmentation.
+[Bang 4] Field: Intervention | Content: • Referral based on pre-determined criteria to specialist care (for example to GP with Extended Roles, secondary care, tertiary care, psychiatrist or psychologist).
+[Bang 4] Field: Comparator | Content: • Any other referral criteria or no referral.
+[Bang 4] Field: Types of study to be included | Content: Included study designs: • Systematic reviews/meta-analyses of randomised controlled trials (RCTs) • Randomised controlled trials (individual or cluster).
+
+[Bang 5] Content: Excluded study designs: • Quasi- or non-randomised controlled studies • Case-control studies • Cohort studies • Cross-sectional studies • Epidemiological reviews or reviews on associations • Non-comparative studies Note: For further details, see the algorithm in appendix H, Developing NICE guidelines: the manual.
+[Bang 5] Field: Other exclusion criteria | Content: • Studies with indirect population: Where studies with a mixed population (that is include people with acne vulgaris and another condition, for example hirsutism) are identified, those with <66% of the relevant population will be excluded, unless subgroup analysis for acne vulgaris is reported.
+[Bang 5] Field: Context | Content: Recommendations will apply to those receiving care in any healthcare setting (for example community, primary care, secondary care).
+[Bang 5] Field: Primary outcomes (critical outcomes) | Content: Critical outcomes • Improvement of acne o Participant reported o Investigator-assessed • Serious adverse events • Skin-related quality of life (validated tools only, for example Dermatology Life Quality Index) • Scarring.
+[Bang 5] Field: Secondary outcomes (important outcomes) | Content: Important outcomes • Number of referrals.
+[Bang 5] Field: Data extraction (selection and coding) | Content: All references identified by the searches and from other sources will be uploaded into STAR and de-duplicated; Review questions selected as high priorities for health economic analysis (and those selected as medium priorities and where health economic analysis could influence recommendations) will be subject to dual weeding and study selection; any discrepancies above 10% of the dual weeded resources will be resolved through discussion between the first and second reviewers or by reference to a third person; The full text of potentially eligible studies will be retrieved and will be assessed in line with the criteria outlined above; A standardised form will be used to extract data from studies (see Developing NICE guidelines: the manual section 6.4); All data extraction will quality assured by a senior reviewer; Draft excluded studies and evidence tables will be circulated to the Topic Group for their comments; Resolution of disputes will be by discussion between the senior reviewer, Topic Advisor and Chair.
+[Bang 5] Field: Risk of bias (quality) assessment | Content: Risk of bias of individual studies will be assessed using the preferred checklist as described in Developing NICE guidelines: the manual.
+[Bang 5] Field: Strategy for data synthesis | Content: Synthesis of data: • For dichotomous outcomes, intention-to-treat (ITT) data will be used if available; if not then available data will be used.
+
+[Bang 6] Content: • Meta-analysis will be conducted where appropriate; • Final and change scores will be pooled and if any study reports both, change scores will be used in preference over final scores; • If studies only report p-values from parametric analyses, and 95% CIs cannot be calculated from other data provided, the SMD will be calculated and plotted in RevMan using the generic inverse variance method; • If studies only report p-values from non-parametric analyses and mean/SE/SD cannot be calculated, this information will be included in GRADE tables but downgraded by one level as imprecision cannot be assessed for such analyses; Sensitivity analysis • Sensitivity analysis will be conducted according to risk of bias of individual studies; Missing data will be accounted for in the risk of bias assessment; Heterogeneity: • Heterogeneity will be assessed by visual examination of the forest plots and by the I2 statistic (where I2 ≥50% indicates serious heterogeneity and I2 ≥80 indicates very serious heterogeneity) Minimal important differences (MIDs): • Default MIDs will be used for risk ratios and continuous outcomes only, unless the committee pre-specifies published or other MIDs for specific outcomes o For risk ratios: 0.8 and 1.25; o For continuous outcomes: +/-0.5 times the baseline SD of the control arm; If there are 2 studies, the MID is calculated as +/- 0.5 times the mean of the SDs of the control arms at baseline; If there are 3 or more studies, the MID is calculated as +/- 0.5 times the median of the SDs of the control arms at baseline; If baseline SD is not available, then SD at follow up will be used; Appraisal of methodological quality: • The methodological quality of each study will be assessed using an appropriate checklist as per the NICE guidelines manual; • The quality of the evidence will be assessed by GRADE for each outcome according to the process described in the NICE guidelines manual.
+[Bang 6] Field: Analysis of sub-groups | Content: Stratified analysis will be conducted for the following groups: • Gender • Sex • Age • Skin pigmentation • Severity of acne o Mild o Moderate and severe Note: Recommendations will apply to all people with acne vulgaris unless there is evidence of difference for these subgroups; The guideline will look at inequalities relating to people of darker skin colour, people with pre- existing mental health conditions, transgender people and people whose first language is not English.
+
+[Bang 7] Field: Type and method of review | Content: ☒ | Content: Intervention | Content: Intervention | Content: Intervention.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Diagnostic | Content: Diagnostic | Content: Diagnostic.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Prognostic | Content: Prognostic | Content: Prognostic.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Qualitative | Content: Qualitative | Content: Qualitative.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Epidemiologic | Content: Epidemiologic | Content: Epidemiologic.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Service Delivery | Content: Service Delivery | Content: Service Delivery.
+[Bang 7] Field: Type and method of review | Content: ☐ | Content: Other (please specify) | Content: Other (please specify) | Content: Other (please specify).
+[Bang 7] Field: Language | Content: English | Content: English | Content: English | Content: English.
+[Bang 7] Field: Country | Content: England | Content: England | Content: England | Content: England.
+[Bang 7] Field: Anticipated or actual start date | Content: 18 February 2019 | Content: 18 February 2019 | Content: 18 February 2019 | Content: 18 February 2019.
+[Bang 7] Field: Anticipated completion date | Content: 13 January 2021 | Content: 13 January 2021 | Content: 13 January 2021 | Content: 13 January 2021.
+[Bang 7] Field: Stage of review at time of this submission | Content: Review stage | Content: Review stage | Content: Started | Content: Completed.
+[Bang 7] Field: Stage of review at time of this submission | Content: Preliminary searches | Content: Preliminary searches.
+[Bang 7] Field: Stage of review at time of this submission | Content: Piloting of the study selection process | Content: Piloting of the study selection process.
+[Bang 7] Field: Stage of review at time of this submission | Content: Formal screening of search results against eligibility criteria | Content: Formal screening of search results against eligibility criteria.
+[Bang 7] Field: Stage of review at time of this submission | Content: Data extraction | Content: Data extraction.
+[Bang 7] Field: Stage of review at time of this submission | Content: Risk of bias (quality) assessment | Content: Risk of bias (quality) assessment.
+[Bang 7] Field: Stage of review at time of this submission | Content: Data analysis | Content: Data analysis.
+[Bang 7] Field: Named contact | Content: 5a; Named contact National Guideline Alliance 5b Named contact e-mail | Content: 5a; Named contact National Guideline Alliance 5b Named contact e-mail | Content: 5a; Named contact National Guideline Alliance 5b Named contact e-mail | Content: 5a; Named contact National Guideline Alliance 5b Named contact e-mail.
+
+[Bang 8] Field: Review team members | Content: National Institute for Health and Care Excellence (NICE) and National National Guideline | Content: Alliance.
+[Bang 8] Field: Funding sources/sponsor | Content: This systematic review is being completed by the National Guideline Alliance, which is funded by NICE and hosted by the Royal College of Obstetricians and Gynaecologists; NICE funds the National Guideline Alliance to develop guidelines for those working in the NHS, public health, | Content: This systematic review is being completed by the National Guideline Alliance, which is funded by NICE and hosted by the Royal College of Obstetricians and Gynaecologists; NICE funds the National Guideline Alliance to develop guidelines for those working in the NHS, public health,.
+[Bang 8] Field: Conflicts of interest | Content: All guideline committee members and anyone who has direct input into NICE guidelines (including the evidence review team and expert witnesses) must declare any potential conflicts of interest in line with NICE's code of practice for declaring and dealing with conflicts of interest; Any relevant interests, or changes to interests, will also be declared publicly at the start of each guideline committee meeting; Before each meeting, any potential conflicts of interest will be considered by the guideline committee Chair and a senior member of the development team; Any decisions to exclude a person from all or part of a meeting will be documented; Any changes to a member's declaration of interests will be recorded in the minutes of the meeting; Declarations of interests will be | Content: All guideline committee members and anyone who has direct input into NICE guidelines (including the evidence review team and expert witnesses) must declare any potential conflicts of interest in line with NICE's code of practice for declaring and dealing with conflicts of interest; Any relevant interests, or changes to interests, will also be declared publicly at the start of each guideline committee meeting; Before each meeting, any potential conflicts of interest will be considered by the guideline committee Chair and a senior member of the development team; Any decisions to exclude a person from all or part of a meeting will be documented; Any changes to a member's declaration of interests will be recorded in the minutes of the meeting; Declarations of interests will be.
+[Bang 8] Field: Collaborators | Content: Development of this systematic review will be overseen by an advisory committee who will use the review to inform the development of evidence- based recommendations in line with section 3 of Developing NICE guidelines: the manual; Members of the guideline committee are available | Content: Development of this systematic review will be overseen by an advisory committee who will use the review to inform the development of evidence- based recommendations in line with section 3 of Developing NICE guidelines: the manual; Members of the guideline committee are available.
+[Bang 8] Field: Other registration details | Content: Not applicable | Content: Not applicable.
+[Bang 8] Field: Reference/URL for published protocol | Content: https://www;crd;york;ac;uk/prospero/display_record;php?RecordID=165931 | Content: https://www;crd;york;ac;uk/prospero/display_record;php?RecordID=165931.
+[Bang 8] Field: Dissemination plans | Content: NICE may use a range of different methods to raise awareness of the guideline; These include standard approaches such as: • notifying registered stakeholders of publication • publicising the guideline through NICE's newsletter and alerts • issuing a press release or briefing as appropriate, posting news articles on the NICE website, using social media channels, and publicising the | Content: NICE may use a range of different methods to raise awareness of the guideline; These include standard approaches such as: • notifying registered stakeholders of publication • publicising the guideline through NICE's newsletter and alerts • issuing a press release or briefing as appropriate, posting news articles on the NICE website, using social media channels, and publicising the.
+[Bang 8] Field: Keywords | Content: guideline within NICE; Acne; management; pathway; primary care; referral; secondary care; tertiary care; treatment | Content: guideline within NICE; Acne; management; pathway; primary care; referral; secondary care; tertiary care; treatment.
+[Bang 8] Field: Details of existing review of same topic by same authors | Content: Not applicable.
+[Bang 8] Field: Current review status | Content: ☒ | Content: Ongoing.
+[Bang 8] Content: ☐ | Content: Completed but not published.
+
+[Bang 9] Content: ☐ | cot3: Completed and published.
+[Bang 9] Content: ☐ | cot3: Completed, published and being updated.
+[Bang 9] Content: ☐ | cot3: Discontinued.
+[Bang 9] Field: Additional information | Content: Not applicable.
+[Bang 9] Field: Details of final publication | Content: www;nice;org;uk.
+
+CDSR: Cochrane Database of Systematic Reviews; CENTRAL: Cochrane Central Register of Controlled Trials; DARE: Database of Abstracts of Reviews of Effects; GRADE: Grading of Recommendations Assessment, Development and Evaluation; HTA: Health Technology Assessment; MID: minimally important difference; NGA: National Guideline Alliance; NHS: National health service; NICE: National Institute for Health and Care Excellence; RCT: randomised controlled trial; RoB: risk of bias; SD: standard deviation
+
+Appendix B -Literature search strategies 1
+
+- Literature search strategies for review question: When should people with acne 2 vulgaris be referred to specialist care? 3
+- Clinical search 4
+- Date of initial search: 05/12/2019 5
+- Database(s): Embase Classic+Embase 1947 to 2019 December 03, Ovid MEDLINE(R) and 6
+- Epub Ahead of Print, In-Process & Other Non-Indexed Citations and Daily 1946 to December 7
+- 03, 2019 8
+- Multifile database codes: emczd = Embase Classic+Embase; ppez= MEDLINE(R) and Epub Ahead of 9 Print, In-Process & Other Non-Indexed Citations and Daily
+- 10
+- Date of initial search: 05/12/2019 11
+- The Cochrane Library: Cochrane Database of Systematic Reviews, Issue 12 of 12,December 12 2019; Cochrane Central Register of Controlled Trials, Issue 12 of 12, December 2019 13
+
+<!-- image -->
+
+```
+ID Search #1 MeSH descriptor: [Acne Vulgaris] explode all trees #2 acne:ti,ab
+```
+
+<!-- image -->
+
+- Health Economics search 1
+- 2
+- Date of initial search: 12/12/2018
+- Date of updated search: 06/05/2020 3
+- Database{s): Embase 1980 to 2020 May 05, Ovid MEDLINE(R) and Epub Ahead of Print, In4
+- Process & Other Non-Indexed Citations and Daily 1946 to May 05, 2020 5
+- Multifile database codes: emez = Embase; ppez = MEDLINE(R) and Epub Ahead of Print, In-Process 6 & Other Non-Indexed Citations and Daily 7
+- Date of initial search: 12/12/2018 8
+- Date of updated search: 06/05/2020 9
+- Databases(s): NIHR Centre for Reviews and Dissemination: Health Technology Assessment 10
+- Database (HTA) and the NHS Economic Evaluation Database (NHS EED) 11
+- Search for health utility values 12
+- Date of initial search: 29/01/2019 13
+
+<!-- image -->
+
+[Bang 10] #: 1 | Searches: MeSH DESCRIPTOR Acne Vulgaris EXPLODE ALL TREES.
+[Bang 10] #: 2 | Searches: (acne) IN NHSEED, HTA FROM 2004 TO 2018.
+[Bang 10] #: 3 | Searches: #1 OR #2.
+
+- Date of updated search: 06/05/2020 1
+- Database{s): Embase 1980 to 2020 May 05, Ovid MEDLINE(R) and Epub Ahead of Print, In2
+- Process & Other Non-Indexed Citations and Daily 1946 to May 05, 2020 3
+- Multifile database codes: emez = Embase; ppez = MEDLINE(R) and Epub Ahead of Print, In-Process 4
+- & Other Non-Indexed Citations and Daily 5
+
+Searches
+
+1
+
+exp Acne Vulgaris/ use ppez
+
+2
+
+exp acne/ use emez
+
+3
+
+acne.tw.
+
+4
+
+or/1-3
+
+5
+
+Quality-Adjusted Life Years/ use ppez
+
+6
+
+Sickness Impact Profile/
+
+7
+
+quality adjusted life year/ use emez
+
+8
+
+"quality of life index"/ use emez
+
+9
+
+(quality adjusted or quality adjusted life year*).tw.
+
+10
+
+(qaly* or qal or qald* or qale* or qtime* or qwb* or daly).tw.
+
+11
+
+(illness state* or health state*).tw.
+
+12
+
+(hui or hui2 or hui3).tw.
+
+13
+
+(multiattibute* or multi attribute*).tw.
+
+14
+
+(utilit* adj3 (score*1 or valu* or health* or cost* or measur* or disease* or mean or gain or gains or index*)).tw.
+
+15
+
+utilities.tw.
+
+- 16 (eq-5d* or eq5d* or eq-5* or eq5* or euroqual* or euro qual* or euroqual 5d* or euro qual 5d* or euro qol* or euroqol*or euro quol* or euroquol* or euro quol5d* or euroquol5d* or eur qol* or eurqol* or eur qol5d* or eurqol5d* or eur?qul* or eur?qul5d* or euro* quality of life or european qol).tw.
+
+17
+
+(euro* adj3 (5 d* or 5d* or 5 dimension* or 5dimension* or 5 domain* or 5domain*)).tw.
+
+18
+
+(sf36 or sf 36 or sf thirty six or sf thirtysix).tw.
+
+19
+
+(time trade off*1 or time tradeoff*1 or tto or timetradeoff*1).tw.
+
+20
+
+Quality of Life/ and ((quality of life or qol) adj (score*1 or measure*1)).tw.
+
+21
+
+Quality of Life/ and ec.fs.
+
+22
+
+Quality of Life/ and (health adj3 status).tw.
+
+23
+
+(quality of life or qol).tw. and Cost-Benefit Analysis/ use ppez
+
+24
+
+(quality of life or qol).tw. and cost benefit analysis/ use emez
+
+25
+
+((qol or hrqol or quality of life).tw. or *quality of life/) and ((qol or hrqol* or quality of life) adj2 (increas* or decreas* or
+
+improv* or declin* or reduc* or high* or low* or effect or effects or worse or score or scores or change*1 or impact*1 or
+
+impacted or deteriorat*)).ab.
+
+26
+
+Cost-Benefit Analysis/ use ppez and cost-effectiveness ratio*.tw. and (cost-effectiveness ratio* and (perspective* or
+
+life expectanc*)).tw.
+
+- 27 cost benefit analysis/ use emez and cost-effectiveness ratio*.tw. and (cost-effectiveness ratio* and (perspective* or life expectanc*)).tw.
+
+28
+
+*quality of life/ and (quality of life or qol).ti.
+
+29
+
+quality of life/ and ((quality of life or qol) adj3 (improv* or chang*)).tw.
+
+30
+
+quality of life/ and health-related quality of life.tw.
+
+31
+
+Models, Economic/ use ppez
+
+32
+
+economic model/ use emez
+
+33
+
+or/5-32
+
+34
+
+4 and 33
+
+35
+
+limit 34 to english language
+
+36
+
+limit 35 to yr="2004 -Current"
+
+37
+
+remove duplicates from 36
+
+<!-- image -->
+
+Appendix C -Clinical evidence study selection 1
+
+- Study selection for: When should people with acne vulgaris be referred to 2 specialist care? 3
+- Figure 1: Study selection flow chart 4
+
+5
+
+6
+
+7
+
+<!-- image -->
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+Appendix D -Evidence tables
+
+Evidence tables for review question: When should people with acne vulgaris be referred to specialist care?
+
+No evidence was identified which was applicable to this review question.
+
+Appendix E -Forest plots 7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+Forest plots for review question: When should people with acne vulgaris be referred to specialist care?
+
+No evidence was identified which was applicable to this review question.
+
+Appendix F -GRADE tables 1
+
+2
+
+3
+
+GRADE tables for review question: When should people with acne vulgaris be referred to specialist care?
+
+4
+
+5
+
+No evidence was identified which was applicable to this review question.
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+Appendix G -Economic evidence study selection
+
+Economic evidence study selection for review question: When should people with acne vulgaris be referred to specialist care?
+
+A global health economics search was undertaken for all areas covered in the guideline.
+
+Figure 2 shows the flow diagram of the selection process for economic evaluations of interventions and strategies associated with the care of people with acne vulgaris and studies reporting acne vulgaris-related health state utility data.
+
+Figure 2. Flow diagram of selection process for economic evaluations of interventions and strategies associated with the care of people with acne vulgaris and studies reporting acne vulgaris-related health state utility data
+
+<!-- image -->
+
+<!-- image -->
+
+Appendix H -Economic evidence tables 1
+
+2
+
+3
+
+- Economic evidence tables for review question: When should people with acne vulgaris be referred to specialist care?
+
+4
+
+5
+
+No economic evidence was identified which was applicable to this review question.
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+Appendix I -Economic evidence profiles
+
+Economic evidence profiles for review question: When should people with acne vulgaris be referred to specialist care?
+
+No economic evidence was identified which was applicable to this review question.
+
+Appendix J -Economic analysis 1
+
+2
+
+3
+
+Economic analysis for review question: When should people with acne vulgaris be referred to specialist care?
+
+4
+
+5
+
+No economic analysis was conducted for this review question.
+
+Appendix K -Excluded studies 1
+
+- 2
+- 3
+
+Excluded studies for review question: When should people with acne vulgaris be referred to specialist care?
+
+Clinical studies 4
+
+Table 3: Excluded studies and reasons for their exclusion 5
+
+[Bang 11] Study: Castillo-Arenas, E;, Garrido, V;, Serrano-Ortega, S;, Skin conditions in primary care: an analysis of referral demand, Actas Dermo-Sifiliograficas, 105, 271-5, 2014 | Reason for exclusion: A descriptive study examining the most common reasons for referral to dermatology in primary care in Spain and the diagnostic agreement between primary care physicians and dermatologists.
+[Bang 11] Study: Cowdell, F;, Eady, E; A;, Layton, A; M;, Levell, N; J;, Jones, C;, Ridd, M; J;, Ineffective consultations for acne: what is important to patients?, British Journal of Dermatology, 175, 826-828, 2016 | Reason for exclusion: Letter to the Editor.
+[Bang 11] Study: Francis, N; A;, Entwistle, K;, Santer, M;, Layton, A; M;, Eady, E; A;, Butler, C; C;, The management of acne vulgaris in primary care: a cohort study of consulting and prescribing patterns using the Clinical Practice Research Datalink, British journal of dermatology, 176, 107-115, 2017 | Reason for exclusion: A retrospective cohort study examining the rates and trends in primary care consultations for acne, and the frequency of follow-up acne consultations.
+[Bang 11] Study: Purdy, S;, Langston, J;, Tait, L;, Presentation and management of acne in primary care: a retrospective cohort study, British Journal of General PracticeBr J Gen Pract, 53, 525-9, 2003 | Reason for exclusion: Not a RCT.
+
+6
+
+Economic studies 7
+
+[Bang 12] Study: Liu KJ, Hartman RI, Joyce C, Mostaghimi A; Modeling the Effect of Shared Care to Optimize Acne Referrals From Primary Care Clinicians to Dermatologists; JAMA Dermatol 2016; 152(6): 655-60 | Reason for exclusion: Retrospective analysis with referral not being made according to pre-determined criteria.
+
+8
+
+9
+
+Appendix L -Research recommendations 1
+
+Research recommendations for review question: When should people with acne 2 vulgaris be referred to specialist care? 3
+
+- No research recommendations were made for this review question. 4
+
+5

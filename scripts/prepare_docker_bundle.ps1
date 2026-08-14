@@ -18,10 +18,10 @@ if (Test-Path -LiteralPath $Destination) {
 }
 
 $RequiredAssets = @(
-    "model/V2/Q4/Modelfile",
-    "model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
-    "model/acne_intake_release/Modelfile",
-    "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
+    "model/generator/Modelfile.full",
+    "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+    "model/intaker/Modelfile",
+    "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
     "data/chroma_db/chroma.sqlite3",
     "data/bm25_index.pkl",
     "data/intent_classify.train.jsonl",
@@ -89,8 +89,6 @@ Copy-RuntimeDirectory -RelativePath "config" `
 Copy-RuntimeDirectory -RelativePath "docker"
 
 New-Item -ItemType Directory -Force -Path (Join-Path $Destination "scripts") | Out-Null
-Copy-Item -LiteralPath (Join-Path $RepoRoot "scripts/check_docker_assets.ps1") `
-    -Destination (Join-Path $Destination "scripts/check_docker_assets.ps1")
 Copy-Item -LiteralPath $PSCommandPath `
     -Destination (Join-Path $Destination "scripts/prepare_docker_bundle.ps1")
 New-Item -ItemType Directory -Force -Path (Join-Path $Destination "docs") | Out-Null
@@ -98,10 +96,10 @@ Copy-Item -LiteralPath (Join-Path $RepoRoot "docs/DOCKER_QUICKSTART.md") `
     -Destination (Join-Path $Destination "docs/DOCKER_QUICKSTART.md")
 
 $AssetPaths = @(
-    "model/V2/Q4",
-    "model/acne_intake_release/Modelfile",
-    "model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-    "model/acne_intake_release/README.txt",
+    "model/generator/Modelfile.full",
+    "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+    "model/intaker/Modelfile",
+    "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
     "data/chroma_db",
     "data/bm25_index.pkl",
     "data/bm25_index.pkl.sha256",
@@ -126,4 +124,4 @@ Copy-Item -LiteralPath (Join-Path $Destination ".env.docker.example") `
     -Destination (Join-Path $Destination ".env.docker")
 
 Write-Host "Docker bundle created: $Destination" -ForegroundColor Green
-Write-Host "Set API_KEY in .env.docker, then run scripts/check_docker_assets.ps1."
+Write-Host "Set API_KEY in .env.docker, then: docker compose --env-file .env.docker up -d --build"

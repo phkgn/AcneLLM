@@ -1,0 +1,227 @@
+<!-- image -->
+
+ĐẶC ĐIỂM LÂM SÀNG VÀ KẾT QUẢ ĐIỀU TRỊ TRỨNG CÁ MỨC ĐỘ TRUNG BÌNH BẰNG MINOCYCLIN
+
+Lạc Thị Kim Ngân 1,* , Nguyễn Thị Thùy Trang 1 , Quách Ngọc Linh 1 , Lê Thị Minh Thư 1 , Huỳnh Văn Bá 1
+
+TÓM TẮT
+
+Mục tiêu: Mô tả đặc điểm lâm sàng và đánh giá kết quả điều trị mụn trứng cá mức độ trung bình bằng minocyclin đường uống.
+
+Đối tượng và phương pháp: Thử nghiệm lâm sàng trên 90 bệnh nhân trứng cá mức độ trung bình điều trị bằng minocyclin tại Bệnh viện Da liễu Cần Thơ từ tháng 5/2022 đến tháng 10/2022. Bệnh nhân được điều trị theo phác đồ minocyclin 100 mg 1 viên, uống 1 lần/ngày trong 8 tuần và bệnh nhân được khám và đánh giá hiệu quả điều trị sau 2, 4, 8 tuần.
+
+Kết quả: Nhóm tuổi từ 18 - 24 tuổi (chiếm 52,2%). Nữ chiếm 57,8%, hầu hết là học sinh - sinh viên (87,8%). Đa phần bệnh nhân từng được điều trị (92,2%) và một số bệnh nhân có tiền sử gia đình bị mụn trứng cá (32,2%). Mặt là vị trí phân bố chủ yếu chiếm tỷ lệ 100%. Sang thương sẩn, mụn đầu trắng thường gặp nhiều nhất (100%). Số lượng thương tổn viêm và không viêm ở thời điểm 8 tuần giảm 71,6% và 60,7% so với thời điểm T0, sự khác biệt có ý nghĩa thống kê với p < 0,001. Điểm số GAGs giảm dần sau 8 tuần so với lúc ban đầu. Tỷ lệ đáp ứng tốt và trung bình khi điều trị bằng minocyclin sau 8 tuần lần lượt là 53,4% và 46,7%. Một số tác dụng không mong muốn được ghi nhận gồm 8,9% trường hợp nhức đầu, 6,7% trường hợp chóng mặt và 17,8% bị rối loạn tiêu hóa.
+
+Kết luận: Mụn trứng cá mức độ trung bình phân bố chủ yếu ở mặt với dạng sang thương sẩn, mụn đầu trắng, đầu đen chiếm phần nhiều. Điều trị mụn trứng cá mức độ trung bình bằng minocyclin đã cải thiện đáng kể triệu chứng lâm sàng, đặc biệt là đối với các thương tổn viêm.
+
+Từ khóa: Trứng cá thông thường, mức độ trung bình, minocyclin.
+
+1. ĐẶT VẤN ĐỀ
+
+Mụn trứng cá là một bệnh lý viêm mạn tính của hệ thống nang lông tuyến bã, xuất hiện ở cả
+
+1 Trường Đại học Y Dược Cần Thơ
+
+* Tác giả liên hệ: Email: ltkngan@ctump.edu.vn
+
+27/12/2023
+
+05/02/2024
+
+25/3/2024
+
+DOI: https://doi.org/10.56320/tcdlhvn.44.159
+
+nam và nữ, đặc biệt phổ biến trong độ tuổi thanh thiếu niên với tỷ lệ lưu hành được ước tính dao động từ 35% đến hơn 90% 1 . Sự phát triển của mụn trứng cá không chỉ đặc trưng cho từng cá thể mà còn cụ thể theo từng vị trí, chỉ một số nang phát triển thành viêm ngay cả khi bệnh có biểu hiện nghiêm trọng 2 .
+
+Trong điều trị mụn trứng cá, thuốc kháng khuẩn thường được kê đơn để điều trị mụn trứng cá mức độ trung bình đến nặng có thể nhắm vào cả Cutibacterium acnes và các quá trình viêm trong cơ chế bệnh sinh. Minocyclin là một trong những kháng sinh kiềm khuẩn đường uống phổ biến được sử dụng có tác động trên cả hai con đường này. Một dạng của minocyclin (viên nén giải phóng kéo dài solodyn minocyclin hydrochloride) đã được FDA chấp thuận để điều trị những tổn thương viêm của mụn trứng cá từ mức độ trung bình đến nặng ở bệnh nhân từ 12 tuổi trở lên vào năm 20063. Điều trị mụn trứng cá bằng minocyclin đã được nghiên cứu nhiều trên thế giới. Hai thử nghiệm ngẫu nhiên có đối chứng với giả dược kéo dài 12 tuần sử dụng minocycline đường uống giải phóng kéo dài đã chứng minh hiệu quả trong điều trị mụn trứng cá mức độ trung bình và nặng 4-9 .
+
+<!-- image -->
+
+Tại Việt Nam, điều trị mụn trứng cá bằng minocyclin chưa có nhiều nghiên cứu cụ thể. Xuất phát từ thực tế trên, chúng tôi tiến hành thực hiện đề tài với hai mục tiêu là mô tả đặc điểm lâm sàng của bệnh nhân mụn trứng cá mức độ trung bình và đánh giá kết quả điều trị mụn trứng các mức độ trung bình bằng minocyclin tại Bệnh viện Da liễu Cần Thơ năm 2022.
+
+2. ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP
+
+2.1. Đối tượng nghiên cứu
+
+Đối tượng nghiên cứu: 90 bệnh nhân mụn trứng cá thông thường mức độ trung bình.
+
+Tiêu chuẩn lựa chọn: Tất cả bệnh nhân đến khám và được chẩn đoán mụn trứng cá mức độ trung bình (điểm GAGS: 19 - 30) trên 12 tuổi và điều trị bằng minocyclin tại Bệnh viện Da liễu Cần Thơ từ tháng 5 năm 2022 đến tháng 10 năm 2022. Bệnh nhân đồng ý tham gia nghiên cứu.
+
+Tiêu chuẩn loại trừ: Bệnh nhân không hợp tác, không tuân thủ liệu trình điều trị. Bệnh nhân trong nhóm chống chỉ định dùng minocyclin (trẻ em dưới 12 tuổi, phụ nữ có thai hoặc đang cho con bú, có dị ứng với bất kỳ thành phần nào của thuốc). Bệnh nhân đang suy giảm nghiêm trọng chức năng gan, thận, rối loạn lipid máu, đái tháo đường, loãng xương, trầm cảm.
+
+2.2. Phương pháp nghiên cứu
+
+Thiết kế nghiên cứu
+
+Nghiên cứu thử nghiệm lâm sàng, không đối chứng trên 90 bệnh nhân mụn trứng cá thông thường mức độ trung bình. Nghiên cứu được tiến hành từ tháng 5/2022 đến tháng 10/2022 tại Bệnh viện Da liễu Cần Thơ.
+
+Các bước tiến hành nghiên cứu
+
+90 bệnh nhân mụn trứng cá mức độ trung bình đáp ứng được tiêu chí chọn bệnh sẽ được hỏi bệnh sử, tiền sử bệnh chi tiết; đồng thời thăm khám lâm sàng để xác định các đặc điểm lâm sàng của mụn trứng cá. Sau đó, những bệnh nhân trong nhóm nghiên cứu được tiến hành điều trị theo phác đồ: Minocyclin 100 mg 1 viên uống 1 lần/ngày trong 8 tuần và bệnh nhân được khám và đánh giá hiệu quả điều trị sau 2, 4, 8 tuần.
+
+Vật liệu nghiên cứu
+
+Phiếu điều tra phỏng vấn các đối tượng nghiên cứu; minocyclin (biệt dược là Vinocyclin, hàm lượng 100 mg).
+
+Đánh giá kết quả điều trị
+
+Đánh giá sự cải thiện lâm sàng mụn trứng cá theo từng thời điểm điều trị (2, 4 và 8 tuần). Đánh giá hiệu quả điều trị sau 8 tuần điều trị từ kém đến rất tốt. Ghi nhận tác dụng không mong muốn của minocyclin dựa vào cảm nhận bệnh nhân và đánh giá của thầy thuốc.
+
+Xử lý số liệu
+
+Số liệu được nhập, phân tích và xử lý bằng phần mềm SPSS 20.0. Sử dụng các thống kê tần số, tỷ lệ. Phân tích mối liên quan giữa kết quả điều trị với các yếu tố bằng bảng, kiểm định sự khác biệt bằng phép kiểm Chi bình phương (Pearson), phép kiểm chính xác Fisher's. Kết quả được xem là có ý nghĩa thống kê khi p < 0,05, độ tin cậy 95%.
+
+3. KẾT QUẢ
+
+3.1. Đặc điểm chung của đối tượng nghiên cứu
+
+Bảng 1. Đặc điểm chung của đối tượng nghiên cứu
+
+[Bang 1] Đặc điểm chung (n = 90): Nhóm tuổi | Đặc điểm chung (n = 90): < 18 tuổi | Tần số: 35 | Tỷ lệ (%): 38,9.
+[Bang 1] Đặc điểm chung (n = 90): Nhóm tuổi | Đặc điểm chung (n = 90): 18 - 24 tuổi | Tần số: 47 | Tỷ lệ (%): 52,2.
+[Bang 1] Đặc điểm chung (n = 90): (19 ± 3,5 tuổi) | Đặc điểm chung (n = 90): ≥ 25 tuổi | Tần số: 8 | Tỷ lệ (%): 8,9.
+[Bang 1] Đặc điểm chung (n = 90): Giới tính | Đặc điểm chung (n = 90): Nam | Tần số: 38 | Tỷ lệ (%): 57,8.
+[Bang 1] Đặc điểm chung (n = 90): Giới tính | Đặc điểm chung (n = 90): Nữ | Tần số: 52 | Tỷ lệ (%): 42,2.
+[Bang 1] Đặc điểm chung (n = 90): Nghề nghiệp | Đặc điểm chung (n = 90): Học sinh, sinh viên | Tần số: 79 | Tỷ lệ (%): 87,8.
+[Bang 1] Đặc điểm chung (n = 90): Nghề nghiệp | Đặc điểm chung (n = 90): Kinh doanh tự do | Tần số: 4 | Tỷ lệ (%): 4,4.
+[Bang 1] Đặc điểm chung (n = 90): Nghề nghiệp | Đặc điểm chung (n = 90): Công nhân | Tần số: 2 | Tỷ lệ (%): 2,2.
+[Bang 1] Đặc điểm chung (n = 90): Nghề nghiệp | Đặc điểm chung (n = 90): Nhân viên văn phòng | Tần số: 5 | Tỷ lệ (%): 5,6.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử điều trị | Đặc điểm chung (n = 90): Chưa từng điều trị | Tần số: 7 | Tỷ lệ (%): 7,8.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử điều trị | Đặc điểm chung (n = 90): Không rõ điều trị | Tần số: 9 | Tỷ lệ (%): 10.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử điều trị | Đặc điểm chung (n = 90): Thuốc bôi | Tần số: 22 | Tỷ lệ (%): 24,4.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử điều trị | Đặc điểm chung (n = 90): Thuốc uống | Tần số: 36 | Tỷ lệ (%): 40.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử điều trị | Đặc điểm chung (n = 90): Phối hợp | Tần số: 16 | Tỷ lệ (%): 17,8.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử gia đình bị mụn trứng cá | Đặc điểm chung (n = 90): Có | Tần số: 29 | Tỷ lệ (%): 32,2.
+[Bang 1] Đặc điểm chung (n = 90): Tiền sử gia đình bị mụn trứng cá | Đặc điểm chung (n = 90): Không | Tần số: 61 | Tỷ lệ (%): 67,8.
+[Bang 1] Đặc điểm chung (n = 90): Tuổi khởi phát (năm) | Đặc điểm chung (n = 90): 17 (12 - 25) | Tần số: 17 (12 - 25) | Tỷ lệ (%): 17 (12 - 25).
+[Bang 1] Đặc điểm chung (n = 90): Thời gian bệnh (tháng) | Đặc điểm chung (n = 90): 31,4 ± 28,2 (6 - 144) | Tần số: 31,4 ± 28,2 (6 - 144) | Tỷ lệ (%): 31,4 ± 28,2 (6 - 144).
+
+Độ tuổi trung vị của đối tượng nghiên cứu là 19 ± 3,5, nhóm tuổi từ 18 - 24 tuổi chiếm tỷ lệ nhiều nhất (52,2%). Bệnh nhân nữ chiếm nhiều hơn và hầu hết là học sinh - sinh viên (87,8%). Đa phần bệnh nhân từng được điều trị (92,2%) và một số bệnh nhân có tiền sử gia đình bị mụn trứng cá (32,2%).
+
+<!-- image -->
+
+2.3. Đạo đức nghiên cứu
+
+Nghiên cứu thực hiện trên nguyên tắc tự nguyện của bệnh nhân, được giải thích rõ về nội dung và mục đích nghiên cứu. Các thông tin cá nhân của đối tượng nghiên cứu được giữ bí mật và mã hóa trong suốt quá trình xử lý trên máy tính, đảm bảo không lộ thông tin. Số liệu thu được chỉ phục vụ mục đích nghiên cứu.
+
+<!-- image -->
+
+3.2. Đặc điểm lâm sàng của mụn trứng cá mức độ trung bình
+
+Bảng 2. Phân bố đặc điểm lâm sàng mụn trứng cá mức độ trung bình
+
+[Bang 2] Đặc điểm lâm sàng (n = 90): Triệu chứng | Đặc điểm lâm sàng (n = 90): Không | Tần số: 38 | Tỷ lệ (%): 42,2.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Triệu chứng | Đặc điểm lâm sàng (n = 90): Ngứa | Tần số: 34 | Tỷ lệ (%): 37,8.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Triệu chứng | Đặc điểm lâm sàng (n = 90): Đau nhức | Tần số: 32 | Tỷ lệ (%): 35,6.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Mụn đầu trắng | Tần số: 90 | Tỷ lệ (%): 100.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Mụn đầu đen | Tần số: 85 | Tỷ lệ (%): 94,4.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Sẩn | Tần số: 90 | Tỷ lệ (%): 100.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Mụn mủ | Tần số: 49 | Tỷ lệ (%): 54,4.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Nốt | Tần số: 11 | Tỷ lệ (%): 12,2.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Loại tổn | Đặc điểm lâm sàng (n = 90): Nang | Tần số: 0 | Tỷ lệ (%): 0.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Vị trí | Đặc điểm lâm sàng (n = 90): Mặt | Tần số: 90 | Tỷ lệ (%): 100.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Vị trí | Đặc điểm lâm sàng (n = 90): Ngực | Tần số: 21 | Tỷ lệ (%): 23,3.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Vị trí | Đặc điểm lâm sàng (n = 90): Lưng | Tần số: 46 | Tỷ lệ (%): 51,1.
+[Bang 2] Đặc điểm lâm sàng (n = 90): Vị trí | Đặc điểm lâm sàng (n = 90): Cánh tay | Tần số: 11 | Tỷ lệ (%): 12,2.
+
+Mụn trứng cá không có triệu chứng cơ năng chiếm tỷ lệ khá cao (42,2%). Sẩn và mụn đầu trắng là sang thương luôn luôn (100%), ngoài ra mụn đầu đen và mụn mủ cũng chiếm tỷ lệ cao. Vị trí sang thương ở mặt chiếm 100%, sau đó là ngực, lưng, cánh tay.
+
+3.3. Kết quả điều trị mụn trứng cá mức độ trung bình bằng minocyclin
+
+Biểu đồ 1. Sự thay đổi số lượng thương tổn viêm theo thời gian điều trị
+
+<!-- image -->
+
+Số 44 (Tháng 5/2024)
+
+DA LIỄU HỌC
+
+<!-- image -->
+
+Số lượng thương tổn viêm trung bình ở thời điểm T0, T1, T2, T3 lần lượt là 22,9; 17,5; 12,9; 6,5. Số lượng các tổn thương viêm giảm dần theo thời gian, ở thời điểm T3 giảm 71,6% so với thời điểm T0, sự khác biệt có ý nghĩa thống kê với p < 0,001.
+
+Biểu đồ 2. Sự thay đổi số lượng thương tổn không viêm theo thời gian điều trị
+
+<!-- image -->
+
+Số lượng thương tổn không viêm trung bình ở thời điểm T0, T1, T2, T3 lần lượt là 49,0; 38,8; 30,1; 19,3. Số lượng các tổn thương không viêm giảm dần theo thời gian. Thời điểm T3 giảm 60,7% so với thời điểm T0, sự khác biệt có ý nghĩa thống kê với p < 0,001.
+
+Biểu đồ 3. Sự thay đổi của điểm GAGS theo thời gian điều trị
+
+<!-- image -->
+
+Điểm GAGs giảm dần tại các thời điểm nghiên cứu. Tuần 2 điểm số GAGs trung bình là 20,7 ± 3,4; tuần 4 là 17,8 ± 3,4 và tại tuần 8 là 14,8 ± 4,3.
+
+Bảng 4. Kết quả điều trị bằng minocylin sau 4 tuần
+
+[Bang 3] Kết quả điều trị: Đáp | Kết quả điều trị: Tốt | Tần số: 14 | Tỷ lệ (%): 15,6.
+[Bang 3] Kết quả điều trị: Đáp | Kết quả điều trị: Khá | Tần số: 34 | Tỷ lệ (%): 37,8.
+[Bang 3] Kết quả điều trị: Đáp | Kết quả điều trị: Trung bình | Tần số: 42 | Tỷ lệ (%): 46,7.
+[Bang 3] Kết quả điều trị: Tác dụng không mong muốn | Kết quả điều trị: Nhức đầu | Tần số: 8 | Tỷ lệ (%): 8,9.
+[Bang 3] Kết quả điều trị: Tác dụng không mong muốn | Kết quả điều trị: Chóng mặt | Tần số: 6 | Tỷ lệ (%): 6,7.
+[Bang 3] Kết quả điều trị: Tác dụng không mong muốn | Kết quả điều trị: Rối loạn tiêu hóa | Tần số: 16 | Tỷ lệ (%): 17,8.
+
+<!-- image -->
+
+Tỷ lệ đáp ứng tốt và khá khi điều trị bằng minocyclin sau 8 tuần điều trị là 53,4%, đáp ứng trung bình là 46,7%. Trong quá trình theo dõi điều trị, một số tác dụng phụ được ghi nhận như nhức đầu (8,9%), chóng mặt (6,7%) và rối loạn tiêu hóa (17,8%).
+
+4. BÀN LUẬN
+
+Trong nghiên cứu của chúng tôi, tuổi trung vị của bệnh nhân mụn trứng cá là 19 ± 3,5 tuổi. Kết quả này tương đồng với nghiên cứu của Dreno và cộng sự (2001) có độ tuổi trung bình của mụn trứng cá là 19,9 ± 6,5 tuổi 10 . Chúng tôi ghi nhận nhóm học sinh, sinh viên chiếm tỷ lệ ưu thế với 87,8%. Như vậy, kết quả nghiên cứu của chúng tôi giống như sinh lý bệnh y văn đã mô tả, mụn trứng cá chủ yếu gặp ở tuổi dậy thì là học sinh - sinh viên. Theo chúng tôi ghi nhận, bệnh nhân có thời gian mắc bệnh của đối tượng nghiên cứu là 31,4 tháng (tương đương 2,6 năm). Điều này cho thấy bệnh mụn trứng cá là bệnh mạn tính, tiến triển dai dẳng và hay tái phát và sự tuân thủ điều trị, tái khám của bệnh nhân chưa nghiêm ngặt. Nhóm bệnh nhân bị mụn trứng cá có tiền căn cha/mẹ, anh/chị em ruột bị mụn trứng cá chiếm 32,2%. Yếu tố tiền sử gia đình cũng cần được lưu ý để theo dõi và điều trị hoặc tiến hành các nghiên cứu sâu hơn nếu nghi ngờ yếu tố gia đình ảnh hưởng đến kết quả điều trị.
+
+Về đặc điểm lâm sàng, ngứa và đau nhức là triệu chứng cơ năng thường gặp trong nghiên cứu của chúng tôi, với tỷ lệ tương ứng là 37,8% và 35,6%, không có triệu chứng chiếm 42,2%. Trong nghiên cứu của chúng tôi, sang thương sẩn viêm, mụn đầu trắng chiếm 100%, sau đó là mụn đầu đen và mụn mủ và chỉ có 12,2% là nốt. Có thể được giải thích do nghiên cứu của chúng tôi trên mụn trứng cá mức độ trung bình nên tần suất tổn thương nốt, nang rất ít gặp. Vị trí sang thương theo ghi nhận chủ yếu là trên mặt (100%), ngực và lưng là những vị trí cũng thường gặp tương ứng là 23,3% và 51,1%. Điều này phù hợp với y văn, sang thương mụn tập trung ở vùng tiết bã như mặt và thân trên.
+
+Tỷ lệ đáp ứng tốt và khá khi điều trị bằng minocyclin sau 8 tuần điều trị là 53,4% và đáp ứng trung bình là 46,7% trong nghiên cứu của chúng tôi. Theo Xinghua Xu và cộng sự (2017) so sánh hiệu quả khi sử dụng minocyclin đơn thuần với kết hợp minocyclin cùng PDT trên 95 bệnh nhân bị mụn trứng cá mức độ trung bình đến nặng trong 8 tuần, ở nhóm sử dụng minocyclin đơn thuần có 42,5% bệnh nhân đạt điểm IGA < 2 (p < 0,05) 11 .
+
+Số lượng thương tổn viêm trung bình ở thời điểm T0, T1, T2, T3 lần lượt là 22,9; 17,5; 12,91; 6,5. Số lượng các tổn thương viêm giảm dần theo thời gian như thương tổn viêm ở thời điểm T3 giảm 71,6% so với thời điểm T0, sự khác biệt có ý nghĩa thống kê với p < 0,001. Kết quả này tương đồng với Dreno và cộng sự (2001), khi so sánh hiệu quả điều trị giữa minocyclin uống và kẽm gluconate trên 332 bệnh nhân mụn trứng cá cho thấy số lượng thương tổn viêm ở nhóm sử dụng minocyclin giảm lần lượt là 40,7%, 53,3% và 66,5% sau 4 tuần, 8 tuần và 12 tuần 6 . Cũng như trong nghiên cứu của Xinghua Xu và cộng sự (2017), kết quả tại tuần thứ 8 sau điều trị các tổn thương viêm giảm 53,3% và các tổn thương không viêm giảm 42,4% so với ban đầu (p < 0,001) 11 .
+
+Trong một số nghiên cứu, các tác giả đã ghi nhận một số tác dụng không mong muốn của minocyclin có thể thấy như đau đầu, chóng mặt, rối loạn tiêu hóa, phát ban da 7 . Nghiên cứu của chúng tôi ghi nhận quá trình theo dõi có 8,9% bệnh nhân có biểu hiện nhức đầu, 6,7% trường hợp chóng mặt và 17,8% rối loạn tiêu hóa.
+
+5. KẾT LUẬN
+
+Nghiên cứu ghi nhận đối tượng mắc mụn trứng cá mức độ trung bình đa số là học sinh sinh viên trong độ tuổi 18 - 24. Mặt là vị trí phân bố chủ yếu, sang thương đa số là sẩn, mụn đầu trắng, mụn đầu đen, rất ít sang thương nốt. Sau 8 tuần điều trị, minocyclin là kháng sinh có hiệu quả tương đối cao trong việc điều trị mụn trứng cá mức độ trung bình, cải thiện đáng kể triệu chứng lâm sàng, đặc biệt là đối với các thương tổn viêm.
+
+Cam kết không xung đột lợi ích: Các tác giả xin cam kết không có xung đột lợi ích trong đề tài này.
+
+TÀI LIỆU THAM KHẢO
+
+1. Wolkenstein P , Machovcová A, Szepietowski JC et al. Acne prevalence and associations with lifestyle: a cross-sectional online survey of adolescents/young adults in 7 European countries. J Eur Acad Dermatol Venereol . 2018;32(2):298-306. doi:10.1111/jdv.14475.
+2. O'Neill AM, Gallo RL. Host-microbiome interactions and recent progress into understanding the biology of acne vulgaris. Microbiome . 2018;6(1):177. doi:10.1186/s40168018-0558-5.
+3. Garrido-Mesa N, Zarzuelo A, Gálvez J. Minocycline: far beyond an antibiotic. Br J Pharmacol . 2013;169(2):337-352. doi:10.1111/ bph.12139.
+4. Sewart DM, Torok HM, Weiss JS, Plott RT; Solodyn Phase 2 Study Group. Dose-ranging efficacy of new once-daily extended-release minocycline for acne vulgaris. Cutis . 2006;78(4 Suppl):11-20. https://pubmed.ncbi.nlm.nih. gov/17436825.
+5. Fleischer AB Jr, Dinehart S, Stough D, Plott RT; Solodyn Phase 3 Study Group. Safety and efficacy of a new extended-release formulation of minocycline. Cutis . 2006;78(4 Suppl):21-31. https://pubmed.ncbi.nlm.nih.gov/17436826.
+6. Ochsendorf F. Minocycline in acne vulgaris: benefits and risks. Am J Clin Dermatol . 2010;11(5):327-341. doi:10.2165/11319280000000000-00000.
+7. Martins AM, Marto JM, Johnson JL, Graber EM. A Review of Systemic Minocycline Side Effects and Topical Minocycline as a Safer Alternative for Treating Acne and Rosacea. Antibiotics (Basel). 2021;10(7):757. doi:10.3390/antibiotics10070757.
+8. Garner SE, Eady A, Bennett C, Newton JN, Thomas K, Popescu CM. Minocycline for acne vulgaris: efficacy and safety. Cochrane Database Syst Rev . 2012;2012(8):CD002086. doi:10.1002/14651858.CD002086.pub2.
+9. Gupta P , Shin T, Sopkovich J, Massick S, Kaffenberger BH. Generic, twice-daily minocycline versus branded, extended-release minocycline for acne: A retrospective comparison of treatment escalation. J Am Acad Dermatol . 2017;76(6):11951197. doi:10.1016/j.jaad.2017.01.013.
+10. Dreno B, Moyse D, Alirezai M, et al. Multicenter randomized comparative doubleblind controlled clinical trial of the safety and efficacy of zinc gluconate versus minocycline hydrochloride in the treatment of inflammatory acne vulgaris. Dermatology . 2001;203(2):135-140. doi:10.1159/000051728.
+11. Xu X, Zheng Y, Zhao Z, Zhang X, Liu P , Li C. Efficacy of photodynamic therapy combined with minocycline for treatment of moderate to severe facial acne vulgaris and influence on quality of life. Medicine (Baltimore) . 2017;96(51):e9366. doi:10.1097/MD.0000000000009366.
+
+<!-- image -->
+
+SUMMARY
+
+Original research
+
+CLINICAL CHARACTERISTICS AND EFFICACY OF MINOCYCLINE IN THE TREATMENT OF MODERATE ACNE VULGARIS
+
+Lac Thi Kim Ngan 1,* , Nguyen Thi Thuy Trang 1 , Quach Ngoc Linh 1 , Le Thi Minh Thu 1 , Huynh Van Ba 1
+
+ABSTRACT
+
+Objectives: To describe the clinical characteristics and evaluate the treatment outcomes of moderate acne vulgaris using oral minocycline.
+
+Materials and methods: A clinical trial was conducted on 90 patients with moderate acne vulgaris treated with minocycline at Can Tho Dermatology Hospital from May 2022 to October 2022. Patients were treated according to a protocol of 100mg minocycline, taken orally once daily for 8 weeks, and were assessed for treatment effectiveness at 2, 4, and 8 weeks.
+
+Results: The age group of 18 - 24 years old accounted for 52.2%. The female proportion was 57.8%, with the majority being students (87.8%). Most patients had received prior treatment (92.2%), and some had a family history of acne vulgaris (32.2%). The face was the predominant site of lesions, accounting for 100%. Papules and whiteheads were the most common lesion types (100%). The number of inflammatory and non-inflammatory lesions decreased by 71.6% and 60.7%, respectively, after 8 weeks compared to baseline, with statistical significance (p < 0.001). GAGs scores decreased gradually after 8 weeks. The rates of good and fair response after 8 weeks of minocycline treatment were 53.4% and 46.7%, respectively. Some adverse effects were noted, including headache (8.9%), dizziness (6.7%), and gastrointestinal disorders (17.8%).
+
+Conclusions: Moderate acne vulgaris predominantly affects the face with papules, pustules, and comedones. Treatment with minocycline significantly improved clinical symptoms, especially inflammatory lesions.
+
+Keywords: Acne vulgaris, moderate, minocycline.
+
+1 Can Tho University of Medicine and Pharmacy
+
+*Correspondence: Email: ltkngan@ctump.edu.vn
+
+<!-- image -->

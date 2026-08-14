@@ -15,7 +15,10 @@ where = ["src"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-pythonpath = ["src"]
+# research/ chua cac package offline (datagen, evaluation, ablation, LLMData).
+# Chung import cheo nhau bang ten tuyet doi ("from datagen.x import y") nen
+# duong dan file khong khop ten module -- co y, xem docs/CLEANUP_PLAN.md muc 3.
+pythonpath = ["src", "research"]
 
 [tool.ruff]
 line-length = 100

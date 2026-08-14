@@ -1,0 +1,229 @@
+<!-- image -->
+
+- 1 National Guideline Alliance, Royal College of Obstetricians and Gynaecologists, London, UK
+- 2 University of Manchester, Manchester, UK
+- 3 Research Department of Clinical, Educational & Health Psychology, University College London, London, UK
+- 4 University of Southampton, Southampton, UK
+- 5 University Hospital Southampton NHSFoundationTrust, Southampton, UK
+
+Correspondence to: J Xu j.xu@nhs.net Cite this as: BMJ 2021;374:n1800 http://dx.doi.org/10.1136/bmj.n1800
+
+Published: 20 September 2021
+
+GUIDELINES
+
+Management of acne vulgaris: summary of NICE guidance
+
+Jingyuan Xu, 1, 2 Ifigeneia Mavranezouli, 1, 3 Laura Kuznetsov, 1 MStephen Murphy, 1 Eugene Healy 4, 5 , on behalf of the Guideline Committee
+
+What you need to know
+
+- For mild to moderate acne, first-line treatment options include a fixed combination of ( a ) topical adapalene with topical benzoyl peroxide, ( b ) topical tretinoin with topical clindamycin, or ( c ) topical benzoyl peroxide with topical clindamycin
+- For moderate to severe acne, first- line treatment options include ( a ) and ( b ) of those above, and:
+- -a fixed combination of topical adapalene with topical benzoyl peroxide, plus either oral lymecycline or oral doxycycline
+- -topical azelaic acid plus either oral lymecycline or oral doxycycline
+- Topical or oral antibiotics should not be used as monotherapy or in combination with each other
+- Review treatment response at 12 weeks; options that include an antibiotic (topical or oral) should be continued for more than 6 months only in exceptional circumstances
+- Consider referral to a consultant dermatologist-led teamif moderate to severe acne has failed to respond to a 12-week course of treatment that includes an oral antibiotic or if mild to moderate acne has failed to respondadequatelytotwodifferent12-weekcourses of treatment
+
+Acne vulgaris is the eighth most common disease globally, resulting in >70 000 patients being referred for specialist care in the UK each year. 1 2 While acne vulgaris most often affects adolescents, it is not uncommon in adults and can occur in children. The clinical features vary depending on its severity and its associated psychological impact. Acne vulgaris may persist and lead to pigmentary changes and permanent scarring. This article summarises the guideline from the National Institute for Health and Care Excellence (NICE) on the management of acne vulgaris. 3 This guidance was developed with the aim to improve the management of acne vulgaris and reduce sequelae, with a clear framework of referral to more specialised services as appropriate. Throughoutthesummaryandguideline,'acne'refers to acne vulgaris unless otherwise stated.
+
+How the guideline fits in practice
+
+- First-line treatment options stratified by acne severity including advantages and disadvantages with clear stepwise algorithm according to treatment response
+- 12-week treatment course with timely review and assessment of response, including guidance on duration of antibiotic use
+- Treatment options for maintenance and acne relapse, and recommendations on skin care
+- Clear referral criteria including mental health services if a person with acne experiences significant psychological distress or a mental health disorder
+- Specialist care options in a consultant dermatologist-led team setting, including physical treatments and treatment for acne-related scarring
+
+Recommendations
+
+NICE recommendations are based on systematic reviews of best available evidence and explicit consideration of cost effectiveness. Network meta-analysis (NMA) of randomised controlled trials (RCTs) was used to synthesise evidence on treatment efficacy (change in total lesion count from baseline), acceptability (discontinuation for any reason), and tolerability (discontinuation due to side effects). NMA was conducted separately for people with mild to moderate acne vulgaris and people with moderate to severe acne vulgaris. Pairwise meta-analysis was usedtocompareoutcomeswhereevidencewasmore limited across treatments or was treatment-specific (such as adverse events). When minimal evidence was available, recommendations were based on the Guideline Committee's experience and opinion of what constitutes good practice. Evidence levels for the recommendations are given in italic in square brackets.
+
+Skin care advice
+
+Clinicians are often asked for skin care advice, and this is an important topic for people with acne. The advice given to people with acne varies, and so the guideline provides recommendations aimed at standardising practice.
+
+- Advise people with acne to use a non-alkaline (skin pH neutral or slightly acidic) synthetic detergent (syndet) cleansing product twice daily on acne-prone skin. [ Based on moderate to very low quality evidence ]
+- Advise people with acne who use skincare products (for example, moisturisers) and sunscreens to avoid oil based and comedogenic preparations. [ Basedontheexperienceandopinion of the Guideline Committee (GC) ]
+- Advisepeoplewithacnewhousemake-uptoavoid oil based and comedogenic products, and to remove make-up at the end of the day. [ Based on the experience and opinion of the GC ]
+- Advisepeoplethatpersistentpickingorscratching of acne lesions can increase the risk of scarring. [ Based on the experience and opinion of the GC ]
+
+Managing acne vulgaris
+
+The infographic summarises the recommendations for first-line treatment options, taking account of the severity of acne and the person's preferences, and after a discussion of the advantages and disadvantages of each option. A course of treatment is 12 weeks, and the importance of completing the course should be explained to the person as positive effects can take six to eight weeks to become noticeable.
+
+<!-- image -->
+
+For the full disclaimer wording see BMJ's terms and conditions: http://www.bmj.com/company/legal-information/
+
+- A fixed combination of topical adapalene with topical benzoyl peroxide for any acne severity.
+- Afixedcombinationoftopicaltretinoin with topical clindamycin for any acne severity
+- A fixed combination of topical benzoyl peroxide with topical clindamycin for mild to moderate acne.
+- A fixed combination of topical adapalene with topical benzoyl peroxide, together with either oral lymecycline or oral doxycycline for moderate to severe acne.
+- Topical azelaic acid with either oral lymecycline or oral doxycycline for moderate to severe acne.
+
+[ All the above based on moderate to very low quality of evidence synthesised in NMA of randomised control trials, pairwise meta-analysis, and health economic analysis ]
+
+- Considertopicalbenzoylperoxidemonotherapyasanalternative treatment to the first-line treatment options, if these treatments are contraindicated or the person wishes to avoid using a topical retinoid or an antibiotic (topical or oral). [ Based on moderate to very low quality of evidence synthesised in NMA of randomised control trials, pairwise meta-analysis, and health economic analysis ]
+- For people with moderate to severe acne who cannot tolerate or have contraindications to oral lymecycline or oral doxycycline, considerreplacingthesemedicinesinthecombinationtreatments with trimethoprim or with an oral macrolide (for example, erythromycin). [ Based on the experience and opinion of the GC ]
+- To reduce the risk of skin irritation associated with topical treatments such as benzoyl peroxide or retinoids, start with alternate-day or short-contact application (for example, washing off after an hour). If tolerated, progress to using a standard application. [ Based on the experience and opinion of the GC ]
+
+Factors to take into account at review
+
+The Guideline Committee noted the importance of timely review and standardisation of the duration of antibiotic use in line with antimicrobial stewardship. People whose acne vulgaris has cleared are often concerned about future management and relapse. The infographic summarises the recommendations for maintenance options after adequate response to treatment.
+
+- Review first-line treatment at 12 weeks and
+- -assess whether the person's acne has improved and whether they have any side effects
+- -in people whose treatment includes an oral antibiotic, if their acne has completely cleared consider stopping the antibiotic but continuing the topical treatment
+- -in people whose treatment includes an oral antibiotic, if their acne has improved but not completely cleared consider continuingtheoralantibiotic, alongside the topical treatment, for up to 12 more weeks.
+- Only continue a treatment option that includes an antibiotic (topical or oral) for more than six months in exceptional circumstances. Review at 3-month intervals and stop the antibiotic as soon as possible.
+- Be aware that the use of antibiotic treatments is associated with a risk of antimicrobial resistance.
+- If acne has cleared, consider maintenance options.
+- If acne fails to respond adequately to a 12-week course of a first-line treatment option and at review the severity is
+- -mild to moderate, offer another option from the first-line treatment options
+- -moderate to severe and the treatment did not include an oral antibiotic, offer another option which includes an oral antibiotic from first-line treatment options
+- -moderate to severe and the treatment included an oral antibiotic, consider referral to a consultant dermatologist-led team.
+- If mild to moderate acne fails to respond adequately to two different 12-week courses of treatment options, consider referral to a consultant dermatologist-led team.
+
+[ All the above based on the experience and opinion of the GC ]
+
+Relapse
+
+Treatment should be offered in a stepwise approach, taking into account the number of treatment courses and the severity of acne at the time of relapse.
+
+- If acne responds adequately to a course of an appropriate first-line treatment but then relapses, consider either
+- -another 12-week course of the same treatment, or
+- -an alternative 12-week treatment from first-line treatment options.
+- If acne relapses after an adequate response to oral isotretinoin and is currently mild to moderate, offer an appropriate first-line treatment option.
+- If acne relapses after an adequate response to oral isotretinoin and is currently moderate to severe, offer either
+- -a12-weekcourseofanappropriatefirst-line treatment option, or
+- -re-referral if the person is no longer under the care of the consultant dermatologist-led team.
+
+[ All the above based on the experience and opinion of the GC ]
+
+Referral to specialist care
+
+Healthcare professionals should recognise that ( a ) acne of any severity can cause psychological distress and mental health disorders and ( b ) the risk of physical scarring increases with the severity and duration of acne. The following referral criteria will improveoutcomesthroughappropriateimplementationoftreatment or management strategies for people with acne.
+
+- Urgently refer people with acne fulminans on the same day to the on-call hospital dermatology team, to be assessed within 24 hours.
+- Refer people to a consultant dermatologist-led team if any of the following apply
+- -there is diagnostic uncertainty about their acne
+- -they have acne conglobata
+- -they have nodulocystic acne.
+- Considerreferring people to a consultant dermatologist-led team if they have
+
+- -mild to moderate acne that has not responded to two completed courses of treatment
+- -moderatetosevereacnewhichhasnotrespondedtoprevious treatment which contains an oral antibiotic
+- -acne with scarring
+- -acne with persistent pigmentary changes.
+- Considerreferring people to a consultant dermatologist-led team if their acne of any severity, or acne-related scarring, is causing or contributing to persistent psychological distress or a mental health disorder.
+- Consider referral to mental health services if a person with acne experiences significant psychological distress or a mental health disorder, including those with a current or past history of
+- -suicidal ideation or self harm
+- -a severe depressive or anxiety disorder
+- -body dysmorphic disorder.
+- Considercondition-specificmanagementorreferraltoaspecialist (for example, a reproductive endocrinologist) if a medical disorder or medication (including self administered anabolic steroids) is likely to be contributing to a person's acne.
+
+[ All of the above based on the experience and opinion of the GC ]
+
+Additional management options in specialist care
+
+In a consultant dermatologist-led team, management options include oral isotretinoin, physical treatments (such as light devices) for acne, and treatment for acne-related scarring.
+
+- Consider oral isotretinoin for people older than 12 years who have a severe form of acne that is resistant to adequate courses of standard therapy with systemic antibiotics and topical therapy. For example:
+- -nodulocystic acne
+- -acne conglobata
+- -acne fulminans
+- -acne at risk of permanent scarring
+
+[ Basedonmoderatetoverylowqualityofevidencesynthesised in NMA of randomised control trials, pairwise meta-analysis, and health economic analysis ]
+
+- When considering oral isotretinoin for acne take into account the person's psychological wellbeing, and refer them to mental health services before starting treatment if appropriate. [ Based on the experience and opinion of the GC ]
+- Considerphotodynamictherapyforpeopleaged18andoverwith moderate to severe acne if other treatments are ineffective, not tolerated, or contraindicated. [ Based on moderate to very low quality of evidence synthesised in NMA of randomised control trials, pairwise meta-analysis, and health economic analysis ]
+- If a person's acne-related scarring is severe and persists a year after their acne has cleared
+- -refer the person to a consultant dermatologist-led team with expertise in scarring management
+- -in a consultant dermatologist-led team setting, consider CO2 laser treatment (alone or after a session of punch elevation) or glycolic acid peel.
+
+[ Based on high to very low quality evidence, cost analysis, and the experience and opinion of the GC ]
+
+Implementation
+
+The main challenges to the implementation of this guidance are
+
+- Service organisation for networks of care is variable: changes to practice will depend on the availability of services (such as mental health services) within a particular local area.
+- Primary care resources may be affected, but implementation is likely to lead to later benefits and reductions in resource use from better understanding of and compliance with medication.
+- Physical treatments for the management of acne are not part of current practice in the NHS. Therefore, the recommendation will result in a change in current practice and have potential impact on resources and training.
+- The availability of treatments for acne-related scarring in NHS centres varies across the country. Additional resources and training may be required in centres offering these treatment options.
+
+Details of topical treatment options
+
+- Fixed combination (two active medications in single pharmaceutical product) of topical adapalene (retinoid) with topical benzoyl peroxide
+- -Formulation with either of these 2 concentrations:
+- 0.1% adapalene with 2.5% benzoyl peroxide
+- 0.3% adapalene with 2.5% benzoyl peroxide
+- Fixed combination of topical benzoyl peroxide with topical clindamycin
+- -Formulation with either of these 2 concentrations:
+- 3% benzoyl peroxide with 1% clindamycin
+- 5% benzoyl peroxide with 1% clindamycin
+- Fixed combination of topical tretinoin (retinoid) with topical clindamycin
+- -0.025% tretinoin with 1% clindamycin
+- Topical adapalene (retinoid)
+- -0.1% adapalene
+- Topical azelaic acid
+- -Formulation with either of these 2 concentrations:
+- 15% azelaic acid
+- 20% azelaic acid
+- Topical benzoyl peroxide
+- -5% benzoyl peroxide
+
+How patients were involved in the creation of this article
+
+Committeemembersinvolvedinthisguidelineincludedtwolaymembers whocontributed to the formulation of the recommendations summarised here.
+
+What is not included in this summary
+
+Please see full NICE guideline 3 for recommendations on diet, treatment options for people with polycystic ovary syndrome, maintenance options, isotretinoin prescribing, use of oral corticosteroids in addition to oral isotretinoin, use of intralesional corticosteroids, and information for people with acne scarring.
+
+Further information on the guidance
+
+This guidance was developed by the National Guideline Alliance in accordance with NICE guideline methodology
+
+(https://www.nice.org.uk/process/pmg20/chapter/introduction). A Guideline Committee (GC) was established by the National Guideline Alliance, which incorporated healthcare and allied healthcare professionals (two dermatologists, one paediatric dermatologist, two general practitioners, one specialist nurse in dermatology, one pharmacist, with co-opted members including one gynaecological endocrinologist, one cosmetic dermatologist, one psychologist, one
+
+psychiatrist, one dietitian, and one microbiologist) and two lay members. The GC identified relevant review questions and appraised the best available evidence and evaluated the cost effectiveness of proposed recommendations where possible. Quality ratings of the evidence were based on GRADE methodology (www.gradeworkinggroup.org). These relate to the quality of the available evidence for assessed outcomes or themes rather than the quality of the study. The GC agreed recommendations for clinical practice based on the available evidence or, when evidence was not found, based on their experience and opinion using informal consensus methods.
+
+Thescopeandthedraftoftheguidelinewentthrougharigorousreviewing process, in which stakeholder organisations were invited to comment; the GC took all comments into consideration when producing the final version of the guideline.
+
+NICE will conduct regular reviews after publication of the guidance, to determinewhethertheevidencebasehasprogressedsignificantlyenough to alter the current guideline recommendations and require an update.
+
+Future research
+
+The GC made the following research recommendations:
+
+- What is the efficacy of reduced dose oral isotretinoin in the management of acne vulgaris?
+- What is the most effective first-line treatment option for any severity of acne vulgaris for people with polycystic ovary syndrome?
+- Whatistheeffect of dietary interventions or dietary changes on acne?
+- What skin care advice is appropriate for people with acne?
+- Whatistheeffectiveness of physical treatments (such as light devices) in the treatment of acne vulgaris or persistent acne vulgaris-related scarring?
+- What are the risk factors for acne vulgaris-related scarring?
+- What is the effectiveness of chemical peels for the treatment of acne vulgaris or persistent acne vulgaris-related scarring?
+- What is the effectiveness of hormone modifying agents in the treatment of acne vulgaris?
+- Whatinformationandsupportarevaluedbypeoplewithacnevulgaris?
+
+Contributors: All authors contributed to the initial draft of this article, helped revise the manuscript, and approved the final version for the publication.
+
+Funding: IM, LK, and SM received support from the National Guideline Alliance (NGA) at the Royal College of Obstetricians and Gynaecologists (RCOG), which is commissioned and funded by NICE to develop clinical, public health and social care guidelines and write this BMJ summary. No authors received special funding from any other source to write this summary.
+
+Disclaimer: The views expressed in this publication are those of the authors and not necessarily those of NGA, RCOG, or NICE.
+
+Competing interests: We declared the following interests based on NICE's policy on conflicts of interests (https://www.nice.org.uk/guidance/ng198/documents/register-of-interests).
+
+The members of the Guideline Committee were (listed alphabetically): Julia Cons (chair), Eugene Healy (topic advisor), Jack Higgins, Karen Joy, Sarah Mackenzie, Rebecca Penzer-Hick, Mohammed Rafiq, Jane Ravenscroft (from March 2020), Julia Schofield (until March 2020), Jane Wilcock, Damian Wood. Co-opted committee members were: Colin Duncan, Priya Khanna, Guy Northover, Ursula Philpot, Reena Shah, Neil Walker.
+
+The members of the National Guideline Alliance technical team were (listed alphabetically): Zenette Abrahams, Hadil Al-Etabi, Stephanie Arnold, Melissa Bolessa, Nathan Bromham, Shalmali Deshpande, Katharina Dworzynski, Linyun Fou, Jen Francis, Eva Gonzalez Viana, Laura Kuznetsov, Sonniya Lewis, Rachel Marshall, Ifigeneia Mavranezouli, M. Stephen Murphy, Benjamin Purchase, Jingyuan Xu.
+
+The collaborators from the Technical Support Unit (TSU) were: Caitlin Daly, Nicky Welton.
+
+- 1 Vos T, Flaxman AD, Naghavi M, etal. Years lived with disability (YLDs) for 1160 sequelae of 289 diseases and injuries 1990-2010: a systematic analysis for the Global Burden of Disease Study 2010. Lancet 2012;380:2163-96. doi: 10.1016/S0140-6736(12)61729-2 pmid: 23245607
+- 2 Schofield J, Grindlay D, Williams H. Skin conditions in the UK : a health care needs assessment. Centre of Evidence Based Dermatology, University of Nottingham, 2009.
+- 3 National Institute for Heath and Care Excellence. Acne vulgaris: management (NICE guideline NG198). 2021. https://www.nice.org.uk/guidance/ng198.

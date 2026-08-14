@@ -1,0 +1,357 @@
+NGHIÊN CỨU VỀ TÁC DỤNG PHỤ CỦA ISOTRETINOIN UỐNG BỆNH NHÂN MỤN TRỨNG CÁ TẠI BỆNH VIỆN ĐẠI HỌC Y DƯỢC THÀNH PHỐ HỒ CHÍ MINH
+
+Nguyễn Thị Trà My*, Văn Thế Trung**
+
+TÓM TẮT
+
+Mở đầu: Isotretinoin uống được sử dụng khá rộng rãi trong những năm gần đây vì nó là thuốc điều trị mụn trứng cá hiệu quả nhất hiện nay. Tuy nhiên, tác dụng phụ của thuốc là thường gặp và những dữ liệu về độ an toàn của thuốc trên bệnh nhân Việt Nam là chưa được xác định.
+
+Mục tiêu: Xác định đặc điểm của các dấu hiệu lâm sàng, cận lâm sàng có liên quan đến tác dụng phụ của isotretinoin uống trên bệnh nhân mụn trứng cá.
+
+Đối tượng và phương pháp nghiên cứu: Nghiên cứu tiến cứu mô tả hàng loạt ca mụn trứng cá được chỉ định thuốc uống isotretinoin. Khám lâm sàng và thực hiện xét nghiệm máu trước, trong quá trình điều trị. Các bệnh nhân được tái khám mỗi 2 tuần cho đến tối đa 16 tuần.
+
+Kết quả: 96 bệnh nhân (≥18 tuổi) được đưa vào nghiên cứu. Khô môi là tác dụng phụ thường gặp nhất, chiếm 99%. Khô da, bùng phát mụn, táo bón, khát nước quá mức, tróc vảy da cũng chiếm tỉ lệ đáng kể (17,7% 28,1%). Ít gặp hơn là đau cơ xương khớp, chảy máu cam, ngứa, khô mắt, mất ngủ, mệt mỏi, chảy máu nướu, nhạy cảm ánh sáng, đau đầu, rụng tóc, nhìn mờ, chắp lẹo, chóng mặt (1% - 11,5%). Thay đổi kinh nguyệt chiếm 18% bệnh nhân nữ. Rối loạn mỡ máu và men gan sau 4 tuần điều trị lần lượt là 38,7% và 8,1%, sau 16 tuần là 29,6% và 11,1% nhưng chỉ ở mức độ nhẹ. Không có trường hợp nào phải ngưng điều trị do tác dụng phụ.
+
+Kết luận: Kết quả nghiên cứu cho thấy tác dụng phụ của isotretinoin uống trong điều trị mụn trứng cá là đa dạng nhưng khô da niêm mạc mới là triệu chứng thường gặp. Tỷ lệ các rối loạn khác không cao. Không có trường hợp có tác dụng phụ nặng phải ngưng điều trị.
+
+Từ khóa: mụn trứng cá, isotretinoin uống, khô da niêm.
+
+ABSTRACT
+
+EVALUATING SIDE EFFECTS OF ORAL ISOTRETINOIN ON ACNE PATIENTS AT HO CHI MINH CITY UNIVERSITY MEDICAL CENTER
+
+Nguyen Thi Tra My, Van The Trung * Y Hoc TP. Ho Chi Minh * Vol. 21 - No 1 - 2017: 16 - 23
+
+Background: Oral isotretinoin has been used more frequently in recent years because it is the most effective treatment for acne. However, its side effects are diverse and there is no data of safety on Vietnamese patients.
+
+Objective: Define the clinical and subclinical features involved in side effects on acne patients who were treated with oral isotretinoin.
+
+Materials and methods: Prospective case series study on acne patients treated with oral isotretinoin at University Medical Center Ho Chi Minh city. Acne patients were clinically examined and to have blood test before and during causes of treatment. Patients were seen every two weeks up to 16 weeks.
+
+Results: Lip dryness was the most common (99%), followed by xeroderma, acne flare-up, constipation, excessive thirsty, exfoliation (17.7% - 28.1%). Less common were musculoskeletal symptoms, epistaxis, pruritus, dryness of eyes, insomnia, fatigue, gum bleeding, solar irritant, headache, hair loss, blurred vision, chalazion,
+
+* Bộ môn Da Liễu, ĐHYD Huế.
+
+style, dizziness (1% - 11.5%). Menstrual disorder was accounted for 18% of female patients. The percentage of elevated levels of serum lipid profiles and serum liver enzymes after 4 weeks of treatment and 16 weeks of treatment were 38.7%, 8.1%, 29.6%, 11.1%, respectively .
+
+Conclusion: These results showed that side effects of oral isotretinoin were diverse. Dryness of skin and lip was common whereas the prevalence of other side effects were not high. No case was stopped getting treatment due to serious side effects.
+
+Key words: acne, side effects, isotretinoin.
+
+ĐẶT VẤN ĐỀ
+
+Mụn trứng cá là bệnh da rất phổ biến, bệnh chiếm 13,4% tổng số bệnh nhân đến khám tại bệnh viện Da Liễu Tp. Hồ Chí Minh năm 2015, chỉ đứng thứ hai sau bệnh chàm (3) . Trong đó, mụn trứng cá mức độ trung bình và nặng chiếm khoảng 20%, đây là dạng mụn khó điều trị và thường để lại nhiều di chứng về sau (17) . Trong các phác đồ điều trị trong nước cũng như quốc tế, isotretinoin uống đóng một vai trò rất quan trọng. Đây là thuốc trị mụn trứng cá hiệu quả nhất hiện nay, tuy nhiên, nó cũng có nhiều tác dụng phụ. Tại Việt Nam, isotretinoin uống được chỉ định khá phổ biến. Mặc dù vậy, hiện vẫn chưa có công trình nghiên cứu nào về tác dụng phụ của thuốc này trên bệnh nhân Việt Nam. Mặc khác, trên thực tế lâm sàng bệnh nhân có những tác dụng phụ mà rất ít được báo cáo ở nước ngoài . Do đó, chúng tôi tiến hành đề tài 'Nghiên cứu về tác dụng phụ của isotretinoin uống trên bệnh nhân mụn trứng cá tại bệnh viện Đại Học Y Dược TP. HCM' nhằm đánh giá các tác dụng phụ của isotretinoin uống có thể gặp trên bệnh nhân Việt Nam với mục tiêu là xác định đặc điểm của các dấu hiệu lâm sàng, cận lâm sàng có liên quan đến tác dụng phụ của isotretinoin uống trên bệnh nhân mụn trứng cá.
+
+ĐỐI TƯỢNG - PHƯƠNG PHÁP NGHIÊN CỨU
+
+Đối tượng nghiên cứu
+
+Bệnh nhân mụn trứng cá được điều trị với isotretinoin uống tại bệnh viện Đại Học Y Dược TP. HCM từ tháng 10/2015 đến tháng 6/2016.
+
+Tiêu chuẩn chọn mẫu:
+
+Bệnh nhân ≥18 tuổi được chẩn đoán mụn trứng cá và được điều trị bằng isotretinoin uống.
+
+Kết quả xét nghiệm sàng lọc mỡ máu và men gan không có bất thường.
+
+Bệnh nhân tái khám được ít nhất 1 lần và đồng ý tham gia nghiên cứu.
+
+Tiêu chuẩn loại trừ
+
+Sử dụng isotretinoin uống trong vòng 3 tháng trước đó.
+
+Đang điều trị phối hợp một bệnh lý khác.
+
+Bệnh nhân đã được xác định có bất thường tương tự với tác dụng phụ của thuốc isotretinoin.
+
+Sử dụng các thuốc điều trị mụn trứng cá kèm theo gây các tác dụng phụ tương tự isotretinoin.
+
+Thiết kế nghiên cứu
+
+Nghiên cứu tiến cứu mô tả hàng loạt ca.
+
+Phương pháp tiến hành
+
+Đối tượng nghiên cứu thỏa mãn tiêu chuẩn chọn mẫu sẽ được thông tin về nghiên cứu và ký đồng thuận tham gia nghiên cứu.
+
+Buổi gặp mặt đầu tiên: thu thập thông tin chung về đối tượng nghiên cứu, đặc điểm lâm sàng, cách sử dụng thuốc, kết quả xét nghiệm trước điều trị.
+
+Sau đó mỗi 2-4 tuần, bệnh nhân được tái khám, thu thập thông tin về cách sử dụng thuốc, tác dụng phụ lâm sàng. Xét nghiệm máu được thực hiện lần 2 và 3 vào thời điểm 4 tuần và 16 tuần sau điều trị.
+
+Định nghĩa một số biến chính
+
+Tác dụng phụ lên môi bao gồm khô, tróc vảy, nứt, chảy máu, viêm đỏ. Khô mắt là cảm giác khô, cay, rát, giống kim châm ở mắt, chảy nước mắt vì tăng tiết bù trừ, triệu chứng nặng lên khi đi gió, ngồi điều hòa (14) . Nhạy cảm ánh sáng là
+
+Nghiên cứu Y họ c
+
+tình trạng tăng sắc tố hoặc đỏ da ở vùng da phơi bày ánh sáng, không kể vùng mụn viêm. Bùng phát mụn là tình trạng nổi thêm nhiều tổn thương mụn viêm, mụn mủ, đau nhức tăng lên. Rụng tóc là tình trạng tóc rụng nhiều hơn so với bình thường, khám bằng thử nghiệm kéo tóc có ≥6 sợi tóc rụng khi kéo một lượng tóc khoảng 5060 sợi hoặc rụng ≥3 sợi khi kéo lượng tóc ít hơn ở nhiều điểm khác nhau và loại trừ các nguyên nhân gây rụng tóc khác như stress, siêu vi, sau sinh, tổn thương viêm da đầu. Triệu chứng đau cơ xương khớp bao gồm đau cơ, đau xương và đau khớp sau khi loại trừ đau do các nguyên nhân khác như vận động mạnh, chấn thương... Khát nước quá mức là cảm giác khát và muốn uống nước liên tục, kể cả lúc ngủ, lượng nước uống >2 lít/ngày. Nếu bệnh nhân có than phiền về triệu chứng trầm cảm, bệnh nhân sẽ được gửi đi khám chuyên khoa tâm thần. Đối với bệnh nhân nữ ghi nhận thêm tiền sử kinh nguyệt (bình thường chu kỳ kinh dao động 21-35 ngày, thời gian hành kinh trung bình 5 ngày) và sự thay đổi kinh nguyệt khi uống thuốc (kinh thưa >35 ngày, kinh mau <21 ngày, rong kinh là chảy máu giữa chu kỳ kinh, cường kinh là lượng máu kinh >80 ml, định nghĩa này chỉ dùng cho mục đích nghiên cứu, trên thực tế lượng kinh nên dựa vào đánh giá của bệnh nhân) (8) .
+
+Mỡ máu: bình thường (TC <200mg/dl, LDLC <130mg/dl, TG <150mg/dl), tăng giới hạn là tăng <20% giới hạn trên bình thường (TC 200239mg/dl, LDL-C 130-159mg/dl, TG 150199mg/dl), tăng cao là tăng ≥20% giới hạn trên bình thường (TC ≥240mg/dl, LDL-C ≥160mg/dl, TG ≥200mg/dl) (9) .
+
+Men gan: bình thường (SGOT, SGPT, GGT ≤40UI/L), tăng giới hạn là tăng <2 lần giới hạn trên bình thường (41-80U/L), tăng 2-3 lần giới hạn trên bình thường (81-120U/L), tăng >3 lần giới hạn trên bình thường (>120U/L).
+
+Xử lý số liệu
+
+Số liệu được nhập và xử lý bằng phần mềm thống kê y học SPSS 16.0.
+
+KẾT QUẢ NGHIÊN CỨU
+
+Nghiên cứu được tiến hành trên 96 bệnh nhân, sau 4 tuần theo dõi còn lại 62 bệnh nhân và sau 16 tuần còn lại 27 bệnh nhân.
+
+Đặc điểm chung của đối tượng nghiên cứu
+
+Bảng 1: Đặc điểm chung của đối tượng nghiên cứu
+
+[Bang 1] Đặc điểm: Giới tính | Đặc điểm: Nam | Số lượng: 39 | Tỉ lệ %: 40,6.
+[Bang 1] Đặc điểm: Giới tính | Đặc điểm: Nữ | Số lượng: 57 | Tỉ lệ %: 59,4.
+[Bang 1] Đặc điểm: 18-24 | Số lượng: 70 | Tỉ lệ %: 72,9.
+[Bang 1] Đặc điểm: 25-30 | Số lượng: 20 | Tỉ lệ %: 20,8.
+[Bang 1] Đặc điểm: >30 | Số lượng: 6 | Tỉ lệ %: 6,2.
+[Bang 1] Đặc điểm: Tiền sử kinh nguyệt | Đặc điểm: Không bình thường | Số lượng: 10 | Tỉ lệ %: 17,5.
+[Bang 1] Đặc điểm: Tiền sử kinh nguyệt | Đặc điểm: Bình thường | Số lượng: 47 | Tỉ lệ %: 82,5.
+[Bang 1] Đặc điểm: Tiền sử dùng isotretinoin uống trước đây | Đặc điểm: Có | Số lượng: 30 | Tỉ lệ %: 31,2.
+[Bang 1] Đặc điểm: Tiền sử dùng isotretinoin uống trước đây | Đặc điểm: không | Số lượng: 66 | Tỉ lệ %: 68,8.
+
+Tỉ lệ nam/nữ là 1/1,5. Tuổi trung bình là 22,85 ± 3,81 (18-36 tuổi).
+
+Bảng 2: Liều và cách sử dụng isotretinoin uống
+
+[Bang 2] Đặc điểm: Liều isotretinoin khởi đầu theo mg/ngày | Đặc điểm: 10mg/ngày | Số lượng: 7 | Tỉ lệ %: 7,3.
+[Bang 2] Đặc điểm: Liều isotretinoin khởi đầu theo mg/ngày | Đặc điểm: 20mg/ngày | Số lượng: 83 | Tỉ lệ %: 86,5.
+[Bang 2] Đặc điểm: Liều isotretinoin khởi đầu theo mg/ngày | Đặc điểm: 30mg/ngày | Số lượng: 4 | Tỉ lệ %: 4,2.
+[Bang 2] Đặc điểm: Liều isotretinoin khởi đầu theo mg/ngày | Đặc điểm: 40mg/ngày | Số lượng: 2 | Tỉ lệ %: 2,1.
+[Bang 2] Đặc điểm: Liều isotretinoin theo cân nặng | Đặc điểm: <0,5mg/kg/ngày | Số lượng: 87 | Tỉ lệ %: 90,6.
+[Bang 2] Đặc điểm: Liều isotretinoin theo cân nặng | Đặc điểm: 0,5-1mg/kg/ngày | Số lượng: 9 | Tỉ lệ %: 9,4.
+[Bang 2] Đặc điểm: Cách uống liều 20mg/ngày | Đặc điểm: 1 lần/ngày | Số lượng: 52 | Tỉ lệ %: 62,7.
+[Bang 2] Đặc điểm: Cách uống liều 20mg/ngày | Đặc điểm: 2 lần/ngày | Số lượng: 31 | Tỉ lệ %: 37,3.
+[Bang 2] Đặc điểm: Giảm liều ở nhóm theo dõi 16 tuần | Đặc điểm: Đã giảm liều | Số lượng: 19 | Tỉ lệ %: 70,4.
+[Bang 2] Đặc điểm: Giảm liều ở nhóm theo dõi 16 tuần | Đặc điểm: Không giảm liều | Số lượng: 8 | Tỉ lệ %: 29,6.
+
+Chủ yếu bệnh nhân uống isotretinoin liều khởi đầu là 20mg/ngày (86,5%), liều <0,5mg/kg/ngày chiếm 90,6%. Liều 20mg/ngày được uống chủ yếu là 1 lần/ngày.
+
+Đặc điểm lâm sàng của bệnh nhân mụn trứng cá
+
+Bảng 3: Đặc điểm lâm sàng của đối tượng nghiên cứu
+
+[Bang 3] Đặc điểm lâm sàng: Triệu chứng cơ năng | Đặc điểm lâm sàng: Không | Số lượng: 38 | Tỉ lệ %: 39,6.
+[Bang 3] Đặc điểm lâm sàng: Triệu chứng cơ năng | Đặc điểm lâm sàng: Ngứa | Số lượng: 33 | Tỉ lệ %: 34,4.
+[Bang 3] Đặc điểm lâm sàng: Triệu chứng cơ năng | Đặc điểm lâm sàng: Đau nhức | Số lượng: 35 | Tỉ lệ %: 36,5.
+[Bang 3] Đặc điểm lâm sàng: Mụn đầu trắng | Số lượng: 67 | Tỉ lệ %: 69,8.
+[Bang 3] Đặc điểm lâm sàng: Mụn đầu đen | Số lượng: 51 | Tỉ lệ %: 53,1.
+[Bang 3] Đặc điểm lâm sàng: Sẩn | Số lượng: 93 | Tỉ lệ %: 96,9.
+
+[Bang 4] Đặc điểm lâm sàng: Mụn mủ | Số lượng: 85 | Tỉ lệ %: 88,5.
+[Bang 4] Đặc điểm lâm sàng: Cục | Số lượng: 88 | Tỉ lệ %: 91,7.
+[Bang 4] Đặc điểm lâm sàng: Nang | Số lượng: 10 | Tỉ lệ %: 10,4.
+[Bang 4] Đặc điểm lâm sàng: Mặt | Số lượng: 95 | Tỉ lệ %: 97,9.
+[Bang 4] Đặc điểm lâm sàng: Ngực | Số lượng: 35 | Tỉ lệ %: 36,5.
+[Bang 4] Đặc điểm lâm sàng: Lưng | Số lượng: 42 | Tỉ lệ %: 43,8.
+[Bang 4] Đặc điểm lâm sàng: Cánh tay | Số lượng: 6 | Tỉ lệ %: 6,2.
+[Bang 4] Đặc điểm lâm sàng: Độ nặng điểm | Đặc điểm lâm sàng: Nhẹ | Số lượng: 9 | Tỉ lệ %: 9,4.
+[Bang 4] Đặc điểm lâm sàng: Độ nặng điểm | Đặc điểm lâm sàng: Trung bình | Số lượng: 57 | Tỉ lệ %: 59,4.
+[Bang 4] Đặc điểm lâm sàng: Độ nặng điểm | Đặc điểm lâm sàng: Nặng | Số lượng: 26 | Tỉ lệ %: 27,1.
+[Bang 4] Đặc điểm lâm sàng: Độ nặng điểm | Đặc điểm lâm sàng: Rất nặng | Số lượng: 4 | Tỉ lệ %: 4,2.
+
+Điểm độ nặng trung bình là 27,2 ± 6,6 (11 - 41 điểm).
+
+Tác dụng phụ của isotretinoin uống
+
+Bảng 4: Tần suất xuất hiện của các tác dụng phụ lâm sàng theo thời gian
+
+[Bang 5] Tác dụng phụ: Tác dụng phụ | 0-2 tuần (N=96): N (%) | 2-4 tuần (N=62): N (%) | 4-16 tuần (N=27): N (%).
+[Bang 5] Tác dụng phụ: Tác dụng phụ lên môi | 0-2 tuần (N=96): 92 (95,8%) | 2-4 tuần (N=62): 2(3,2%) | 4-16 tuần (N=27): 1(3,7%) | Tổng (N=96) N (%): 95 (99%).
+[Bang 5] Tác dụng phụ: Khô da | 0-2 tuần (N=96): 25 (26%) | 2-4 tuần (N=62): 1(1,6%) | 4-16 tuần (N=27): 1 (3,7%) | Tổng (N=96) N (%): 27 (28,1%).
+[Bang 5] Tác dụng phụ: Bùng phát mụn | 0-2 tuần (N=96): 25 (26%) | 2-4 tuần (N=62): 1 (1,6%) | 4-16 tuần (N=27): 0 | Tổng (N=96) N (%): 26 (28,1%).
+[Bang 5] Tác dụng phụ: Táo bón | 0-2 tuần (N=96): 16 (16,7%) | 2-4 tuần (N=62): 5 (8,1%) | 4-16 tuần (N=27): 4 (14,8%) | Tổng (N=96) N (%): 25 (26,0%).
+
+[Bang 6] Tác dụng phụ: Tác dụng phụ | 0-2 tuần (N=96): N (%) | 2-4 tuần (N=62): N (%) | 4-16 tuần (N=27): N (%) | Tổng (N=96): N (%).
+[Bang 6] Tác dụng phụ: Khát nước | 0-2 tuần (N=96): 14 (14,6%) | 2-4 tuần (N=62): 4 (6,5%) | 4-16 tuần (N=27): 3 (11,1%) | Tổng (N=96): 21 (21,9%).
+[Bang 6] Tác dụng phụ: Tróc vảy da | 0-2 tuần (N=96): 13 (13,5%) | 2-4 tuần (N=62): 2 (3,2%) | 4-16 tuần (N=27): 2 (7,4%) | Tổng (N=96): 17 (17,7%).
+[Bang 6] Tác dụng phụ: Đau cơ xương khớp | 0-2 tuần (N=96): 4 (4,2%) | 2-4 tuần (N=62): 2 (3,2%) | 4-16 tuần (N=27): 5 (18,5%) | Tổng (N=96): 11 (11,5%).
+[Bang 6] Tác dụng phụ: Chảy máu cam | 0-2 tuần (N=96): 4 (4,2%) | 2-4 tuần (N=62): 1 (1,6%) | 4-16 tuần (N=27): 2 (7,4%) | Tổng (N=96): 7 (7,3%).
+[Bang 6] Tác dụng phụ: Ngứa | 0-2 tuần (N=96): 4 (4,2%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 2(7,4%) | Tổng (N=96): 6 (6,3%).
+[Bang 6] Tác dụng phụ: Khô mắt | 0-2 tuần (N=96): 3 (3,1%) | 2-4 tuần (N=62): 2 (3,2%) | 4-16 tuần (N=27): 1 (3,7%) | Tổng (N=96): 6 (6,3%).
+[Bang 6] Tác dụng phụ: Mất ngủ | 0-2 tuần (N=96): 4 (4,2%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 0 | Tổng (N=96): 4 (4,2%).
+[Bang 6] Tác dụng phụ: Mệt mỏi | 0-2 tuần (N=96): 4 (4,2%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 0 | Tổng (N=96): 4 (4,2%).
+[Bang 6] Tác dụng phụ: Chảy máu nướu | 0-2 tuần (N=96): 3(3,1%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 0 | Tổng (N=96): 3 (3,1%).
+[Bang 6] Tác dụng phụ: Nhạy cảm ánh sáng | 0-2 tuần (N=96): 0 | 2-4 tuần (N=62): 1 (1,6%) | 4-16 tuần (N=27): 0 | Tổng (N=96): 1 (1,0%).
+[Bang 6] Tác dụng phụ: Đau đầu | 0-2 tuần (N=96): 1(1,0%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 0 | Tổng (N=96): 1 (1,0%).
+[Bang 6] Tác dụng phụ: Rụng tóc | 0-2 tuần (N=96): 0 | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 1 (3,7%) | Tổng (N=96): 1 (1,0%).
+[Bang 6] Tác dụng phụ: Nhìn mờ | 0-2 tuần (N=96): 3 (3,1%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 1 (3,7%) | Tổng (N=96): 4 (4,2%).
+[Bang 6] Tác dụng phụ: Chắp lẹo | 0-2 tuần (N=96): 0 | 2-4 tuần (N=62): 1 (1,6%) | 4-16 tuần (N=27): 1 (3,7%) | Tổng (N=96): 2 (2,1%).
+[Bang 6] Tác dụng phụ: Chóng mặt | 0-2 tuần (N=96): 1 (1,0%) | 2-4 tuần (N=62): 0 | 4-16 tuần (N=27): 0 | Tổng (N=96): 1 (1,0%).
+
+Sốt, dị ứng thuốc, đau bụng, tiêu chảy, buồn nôn, nôn, trầm cảm có khảo sát nhưng không ghi nhận trường hợp nào. Hầu hết các trường hợp tác dụng phụ được kiểm soát không cần ngưng thuốc, trừ 1 trường hợp bệnh nhân không muốn tiếp tục sử dụng vì bị chảy máu cam.
+
+Bảng 5: Thời gian khởi phát trung bình của mỗi tác dụng phụ
+
+[Bang 7] Tác dụng phụ: Tác dụng phụ lên môi | Ngày khởi phát sớm nhất: 1 | Ngày khởi phát muộn nhất: 30 | Trung vị của thời gian khởi phát (ngày): 6.
+[Bang 7] Tác dụng phụ: Khô da | Ngày khởi phát sớm nhất: 2 | Ngày khởi phát muộn nhất: 60 | Trung vị của thời gian khởi phát (ngày): 7.
+[Bang 7] Tác dụng phụ: Bùng mụn | Ngày khởi phát sớm nhất: 2 | Ngày khởi phát muộn nhất: 20 | Trung vị của thời gian khởi phát (ngày): 8.
+[Bang 7] Tác dụng phụ: Táo bón | Ngày khởi phát sớm nhất: 1 | Ngày khởi phát muộn nhất: 56 | Trung vị của thời gian khởi phát (ngày): 8.
+[Bang 7] Tác dụng phụ: Khát nước | Ngày khởi phát sớm nhất: 1 | Ngày khởi phát muộn nhất: 60 | Trung vị của thời gian khởi phát (ngày): 7.
+[Bang 7] Tác dụng phụ: Tróc vảy da | Ngày khởi phát sớm nhất: 2 | Ngày khởi phát muộn nhất: 90 | Trung vị của thời gian khởi phát (ngày): 10.
+[Bang 7] Tác dụng phụ: Đau cơ xương khớp | Ngày khởi phát sớm nhất: 3 | Ngày khởi phát muộn nhất: 100 | Trung vị của thời gian khởi phát (ngày): 28.
+[Bang 7] Tác dụng phụ: Chảy máu cam | Ngày khởi phát sớm nhất: 2 | Ngày khởi phát muộn nhất: 42 | Trung vị của thời gian khởi phát (ngày): 14.
+[Bang 7] Tác dụng phụ: Ngứa | Ngày khởi phát sớm nhất: 4 | Ngày khởi phát muộn nhất: 120 | Trung vị của thời gian khởi phát (ngày): 14.
+[Bang 7] Tác dụng phụ: Khô mắt | Ngày khởi phát sớm nhất: 7 | Ngày khởi phát muộn nhất: 42 | Trung vị của thời gian khởi phát (ngày): 19.
+[Bang 7] Tác dụng phụ: Mất ngủ | Ngày khởi phát sớm nhất: 1 | Ngày khởi phát muộn nhất: 7 | Trung vị của thời gian khởi phát (ngày): 4.
+[Bang 7] Tác dụng phụ: Mệt mỏi | Ngày khởi phát sớm nhất: 3 | Ngày khởi phát muộn nhất: 7 | Trung vị của thời gian khởi phát (ngày): 7.
+[Bang 7] Tác dụng phụ: Chảy máu nướu | Ngày khởi phát sớm nhất: 4 | Ngày khởi phát muộn nhất: 14 | Trung vị của thời gian khởi phát (ngày): 7.
+[Bang 7] Tác dụng phụ: Nhạy cảm ánh sáng | Trung vị của thời gian khởi phát (ngày): 20.
+[Bang 7] Tác dụng phụ: Đau đầu | Trung vị của thời gian khởi phát (ngày): 1.
+[Bang 7] Tác dụng phụ: Rụng tóc | Ngày khởi phát sớm nhất: 0 | Ngày khởi phát muộn nhất: 0 | Trung vị của thời gian khởi phát (ngày): 30.
+[Bang 7] Tác dụng phụ: Nhìn mờ | Ngày khởi phát sớm nhất: 7 | Ngày khởi phát muộn nhất: 56 | Trung vị của thời gian khởi phát (ngày): 7.
+[Bang 7] Tác dụng phụ: Chắp lẹo | Ngày khởi phát sớm nhất: 20 | Ngày khởi phát muộn nhất: 60 | Trung vị của thời gian khởi phát (ngày): 40.
+[Bang 7] Tác dụng phụ: Chóng mặt | Trung vị của thời gian khởi phát (ngày): 2.
+
+Những tác dụng phụ thường khởi phát sớm trong tuần đầu là khô môi, khô da, khát nước quá mức, chảy máu nướu, đau đầu, mất ngủ, mệt mỏi, chóng mặt, nhìn mờ. Tuần thứ 2 thường bắt đầu các tác dụng phụ bùng mụn, ngứa, tróc vảy da, chảy máu cam, táo bón. Đau
+
+Nghiên cứu Y họ c
+
+cơ xương khớp, khô mắt, rụng tóc, nhạy cảm ánh sáng, chắp lẹo là những tác dụng phụ thường xuất hiện muộn.
+
+Bảng 6: Phân bố về thay đổi kinh nguyệt do uống isotretinoin
+
+[Bang 8] Đặc điểm: Không thay đổi | Số lượng: 41 | Tỉ lệ %: 71,9.
+[Bang 8] Đặc điểm: Có thay đổi | Số lượng: 9 | Tỉ lệ %: 15,8.
+[Bang 8] Đặc điểm: Với tiền sử kinh nguyệt bình thường | Số lượng: 7 | Tỉ lệ %: 12,3.
+[Bang 8] Đặc điểm: Với tiền sử kinh nguyệt không bình thường a | Số lượng: 2 | Tỉ lệ %: 3,5.
+[Bang 8] Đặc điểm: Chưa khảo sát được b | Số lượng: 9 | Tỉ lệ %: 15,8.
+[Bang 8] Đặc điểm: Dạng thay đổi kinh nguyệt | Đặc điểm: Kinh thưa | Số lượng: 6 | Tỉ lệ %: 66,7.
+[Bang 8] Đặc điểm: Dạng thay đổi kinh nguyệt | Đặc điểm: Kinh mau | Số lượng: 2 | Tỉ lệ %: 22,2.
+[Bang 8] Đặc điểm: Dạng thay đổi kinh nguyệt | Đặc điểm: Cường kinh | Số lượng: 1 | Tỉ lệ %: 11,1.
+
+Chú thích: a: 2 trường hợp thay đổi kinh nguyệt khác với dạng rối loạn có sẵn của bệnh nhân. b: bệnh nhân tái khám chưa đến chu kỳ kinh nên chưa khảo sát được.
+
+Tỉ lệ thay đổi kinh nguyệt do isotretinoin uống là 18% bệnh nhân nữ khảo sát được kinh nguyệt.
+
+Bảng 7: Trung bình mỡ máu và men gan trước và sau điều trị 4 tuần (N=62)
+
+[Bang 9] Xét nghiệm: TC | Trước điều trị: 163,9 ± 22,4 | Sau điều trị 4 tuần: 173,6 ± 24,5 | Trung bình hiệu số: 9,7 ± 19,1 | Tỉ lệ chênh: 5,9% | P: <0,001.
+[Bang 9] Xét nghiệm: LDL-C | Trước điều trị: 108,5 ± | Sau điều trị 4 tuần: 116,5 ± | Trung bình hiệu số: 8 ± 14,0 | Tỉ lệ chênh: 7,4% | P: <0,001.
+
+Bảng 9: Tần suất bệnh nhân bị rối loạn mỡ máu
+
+[Bang 10] cot1: Rối loạn | cot2: Rối loạn | Sau điều trị 4 tuần (N=62): Tăng ≤20% | Sau điều trị 4 tuần (N=62): Tăng >20% | Sau điều trị 4 tuần (N=62): Tổng | Sau điều trị 16 tuần (N=27): Tăng ≤20% | Sau điều trị 16 tuần (N=27): Tăng >20% | Sau điều trị 16 tuần (N=27): Tổng.
+[Bang 10] cot2: TC | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 4 tuần (N=62): 0 | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0.
+[Bang 10] cot2: LDL-C | Sau điều trị 4 tuần (N=62): 7(11,3%) | Sau điều trị 4 tuần (N=62): 0 | Sau điều trị 4 tuần (N=62): 7(11,3%) | Sau điều trị 16 tuần (N=27): 1 (3,7%) | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 1 (3,7%).
+[Bang 10] cot2: TG | Sau điều trị 4 tuần (N=62): 6 (9,7%) | Sau điều trị 4 tuần (N=62): 2 (3,2%) | Sau điều trị 4 tuần (N=62): 8(12,9%) | Sau điều trị 16 tuần (N=27): 2 (7,4%) | Sau điều trị 16 tuần (N=27): 1 (3,7%) | Sau điều trị 16 tuần (N=27): 3(11,1%).
+[Bang 10] cot2: TC + LDL-C | Sau điều trị 4 tuần (N=62): 5 (8,1%) | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 4 tuần (N=62): 6 (9,7%) | Sau điều trị 16 tuần (N=27): 3(11,1%) | Sau điều trị 16 tuần (N=27): 1 (3,7%) | Sau điều trị 16 tuần (N=27): 4(14,8%).
+[Bang 10] cot2: TG + LDL-C | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 4 tuần (N=62): 0 | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0.
+[Bang 10] cot2: TC + LDL-C + TG | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 4 tuần (N=62): 0 | Sau điều trị 4 tuần (N=62): 1 (1,6%) | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0 | Sau điều trị 16 tuần (N=27): 0.
+[Bang 10] cot1: Tổng | cot2: Tổng | Sau điều trị 4 tuần (N=62): 21 (33,9%) | Sau điều trị 4 tuần (N=62): 3 (4,8%) | Sau điều trị 4 tuần (N=62): 24 (38,7%) | Sau điều trị 16 tuần (N=27): 6 (22,2%) | Sau điều trị 16 tuần (N=27): 2 (7,4%) | Sau điều trị 16 tuần (N=27): 8 (29,6%).
+
+Bảng 10: Tần suất bệnh nhân bị tăng men gan
+
+[Bang 11] Tăng men gan: Tăng men gan | Sau 4 tuần điều trị (N=62): Tăng ≤2 lần | Sau 4 tuần điều trị (N=62): Tăng >2lần | Sau 4 tuần điều trị (N=62): Tổng | Sau 16 tuần điều trị (N=27): Tăng ≤2 lần | Sau 16 tuần điều trị (N=27): Tăng >2lần | Sau 16 tuần điều trị (N=27): Tổng.
+[Bang 11] Tăng men gan: SGOT | Sau 4 tuần điều trị (N=62): 2 (3,2%) | Sau 4 tuần điều trị (N=62): 0 | Sau 4 tuần điều trị (N=62): 2 (3,2%) | Sau 16 tuần điều trị (N=27): 2 (7,4%) | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 2 (7,4%).
+[Bang 11] Tăng men gan: SGPT | Sau 4 tuần điều trị (N=62): 1 (1,6%) | Sau 4 tuần điều trị (N=62): 0 | Sau 4 tuần điều trị (N=62): 1 (1,6%) | Sau 16 tuần điều trị (N=27): 1 (3,7%) | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 1 (3,7%).
+[Bang 11] Tăng men gan: GGT | Sau 4 tuần điều trị (N=62): 1 (1,6%) | Sau 4 tuần điều trị (N=62): 0 | Sau 4 tuần điều trị (N=62): 1 (1,6%) | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 0.
+[Bang 11] Tăng men gan: SGOT+SGPT | Sau 4 tuần điều trị (N=62): 1 (3,2%) | Sau 4 tuần điều trị (N=62): 0 | Sau 4 tuần điều trị (N=62): 1 (1,6%) | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 0.
+[Bang 11] Tăng men gan: Tổng | Sau 4 tuần điều trị (N=62): 5 (8,1%) | Sau 4 tuần điều trị (N=62): 0 | Sau 4 tuần điều trị (N=62): 5 (8,1%) | Sau 16 tuần điều trị (N=27): 3 (11,1%) | Sau 16 tuần điều trị (N=27): 0 | Sau 16 tuần điều trị (N=27): 3 (11,1%).
+
+[Bang 12] Trước điều trị: 20,0 | Sau điều trị 4 tuần: 21,0.
+[Bang 12] Xét nghiệm: TG | Trước điều trị: 87,2 ± 29,7 | Sau điều trị 4 tuần: 104,7 ± 58,6 | Trung bình hiệu số: 17,5 ± 50,1 | Tỉ lệ chênh: 20,1% | P: 0,008.
+[Bang 12] Xét nghiệm: SGOT | Trước điều trị: 21,0 ± 4,9 | Sau điều trị 4 tuần: 23,4 ± 7,5 | Trung bình hiệu số: 2,4 ± 5,8 | Tỉ lệ chênh: 11,4% | P: 0,002.
+[Bang 12] Xét nghiệm: SGPT | Trước điều trị: 16,5 ± 6,0 | Sau điều trị 4 tuần: 18,0 ± 8,7 | Trung bình hiệu số: 1,5 ± 8,7 | Tỉ lệ chênh: 9,1% | P: 0,179.
+[Bang 12] Xét nghiệm: GGT | Trước điều trị: 19,8 ± 7,4 | Sau điều trị 4 tuần: 21,5 ± 1,0 | Trung bình hiệu số: 1,8 ± 3,7 | Tỉ lệ chênh: 9,1% | P: <0,001.
+
+Chú thích: Trung bình hiệu số là trung bình của các cặp hiệu số sau và trước điều trị. Tỉ lệ chênh là tỉ lệ phần trăm của trung bình hiệu số so với giá trị ban đầu.
+
+Giá trị trung bình của xét nghiệm ở thời điểm 4 tuần sau điều trị cao hơn so với lúc trước điều trị có ý nghĩa thống kê. Mức độ tăng là nhỏ (5,9-11,4% giá trị ban đầu), ngoại trừ triglyceride.
+
+Bảng 8: Trung bình mỡ máu và men gan trước và sau điều trị 16 tuần (N=27)
+
+[Bang 13] Xét nghiệm: TC | Trước điều trị: 168,2 ± 21,7 | Sau điều trị 16 tuần: 175,0 ± 25,5 | Trung bình hiệu số: 6,8 ± 18,8 | Tỉ lệ chênh: 4,0% | P: 0,071.
+[Bang 13] Xét nghiệm: LDL-C | Trước điều trị: 109,6 ± 18,7 | Sau điều trị 16 tuần: 115,6 ± 23,9 | Trung bình hiệu số: 6,0 ± 15,8 | Tỉ lệ chênh: 5,5% | P: 0,057.
+[Bang 13] Xét nghiệm: TG | Trước điều trị: 89,1 ± 31,4 | Sau điều trị 16 tuần: 96,4 ± 49,5 | Trung bình hiệu số: 7,3 ± 46,7 | Tỉ lệ chênh: 8,2% | P: 0,422.
+[Bang 13] Xét nghiệm: SGOT | Trước điều trị: 22,2 ± 5,3 | Sau điều trị 16 tuần: 24,9 ± 7,2 | Trung bình hiệu số: 2,7 ± 4,8 | Tỉ lệ chênh: 12,2% | P: 0,007.
+[Bang 13] Xét nghiệm: SGPT | Trước điều trị: 18,3 ± 5,3 | Sau điều trị 16 tuần: 19,3 ± 8,5 | Trung bình hiệu số: 1,0 ± 6,9 | Tỉ lệ chênh: 5,5% | P: 0,442.
+[Bang 13] Xét nghiệm: GGT | Trước điều trị: 22,4 ± 7,8 | Sau điều trị 16 tuần: 22,0 ± 7,5 | Trung bình hiệu số: 0,3 ± 4,5 | Tỉ lệ chênh: 1,3% | P: 0,706.
+
+Giá trị trung bình của xét nghiệm sau 16 tuần điều trị không khác biệt so với lúc trước điều trị.
+
+Rối loạn mỡ máu sau 4 tuần và 16 tuần chiếm 38,7% và 29,6%. Tăng mỡ máu >20% sau 4 tuần và 16 tuần chiếm 4,8% và 7,4%. Không có trường hợp nào rối loạn mỡ máu nặng phải ngưng điều trị.
+
+Tất cả các trường hợp tăng men gan chỉ tăng nhẹ ở mức dưới 2 lần giới hạn trên bình thường, chiếm 8,1% sau 4 tuần và 11,1% sau 16 tuần điều trị.
+
+Mối liên quan giữa tác dụng phụ của isotretinoin với liều thuốc và cách sử dụng thuốc
+
+Số loại tác dụng phụ tăng khi liều thuốc tăng (p=0,003 với test Kruskall-Wallis).
+
+Không có sự khác biệt về số loại tác dụng phụ khi uống isotretinoin 1 lần/ngày và 2 lần/ngày với liều 20mg/ngày (p=0,383 với test independent sample T test).
+
+Không có sự khác biệt giữa liều thuốc (liều theo cân nặng hay liều tích lũy) ở thời điểm 4 tuần giữa nhóm có rối loạn mỡ máu so với nhóm không có rối loạn mỡ máu, và giữa nhóm có tăng men gan so với nhóm không tăng men gan.
+
+BÀN LUẬN
+
+Đặc điểm chung của đối tượng nghiên cứu
+
+Nghiên cứu của chúng tôi có đặc điểm về giới và tuổi tương tự với các nghiên cứu khác được thực hiện tại TP. HCM trước đây và một số nghiên cứu nước ngoài (2,12,13,16) . Có 17,5% bệnh nhân nữ có tiền sử kinh nguyệt không bình thường và gần 1/3 bệnh nhân đã từng uống isotretinoin trước khi tham gia nghiên cứu.
+
+Chủ yếu bệnh nhân uống isotretinoin với liều khởi đầu là 20mg/ngày, phần lớn là <0,5mg/kg/ngày và được uống chủ yếu là 1 lần/ngày. Liều khuyến cáo của isotretinoin là liều cao 0,5-1mg/kg/ngày, tuy nhiên tác dụng phụ rất nhiều (19) . Nhiều nghiên cứu về liều thấp 20mg/ngày cho thấy là có hiệu quả, giảm tần suất các tác dụng phụ nặng cũng như giảm chi phí điều trị (2,6,15,16) .
+
+Đặc điểm lâm sàng của bệnh mụn trứng cá
+
+Đặc điểm lâm sàng mụn trứng cá trong nghiên cứu chúng tôi khá tương đồng với các nghiên cứu trước, chỉ có điểm khác là mức độ nặng theo thang điểm GAGS cao hơn, với các tổn thương mụn nặng như nang cục chiếm tỉ lệ lớn hơn và triệu chứng cơ năng đau nhức cũng nhiều hơn (13,18) .
+
+Tác dụng phụ của isotretinoin uống
+
+Khô môi là tác dụng phụ thường gặp nhất, chiếm 99%, kết quả này phù hợp với y văn cũng như nhiều nghiên cứu khác (6,15) . Khô da là tác dụng phụ đứng hàng thứ 2, chiếm 28,1%. Tỉ lệ này thấp hơn so với kết quả của Amichai là 43%, Brito là 47% và Rao đến 84% (2,6,15) . Tương tự, tỉ lệ tróc vảy da của chúng tôi ghi nhận cũng thấp hơn. Sự khác biệt này có thể do điều kiện khí hậu khác nhau của nơi tiến hành nghiên cứu.
+
+Bùng phát mụn gặp phải ở 27,1% bệnh nhân khi điều trị với isotretinoin uống. Tỉ lệ này cao hơn của Brito là 6% và một số nghiên cứu sử dụng isotretinoin liều thấp không ghi nhận tác dụng phụ này (6,15,16) . Táo bón chiếm 26%, đây là tác dụng phụ thường gặp trong nghiên cứu của chúng tôi mà ít được ghi nhận trong y văn.
+
+Đau cơ xương khớp chiếm 11,5% tổng số bệnh nhân. Kết quả này cao hơn nghiên cứu của Rasi là 4,2% nhưng thấp hơn của Alkan là 23,1% và của McElwee là 42% (1,11,16) . Sự khác biệt này là do sự khác nhau về liều thuốc, thời gian dùng thuốc cũng như tổng liều của các nghiên cứu. Chúng tôi ghi nhận có 4 bệnh nhân đau gót chân, 3 đau lưng, 1 đau khớp gối, 1 đau khớp thái dương hàm, 1 đau cơ liên sườn và 1 đau bắp chân. Như vậy, kết quả của chúng tôi khá tương đồng với các báo cáo trước đây của Alkan và Bottomley với tỉ lệ đau gân gót và đau lưng là thường gặp (1,5) .
+
+Chảy máu cam xuất hiện với tỉ lệ 7,3%. Tuy mức độ chảy máu cam không trầm trọng nhưng có 1 bệnh nhân khó chịu nhiều về tác dụng phụ này nên được chỉ định ngưng isotretinoin uống và những bệnh nhân còn lại vẫn tiếp tục điều trị.
+
+Những tác dụng phụ ít gặp hơn là ngứa, khô mắt, mất ngủ, mệt mỏi, chảy máu nướu, nhạy cảm ánh sáng, đau đầu, rụng tóc, nhìn mờ, chắp lẹo, chóng mặt. Trong đó, tác dụng phụ ở mắt thường được quan tâm. Chúng tôi ghi nhận có 6 (6,3%) bệnh nhân khô mắt, 4 (4,2%) nhìn mờ, 1 (1,2%) bị chắp và 1 (1,2%) bị lẹo. Nghiên cứu của Blasiak ghi nhận tỉ lệ nhìn mờ chiếm khoảng 6% khi dùng isotretinoin liều cao (4) . Chúng tôi nhận thấy tác dụng phụ nhìn mờ chủ yếu thoáng qua và phụ thuộc liều.
+
+Một số tác dụng phụ được khảo sát nhưng không ghi nhận trường hợp nào là sốt, dị ứng thuốc, đau bụng, tiêu chảy, buồn nôn, nôn, than phiền về tình trạng trầm cảm. Theo nghiên cứu của Amichai trên 638 bệnh nhân và Brito trên 150 bệnh nhân dùng isotretinoin liều 20mg/ngày cũng không ghi nhận trường hợp nào xuất hiện trầm cảm hay những rối loạn tâm lý khác trong quá trình điều trị (2,6) .
+
+Tác dụng phụ thay đổi kinh nguyệt chiếm 18% bệnh nhân nữ. Trên thế giới, báo cáo về tác dụng phụ này rất ít và chủ yếu là báo cáo trường hợp (10) . Có thể do tỉ lệ dùng biện pháp tránh thai bằng nội tiết trong nghiên cứu của chúng tôi là rất thấp, trong khi đó biện pháp tránh thai này phần nào hạn chế biểu hiện tác dụng phụ thay đổi kinh nguyệt. Dạng thay đổi kinh nguyệt đã được báo cáo trước đây bao gồm rong kinh, kinh thưa, kinh ít, ra máu sau quan hệ, vô kinh (7,10,11) . Kinh thưa là dạng rối loạn thường gặp nhất trong nghiên cứu của chúng tôi, kế đến là kinh mau và cường kinh.
+
+Chúng tôi nhận thấy các giá trị xét nghiệm tăng nhẹ sau 4 tuần điều trị và có khuynh hướng trở về gần với giá trị ban đầu vào thời điểm 16 tuần. Tương tự với nghiên cứu của Rasi khi dùng isotretinoin liều 20mg/ngày thì men gan và mỡ máu đều có tăng nhưng mức độ tăng nhẹ và thường trở về bình thường trong 6-8 tuần mặc dù vẫn tiếp tục điều trị (16) .
+
+Kết quả của chúng tôi có 38,7% bệnh nhân bị rối loạn mỡ máu sau 4 tuần điều trị và 29,6% sau
+
+16 tuần. Nếu chỉ tính tăng mỡ máu >20% giới hạn trên bình thường thì tỉ lệ này thấp hơn (4,8%-7,4%). Mức độ rối loạn không nhiều và không có trường hợp nào phải ngưng điều trị. Tỉ lệ này của chúng tôi cao hơn nghiên cứu của Rasi (13%) và Amichai (4,2%) (2,16) . Sự khác biệt này là do chúng tôi khảo sát cả 3 thành phần của mỡ máu (TC, LDL-C, TG) còn các nghiên cứu kia chỉ khảo sát TC và TG. Nếu chỉ xét tăng TC và TG>20% thì tỉ lệ của chúng tôi là 4,8-7,4% tương đương với nghiên cứu của Amichai.
+
+Tăng men gan sau 4 tuần điều trị chiếm 8,1% và sau 16 tuần là 11,1%. Tỉ lệ của chúng tôi cao hơn nghiên cứu của Amichai là 4,8% (2) . Tỉ lệ tăng SGOT và SGPT của chúng tôi là 6,5% tương đương với kết quả của Vieira lần lượt là 8,6% và 7,3%. Đây là các tỉ lệ phản ánh tình trạng có tăng men gan, còn tăng men gan thật sự (>2 lần giới hạn trên bình thường) là rất hiếm gặp.
+
+Mối liên quan giữa tác dụng phụ của isotretinoin uống với liều và cách sử dụng thuốc
+
+Chúng tôi nhận thấy mối liên quan có ý nghĩa thống kê giữa số loại tác dụng phụ với liều thuốc: liều càng cao thì số tác dụng phụ gặp càng nhiều. Kết quả này tương đồng với y văn là tác dụng phụ của isotretinoin phụ thuộc liều. Tuy nhiên, chúng tôi không tìm thấy sự khác biệt về số loại tác dụng phụ khi uống isotretinoin 1 lần/ngày và 2 lần/ngày với liều 20mg/ngày. Tương tự, chúng tôi cũng không tìm thấy sự khác biệt giữa liều thuốc ở thời điểm 4 tuần sau điều trị ở nhóm có rối loạn mỡ máu với nhóm không có rối loạn mỡ máu, ở nhóm có tăng men gan với nhóm không tăng men gan. Có thể do nghiên cứu của chúng tôi chủ yếu sử dụng liều thấp 20mg/ngày nên ít có sự khác biệt về liều dùng giữa 2 nhóm so sánh.
+
+KẾT LUẬN
+
+Qua nghiên cứu về tác dụng phụ của isotretinoin trên 96 bệnh nhân mụn trứng cá, chúng tôi nhận thấy thuốc isotretinoin gây tác dụng phụ trên hầu hết bệnh nhân, trong đó hầu như tất cả bệnh nhân đều bị khô môi . Khô da, bùng phát mụn, táo bón, khát nước quá mức, tróc vảy da cũng với tỷ lệ đáng kể. Ít gặp hơn là đau cơ xương khớp, chảy máu cam, ngứa, khô mắt, mất ngủ, mệt mỏi, chảy máu nướu, nhạy cảm ánh sáng, đau đầu, rụng tóc, nhìn mờ, chắp lẹo, chóng mặt. Thay đổi kinh nguyệt chiếm 18% bệnh nhân nữ , trong đó chủ yếu là kinh thưa. Rối loạn mỡ máu và tăng men gan xảy ra với tỷ lệ dưới 40% và ở mức độ nhẹ. Số tác dụng phụ có liên quan liều thuốc dùng hàng ngày. Đối với liều 20mg/ngày thì số lần dùng mỗi ngày không thay đổi tác dụng phụ.
+
+TÀI LIỆU THAM KHẢO
+
+1. Alkan S, Kayiran N, Zengin O, et al (2015)."Isotretinoininduced Spondyloarthropathy-related Symptoms: A Prospective Study". J Rheumatol ,42(11): 2106-2109.
+2. Amichai B, Shemer A, Grunwald MH (2006). "Low-dose isotretinoin in the treatment of acne vulgaris". J Am Acad Dermatol ,54(4): 644-646.
+3. Bệnh viện Da Liễu Thành Phố Hồ Chí Minh (2015). Báo cáo tổng kết năm 2015.
+4. Blasiak RC, Stamey CR, Burkhart CN, et al (2013). "High-dose isotretinoin treatment and the rate of retrial, relapse, and adverse effects in patients with acne vulgaris". JAMA Dermatol ,149(12): 1392-1398.
+5. Bottomley WW, Cunliffe WJ (1992). "Acute Achilles tendonitis following oral isotretinoin therapy for acne vulgaris". Clin Exp Dermatol ,17(4): 250-251.
+6. Brito Mde F, Sant'Anna IP, Galindo JC, et al (2010)."Evaluation of clinical adverse effects and laboratory alterations in patients with acne vulgaris treated with oral isotretinoin". An Bras Dermatol ,85(3): 331-337.
+7. Christmas T. (1988). "Roaccutane and menorrhagia". J Am Acad Dermatol ,18(3): 576-577.
+8. Committee on Practice Bulletins-Gynecology (2012). "Practice bulletin no. 128: diagnosis of abnormal uterine bleeding in reproductive-aged women". Obstet Gynecol ,120(1): 197-206.
+
+Nghiên cứu Y họ c
+
+9. Jellinger PS, Smith DA, Mehta AE, et al (2012), "American Association of Clinical Endocrinologists' Guidelines for Management of Dyslipidemia and Prevention of Atherosclerosis", Endocr Pract ,18(1):1-78.
+10. Kwon HJ, Lee JY, Cho BK, et al (2007)."Menstrual irregularity during isotretinoin treatment". J Eur Acad Dermatol Venereol ,21(4): 562-563.
+11. McElwee NE, Schumacher MC, Johnson SC, et al (1991)."An observational study of isotretinoin recipients treated for acne in a health maintenance organization". Arch Dermatol ,127(3): 341-346.
+12. Nguyễn Thanh Hùng, Nguyễn Tất Thắng (2013). "Tỉ lệ hiện mắc Propionibacterium acnes và sự đề kháng in vitro đối với kháng sinh ở bệnh nhân mụn trứng cá thông thường tại bệnh viện Da Liễu thành phố Hồ Chí Minh năm 2011-2012". Tạp chí Y Học Thành Phố Hồ Chí Minh ,17(1): 301-310.
+13. Nguyễn Thị Hồng Nhung (2013). Đặc điểm lâm sàng và chất lượng cuộc sống của bệnh nhân mụn trứng cá tại bệnh viện Da Liễu thành phố Hồ Chí Minh.Luận Văn Thạc Sĩ Y Học, Đại Học Y Dược thành phố Hồ Chí Minh.
+14. Phạm Thị Khánh Vân, Đỗ Như Hơn (2011). "Hội chứng khô mắt". Nhãn Khoa , tập 2: 95. Nhà xuất bản y học.
+15. Rao PK, Bhat RM, Nandakishore B, et al (2014). "Safety and efficacy of low-dose isotretinoin in the treatment of moderate to severe acne vulgaris". Indian J Dermatol ,59(3): 316.
+16. Rasi A, Behrangi E, Rohaninasab M, et al (2014)."Efficacy of fixed daily 20 mg of isotretinoin in moderate to severe scar prone acne". Adv Biomed Res ,3: 103.
+17. Tan JK, Bhate K (2015). "A global perspective on the epidemiology of acne". Br J Dermatol ,172(1): 3-12.
+18. Võ Nguyễn Thúy Anh, Nguyễn Tất Thắng, Hoàng Văn Minh (2009). "Đặc điểm lâm sàng và yếu tố liên quan đến mụn trứng cá ở phụ nữ trưởng thành". Tạp chí Y Học Thành Phố Hồ Chí Minh ,13(1): 1-10.
+19. Zaenglein AL, Pathy AL, Schlosser BJ, et al (2016)."Guidelines of care for the management of acne vulgaris". J Am Acad Dermatol ,74(5): 945-973
+
+[Bang 14] Ngày nhận bài báo:: Ngày phản biện nhận xét bài báo | 14/11/2016: 17/11/2016.
+[Bang 14] Ngày nhận bài báo:: Ngày bài báo được đăng | 14/11/2016: 01/03/2017.

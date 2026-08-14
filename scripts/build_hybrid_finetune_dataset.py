@@ -47,7 +47,7 @@ def _attach_retrieval_metadata(target: dict, chunk_ids: list[str]) -> dict:
 
 @app.command()
 def main(
-    input: str = typer.Option("LLMData/acne_dataset.jsonl", "--input"),
+    input: str = typer.Option("research/LLMData/acne_dataset.jsonl", "--input"),
     output: str = typer.Option("data/finetune/hybrid_chatml.jsonl", "--output"),
     top_k: int = typer.Option(5, "--top-k"),
     limit: int | None = typer.Option(None, "--limit"),

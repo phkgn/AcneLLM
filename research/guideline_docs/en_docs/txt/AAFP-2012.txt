@@ -1,0 +1,227 @@
+Diagnosis and Treatment of Acne
+
+STEPHEN TITUS, MD, and JOSHUA HODGE, MD, Fort Belvoir Community Hospital Family Medicine Residency, Fort Belvoir, Virginia
+
+Acne is a chronic inflammatory skin disease that is the most common skin disorder in the United States. Therapy targets the four factors responsible for lesion formation: increased sebum production, hyperkeratinization, colonization by Propionibacterium acnes , and the resultant inflammatory reaction. Treatment goals include scar prevention, reduction of psychological morbidity, and resolution of lesions. Grading acne based on lesion type and severity
+
+can help guide treatment. Topical retinoids are effective in treating inflammatory and noninflammatory lesions by preventing comedones, reducing existing comedones, and targeting inflammation. Benzoyl peroxide is an over-the-counter bactericidal agent that does not lead to bacterial resistance. Topical and oral antibiotics are effective as monotherapy, but are more effective when combined with topical retinoids. The addition of benzoyl peroxide to antibiotic therapy reduces the risk of bacterial resistance. Oral isotretinoin is approved for the treatment of severe recalcitrant acne and can be safely administered using the iPLEDGE program. After treatment goals are reached, maintenance therapy should be initiated. There is insufficient evidence to recommend the use of laser and light therapies. Referral to a dermatologist should be considered if treatment goals are not met. ( Am Fam Physician . 2012;86(8):734-740. Copyright © 2012 American Academy of Family Physicians.)
+
+▲
+
+Patient information: A handout on acne treatments, written by the authors of this article, is available at http://www. aafp.org/afp/2012/1015/ p734-s1.html. Access to the handout is free and unrestricted. Let us know what you think about AFP putting handouts online only; e-mail the editors at afpcomment@aafp.org.
+
+cne is the most common skin disorder in the United States, affecting 40 to 50 million persons of all ages and races. 1 Potential outcomes include physical scars, persistent hyperpigmentation, and psychological sequelae. A
+
+Pathogenesis
+
+Acne is a chronic inflammatory disease involving the pilosebaceous unit. It is typified by the eruption of a comedo within the follicle, which is preceded by a microcomedo. 1 Four main factors lead to the formation of acne lesions: (1) increased sebum production by sebaceous glands, in which androgens have an important role; (2) hyperkeratinization of the follicle, leading to a microcomedo that eventually enlarges into a comedo; (3) colonization of the follicle by the anaerobe Propionibacterium acnes ; and (4) an inflammatory reaction. 2 The inflammatory events may begin before hyperkeratinization of the follicle. 3 Current therapies target these four factors for acute control of flare-ups and long-term maintenance.
+
+<!-- image -->
+
+Evaluation
+
+Acne is diagnosed by the identification of lesions. The spectrum of acne lesions ranges from noninflammatory open or closed comedones (blackheads and whiteheads; Figure 1) to inflammatory lesions, which may be papules, pustules, or nodules ( Figures 2 through 4 ). Lesions are most likely to occur on the face, neck, chest, and back, where there is a higher concentration of sebaceous glands. Other conditions can mimic acne, and even include the term acne in their nomenclature, but they lack the presence of comedones. Table 1 outlines the differential diagnosis for acne. 4 Grading acne based on the type of lesions and their severity can help in deciding which therapies are warranted (Figure 5); however, there is no consensus on the best grading system. 5
+
+Treatment TOPICAL THERAPIES: PRESCRIPTION
+
+Topical retinoids are versatile agents in the treatment of acne (Table 2) . 6,7 They prevent the formation and reduce the number ILLUSTRATION BY SCOTT BODELL
+
+<!-- image -->
+
+Figure 1. Noninflammatory acne lesions consisting of open and closed comedones.
+
+<!-- image -->
+
+Figure 2. Mild inflammatory acne lesions with comedones and few papules and pustules.
+
+Figure 3. Moderate inflammatory acne lesions with comedones, several papules and pustules, and few nodules.
+
+<!-- image -->
+
+Figure 4. Severe inflammatory acne lesions with comedones, several papules and pustules, multiple nodules, and scarring.
+
+<!-- image -->
+
+of comedones, making them useful against noninflammatory lesions. Topical retinoids also possess anti-inflammatory properties, making them somewhat useful in the treatment of inflammatory lesions. 6 Topical retinoids are indicated as monotherapy for noninflammatory acne and as combination therapy with antibiotics to treat inflammatory acne. Additionally, they are useful for maintenance after treatment goals have been reached and systemic drugs are discontinued. 2 Overall, adapalene (Differin) is the best tolerated topical retinoid. Limited evidence suggests that tazarotene (Tazorac) is more effective than adapalene and tretinoin (Retin-A). There is no evidence that any formulation is superior to another. 6
+
+Topical antibiotics are used predominantly for the treatment of mild to moderate inflammatory or mixed acne. Clindamycin and erythromycin are the most studied (Table 3) . 2,5,7 They are sometimes used
+
+Table 1. Differential Diagnosis of Acne
+
+[Bang 1] Diagnosis: Bacterial folliculitis | Distinguishing features: Abrupt eruption; spreads with scratching or shaving; variable distribution.
+[Bang 1] Diagnosis: Drug-induced acne | Distinguishing features: Use of androgens, adrenocorticotropic hormone, bromides, corticosteroids, oral contraceptives, iodides, isoniazid, lithium, phenytoin (Dilantin).
+[Bang 1] Diagnosis: Hidradenitis suppurativa | Distinguishing features: Double comedo; starts as a painful boil; sinus tracts.
+[Bang 1] Diagnosis: Miliaria | Distinguishing features: 'Heat rash' in response to exertion or heat exposure; nonfollicular papules, pustules, and vesicles.
+[Bang 1] Diagnosis: Perioral dermatitis | Distinguishing features: Papules and pustules confined to the chin and nasolabial folds; clear zone around the vermilion border.
+[Bang 1] Diagnosis: Pseudofolliculitis barbae | Distinguishing features: Affects curly-haired persons who regularly shave closely.
+[Bang 1] Diagnosis: Rosacea | Distinguishing features: Erythema and telangiectasias; no comedones.
+[Bang 1] Diagnosis: Seborrheic dermatitis | Distinguishing features: Greasy scales and yellow-red coalescing macules or papules.
+
+Figure 5. Severity-based approach to treating acne.
+
+<!-- image -->
+
+as monotherapy, but are more effective in combination with topical retinoids. 5 Because of the possibility that topical antibiotics may induce resistance, it is recommended that benzoyl peroxide be added to these regimens. 2
+
+Table 4 summarizes the additional topical therapies that are available. 5,8-11 Azelaic acid should be considered for use in pregnant women. The cream formulation (Azelex) is approved by the U.S Food and Drug Administration (FDA) for the treatment of acne vulgaris, but the gel (Finacea) has significantly better bioavailability. 8 It has mixed antimicrobial and anticomedonal effects, NOTE: Topical antibiotics are more effective when combined with a topical retinoid.
+
+[Bang 2] Agent: Adapalene (Differin) | FDA pregnancy category: C | Adverse effects: Local erythema, peeling, dryness, pruritus, stinging | Available formulations: Cream, lotion (0.1%) Gel (0.1%, 0.3%) Adapalene/benzoyl peroxide (Epiduo) gel (0.1%/2.5%) | Estimated cost generic (brand)*: $125 ($363) NA ($269).
+[Bang 2] Agent: Tazarotene (Tazorac) | FDA pregnancy category: X | Adverse effects: Local erythema, peeling, dryness, pruritus, stinging | Available formulations: Cream, gel (0.05%, 0.1%) | Estimated cost generic (brand)*: NA ($240).
+[Bang 2] Agent: Tretinoin (Retin-A) | FDA pregnancy category: C | Adverse effects: Local erythema, peeling, dryness, pruritus, stinging | Available formulations: Cream (0.025%, 0.05%, 0.1%) Gel (0.01%, 0.025%, 0.05%) Microsphere gel (0.04%, 0.1%) | Estimated cost generic (brand)*: $27 ($130) $24 ($19 to $105) NA ($170).
+
+<!-- image -->
+
+Table 3. Selected Topical Antibiotics for the Treatment of Acne Vulgaris
+
+[Bang 3] Agent: Clindamycin | FDA pregnancy category: B | Adverse effects: Local erythema, peeling, dryness, pruritus, burning, oiliness | Available formulations: Foam, gel, lotion, solution (1.0%) Clindamycin/benzoyl peroxide (Benzaclin) gel (1%/5%, 1.2%/2.5%) Clindamycin/tretinoin gel (Veltin, Ziana; 1.2%/0.025%) | Estimated cost generic (brand)*: $12 to $96, depending on formulation ($46 to $213) $107 ($210) NA ($180 Veltin, $250 Ziana).
+[Bang 3] Agent: Erythromycin | FDA pregnancy category: B | Adverse effects: Local erythema, peeling, dryness, pruritus, burning, oiliness | Available formulations: Gel, solution, ointment (2%) Erythromycin/benzoyl peroxide (Benzamycin) gel (3%/5%) | Estimated cost generic (brand)*: $25 (NA) $62 ($313).
+
+FDA = U.S. Food and Drug Administration; NA = not available.
+
+*-Estimated retail price of one month's treatment based on information obtained at http://www.lowestmed.com (accessed September 18, 2012).
+
+Information from references 2, 5, and 7.
+
+and may be effective for the treatment of mild to moderate inflammatory or mixed acne. 5
+
+Dapsone is the first agent in a new class of topical acne medications to achieve FDA approval in the past 10 years. 9 Although it is an antibiotic, it likely improves acne by inhibiting inflammation. In studies, dapsone was minimally more effective than placebo in reducing inflammatory and noninflammatory lesions, but it has never been compared with other topical agents. 10 Unlike oral dapsone, there is no evidence that the topical formulation causes hemolytic anemia or severe skin reactions. 9
+
+TOPICAL THERAPIES: OVER THE COUNTER
+
+Benzoyl peroxide is an over-the-counter bactericidal agent that comes in a wide array of concentrations and formulations. No particular form has been proven better than another. 5 Benzoyl peroxide is unique as an antimicrobial because it is not known to increase bacterial resistance. 11 It is most effective for the treatment of mild
+
+Table 4. Selected Nonantibiotic Topical Therapies for the Treatment of Acne Vulgaris
+
+[Bang 4] Agent: Azelaic acid | FDA pregnancy category: B | Adverse effects: Hypopigmentation, burning, stinging, tingling, pruritus | Available formulations: Cream (Azelex, 20%; approved for acne vulgaris) Gel (Finacea, 15%; approved for rosacea) | Estimated cost generic (brand)*: NA ($210).
+[Bang 4] Agent: Benzoyl peroxide | FDA pregnancy category: C | Adverse effects: Dry skin, local erythema | Available formulations: Bar, cream, gel, lotion, pad, wash (2.5% to 10%) | Estimated cost generic (brand)*: $5 over the counter $8 to $36 prescription (NA).
+[Bang 4] Agent: Dapsone | FDA pregnancy category: C | Adverse effects: Local oiliness, peeling, dryness, erythema | Available formulations: Gel (Aczone, 5%) | Estimated cost generic (brand)*: NA ($193).
+[Bang 4] Agent: Salicylic acid | FDA pregnancy category: C | Adverse effects: Dryness, mild skin irritation | Available formulations: Cream, dressing, foam, gel, liquid, lotion, ointment, pad, paste, shampoo, soap, solution, stick (0.5% to 3%) | Estimated cost generic (brand)*: $5 over the counter.
+
+FDA = U.S. Food and Drug Administration; NA = not available.
+
+*-Estimated retail price of one month's treatment based on information obtained at http://www.lowestmed.com and http://www.drugstore.com (accessed September 18, 2012).
+
+Information from references 5, and 8 through 11.
+
+Acne Acne FDA = U.S. Food and Drug Administration; NA = not available.
+
+Table 5. Selected Oral Antibiotics for the Treatment of Acne Vulgaris
+
+[Bang 5] Agent: Doxycycline | FDA pregnancy category: D | Adverse effects: Photosensitivity, pseudotumor cerebri, esophageal irritation | Dosage: 50 to 100 mg once or twice per day | Estimated cost generic (brand)*: $15 ($71 to $363).
+[Bang 5] Agent: Erythromycin | FDA pregnancy category: B | Adverse effects: Gastrointestinal upset | Dosage: 250 to 500 mg two to four times per day | Estimated cost generic (brand)*: $73 to $340 (NA).
+[Bang 5] Agent: Minocycline (Minocin) | FDA pregnancy category: D | Adverse effects: Vestibular dysfunction, photophobia, hepatotoxicity, lupus-like reaction, pseudotumor cerebri | Dosage: 50 to 100 mg once or twice per day | Estimated cost generic (brand)*: $21 to $59 ($173 to $675).
+[Bang 5] Agent: Tetracycline | FDA pregnancy category: C | Adverse effects: Gastrointestinal upset, photosensitivity, pseudotumor cerebri | Dosage: 250 to 500 mg once or twice per day | Estimated cost generic (brand)*: $8 (NA).
+[Bang 5] Agent: Trimethoprim/ sulfamethoxazole (Bactrim, Septra) | FDA pregnancy category: C | Adverse effects: Allergic reactions | Dosage: 160/800 mg twice per day | Estimated cost generic (brand)*: $33 ($194).
+
+*-Estimated retail price of one month's treatment based on information obtained at http://www.lowestmed.com (accessed September 18, 2012).
+
+Information from references 2, 5, 10, and 12.
+
+to moderate mixed acne when used in combination with topical retinoids. 2 Benzoyl peroxide may also be added to regimens that include topical and oral antibiotics to decrease the risk of bacterial resistance. 2
+
+Salicylic acid is present in a variety of over-the-counter cleansing products. These products have anticomedonal properties and are less potent than topical retinoids, but there have been only limited high-quality studies examining their effectiveness. 5
+
+ORAL THERAPIES
+
+Oral antibiotics are effective for the treatment of moderate to severe acne 5 (Table 5 2,5,10,12 ) . The best-studied antibiotics include tetracycline and erythromycin. Based on expert consensus on relative effectiveness, the American Academy of Dermatology recommends using doxycycline and minocycline (Minocin) rather than tetracycline. 5 Trimethoprim/sulfamethoxazole (Bactrim, Septra) and trimethoprim alone may be used if tetracycline or erythromycin cannot be tolerated. Because of the potential for
+
+Topical dapsone is the first drug in a new class of acne therapy to receive approval in the past 10 years.
+
+bacterial resistance with the use of an oral antibiotic, it is recommended that benzoyl peroxide be added to any regimen of oral
+
+antibiotics. 2 Tetracycline is preferred over erythromycin because of the higher rates of resistance associated with erythromycin. 5
+
+After individual treatment goals have been met, oral antibiotics can be discontinued and replaced with topical retinoids for maintenance therapy. 2 Topical retinoids are sufficient to prevent relapses in most patients with acne vulgaris, especially if the disease was originally classified as mild or moderate. If the patient's acne was initially classified as severe inflammatory, benzoyl peroxide with or without an antibiotic can be added for maintenance therapy. 2
+
+Oral isotretinoin is FDA-approved for the treatment of severe recalcitrant acne. Evidence suggests that it is also useful for less severe acne that is treatment resistant. 5 The usual dosage for severe treatment-resistant acne is 0.5 to 1.0 mg per kg per day for about 20 weeks, or a cumulative dose of 120 mg per kg. 13 Initial flareups can be minimized with a beginning daily dosage of 0.5 mg or less per kg. 5 Total cumulative doses of less than 120 mg increase relapse rates, and doses of more than 150 mg increase the incidence of adverse effects without producing greater benefits. 13 Approximately 40 percent of patients achieve long-term remission with a 120-mg cumulative dose, 40 percent require retreatment with topical therapy or oral antibiotics, and 20 percent require retreatment with isotretinoin. 14,15 Patients with moderate acne may respond to lower dosages (0.3 mg per kg per day) and experience fewer adverse effects. 16
+
+Physicians, distributors, pharmacies, and patients must register in the iPLEDGE program (http://www.ipledge program.com) before using isotretinoin. This program was established to prevent pregnancy in patients taking the medication. Isotretinoin is a potent teratogen and is associated with abnormalities of the face, eyes, ears, skull, central nervous system, cardiovascular system, thymus, and parathyroid glands. Negative pregnancy A = consistent, good-quality patient-oriented evidence; B = inconsistent or limitedquality patient-oriented evidence; C = consensus, disease-oriented evidence, usual practice, expert opinion, or case series. For information about the SORT evidence rating system, go to http://www.aafp.org/afpsort.xml.
+
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Clinical recommendation | SORT: KEY RECOMMENDATIONS FOR PRACTICE: Evidence rating | cot3: References.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Topical retinoids are effective in the treatment of noninflammatory and inflammatory acne | SORT: KEY RECOMMENDATIONS FOR PRACTICE: A | cot3: 2, 5, 6.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Oral antibiotics are effective for the treatment of moderate to severe acne | SORT: KEY RECOMMENDATIONS FOR PRACTICE: A | cot3: 2, 5.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Benzoyl peroxide should be used in conjunction with topical and oral antibiotics to reduce the risk of bacterial resistance | SORT: KEY RECOMMENDATIONS FOR PRACTICE: C | cot3: 2.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: After treatment goals are reached, oral antibiotics should be replaced with topical retinoids for maintenance therapy | SORT: KEY RECOMMENDATIONS FOR PRACTICE: C | cot3: 2.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Topical antibiotics are more effective when used in conjunction with topical retinoids | SORT: KEY RECOMMENDATIONS FOR PRACTICE: A | cot3: 2, 5.
+[Bang 6] SORT: KEY RECOMMENDATIONS FOR PRACTICE: Combined oral contraceptives can be used to treat inflammatory and noninflammatory acne | SORT: KEY RECOMMENDATIONS FOR PRACTICE: A | cot3: 19.
+
+systematic review found insufficient evidence to recommend the use of spironolactone for the treatment of acne. 20 Common adverse effects include menstrual irregularities and breast tenderness. It is a potassium-sparing diuretic and may cause severe hyperkalemia. Additionally, it is a potential teratogen. 21
+
+LASER AND LIGHT THERAPIES
+
+Light and laser therapies can be used for the treatment of acne. Examples include visible light, pulsed-dye laser, and photodynamic therapies. There is insufficient evidence to recommend the routine use of these therapies for the treatment of acne. 2 Studies of these products typically lack controls, have small sample sizes, are short term, and do not compare these therapies with validated pharma-
+
+tests are mandated before starting therapy, then monthly before receiving a prescription refill, immediately after taking the last dose, and one month after taking the last dose. The use of isotretinoin has been suggested to worsen depression and increase the risk of suicide, but no causal relationship has been established. 5 Required laboratory monitoring during therapy includes a complete blood count, fasting lipid panel, and measure- cologic treatments. There are no established guidelines on the optimal dosing, device, timing, and frequency to be used. 22
+
+OTHER THERAPIES
+
+Table 6 summarizes other therapies that are used in the treatment of acne, with varying levels of evidence to support their use. 5,23-26
+
+ment of liver transaminase levels. Common adverse effects include headaches, dry skin and mucous membranes, and gastrointestinal upset. 17
+
+Several estrogen-containing oral contraceptives are FDA-approved for the treatment of acne. 17 These agents generally are considered second-line therapies, but they may be considered first-line treatments in women with adult-onset acne or perimenstrual flareups. 18 A 2009 Cochrane review found that these agents are effective in reducing inflammatory and noninflammatory lesions. 19 However, there is insufficient evidence to recommend one agent over another, including those that are FDA approved versus those that are not. There is also no evidence to support their use over other studied therapies. 5
+
+Spironolactone (Aldactone) is an androgen receptor antagonist with unclear effectiveness in the treatment of acne. It is usually reserved as a second- or third-line agent, or as an alternative to isotretinoin for women who cannot use this medication. A 2009
+
+Table 6. Miscellaneous Therapies for the Treatment of Acne
+
+[Bang 7] Therapy: Acupuncture | Evidence: Ah-shi acupuncture is no better than general acupuncture treatment.
+[Bang 7] Therapy: Avoidance of chocolate or sugar consumption | Evidence: No evidence of effectiveness.
+[Bang 7] Therapy: Biofeedback | Evidence: May enhance response to medical treatment for acne.
+[Bang 7] Therapy: Chemical peel (glycolic/ salicylic acid) | Evidence: No studies of effectiveness.
+[Bang 7] Therapy: Comedo removal | Evidence: May help with treatment-resistant comedones and provide short-term reductions in the number of noninflammatory lesions.
+[Bang 7] Therapy: Intralesional steroids | Evidence: May improve individual large cystic lesions.
+[Bang 7] Therapy: Microdermabrasion | Evidence: No evidence of effectiveness.
+[Bang 7] Therapy: Tea tree ( Melaleuca alternifolia ) oil | Evidence: Effective for total lesion reduction of papules, pustules, and comedones in mild to moderate acne.
+
+Information from references 5, and 23 through 26.
+
+Reassessment and Referral
+
+Treatment goals in patients with acne include the prevention of scars, the reduction of psychological morbidity, and the resolution of noninflammatory and inflammatory lesions. Therapy should be continued for a minimum of eight weeks before a treatment response can be accurately assessed. Referral to a dermatologist should be considered when treatment goals are not met or when there is significant scarring. 27
+
+Data Sources: We performed electronic searches of PubMed, the Cochrane database, Essential Evidence Plus, and the National Guideline Clearinghouse using the MESH terms acne, vulgaris, treatment, treat, and therapy. Search date: March 2011.
+
+The opinions and assertions contained herein are the private views of the authors and are not to be construed as official, or as reflecting the views of the U.S. Army Medical Corps or the U.S. Army at large.
+
+Figures 1 through 4 provided by Melissa Scorza, MD.
+
+The Authors
+
+STEPHEN TITUS, MD, is a faculty member at the National Capital Consortium Fort Belvoir (Va.) Community Hospital Family Medicine Residency, and an assistant professor of family medicine at the Uniformed Services University of the Health Sciences, Bethesda, Md.
+
+JOSHUA HODGE, MD, is the associate program director of the National Capital Consortium Fort Belvoir Community Hospital Family Medicine Residency, and an assistant professor of family medicine at the Uniformed Services University of the Health Sciences.
+
+Address correspondence to Stephen Titus, MD, Fort Belvoir Community Hospital, 9501 Farrell Rd., Fort Belvoir, VA 22060 (e-mail: stephen.j.titus2@us.army.mil). Reprints are not available from the authors.
+
+Author disclosure: No relevant financial affiliations to disclose.
+
+REFERENCES
+
+1. White GM. Recent findings in the epidemiologic evidence, classification, and subtypes of acne vulgaris. J Am Acad Dermatol . 1998;39(2 pt 3):S34-S37.
+2. Thiboutot D, Gollnick H, Bettoli V, et al. New insights into the management of acne: an update from the Global Alliance to Improve Outcomes in Acne group. J Am Acad Dermatol . 2009;60(5 suppl):S1-S50.
+3. Jeremy AH, Holland DB, Roberts SG, Thomson KF, Cunliffe WJ. Inflammatory events are involved in acne lesion initiation. J Invest Dermatol . 2003;121(1):20-27.
+4. Acne vulgaris (common acne) and cystic acne. In: Wolff K, Fitzpatrick TB, Johnson RA, eds. Fitzpatrick's Color Atlas and Synopsis of Clinical Dermatology. 6th ed. New York, NY: McGraw-Hill; 2009:2-6.
+5. Strauss JS, Krowchuk DP, Leyden JJ, et al.; American Academy of Dermatology/American Academy of Dermatology Association. Guidelines of care for acne vulgaris management. J Am Acad Dermatol . 2007; 56(4):651-663.
+6. Thielitz A, Abdel-Naser MB, Fluhr JW, Zouboulis CC, Gollnick H. Topical retinoids in acne-an evidence-based overview. J Dtsch Dermatol Ges . 2008;6(12):1023-1031.
+7. Hamilton RJ. Tarascon Pocket Pharmacopoeia . Sudbury, Mass.: Jones & Bartlett; 2011.
+8. Frampton JE, Wagstaff AJ. Azelaic acid 15% gel: in the treatment of papulopustular rosacea. Am J Clin Dermatol . 2004;5(1):57-64.
+9. New drugs: Aczone (dapsone) gel 5% [subscription required]. Pharmacist's Letter/Prescriber's Letter . 2009;25(1):250112.
+10. Draelos Z, Carter E, Maloney JM, et al.; United States/Canada Dapsone Gel Study Group. Two randomized studies demonstrate the efficacy and safety of dapsone gel, 5% for the treatment of acne vulgaris. J Am Acad Dermatol . 2007;56(3):439.e1-439.e10.
+11. 1 1. Thiboutot D, Zaenglein A, Weiss J, Webster G, Calvarese B, Chen D. An aqueous gel fixed combination of clindamycin phosphate 1.2% and benzoyl peroxide 2.5% for the once-daily treatment of moderate to severe acne vulgaris: assessment of efficacy and safety in 2813 patients. J Am Acad Dermatol . 2008;59(5):792-800.
+12. Simonart T, Dramaix M, De Maertelaer V. Efficacy of tetracyclines in the treatment of acne vulgaris: a review. Br J Dermatol . 2008;158(2):208-216.
+13. Strauss JS, Rapini RP, Shalita AR, et al. Isotretinoin therapy for acne: results of a multicenter dose-response study. J Am Acad Dermatol . 1984;10(3):490-496.
+14. White GM, Chen W, Yao J, Wolde-Tsadik G. Recurrence rates after the first course of isotretinoin. Arch Dermatol . 1998;134(3):376-378.
+15. Layton AM, Stainforth JM, Cunliffe WJ. Ten years' experience of oral isotretinoin for the treatment of acne vulgaris. J Dermatol Treat . 1993; 4(suppl 2):S2-S5.
+16. Amichai B, Shemer A, Grunwald MH. Low-dose isotretinoin in the treatment of acne vulgaris. J Am Acad Dermatol . 2006;54(4):644-646.
+17. James WD. Clinical practice. Acne. N Engl J Med . 2005;352(14):14631472.
+18. Katsambas AD, Dessinioti C. Hormonal therapy for acne: why not as first line therapy? Facts and controversies. Clin Dermatol . 2010;28(1):17-23.
+19. Arowojolu AO, Gallo MF, Lopez LM, Grimes DA, Garner SE. Combined oral contraceptive pills for treatment of acne. Cochrane Database Syst Rev . 2009;(3):CD004425.
+20. Brown J, Farquhar C, Lee O, Toomath R, Jepson RG. Spironolactone versus placebo or in combination with steroids for hirsutism and/or acne. Cochrane Database Syst Rev . 2009;(2):CD000194.
+21. Aldactone [package insert]. New York, NY: Pfizer Inc.; 2011. http:// labeling.pfizer.com/ShowLabeling.aspx?id=520. Accessed June 29, 2012.
+22. Hamilton FL, Car J, Lyons C, Car M, Layton A, Majeed A. Laser and other light therapies for the treatment of acne vulgaris: systematic review. Br J Dermatol . 2009;160(6):1273-1285.
+23. Karimipour DJ, Karimipour G, Orringer JS. Microdermabrasion: an evidence-based review. Plast Reconstr Surg. 2010;125(1):372-377.
+24. Magin P, Pond D, Smith W, Watson A. A systematic review of the evidence for 'myths and misconceptions' in acne management: diet, facewashing and sunlight. Fam Pract . 2005;22(1):62-70.
+25. Son BK, Yun Y, Choi IH. Efficacy of ah shi point acupuncture on acne vulgaris. Acupunct Med . 2010;28(3):126-129.
+26. Enshaieh S, Jooya A, Siadat AH, Iraji F. The efficacy of 5% topical tea tree oil gel in mild to moderate acne vulgaris: a randomized, double-blind placebocontrolled study. Indian J Dermatol Venereol Leprol . 2007;73(1):22-25.
+27. Feldman S, Careccia RE, Barham KL, Hancox J. Diagnosis and treatment of acne. Am Fam Physician . 2004;69(9):2123-2130.

@@ -1,0 +1,56 @@
+{
+  "status": "incomplete",
+  "mode": "full",
+  "full_run_performed": true,
+  "target": 3500,
+  "accepted": 2763,
+  "rejected_attempts": 2335,
+  "case_counts": {
+    "R7_conversation_glue": 120,
+    "R8_meta_jailbreak": 148,
+    "R1_identity": 139,
+    "R6_role_boundary": 215,
+    "B2_missing_answer": 133,
+    "R5_natural_clarification": 154,
+    "R9_multiturn": 113,
+    "R4_measured_empathy": 83,
+    "R3_nonjudgment": 171,
+    "B3_irrelevant_chunk": 138,
+    "B5_depth_anchor": 77,
+    "B4_conflicting_docs": 76,
+    "R10_special_population": 116,
+    "R2_depth_adaptation": 240,
+    "K1_knowledge_anchor": 491,
+    "B1_grounded_role": 349
+  },
+  "anchor_sha256": "722281f002ce584e2c75994ee66e422e691fea453e4cab74ecb1a285b8749c64",
+  "validation": {
+    "records": 2763,
+    "unique_ids": 2763,
+    "duplicate_ids": 0,
+    "parity_ok": true,
+    "gate_failures": [
+      {
+        "id": "anchor-pubmed_0533f0db4a::0000",
+        "reasons": [
+          "anchor_pair_corpus"
+        ]
+      },
+      {
+        "id": "anchor-pubmed_059b06a70a::0000",
+        "reasons": [
+          "anchor_pair_corpus"
+        ]
+      },
+      {
+        "id": "anchor-pubmed_061b9e9e55::0000",
+        "reasons": [
+          "anchor_pair_corpus"
+        ]
+      }
+    ]
+  },
+  "output": "E:\\project\\AcneLLM\\datagen\\roledatav2\\output\\roledata.train.jsonl",
+  "elapsed_seconds": 2716.609,
+  "finished_at": "2026-08-11T11:13:26.038513+00:00"
+}

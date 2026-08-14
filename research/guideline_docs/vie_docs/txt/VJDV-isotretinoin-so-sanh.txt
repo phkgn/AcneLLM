@@ -1,0 +1,263 @@
+<!-- image -->
+
+SO SÁNH KẾT QUẢ ĐIỀU TRỊ TRỨNG CÁ THÔNG THƯỜNG MỨC ĐỘ NẶNG BẰNG PHỐI HỢP UỐNG ISOTRETINOIN VÀ AZITHROMYCIN VỚI UỐNG ISOTRETINOIN VÀ CLARITHROMYCIN
+
+Vũ Thanh Tùng 1* , Phạm Thị Lan 2 , Đinh Hữu Nghị 2 , Lê Thị Mai 1
+
+TÓM TẮT
+
+Mục tiêu: So sánh kết quả điều trị trứng cá thông thường mức độ nặng bằng phối hợp uống isotretinoin và azithromycin với uống isotretinoin và clarithromycin.
+
+Đối tượng và phương pháp nghiên cứu: Thử nghiệm lâm sàng ngẫu nhiên có đối chứng so sánh trên 70 bệnh nhân trứng cá thông thường mức độ nặng được chia làm hai nhóm: Nhóm A điều trị bằng uống isotretinoin 0,3 - 0,5 mg/kg/ngày trong 12 tuần phối hợp với azithromycin 500 mg tuần uống 3 ngày nghỉ 4 ngày trong 8 tuần; nhóm B điều trị bằng uống isotretinoin 0,3 - 0,5 mg/kg/ngày trong 12 tuần phối hợp với clarithromycin 500 mg uống ngày 2 lần sáng, tối; uống 1 tuần, nghỉ 3 tuần trong 8 tuần. Kết quả điều trị được đánh giá bằng sự giảm số lượng tổn thương; mức độ đáp ứng với điều trị tốt, trung bình, kém và mức độ hài lòng của bệnh nhân.
+
+Kết quả: Kết quả được đánh giá sau điều trị 4, 8 và 12 tuần với số lượng tổn thương viêm, tổn thương không viêm và tổng số tổn thương giảm ở cả hai nhóm. Đối với nhóm A uống isotretinoin và azithromycin, số lượng tổn thương viêm trung bình giảm từ 44,5 trước điều trị xuống 7,5. Số lượng tổn thương không viêm giảm từ 22,2 xuống còn 4,3. Ở nhóm B, uống isotretinoin và clarithromycin cũng ghi nhận số lượng tổn thương viêm trung bình giảm từ 44,7 xuống còn 8,8 số lượng tổn thương không viêm giảm từ 22,5 xuống còn 10,8. Về tổng số tổn thương, sau 12 tuần nhóm A còn 11,8; thấp hơn có ý nghĩa so với nhóm B 19,6 (p < 0,05). Nhóm uống isotretinoin phối hợp với azithromycin có kết quả điều trị tốt cao hơn hơn so với nhóm uống isotretinoin phối hợp với clarithromycin (62,9% so với 40,0%).
+
+Kết luận: Sử dụng isotretinoin phối hợp với một trong hai loại kháng sinh là azithromycin hoặc clarithromycin để điều trị trứng cá thông thường mức độ nặng cùng có kết quả cải thiện tổn thương mụn viêm, mụn không viêm. Nếu cần phối hợp isotretinoin với một trong hai loại kháng sinh trên thì azithromycin là lựa chọn thứ nhất và clarithromycin là lựa chọn thứ hai.
+
+Từ khóa: Trứng cá thông thường, mức độ nặng, isotretinoin, azithromycin, clarithromycin.
+
+1. ĐẶT VẤN ĐỀ
+
+Trứng cá là bệnh lý của đơn vị nang lông tuyến bã thường gặp ở những người tuổi vị
+
+1: Bệnh viện Da liễu Trung ương
+
+2: Trường Đại học Y Hà Nội
+
+*Tác giả liên hệ: drvuthanhtung@gmail.com DOI: https://doi.org/10.56320/tcdlhvn.38.39
+
+thành niên. Bệnh có biểu hiện lâm sàng đa dạng, thương tổn có thể là những mụn nhân, sẩn đỏ, nang cục hoặc mụn mủ. Trứng cá có thể tự khỏi nhưng cũng có thể để lại di chứng khó điều trị, mang lại gánh nặng tâm lý, mặc cảm tự ti cho người bệnh 1,2 . Tìm kiếm một phương pháp điều trị hiệu quả, nâng cao chất lượng cuộc sống cho người bệnh là một công việc luôn được quan tâm.
+
+<!-- image -->
+
+Isotretinoin là một đồng phân của retinoic acid có thể tác động lên cả 4 cơ chế bệnh sinh của trứng cá. Tác dụng của isotretinoin trong điều trị trứng cá từ lâu đã được khẳng định qua rất nhiều nghiên cứu. Tuy nhiên, isotretinoin có nhiều tác dụng phụ tại chỗ và toàn thân, thường gặp nhất là khô môi, khô da và ngứa 3,4 . Những tác dụng phụ này thường mất đi trong vòng 1 - 2 tháng đầu nhưng gây cảm giác khó chịu và là một trong những nguyên nhân chính khiến người bệnh kém tuân thủ điều trị; vì những lý do này, việc sử dụng thêm các liệu pháp hỗ trợ để giảm tác dụng phụ của isotretinoin giúp bệnh nhân tuân thủ điều trị là rất cần thiết.
+
+Trong các hướng dẫn chẩn đoán và điều trị trứng cá hiện tại cũng như trong các công trình khoa học mới được công bố gần đây, phối hợp isotretinoin với kháng sinh toàn thân trong điều trị trứng cá thông thường mức độ nặng được nhắc đến nhiều như các phối hợp của isotretinoin với azithromycin, clarithromycin, erythromycin.
+
+Ở Việt Nam, đã có nhiều nghiên cứu về vai trò của isotretinoin trong điều trị trứng cá, tuy nhiên chưa có nghiên cứu nào đánh giá hiệu quả phối hợp giữa isotretinoin và azithromycin, phối hợp giữa isotretinoin và clarithromycin trong điều trị cũng như chưa có nghiên cứu nào so sánh kết quả điều trị trứng cá thông thường mức độ nặng bằng phối hợp uống isotretinoin với một trong hai kháng sinh trên. Chính vì vậy, chúng tôi tiến hành nghiên cứu đề tài tại Bệnh viện Da liễu Trung ương với mục đích đánh giá 'So sánh kết quả điều trị trứng cá thông thường mức độ nặng bằng phối hợp uống isotretinoin và azithromycin với uống isotretinoin và clarithromycin'.
+
+2. ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP NGHIÊN CỨU
+
+2.1. Địa điểm và thời gian nghiên cứu
+
+Bệnh viện Da liễu Trung ương, từ tháng 8/2021 đến tháng 8/2022.
+
+2.2. Đối tượng nghiên cứu
+
+Đối tượng nghiên cứu: 70 bệnh nhân trứng cá thông thường mức độ nặng.
+
+Tiêu chuẩn chẩn đoán trứng cá thông thường:
+
+- Tổn thương cơ bản là mụn nhân trứng cá, sẩn đỏ, mụn mủ, cục, nang.
+- Tổn thương chủ yếu ở vùng mặt, ngực, lưng.
+
+Đánh giá mức độ bệnh:
+
+Sử dụng hệ thống phân độ trứng cá toàn cầu GAGS (Global Acne Grading System)5. Hệ thống này chia vùng mặt, ngực và phần trên của lưng thành 6 vùng, có điểm cố định mỗi vùng (điểm A). Khi thăm khám các bác sĩ cho điểm theo mức độ nặng của thương tổn (điểm B).
+
+<!-- image -->
+
+Bảng 1: Hệ thống phân độ trứng cá toàn cầu GAGS (Global Acne Grading System)
+
+[Bang 1] cot1: Điểm (A) | Trán: 2 | Má (P): 2 | Má (T): 2 | Mũi: 1 | Cằm: 1 | Ngực và lưng: 3.
+[Bang 1] cot1: Điểm (B) Không có tổn thương: 0 Mụn nhân: 1 Sẩn đỏ: 2 Mụn mủ: 3.
+[Bang 1] cot1: Điểm A x Điểm B.
+[Bang 1] cot1: Tổng | Trán: - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm | Má (P): - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm | Má (T): - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm | Mũi: - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm | Cằm: - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm | Ngực và lưng: - Mức độ nhẹ: 1 - 18 điểm; - Mức độ vừa: 19 - 30 điểm - Mức độ nặng: 31 - 38 điểm - Mức độ rất nặng: > 38 điểm.
+
+Tiêu chuẩn lựa chọn: Bệnh nhân ≥ 18 tuổi được chẩn đoán trứng cá thông thường mức độ nặng, điểm GAGS từ 31 đến 38.
+
+Tiêu chuẩn loại trừ: Bệnh nhân có tiền sử dị ứng với isotretinoin, azithromycin hoặc clarithromycin, clindamycin; bệnh nhân có thai hoặc dự định có thai; cho con bú, có bệnh lý gan thận, tăng mỡ máu; bệnh nhân không tuân thủ điều trị và không đồng ý tham gia nghiên cứu.
+
+2.3. Phương pháp nghiên cứu
+
+Thiết kế: Thử nghiệm lâm sàng ngẫu nhiên có đối chứng so sánh kết quả điều trị.
+
+Cỡ mẫu: Áp dụng công thức tính cỡ mẫu cho nghiên cứu thử nghiệm lâm sàng ngẫu nhiên có đối chứng, tính được cỡ mẫu cho mỗi nhóm là 33 bệnh nhân, trên thực tế chúng tôi tuyển được 70 bệnh nhân tham gia, mỗi nhóm 35 người.
+
+Phân bổ ngẫu nhiên: Những bệnh nhân có mã số khám bệnh kết thúc bằng các số 0, 2, 4,
+
+6 hoặc 8 vào nhóm A sử dụng isotretinoin phối hợp với azithromycin; những bệnh nhân có mã số khám bệnh kết thúc bằng các số 1, 3, 5, 7 hoặc 9 vào nhóm B sử dụng isotretinoin phối hợp với clarithromycin.
+
+2.4. Các bước tiến hành
+
+35 bệnh nhân nhóm A điều trị bằng uống isotretinoin 0,3 - 0,5 mg/kg/ngày trong 12 tuần phối hợp với azithromycin 500 mg tuần uống 3 ngày nghỉ 4 ngày trong 8 tuần.
+
+35 bệnh nhân nhóm B điều trị bằng uống isotretinoin 0,3 - 0,5 mg/kg/ngày trong 12 tuần phối hợp với clarithromycin 500 mg uống ngày 2 lần sáng, tối. Uống 1 tuần, nghỉ 3 tuần rồi dùng lại 1 lần trong 8 tuần.
+
+Đánh giá kết quả điều trị: Kết quả điều trị được đánh giá bằng sự cải thiện các tổn thương viêm, không viêm, tổng số tổn thương, điểm GAGS tại các thời điểm sau 4 tuần, 8 tuần, 12 tuần.
+
+<!-- image -->
+
+- Kết quả tốt: Giảm ≥ 80% số lượng tổn thương.
+- Kết quả trung bình: Giảm ≥ 50 đến < 80% số lượng tổn thương.
+- Kết quả kém: Giảm ≥ 25 đến < 50% số lượng tổn thương.
+
+2.5. Xử lý số liệu
+
+- Sử dụng thuật toán thống kê với phần mềm SPSS 20.0.
+- Biến định tính so sánh hai tỷ lệ sử dụng test X 2 Chi - square, nếu kỳ vọng lý thuyết < 5 thì sử dụng test X 2 có hiệu chỉnh Fisher.
+- Biến định lượng so sánh các giá trị trung bình bằng test T giữa hai mẫu độc lập.
+- Các so sánh có ý nghĩa thống kê với p < 0,05.
+
+3. KẾT QUẢ NGHIÊN CỨU
+
+3.1. Đặc điểm chung của đối tượng nghiên cứu
+
+Bảng 2: Đặc điểm của đối tượng nghiên cứu trước điều trị
+
+[Bang 2] Đặc điểm: Nam (n, %) | Nhóm A (n = 35): 12 (34,3) | Nhóm B (n = 35): 11 (31,4) | p: 1.
+[Bang 2] Đặc điểm: Nữ (n, %) | Nhóm A (n = 35): 23 (65,7) | Nhóm B (n = 35): 24 (68,6) | p: 1.
+[Bang 2] Đặc điểm: Tuổi trung bình (năm) | Đặc điểm: Tuổi trung bình (năm) | Nhóm A (n = 35): 23,2 ± 4,0 | Nhóm B (n = 35): 23,7 ± 5,2 | p: 0,642.
+[Bang 2] Đặc điểm: Thời gian mắc bệnh (năm) | Đặc điểm: Thời gian mắc bệnh (năm) | Nhóm A (n = 35): 4,2 ± 3,8 | Nhóm B (n = 35): 4,5 ± 3,0 | p: 0,755.
+[Bang 2] Đặc điểm: Cân nặng trung bình (kg) | Đặc điểm: Cân nặng trung bình (kg) | Nhóm A (n = 35): 53,2 ± 9,5 | Nhóm B (n = 35): 55,3 ± 19,4 | p: 0,577.
+[Bang 2] Đặc điểm: Liều isotretinoin TB (mg/kg) | Đặc điểm: Liều isotretinoin TB (mg/kg) | Nhóm A (n = 35): 0,4 ± 0,05 | Nhóm B (n = 35): 0,39 ± 0,07 | p: 0,855.
+[Bang 2] Đặc điểm: Số lượng tổn thương viêm | Đặc điểm: Số lượng tổn thương viêm | Nhóm A (n = 35): 44,5 ± 3,7 | Nhóm B (n = 35): 44,7 ± 4,7 | p: 0,887.
+[Bang 2] Đặc điểm: Số lượng tổn thương không viêm | Đặc điểm: Số lượng tổn thương không viêm | Nhóm A (n = 35): 22,2 ± 7,1 | Nhóm B (n = 35): 22,5 ± 9,8 | p: 0,901.
+[Bang 2] Đặc điểm: Tổng số tổn thương | Đặc điểm: Tổng số tổn thương | Nhóm A (n = 35): 66,8 ± 9,9 | Nhóm B (n = 35): 67,2 ± 14,2 | p: 0,892.
+[Bang 2] Đặc điểm: Điểm GAGS trung bình | Đặc điểm: Điểm GAGS trung bình | Nhóm A (n = 35): 33,1 ± 1,9 | Nhóm B (n = 35): 33,1 ± 2,4 | p: 0,912.
+[Bang 2] Đặc điểm: Điểm DLQI trung bình | Đặc điểm: Điểm DLQI trung bình | Nhóm A (n = 35): 22,1 ± 3,3 | Nhóm B (n = 35): 22,1 ± 3,6 | p: 0,972.
+
+Giới tính, tuổi, thời gian mắc bệnh, cân nặng, liều isotretinoin trung bình ở hai nhóm không có khác biệt (p > 0,05). Trước điều trị, số lượng tổn thương, mức độ nặng theo thang điểm GAGS và điểm chất lượng cuộc sống ở 2 nhóm không có khác biệt (p > 0,05).
+
+3.2. Kết quả điều trị
+
+Biểu đồ 1: Thay đổi tổn thương viêm nhóm A
+
+<!-- image -->
+
+Số lượng tổn thương viêm đánh giá tại 3 lần tái khám giảm có ý nghĩa thống kê (p < 0,05) so với lần khám đầu tiên.
+
+Thay đổi tổn thương không viêm
+
+Biểu đồ 2: Thay đổi tổn thương không viêm nhóm A
+
+<!-- image -->
+
+Số lượng tổn thương không viêm đánh giá tại 3 lần tái khám giảm có ý nghĩa thống kê (p < 0,05) so với lần khám đầu tiên.
+
+<!-- image -->
+
+<!-- image -->
+
+3.2.1. Kết quả điều trị qua các lần tái khám của từng nhóm
+
+3.2.1.1. Thay đổi tổn thương nhóm A (sử dụng isotretinoin phối hợp với azithromycin)
+
+Biểu đồ 3: Thay đổi tổn thương viêm nhóm B
+
+<!-- image -->
+
+Số lượng tổn thương viêm đánh giá tại 3 lần tái khám giảm có ý nghĩa thống kê (p < 0,05) so với lần khám đầu tiên.
+
+Thay đổi tổn thương không viêm
+
+Biểu đồ 4: Thay đổi tổn thương không viêm nhóm B
+
+<!-- image -->
+
+Số lượng tổn thương không viêm đánh giá tại tuần 4 giảm so với tuần 0, khác biệt không có ý nghĩa thống kê (p > 0,05). Tại tuần 8 và tuần 12, số lượng tổn thương không viêm giảm có ý nghĩa thống kê (p < 0,05) so với tuần 0.
+
+Thay đổi tổn thương viêm
+
+3.2.1.2. Thay đổi tổn thương nhóm B (sử dụng isotretinoin phối hợp với clarithromycin)
+
+Biểu đồ 5: Thay đổi số lượng tổn thương viêm
+
+<!-- image -->
+
+Số lượng tổn thương viêm ở cả hai nhóm đều giảm rõ rệt qua các tuần so với trước điều trị, tuy nhiên tại thời điểm trước điều trị cũng như ở tuần 4, tuần 8 và tuần 12, số lượng tổn thương viêm ở 2 nhóm không có sự khác biệt với p > 0,05.
+
+3.2.2.2. Thay đổi số lượng tổn thương không viêm
+
+Biểu đồ 6: Thay đổi số lượng tổn thương không viêm
+
+<!-- image -->
+
+Tại thời điểm trước điều trị, tuần 4 và tuần 8 số lượng tổn thương không viêm ở nhóm A và nhóm B không có sự khác biệt. Ở tuần 12, số lượng tổn thương không viêm ở nhóm A là 4,3 thấp hơn so với nhóm B là 10,8, khác biệt có ý nghĩa thống kê, p < 0,05.
+
+<!-- image -->
+
+Thay đổi tổn thương viêm
+
+Biểu đồ 7: Thay đổi tổng số lượng tổn thương
+
+<!-- image -->
+
+Ở tuần 0, tuần 4 và tuần 8, tổng số tổn thương ở hai nhóm không có sự khác biệt. Ở tuần 12, tổng số tổn thương ở nhóm A là 11,8 thấp hơn ở nhóm B là 19,6. Sự khác biệt có ý nghĩa thống kê, p < 0,05.
+
+3.2.2.4. Thay đổi thang điểm GAGS
+
+Biểu đồ 8: Thay đổi thang điểm GAGS
+
+<!-- image -->
+
+Không có sự khác biệt về điểm GAGS giữa hai nhóm ở tuần 0, tuần 4 và tuần 8. Tuy nhiên tại tuần thứ 12, điểm GAGS của nhóm A là 7,1 thấp hơn ở nhóm B là 8,7. Sự khác biệt có ý nghĩa thống kê, p < 0,05.
+
+<!-- image -->
+
+<!-- image -->
+
+3.2.2. Thay đổi số lượng tổn thương, điểm GAGS giữa hai nhóm
+
+Biểu đồ 9: So sánh kết quả điều trị giữa hai nhóm
+
+<!-- image -->
+
+Nhóm A có 62,9% trường hợp có kết quả tốt, 34,3% có kết quả trung bình và 2,8% kết quả kém trong khi đó tỷ lệ này ở nhóm B lần lượt là 40%, 45,7% và 14,3%. Nhóm A có kết quả điều trị tốt cao hơn so với nhóm B, tuy nhiên sự khác biệt về kết quả tốt, kết quả trung bình, kết quả kém giữa 2 nhóm không có ý nghĩa thống kê (p > 0,05).
+
+3.2.2.1. Thay đổi số lượng tổn thương thương viêm
+
+- 3.2.2.3. Thay đổi tổng số tổn thương
+- 3.2.2.5. So sánh kết quả điều trị
+
+4. BÀN LUẬN
+
+Chúng tôi thực hiện thử nghiệm lâm sàng ngẫu nhiên so sánh kết quả điều trị trên 70 bệnh nhân trứng cá thông thường mức độ nặng được chia làm 2 nhóm: 35 bệnh nhân nhóm A điều trị bằng uống isotretinoin phối hợp với azithromycin; 35 bệnh nhân nhóm B điều trị bằng uống isotretinoin phối hợp với clarithromycin.
+
+Theo Biểu đồ 1, số lượng tổn thương viêm của nhóm A các tuần 4, 8, và 12 giảm có ý nghĩa thống kê so với ban đầu (p < 0,05). Điều này tương tự khi so sánh số lượng tổn thương không viêm của nhóm A (Biểu đồ 2) và số lượng tổn thương viêm của nhóm B (Biểu đồ 3). Theo biểu đồ 4, số lượng tổn thương không viêm của nhóm B giảm không có ý nghĩa thống kê ở tuần 4 (p > 0,05) và giảm có ý nghĩa thống kê ở tuần 8 và 12 (p < 0,05). Điều này chứng tỏ khi phối hợp isotretinoin với một trong hai loại kháng sinh là azithromycin hoặc clarithromycin cùng có hiệu quả giảm số lượng tổn thương tổn thương viêm và tổn thương không viêm.
+
+<!-- image -->
+
+Theo Biểu đồ 5, số lượng tổn thương viêm trước điều trị của hai nhóm là không có sự khác biệt. Đối với nhóm A uống isotretinoin phối hợp với azithromycin, số lượng tổn thương viêm giảm dần qua các thời điểm tuần 4, 8, 12 tương ứng là 35,3; 19,1 và 7,5. Hiệu quả giảm tổn thương trứng cá viêm của azithromycin đã được chứng minh qua nhiều nghiên cứu. Dhaher (2018) nghiên cứu 76 bệnh nhân trứng cá nặng chia đều làm hai nhóm (38 bệnh nhân mỗi nhóm) cùng sử dụng isotretinoin kết hợp với azithromycin, nhóm nghiên cứu có sử dụng thêm desloratadine 5 mg mỗi ngày. Tác giả nhận thấy sau 12 tuần điều trị, số lượng tổn thương viêm giảm rõ rệt từ 59 xuống còn 9 ở nhóm nghiên cứu và 57 xuống 21 ở nhóm chứng, với p < 0,05 6 . Ở nhóm B, uống isotretinoin phối hợp với clarithromycin cũng ghi nhận sự giảm rõ rệt số tổn thương viêm sau 4 tuần, 8 tuần, 12 tuần xuống còn lần lượt là 36,9; 21,6 và 8,8 ± 4,7. Có thể thấy, số lượng tổn thương viêm của nhóm A tại các thời điểm tuần 4, 8 và 12 đều thấp hơn so nhóm B, tuy nhiên không có sự khác biệt có ý nghĩa thống kê (p > 0,05). Chúng tôi chưa tìm thấy một nghiên cứu nào so sánh giữa hiệu quả của azithromycin và clarithromycin phối hợp với isotretinoin trong điều trị trứng cá. Tuy nhiên, kết quả nghiên cứu cho thấy hiệu quả giảm tổn thương trứng cá viêm của clarithromycin và azithromycin là không có sự khác biệt.
+
+Theo Biểu đồ 6, số lượng tổn thương không viêm của nhóm A đã giảm từ 22,2 trước điều trị xuống còn 19,3 tại tuần 4 và 10,3 tại tuần 8. Sau 12 tuần, số lượng tổn thương không viêm chỉ còn 4,3. Kết quả này một lần nữa chứng minh hiệu quả rõ rệt của azithromycin đối với các tổn thương trứng cá. Vẫn theo kết quả nghiên cứu của Dhaher (2018), tác giả cũng ghi nhận sự cải thiện rõ rệt của các tổn thương mụn nhân hay tổn thương không viêm từ 18 trước điều trị
+
+xuống còn 8 sau điều trị 6 . Đối với nhóm sử dụng isotretinoin phối hợp với clarithromycin, số lượng tổn thương không viêm giảm từ 22,5 trước điều trị xuống còn 19,6; 14,5 và 10,8 sau 4, 8 tuần, 12 tuần. Như vậy, cũng có sự cải thiện đáng kể về số lượng tổn thương không viêm ở nhóm này. Khi so sánh giữa hai nhóm, số tổn thương không viêm tại tuần thứ 4 và 8 không có sự khác biệt giữa hai nhóm (p > 0,05). Tuy nhiên, số tổn thương không viêm sau 12 tuần của nhóm A thấp hơn có ý nghĩa thống kê so với nhóm B (p < 0,002). Các tổn thương mụn nhân hay tổn thương không viêm hình thành chủ yếu thông qua quá trình sừng hóa cổ nang lông và bít tắc chất bã nhờn còn vai trò của phản ứng viêm vẫn còn nhiều tranh cãi 7 . Do vậy, điều trị các tổn thương mụn nhân bằng kháng sinh nhóm macrolid nói chung với đặc tính kháng khuẩn, chống viêm hay điều hòa miễn dịch có thể cho hiệu quả thay đổi với cơ chế chưa rõ ràng. Mặt khác, những bệnh nhân nhóm A sử dụng azithromycin trong 8 tuần, trong khi phác đồ đối với nhóm B sử dụng clarithromycin chỉ là 2 tuần. Do đó, hiệu quả giảm tổn thương không viêm của clarithromycin sau 12 tuần thấp hơn azithromycin có thể không rõ ràng và khó đánh giá một cách khách quan. Cần có thêm nhiều nghiên cứu hơn về vấn đề này.
+
+Theo Biểu đồ 7, về tổng số tổn thương, tại tuần thứ 4 sau điều trị, tổng số tổn thương của nhóm uống azithromycin và uống clarithromycin lần lượt là 54,7 và 56,6. Sau 8 tuần số tổn thương của nhóm A và B giảm còn lần lượt là 29,4 và 36,1. Không có sự khác biệt về tổng số tổn thương của nhóm A và B tại thời điểm 4 và 8 tuần (p > 0,05). Sau 12 tuần tổng số lượng tổn thương của nhóm A là 11,8 thấp hơn có ý nghĩa thống kê so với nhóm B là 19,6 (p < 0,05). Điều này có thể giải thích do sự khác biệt về số lượng tổn thương không viêm sau 12 tuần giữa hai nhóm dẫn đến sự khác biệt về tổng số tổn thương.
+
+Biểu đồ 8 cho thấy điểm GAGS trung bình trước điều trị của nhóm A và B cùng là 33,1. Sau 4 tuần điểm GAGS trung bình đã giảm rõ rệt xuống còn lần lượt là 23,4 ở nhóm A và 22,7 ở nhóm B. Sau 8 tuần điểm GAGS trung bình tiếp tục giảm còn 15,7 và 15,3 ở 2 nhóm A và B. Như vậy, việc giảm mức độ nặng của bệnh theo điểm GAGS cũng phù hợp với việc giảm số lượng tổn thương, đặc biệt là giảm số lượng tổn thương viêm của các bệnh nhân trong thời gian điều trị. Sau 12 tuần, điểm GAGS trung bình của nhóm A là 7,1 thấp hơn có ý nghĩa thống kê so với nhóm B với 8,7 (p < 0,05).
+
+Về kết quả điều trị, theo Biểu đồ 9, nhóm A, nhóm bệnh nhân sử dụng isotretinoin phối hợp với azithromycin có 62,9% có kết quả điều trị tốt cao hơn so với 40% ở nhóm B. Kết quả điều trị trung bình và kém ở nhóm A lần lượt là 34,3% và 2,8% trong khi ở nhóm B là 45,7% và 14,3%. Như vậy, nhìn chung nhóm A có hiệu quả điều cao hơn so với nhóm B mặc dù sự khác biệt về kết quả điều trị tốt, trung bình, kém giữa hai nhóm là không có ý nghĩa thống kê với p > 0,05. Kết quả của chúng tôi cũng không khác biệt nhiều so với kết quả trong nghiên cứu của Dhaher. Sau 12 tuần điều trị nhóm sử dụng isotretinoin phối hợp với azithromycin và có kháng desloratadine 5 mg/ngày có 50% bệnh nhân đạt kết quả rất tốt; 39,5% đạt kết quả tốt, còn lại là mức độ trung bình, không có trường hợp nào đáp ứng kém. Tương ứng ở nhóm không sử dụng kháng desloratadin là 31,6% rất tốt; 34,2% tốt, 26,3% trung bình và 7,9% kết quả kém 6 .
+
+5. KẾT LUẬN
+
+Sử dụng isotretinoin phối hợp với một trong hai loại kháng sinh là azithromycin hoặc clarithromycin để điều trị trứng cá thông thường mức độ nặng cùng có hiệu quả cải thiện tổn thương mụn viêm, mụn không viêm. Nếu cần phối hợp isotretinoin với một trong hai loại kháng sinh trên thì azithromycin là lựa chọn thứ nhất và clarithromycin là lựa chọn thứ hai.
+
+<!-- image -->
+
+TÀI LIỆU THAM KHẢO
+
+1. Wolff K. Fitzpatrick's Dermatology in General Medicine, McGraw - Hill. 2008, 2ed, 255 290.
+2. Wang L. Antihistamine: A Useful Medication with Minimal Adverse Drug Reactions to Improve Acne Symptoms and Reduce Sebum Production. :27.
+3. Demircay Z, Kus S, Sur H. Predictive factors for acne flare during isotretinoin treatment. Eur J Dermatol. 2008;18(4):452 - 456.
+4. Cannizzaro MV, Dattola A, Garofalo V, Del Duca E, Bianchi L. Reducing the oral isotretinoin skin side effects: efficacy of 8% omega - ceramides, hydrophilic sugars, 5% niacinamide cream compound in acne patients. G Ital Dermatol Venereol. 2018;153(2):161 - 164.
+5. Hacivelioglu S, Gungor ANC, Gencer M, et al. Acne severity and the Global Acne Grading System in polycystic ovary syndrome. Int J Gynaecol Obstet. 2013;123(1):33 - 36.
+6. Dhaher SA, Jasim ZM, September 1, 2019, The adjunctive effect of desloratadine on the combined azithromycin and isotretinoin in the treatment of severe acne: Randomized clinical trial - J Dermatol Dermatol Surg.
+7. Tanghetti EA. The role of inflammation in the pathology of acne. J Clin Aesthet Dermatol. 2013;6(9):27 - 35.
+
+SUMMARY
+
+COMPARISON OF ISOTRETINOIN PLUS AZITHROMYCIN COMBINATION VERSUS ISOTRETINOIN PLUS CLARITHROMYCIN IN THE MANAGEMENT OF SEVERE ACNE VULGARIS
+
+Objectives: To compare the efficacy of combination of isotretinoin and azithromycin versus isotretinoin and clarithromycin.
+
+Methods: Controlled comparative clinical trial. 70 severe acne vulgaris patients were randomly divided into 2 groups: group A was managed with isotretinoin 0.3 - 0.5 mg/kg/day in 12 weeks combined with azithromycin 500 mg in 3 consecutive days per week in 8 weeks; group B was managed with isotretinoin 0.3 - 0.5 mg/kg/day in 12 weeks combined with clarithromycin 500 mg twice per day, 1 week per month in 2 months. Assessment was made at week 4, 8 and 12.
+
+Results: At week 12, both groups showed good improvement: in group A, mean number of inflammatory lesions reduced from 44.5 to 7.5, mean number of noninflammatory lesions reduced from 22.2 to 4.3; in group B mean number of inflammatory lesions reduced from 44.7 to 8.8, mean number of noninflammatory lesions reduced from 22.5 to 10.8. The total lesion number after 12 weeks in group A was significantly lower than in group B (11.8 and 19.6, respectively) with p < 0.05. 62.9% patients in group A had good outcome, higher than group B (40.0%) but the difference was not significant, p > 0.05.
+
+Conclusion: In this clinical trial, combination of isotretinoin and azithromycin or clarithromycin in the treatment of severe acne vulgaris had improved both inflammatory and noninflammatory lesions. In clinical practice, we consider to combine isotretinoin plus azithromycin is firts choice and clarithromycin is the second choice.
+
+Keywords: Acne vulgaris, severe, isotretinoin, azithromycin, clarithromycin.
+
+<!-- image -->

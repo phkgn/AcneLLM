@@ -1,0 +1,271 @@
+Management of acne: Canadian clinical practice guideline
+
+Yuka Asai MD MSc, Akerke Baibergenova MD PhD, Maha Dutil MD MEd, Shannon Humphrey BSc MD, Peter Hull MMed PhD, Charles Lynde BSc MD, Yves Poulin MD, Neil H. Shear BASc(Hons) MD, Jerry Tan BSc MD, John Toole BSc MD, Catherine Zip MD
+
+CMAJ podcasts: author interview at https://soundcloud.com/cmajpodcasts/140665guide
+
+Competing interests:
+
+See end of article.
+
+This article has been peer reviewed.
+
+Correspondence to: Jerry Tan, jerrytan@bellnet.ca
+
+CMAJ 2016. DOI:10.1503 /cmaj.140665
+
+Key points
+
+- Acne is common and burdensome, with potential for adverse psychosocial impact and physical sequelae.
+- This evidence-based guideline was developed to facilitate efficient diagnosis and effective treatment of acne vulgaris in the Canadian population.
+- Management recommendations are provided for three acne categories: comedonal, mild-to-moderate papulopustular and severe inflammatory acne.
+- With early diagnosis, treatment of active lesions and prevention of adverse sequelae, the health of the many Canadians with acne may be improved.
+
+A cne is one of the most burdensome dis eases globally. 1,2 Its prevalence among those aged 12 to 24 years is estimated to be 85%, although it can persist beyond young adulthood despite treatment. 3-5 Acne can adversely affect quality of life 6-13 and may lead to emotional distress and physical scarring. 14,15 The clinical presentation of acne (Figure 1) varies from primarily comedonal to mixed comedonal and inflammatory acne. 16
+
+Since the last Canadian acne guideline was published in 2000, 17 evidence for multiple addi tional treatments has been published. Thus, there was an unmet need for an updated, systematic ally developed, evidencebased Canadian acne clinical practice guideline. This guideline pro vides recommendations adapted to the Canadian health care system to assist Canadian health care providers in the diagnosis of acne vulgaris, including investigations where appropriate; it also provides updated information on the patho genesis of acne, outlines methods for evaluating acne severity, provides evidencebased guidance on treatments for acne vulgaris and recommends treatments for acne according to severity.
+
+To support clinical practice, recommenda tions are made for three categories of acne sever ity: comedonal acne, which consists of small white papules (closed comedones) or grey-white papules (open comedones), which are due to complete or partial ductal occlusion, respec tively, and sebum accretion (Figure 1A); mild tomoderate papulopustular acne, which is char acterized by inflammatory lesions that are mostly superficial (Figures 1B and 1C); and severe acne, consisting of deep pustules and/or nodules, which may be painful, may extend over large areas and can lead to tissue destruction (Figures 1D and 1E). A subtype of severe acne, conglo bate acne, is rare and consists of extensive inflammatory papules, nodules and cysts, which can lead to disfiguring scars. 16
+
+Scope
+
+This guideline is intended for health care provid ers caring for patients with acne in Canada, spe cifically nurses, pharmacists, family physicians, pediatricians, obstetricians/gynecologists and dermatologists.
+
+The recommendations in this guideline address acne vulgaris in pediatric and adult age groups, with the following exclusions: neonatal, infantile and lateonset acne; acne fulminans; acne inversa (hidradenitis suppurativa); and acne variants such as gramnegative folliculitis, rosacea, demodici dosis, pustular vasculitis, mechanical acne, oil or tar acne, and chloracne. These conditions were excluded because they have different pathogenic mechanisms. We also wished to maintain congru ence with the source guideline for adaptation, the European EvidenceBased (S3) Guidelines for the Treatment of Acne (ES3). 16
+
+Methods
+
+Guideline panel composition
+
+Members of the guideline panel were selected by the steering committee (C.L. and J. Tan) accord ing to acknowledged expertise in acne, as indi cated by peerreviewed publications and reputa tion. Dermatologists from disparate regions of Canada were included for geographic representa tion. Two experts with dual credentials in epi demiology and dermatology (Y.A. and A.B.) served as methodologic experts and performed literature evaluation and grading.
+
+Guideline development
+
+We developed this guideline in accordance with the Appraisal of Guidelines for Research and Evalu ation II (AGREE II) instrument 18 and the ADAPTE framework 19 for guideline adaptation.
+
+In a systematic review of clinical practice guidelines on the management of acne published from 2007 to 2013, 20 we identified and reviewed five guidelines. The ES3 guidelines 16 and the Malaysian guideline on management of acne 21 had the highest methodologic quality. The ES3 guidelines were selected as the source of adapta tion because of their detailed description of the search methodology and explicit disclosure of the process leading to specific recommendations. 16,20 We updated the literature search from March 2010 (the end date of the ES3 literature search) to March 2013. We included in this search treat ments available in Canada but not covered by the ES3 guidelines. The detailed search strategy is available in Appendix 1 (www.cmaj.ca/lookup/ suppl/doi:10.1503/cmaj.140665//DC1). Before publication, we performed an updated search for the period March 2013 to July 14, 2015, for studies pertaining to the treatments recommended by these guidelines (as listed in Appendix 2, avail able at www.cmaj.ca/lookup/suppl/doi:10.1503/ cmaj.140665//DC1) and updated the manuscript accordingly.
+
+Articles that met the selection criteria (Appen dix 1) were evaluated independently by two reviewers (Y.A. and A.B.). Each trial was assigned a grade of A, B or C (Box 1) based on reviewer consensus; any discrepancies were resolved by discussion. The reviewers also assigned a level of evidence for each treatment (level 1 to level 4; see Box 1) using a consensus process and preestablished criteria (Appendix 3, available at www.cmaj.ca/lookup/suppl/ doi:10.1503/cmaj.140665//DC1).
+
+The two reviewers (Y.A. and A.B.) developed draft recommendations for each treatment within the three categories of acne (comedonal, mildto moderate papulopustular and severe) and pre sented them to the guideline panel. These draft recommendations were directly transposed from the ES3 guidelines, were modified from ES3 on the basis of new evidence or were newly de veloped for treatments not covered by ES3. The reviewers also provided the rationale for each recommendation, including evidence of efficacy and safety, as well as information on costs.
+
+Consensus of the guideline panel on the rec ommendations was defined as a twothirds majority and was obtained via a blinded online Delphi process (Appendix 3). The strength of the recommendations and their clinical interpretation are adapted from the ES3 guidelines 16 and are outlined in Box 2.
+
+A detailed version of the methods used to develop the guideline is available in Appendix 3.
+
+Stakeholder review
+
+Before submitting the guideline for publication, we sought input from the following stakehold ers: a discussion group of university students representing patients (University of Windsor, Windsor, Ontario), the Canadian Dermatology Association, the Canadian Skin Patient Alliance, the Canadian Dermatology Nurses Association, the Canadian Pharmacists Association, family physicians, pediatricians and authors of the ES3 guidelines. Pilot testing was also undertaken in the clinic of one guideline panel member.
+
+Figure 1: Representative photos of acne categories. (A) Comedonal facial acne. (B) Moderate inflammatory facial acne. (C) Moderate inflammatory acne of the back. (D) Severe facial acne. (E) Severe inflammatory acne of the back.
+
+<!-- image -->
+
+Mitigation of competing interests
+
+Development of this guideline was funded by Valeant, Galderma, Cipher, Bayer and Mylan. We took several steps to mitigate the risk of bias. All pharmaceutical and cosmetic companies offering acne products in Canada were invited to provide unrestricted educational grants. Funding sponsors had no role in the development or approval of the guideline. The panel members who solicited fund
+
+Box 1: Grading of evidence 16
+
+Grading of included studies
+
+- A. Randomized, double-blind clinical trial of high quality (e.g., sample-size calculation, flow chart of patient inclusion, intention-to-treat analysis, sufficient sample size)
+- B. Randomized clinical trial of lesser quality (e.g., only single-blind; limited sample size, but with at least 15 patients per study arm)
+- C. Comparative trial with severe methodologic limitations (e.g., not blinded, very small sample size, no randomization)
+
+Grading of evidence for treatment efficacy
+
+- Level 1: Further research is unlikely to change confidence in the estimate of effect (i.e., at least two grade A trials are available, and their results are largely consistent with results of additional grade B or grade C studies)
+- Level 2: Further research is likely to have an important effect on confidence in the estimate of effect and may change the estimate (i.e., at least three grade B trials are available, and their results are largely consistent with any additional grade C trials)
+- Level 3: Further research is very likely to have an important effect on confidence in the estimate of effect and is likely to change the estimate (i.e., conflicting evidence or limited number of trials, mostly grade B or grade C)
+- Level 4: Any estimate of effect is very uncertain (i.e., little or no systematic experimental evidence; trials extremely limited in number and/or quality)
+
+Box 2: Strength of recommendations* and clinical interpretation†
+
+- High strength: action strongly recommended; definitely use
+- Medium strength: action can be recommended; definitely use if a higherstrength recommendation is not available or appropriate
+- Low strength: action may be considered; consider if a higher-strength recommendation is not available or appropriate
+- Negative strength: action not recommended; do not use
+- Open strength: recommendation for or against the action cannot be made at this time; each practitioner must consider the benefit-harm ratio for use on a case-by-case basis
+
+*Efficacy, safety, level of evidence and patient preference were considered in determining the strength of recommendations.
+
+†In accordance with methods for the European Evidence-Based (S3) Guidelines for the Treatment of Acne, 16 a threshold effect size of 10% difference between treatments was considered clinically relevant.
+
+ing (C.L. and J. Tan) were excluded from writing and voting on treatment recommendations. In addition, the identity of sponsors was not dis closed to the guideline panel members until the time of submission of the draft for publication. None of the panel members received honoraria for their contributions to this work.
+
+Recommendations
+
+The most highly recommended treatments for comedonal, mildtomoderate papulopustular and severe acne are discussed here, and a clinical algorithm is presented in Figure 2. For a complete listing of recommendations and more detailed dis cussion of the evidence, please see the full guide line (Appendix 4, available at www.cmaj.ca/ lookup/suppl/doi:10.1503/cmaj.140665//DC1). Definitions of the grading of evidence are pre sented in Box 1 16 and descriptions of the strength of recommendations and their clinical relevance in Box 2.
+
+In discussion of the studies cited below, su perior efficacy was defined as statistical signifi cance ( p < 0.05) and clinical relevance (mini mum 10% difference in lesion counts). 16 We found no trials of purely comedonal acne, so evi dence pertaining to this form of acne was obtained from the effect on noninflammatory acne lesions (comedones) in trials of mildto moderate inflammatory acne.
+
+For all categories of severity, selection of the most appropriate of the firstline therapies should be determined on the basis of previous therapies tried, including efficacy and tolerance; patient skin type; type of vehicle; practicality (location of acne, frequency of application); and cost.
+
+Treatment effectiveness should be evaluated at two to three months after implementation, at which time therapy may be escalated (if improve ment is inadequate) or maintained or tapered (if improvement is adequate).
+
+Comedonal acne
+
+Topical therapies are recommended for firstline treatment of comedonal acne, namely retinoids, benzoyl peroxide and fixeddose combinations of retinoids with benzoyl peroxide or clinda mycin. Patients may have already tried a number of topical therapies, including benzoyl peroxide, which is available over the counter.
+
+Those with dry or sensitive skin may prefer creams or lotions, which tend to be less drying, whereas those with oily skin may prefer a less greasy formula, such as a gel. Convenience and treatment adherence may be enhanced with com bination therapy or oncedaily application instead of separate therapies or routines requiring multiple applications. Many acne medications may not be covered by provincial plans; in these cases, it may be particularly important to consider cost.
+
+Figure 2: Clinical treatment algorithm for acne. A complete list of recommendations is available in the full guideline (Appendix 4, available at www.cmaj.ca/lookup/suppl/doi:10.1503/cmaj.140665/-/DC1). BPO = benzoyl peroxide, clinda = clindamycin, dashed line = optional path. *Blue light and oral zinc may be considered for mild-to-moderate papulopustular acne (low strength of recommendation). †Best evidence is for adapalene and tazarotene. ‡Lower-quality evidence available for clindamycin-tretinoin gel. §Evaluate after 2-3 months. ¶For women only. **Evaluate monthly for isotretinoin.
+
+<!-- image -->
+
+For comedonal acne, we recommend topical reti noids or benzoyl peroxide (medium-strength recommendation; confidence in effect estimate is moderate).
+
+Benzoyl peroxide in 2.5% and 5% gels was superior to vehicle for comedonal acne in eight grade A studies (level 1 evidence), with reduction in comedonal lesions of 21% to 52%, compared with increases of 11% to 42% for vehicle. 16 Ben zoyl peroxide products have a fast onset of action 22 and are available over the counter; thus, they should be considered for initial treatment.
+
+Topical retinoids (tretinoin, adapalene and tazarotene) are also recommended for initial treatment. Adapalene and tazarotene are superior to tretinoin for comedonal acne. Despite one grade B study showing superiority, tazarotene is likely equivalent to adapalene (four grade B studies), but it may result in more irritation. 16 In six grade A studies and three grade B studies, tretinoin (available in 0.025%, 0.04% and 0.05% gel and cream) reduced comedones by 33% to 86%, compared with increases of 20% to 27% for vehicle (level 1 evidence). 16
+
+Adapalene (0.1% and 0.3% gel and cream) was superior to vehicle for comedonal acne in four of five grade A studies and two grade B studies, with reduction in lesions of 33% to 64%, compared with 20% to 38% for vehicle (level 1 evidence). 16 Adapalene is comparable, if not superior, to tretinoin (level 1 evidence). 16
+
+In two studies, 23,24 tazarotene was superior to vehicle for comedones (level 1 evidence). It was equivalent in efficacy to adapalene in four grade B studies 25-28 and superior in one grade B study. 29 In headtohead comparisons, tazarotene, like adapalene, was superior to tretinoin in treating comedonal lesions (two grade B studies). 29,30
+
+For comedonal acne, we recommend the fixeddose combinations adapalene-benzoyl peroxide and clindamycin-benzoyl peroxide (mediumstrength recommendation; confidence in effect estimate is moderate).
+
+Fixeddose combinations can be used as initial treatment. For treatment of comedones, the com bination of adapalene 0.1% and benzoyl peroxide 2.5% was equivalent or superior to adapalene 0.1% alone (equivalent in one grade A study and one grade C study; superior in two grade A studies; level 3 evidence) and to benzoyl perox ide 2.5% alone (equivalent in one grade A study and one grade C study; superior in two grade A studies; level 3 evidence). 16
+
+Similarly, the combination of clindamycin 1% and benzoyl peroxide 5% was superior to clindamycin 1% alone (two grade A studies and one grade B study; level 1 evidence) and equiva lent to benzoyl peroxide 5% alone (two grade A studies and one grade B study; level 1 evidence). 16
+
+If a fixeddose combination is inadequately effective after a two to threemonth trial, addi tion of a topical retinoid (especially tazarotene or adapalene) should be considered if no retinoid is in use.
+
+For comedonal acne, the combination of clindamycin 1.2% and tretinoin 0.025% (as a gel) and, for women, combined oral contraceptives may be considered (low-strength recommendation; confidence in effect estimate is low).
+
+If response to a topical retinoid or benzoyl peroxide alone, or to a fixeddose combination, is inadequate, use of fixeddose clindamycintretinoin or a combined oral contraceptive agent may be considered. The evidence for the fixed dose combination of clindamycin 1.2% and tre tinoin 0.025% (as a gel) consisted of one publi cation showing superiority of the combination to each of vehicle, clindamycin 1.2% and treti noin 0.025%, with reductions in inflammatory lesion counts of 36%, compared with 16%, 27% and 31%, respectively. 31 However, because of pooling of results and uncertainty about the spe cific outcomes from each parallel randomized controlled trial, this was assessed as a single grade A study. One grade B study 32 is also avail able and another is briefly outlined in the prod uct monograph; however, methodologic detail is not otherwise available for analysis (level 2 evidence).
+
+Localized mild-to-moderate papulopustular acne
+
+The presentation of mildtomoderate papulo pustular acne can vary with regard to inflamma tion and lesion distribution.
+
+Topical therapies are a reasonable intervention for patients with mild papulopustular acne. Given the strong evidence for use of topical retinoids, benzoyl peroxide and fixeddose combinations to treat inflammatory lesions, all three options are strongly recommended for this type of acne. The treatment choice would be determined by factors such as type of vehicle, ease of use and cost. For more extensive papulopustular acne, or areas not amenable to topical therapy (such as the back), systemic therapies, in addition to the topical ther apies, are recommended.
+
+For localized mild-to-moderate papulopustular acne, we strongly recommend benzoyl peroxide as monotherapy (high-strength recommendation; confidence in effect estimate is high).
+
+For benzoyl peroxide in concentrations ranging from 2.5% to 10%, in gel, cream and lotion formu lations, 11 grade A studies and 3 grade B studies showed superiority over placebo, with reductions in inflammatory lesion counts of 19% to 62%, compared with increases of 12% to 46% for vehicle (level 1 evidence). 16 The onset of action of benzoyl peroxide may be superior to that of tretinoin. 22
+
+For localized mild-to-moderate papulopustular acne, we strongly recommend topical retinoids as monotherapy (high-strength recommendation; confidence in effect estimate is high).
+
+Topical retinoids (adapalene, tazarotene and tretinoin) can also be used as firstline agents. Adapalene 0.1% and 0.3% gels were superior to vehicle in reducing inflammatory lesion counts in three grade A and two grade B studies, by 36% to 64%, compared with 19% to 47% for vehicle (level 1 evidence). Adapalene gels were equivalent to vehicle in one grade A study. 16
+
+Tazarotene was superior to vehicle for inflam matory lesions (one grade A study and two grade B studies; 23,24,33 level 3 evidence) and was found to be equivalent (four grade B studies; 25-28 level 2 evidence) or superior (one grade B study 29 ) to adapalene for mildtomoderate papulopustular acne. Although tazarotene appears to be superior to tretinoin for comedonal lesions, it was equiva lent for inflammatory lesions in two grade B studies 29,30 (level 3 evidence).
+
+Tretinoin (0.025%, 0.04% and 0.05% gel and cream) was superior to vehicle in three grade A studies, three grade B studies and one grade C study, with lesion count reductions of 28% to 71%, compared with 10% to 48% for vehicle (level 1 evidence). 16
+
+For localized mild-to-moderate papulopustular acne, we strongly recommend the fixed-dose combination of clindamycin 1% and benzoyl peroxide 5% and the fixed-dose combination of adapalene 0.1% and benzoyl peroxide 2.5% (as gels) (high-strength recommendation; confidence in effect estimate is high).
+
+Several fixeddose combinations can be used as initial treatment for localized mildto moderate papulopustular acne. The combination of clindamycin 1% and benzoyl peroxide 5% gel was superior to vehicle and the individual com ponents in four grade A studies, with lesion count reductions of 48% to 63%, while changes with vehicle ranged from an increase of 3% to a reduction of 30% (level 1 evidence). 16
+
+The fixeddose combination of adapalene 0.1% and benzoyl peroxide 2.5% gel was superior to vehicle and the individual components in reduction of inflammatory lesion counts in all three grade A studies, with reduction of 62% to 70%, compared with 34% to 46% for vehicle (level 1 evidence). 16
+
+For localized mild-to-moderate papulopustular acne, the combination of clindamycin 1.2% and tretinoin 0.025% gel may be considered (lowstrength recommendation; confidence in effect estimate is low).
+
+The fixeddose combination of clindamycin 1.2% and tretinoin 0.025% gel was superior to vehicle, clindamycin 1.2% alone and tretinoin 0.025% alone, with reductions in inflammatory lesion counts of 57%, compared with 32%, 49% and 46%, respectively (level 2 evidence). 31
+
+Extensive moderate papulopustular acne
+
+For more extensive moderate papulopustular acne, we recommend addition of systemic antibiotics to the topical medications above, as recommended for mild-to-moderate papulopustular acne (medium-strength recommendation; confidence in effect estimate is moderate).
+
+Although tetracycline (reduction in inflamma tory lesion count 36% to 85% v. 13% to 56% for vehicle; level 1 evidence), doxycycline (33% to 50% v. 22% to 30% for vehicle; level 2 evidence) and minocycline (43% to 57% v. 31% to 39% for vehicle, level 1 evidence) have been shown to be superior to placebo in reducing inflammatory acne lesions, 16 use of these agents on their own is dis couraged because of concerns about selection of antibioticresistant bacteria. Other antibiotic classes, including penicillins, macrolides and fluoroquinolones, are also discouraged because they are indicated for use in communityacquired infections, such as pneumonia and urinary tract infections. Furthermore, given that minocycline is associated with an increased risk of druginduced lupus and hepatitis, 34 tetracycline or doxycycline is preferred.
+
+For more extensive moderate papulopustular acne in women, we recommend addition of combined oral contraceptives to the topical medications above, as recommended for mildto-moderate papulopustular acne (mediumstrength recommendation: confidence in effect estimate is moderate).
+
+The combinations of ethinyl estradiol 20 µg and levonorgestrel 100 µg (level 3 evidence), ethinyl estradiol 20 µg and drospirenone 3 mg (level 1 evidence) and ethinyl estradiol 35 µg and norgestimate 180, 215 or 250 µg (level 2 evidence) have all shown superiority over pla cebo. The reported differences in reduction of inflammatory lesion counts with these oral con traceptive formulations, relative to placebo, were 9% to 14%, 35,36 16% to 18% 37,38 and 13% to 25%, 39,40 respectively. For ethinyl estradiol 35 µg and cyproterone acetate 2 mg, inflammatory lesions were decreased by 72%, compared with 35% with placebo. 41 Adjunctive use of topical agents with oral contraceptive agents has been inadequately studied.
+
+Severe acne
+
+For severe acne, we strongly recommend the use of oral isotretinoin (high-strength recommendation; confidence in effect estimate is high).
+
+Although there is only a single placebo controlled trial of isotretinoin in severe conglo bate acne (grade B), that trial and subsequent active comparator trials have shown the superior efficacy of this treatment for severe nodular acne. 16 However, in view of the potential for adverse events and teratogenicity, prescribing of oral isotretinoin should be limited to physicians who are trained and experienced in its use, moni toring and appropriate pregnancyprevention measures.
+
+For severe acne, we recommend the use of systemic antibiotics in combination with benzoyl peroxide, with or without topical retinoids (medium-strength recommendation; confidence in effect estimate is moderate).
+
+For patients unwilling or unable to use oral isotretinoin and those with intolerance, systemic antibiotics in combination with topical benzoyl peroxide, with or without a topical retinoid, may be considered. For women, hormonal therapy with a combined oral contraceptive may also be considered.
+
+For nodular or conglobate acne, equivalent efficacy was observed with oral isotretinoin and with oral tetracycline combined with topical ada palene for deep inflammatory lesions (75% v. 67%, respectively) but not for superficial inflam matory lesions (62% v. 28%) (level 4 evidence). 42 The addition of benzoyl peroxide is recom mended to limit the emergence of antibiotic resistant bacteria.
+
+In one grade A study, doxycycline hyclate combined with a fixeddose combination of ada palene and benzoyl peroxide compared favour ably with isotretinoin for severe nodular acne, wherein the former had a composite success rate (defined as 75% reduction of nodules and no medically relevant adverse events) of 63.9%, compared with 54.9% for the latter. 43 However, isotretinoin had substantially greater improve ment over baseline in terms of lesion counts at the end of the study (20 weeks), and acne remission with doxycycline and adapalene or benzoyl peroxide is considered unlikely.
+
+Implementation
+
+Implementation of this guideline will be facili tated by the development of abridged summaries for posting on the websites of the professional organizations that were invited to review this guideline (Can adian Dermatology Association, Acne and Rosacea Society of Canada, Canadian Skin Patient Alliance and other medical, nursing and pharmacy professional organizations.) Medi cal education materials are being developed to facilitate uptake.
+
+Additional discussion of the facilitators of and barriers to application, advice for putting recommendations into practice and criteria for monitoring and auditing of this guideline can be found in the accompanying fulllength guideline (Appendix 4). We do not anticipate that imple mentation of this guideline will necessitate addi tional clinical resource utilization, because the guideline does not recommend more testing or more frequent visits. Information on the cost of treatment in each province and territory, pro vided in Appendix 5 (available at www.cmaj.ca/ lookup/suppl/doi:10.1503/cmaj.140665//DC1), may facilitate increased prudence in appropriate prescribing.
+
+This document will be updated at a minimum of every five years as required to maintain valid ity. 44 Updates may be provided sooner to include important new developments, such as evidence on benefits and harms of existing interventions, development of new treatments or changes in available treatments.
+
+Gaps in knowledge
+
+Uncertainties in acne treatment encompass both general and specific factors. General factors include absence of information related to effi cacy in truncal acne (the outcome measure for almost all studies being facial acne); lack of cer tainty about a minimal effect size that is relevant for patients; lack of a current, universally applied standard for global severity grading of acne; and lack of knowledge about the potential role of adjunctive support, including psychotherapy, for patients with impaired quality of life. Specific factors include uncertainty about durations of use of oral antibiotics to minimize development of antibioticresistant bacteria (at cutaneous and extracutaneous sites) and lack of higher levels of evidence for oftenused treatments, including fixeddose erythromycin-tretinoin, spironolactone and isotretinoin.
+
+Conclusion
+
+This guideline was developed to facilitate the efficient diagnosis and effective treatment of acne vulgaris in the Canadian population. With early diagnosis, treatment of active lesions and prevention of adverse potential sequelae (e.g., scarring, dyspigmentation and psychosocial impact), the health of the many Canadians with acne may be improved.
+
+References
+
+1. White GM. Recent findings in the epidemiologic evidence, classification, and subtypes of acne vulgaris. J Am Acad Dermatol 1998;39:S347.
+2. Perkins AC, Cheng CE, Hillebrand GG, et al. Comparison of the epidemiology of acne vulgaris among Caucasian, Asian, continental Indian and African American women. J Eur Acad Dermatol Venereol 2011;25:105460.
+3. Tan JK. The Canadian acne epidemiological survey: baseline demographics and interim analysis. J Am Acad Dermatol 2004;50:15.
+4. James WD. Clinical practice. Acne. N Engl J Med 2005; 352:146372.
+5. Gollnick H. Current concepts of the pathogenesis of acne: implications for drug treatment. Drugs 2003;63:157996.
+6. Kellett SC, Gawkrodger DJ. The psychological and emotional impact of acne and the effect of treatment with isotretinoin. Br J Dermatol 1999;140:27382.
+7. Gupta MA, Gupta AK. Depression and suicidal ideation in dermatology patients with acne, alopecia areata, atopic dermatitis and psoriasis. Br J Dermatol 1998;139:84650.
+8. Krowchuk DP, Stancin T, Keskinen R, et al. The psychosocial effects of acne on adolescents. Pediatr Dermatol 1991;8:3328.
+9. van der Meeren HL, van der Schaar WW, van den Hurk CM. The psychological impact of severe acne. Cutis 1985;36:846.
+10. JonesCaballero M, Chren MM, Soler B, et al. Quality of life in mild to moderate acne: relationship to clinical severity and factors influencing change with treatment. J Eur Acad Dermatol Venereol 2007;21:21926.
+11. AbdelHafez K, Mahran AM, Hofny ER, et al. The impact of acne vulgaris on the quality of life and psychologic status in patients from upper Egypt. Int J Dermatol 2009;48:2805.
+12. Tan JK, Balagurusamy M, Fung K, et al. Effect of quality of life impact and clinical severity on adherence to topical acne treatment. J Cutan Med Surg 2009;13:2048.
+13. Sundström A, Alfredsson L, SjolinForsberg G, et al. Association of suicide attempts with acne and treatment with isotretinoin: retrospective Swedish cohort study. BMJ 2010; 341:c5812.
+14. Layton AM, Henderson CA, Cunliffe WJ. A clinical evaluation of acne scarring and its incidence. Clin Exp Dermatol 1994;19:3038.
+15. Tan JK, Tang J, Fung K, et al. Development and validation of a comprehensive acne severity scale. J Cutan Med Surg 2007;11:2116.
+16. Nast A, Dréno B, Bettoli V, et al.; European Dermatology Forum. European evidencebased (S3) guidelines for the treatment of acne. J Eur Acad Dermatol Venereol 2012;26 Suppl 1: 129.
+17. Madden WS, Landells ID, Poulin Y, et al. Treatment of acne vulgaris and prevention of acne scarring: Canadian consensus guidelines. J Cutan Med Surg 2000;4 Suppl 1:S213.
+18. Brouwers M, Kho ME, Browman GP, et al.; AGREE Next Steps Consortium. AGREE II: advancing guideline development, reporting and evaluation in healthcare. CMAJ 2010,182:E83942.
+19. The ADAPTE process: resource toolkit for guideline adaptation . ADAPTE Collaboration; 2009. Available: www.gin.net (accessed 2015 Oct. 29).
+20. Kawala C, Fernando D, Tan JK. Quality appraisal of acne clinical practice guidelines, 2008-2013. J Cutan Med Surg 2014;18:38591.
+21. Quick reference for healthcare providers: management of acne . Malaysia: Ministry of Health Malaysia, Dermatological Society of Malaysia, Academy of Medicine of Malaysia; 2012.
+22. Jacobs A, Starke G, Rosumeck S, et al. Systematic review on the rapidity of the onset of action of topical treatments in the therapy of mildtomoderate acne vulgaris. Br J Dermatol 2014;170:55764.
+23. Shalita AR, Chalker DK, Griffith RF, et al. Tazarotene gel is safe and effective in the treatment of acne vulgaris: a multicenter, doubleblind, vehiclecontrolled study. Cutis 1999;63:34954.
+24. Bershad S, Kranjac Singer G, Parente JE, et al. Successful treatment of acne vulgaris using a new method: results of a randomized vehiclecontrolled trial of shortcontact therapy with 0.1% tazarotene gel. Arch Dermatol 2002;138:4819.
+25. Tanghetti E, Dhawan S, Green L, et al. Randomized comparison of the safety and efficacy of tazarotene 0.1% cream and adapalene 0.3% gel in the treatment of patients with at least moderate facial acne vulgaris. J Drugs Dermatol 2010;9:54958.
+26. Thiboutot D, Arsonnaud S, Soto P. Efficacy and tolerability of adapalene 0.3% gel compared to tazarotene 0.1% gel in the treatment of acne vulgaris. J Drugs Dermatol 2008;7(6 Suppl): s310.
+27. Leyden J, Lowe N, Kakita L, et al. Comparison of treatment of acne vulgaris with alternateday applications of tazarotene 0.1% gel and oncedaily applications of adapalene 0.1% gel: a randomized trial. Cutis 2001;67(6 Suppl):106.
+28. Pariser D, ColÓn LE, Johnson LA, et al. Adapalene 0.1% gel compared to tazarotene 0.1% cream in the treatment of acne vul garis. J Drugs Dermatol 2008;7(6 Suppl):s1823.
+29. Webster GF, Guenther L, Poulin YP, et al. A multicenter, doubleblind, randomized comparison study of the efficacy and tolerability of oncedaily tazarotene 0.1% gel and adapalene 0.1% gel for the treatment of facial acne vulgaris. Cutis 2002;69(2 Suppl):411.
+30. Leyden JJ, Tanghetti EA, Miller B, et al. Oncedaily tazarotene 0.1% gel versus oncedaily tretinoin 0.1% microsponge gel for the treatment of facial acne vulgaris: a doubleblind randomized trial. Cutis 2002;69(2 Suppl):129.
+31. Schlessinger J, Menter A, Gold M, et al. Clinical safety and efficacy studies of a novel formulation combining 1.2% clindamycin phosphate and 0.025% tretinoin for the treatment of acne vulgaris. J Drugs Dermatol 2007;6:60715.
+32. Richter J, Bousema M, Boulle KD, et al. Efficacy of a fixed clindamycin phosphate 1.2%, tretinoin 0.025% gel formulation (Velac) in the topical control of facial acne lesions. J Dermatol Treat 1998;9:8190.
+33. Shalita AR, Berson DS, Thiboutot DM, et al. Effects of tazarotene 0.1% cream in the treatment of facial acne vulgaris: pooled results from two multicenter, doubleblind, randomized, vehicle controlled, parallelgroup trials. Clin Ther 2004;26:186573.
+34. Garner SE, Eady EA, Popescu C, et al. Minocycline for acne vulgaris: efficacy and safety. Cochrane Database Syst Rev 2003;(1):CD002086.
+35. Leyden J, Shalita A, Hordinsky M, et al. Efficacy of a low dose oral contraceptive containing 20 microg of ethinyl estradiol and 100 microg of levonorgestrel for the treatment of moderate acne: a randomized, placebocontrolled trial. J Am Acad Dermatol 2002;47:399409.
+36. Thiboutot D, Archer DF, Lemay A, et al. A randomized, controlled trial of a lowdose contraceptive containing 20 microg of ethinyl estradiol and 100 microg of levonorgestrel for acne treatment. Fertil Steril 2001;76:4618.
+37. Koltun W, Lucky AW, Thiboutot D, et al. Efficacy and safety of 3 mg drospirenone/20 mcg ethinylestradiol oral contra ceptive administered in 24/4 regimen in the treatment of acne vulgaris: a randomized, doubleblind, placebocontrolled trial. Contraception 2008;77:24956.
+38. Maloney JM, Dietze P Jr, Watson D, et al. Treatment of acne using a 3milligram drospirenone/20microgram ethinyl estradiol oral contraceptive administered in a 24/4 regimen: a randomized controlled trial. Obstet Gynecol 2008;112:77381.
+39. Redmond GP, Olson WH, Lippman JS, et al. Norgestimate and ethinyl estradiol in the treatment of acne vulgaris: a randomized, placebocontrolled trial. Obstet Gynecol 1997; 89:61522.
+40. Lucky AW, Henderson TA, Olson WH, et al. Effectiveness of norgestimate and ethinyl estradiol in treating moderate acne vulgaris. J Am Acad Dermatol 1997;37:74654.
+41. Carlborg L. Cyproterone acetate versus levonorgestrel combined with ethinyl estradiol in the treatment of acne. Results of a multicenter study. Acta Obstet Gynecol Scand Suppl 1986;134:2932.
+42. Oprica C, Emtestam L, Hagstromer L, et al. Clinical and microbiological comparisons of isotretinoin vs. tetracycline in acne vulgaris. Acta Derm Venereol 2007;87:24654.
+43. Tan J, Humphrey S, Vender R, et al. A treatment for severe nodular acne: a randomized investigatorblinded, controlled, noninferiority trial comparing fixeddose adapalene/benzoyl peroxide plus doxycycline vs. oral isotretinoin. Br J Dermatol 2014;171:150816.
+
+44. Garcia LM, Sanabria AJ, Alvarez EG, et al. The validity of recommendations from clinical guidelines: a survival analysis. CMAJ 2014;186:12119.
+
+Competing interests: Yuka Asai has served on an advisory board for GSK. Akerke Baibergenova has served on advisory boards for Galderma, Valeant and Astellas. Maha Dutil has received speaker's honoraria from Galderma, Valeant, GSK and L'Oréal. Shannon Humphrey has received grants and per sonal fees from Allergan, Galderma and Kythera; and per sonal fees from GSK, Johnson & Johnson, L'Oréal, Procter & Gamble, Valeant and Revance. Charles Lynde has served as a clinical investigator, speaker or consultant for Cipher Pharma, Galderma, Johnson & Johnson, Stiefel/GSK, Valeant and La RochePosay. Yves Poulin has received research funding from Galderma, Dermira and Photocure ASA. Neil Shear has acted as a consultant to Valeant and Galderma. Jerry Tan has been an advisor to Cipher, Galderma, Stiefel/GSK, Merz, Photocure and Valeant; a consultant for Galderma, Merz and Roche; and a clinical investigator for Allergan, Cipher, Der mira, Galderma, Stiefel/GSK and Photocure. John Toole has served as a consultant, speaker and/or clinical investigator for Valeant, Stiefel, Roche and Galderma. Catherine Zip has par ticipated on advisory boards for Valeant and Galderma. No competing interests were declared by Peter Hull.
+
+Affiliations: Department of Medicine (Asai), Queen's Univer sity, Kingston, Ont.; private practice (Baibergenova), Markham, Ont.; Dermatology (Dutil), Women's College Hos pital, University of Toronto, Toronto, Ont.; Department of Der matology and Skin Science (Humphrey), University of British Columbia, Vancouver, BC; Dermatology (Hull), University of Saskatchewan, Saskatoon, Sask.; Department of Medicine (Lynde), University of Toronto, Toronto, Ont.; Centre derma tologique du Québec (Poulin), Laval University, Laval, Que.; Dermatology and Clinical Pharmacology (Shear), Department of Medicine, Sunnybrook Health Sciences Centre, University of Toronto, Toronto, Ont.; Department of Medicine (Tan), Uni versity of Western Ontario, Windsor, Ont.; Section of Derma tology (Toole), Department of Medicine, University of Mani toba, Winnipeg, Man.; Division of Dermatology (Zip), Department of Medicine, University of Calgary, Calgary, Alta.
+
+Contributors: Yuka Asai contributed to the conception and design of the systematic review, evaluated previously pub lished trials and contributed to the consensus Delphi process on the recommendations. Akerke Baibergenova evaluated previously published trials and contributed to the consensus Delphi process on the recommendations. Maha Dutil, Shan non Humphrey, Peter Hull, Yves Poulin, Neil Shear, John Toole and Catherine Zip contributed to the consensus Delphi process on the recommendations. Charles Lynde and Jerry Tan contributed to the conception and design of the system atic review. All of the authors contributed to drafting the arti cle, provided critical review, gave final approval of the ver sion to be published and agreed to act as guarantors of the work.
+
+Funding: Development of this guideline was funded by Valeant, Galderma, Cipher, Bayer and Mylan. These funding sponsors had no role in the development or approval of the guideline.
+
+Acknowledgements: The authors would like to express their gratitude to the following for reviewing and providing input to this guideline: Brigitte Dréno, author of the ES3 guide lines; Jeff Daiter and Michael Varentbut, family physicians; Mark Awuku and Mohammad Howidi, pediatricians; Leslie Plauntz, Sandra Walsh, Lynn Vear, Lori Baldwin and Michelle Lee of the Canadian Central Chapter of the Derma tology Nurses Association; Angela Ross of the Canadian Pharmacists Association; Christine Janus of the Canadian Skin Patient Alliance; and Marc Frey of the psychology research student group, University of Windsor. The authors also thank Sanja Knezevic for conducting Delphi surveys; Tiffany Czilli for research and tabulation of costs of acne medications in Canada; Roxane Chabot and Anneke Andriessen for grant requests, coordination of meetings and literature retrievals; and Chris Cochrane for section editing and coordination of manuscript sections.
+
+Endorsements: The Canadian Dermatology Association rec ognizes the scientific merit of this guideline but did not partici pate in its development or provide any content. The guideline is also recognized by the Acne and Rosacea Society of Canada and is endorsed by the Canadian Skin Patient Alliance.
+
+<!-- image -->
+
+cmyk-reprints-third-h.indd 1
+
+2016-01-07 2:45 PM
