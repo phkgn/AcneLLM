@@ -122,7 +122,7 @@ production**. Trên tổng 17.4k dòng `src/`, đó là ~10%.
 
 ### 2.6 Không chết nhưng là gánh nặng lớn nhất
 
-`chat/fallback/rule_normalizer.py` — **1.975 dòng**, gấp đôi file lớn thứ hai.
+`chat/routing/rule_normalizer.py` — **1.975 dòng**, gấp đôi file lớn thứ hai.
 Nó chỉ chạy khi intaker ném exception. Không đề nghị xoá (fallback an toàn là
 đúng), nhưng cần biết: 11% codebase phục vụ nhánh lỗi, và nhánh đó gần như
 không được đo. Nếu có metric "tỉ lệ fallback rule" mà nó < 1%, câu hỏi hợp lý

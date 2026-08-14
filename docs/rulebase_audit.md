@@ -41,7 +41,7 @@ Không tính trong 2977: `chat/intent_router.py.bak.20260529` (660 dòng, không
 | `chat/normalizer.py` | 1096 |
 | `guardrails/runner.py` | 789 |
 | `chat/_terms.py` | 400 |
-| `chat/fallback/intent_router.py` | 351 |
+| `chat/routing/intent_router.py` | 351 |
 | `chat/_safety.py` | 143 |
 | `chat/session.py` | 100 |
 | `chat/intake.py` | 42 |
@@ -132,7 +132,7 @@ Không chặn pipeline nhưng xoá thông tin, nên LLM không có cơ hội s�
 
 ## Tier 3 — Router fallback
 
-### 3.1 `chat/fallback/intent_router.py` — 351 literal, 14 danh sách
+### 3.1 `chat/routing/intent_router.py` — 351 literal, 14 danh sách
 `_FOLLOWUP_SHORT_TERMS`, `_KNOWLEDGE_RANKING_TERMS`, `_PRODUCT_QUERY_TERMS`, `_FOOD_KNOWLEDGE_TERMS`, `_PERSONAL_TERMS`, `_CASE_TERMS`, `_ADVICE_QUESTION_TERMS`, `_URGENT_EVALUATION_TERMS`, `_EMOTIONAL_TERMS`, `_CRISIS_TERMS`, `_PROGRESS_TERMS`, `_SAFETY_PRODUCT_TERMS`, `_URGENCY_TERMS`, `_MULTI_CONDITION_TERMS`.
 
 - **Blast radius: thấp.** Chỉ chạy khi unified intake **và** semantic router cùng fail.

@@ -1,5 +1,11 @@
 # Config layout — trạng thái sau refactor evaluation
 
+> **Kiểm lại 2026-08-14:** `Settings.model_fields` hiện có **73 field**.
+> Con số trong tài liệu này đã lệch. Nguồn sự thật là `src/acne_llm/config.py`;
+> tài liệu chỉ để giải thích *ý nghĩa* field, không phải để đếm.
+> (`docs/CONFIG_MAP.md` nói 85 field — lệch nhiều nhất nên đã chuyển vào `docs/archive/`.)
+
+
 Tài liệu này mô tả trạng thái đang chạy của repo. Nếu tài liệu và code lệch nhau,
 `src/acne_llm/config.py`, `.env.baseline` và các hằng số module là nguồn sự thật.
 

@@ -68,7 +68,7 @@ thích *score này là xác suất hay logit, đo sau bước nào* — đừng 
 | Unified Intake | `acne-intaker` — Qwen2.5-3B-Instruct Q4_K_M + LoRA, temp 0 | `model/intaker/Modelfile` |
 | Router (arm legacy) | `acnellm-intent` | `config.py: router_model` |
 | Extractor (arm legacy) | `acne-extractor:1.5b` | `config.py: extractor_model` |
-| Semantic router | kNN trên embedding, k=9, OOS distance 0.483609 | `chat/fallback/semantic_router.py` |
+| Semantic router | kNN trên embedding, k=9, OOS distance 0.483609 | `chat/routing/semantic_router.py` |
 | Embedding | `AITeamVN/Vietnamese_Embedding` (dim 1024) | `config.py` |
 | Reranker | `BAAI/bge-reranker-v2-m3` cross-encoder | `config.py` |
 | Vector DB | ChromaDB — **24.393 chunk** | `data/chroma_db/` |

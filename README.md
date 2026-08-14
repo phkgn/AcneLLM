@@ -21,26 +21,61 @@ Ranh giới quan trọng nhất: **`src/` là thứ duy nhất Docker copy vào 
 thư mục khác là công cụ ngoại tuyến hoặc dữ liệu.
 
 ```
-src/acne_llm/     code chạy production (15.8k dòng)
+src/acne_llm/     code chạy production
   api/            FastAPI routes, middleware, DI container
   chat/           intake, session, orchestrator, runtime SSE, safety suffix
+    routing/      3 tầng chọn intent: unified → semantic → rule.
+                  KHÔNG phải "fallback" — compute_route_flags chạy mọi request.
   rag/            Chroma, BM25, hybrid retriever, cross-encoder reranker
   llm/            Ollama backend, prompt builder
-  guardrails/     cổng tất định: prompt injection, vùng ngoài phạm vi, thuốc
+  guardrails/     cổng tất định DUY NHẤT còn lại: chống chỉ định / tương tác thuốc.
+                  Đọc trường có cấu trúc (is_pregnant, age, sex, medications),
+                  không khớp chuỗi. Phạm vi & jailbreak nằm ở system prompt.
   db/             SQLite session store + audit log
   crawler/        NGOẠI TUYẾN — không nằm trên đường chạy request nào
 config/           prompt .j2, guardrails.yaml, drugs_acne.yaml
 frontend/         Next.js, nói chuyện với backend bằng SSE
-tests/            507 test, chạy ~10 giây
+tests/            502 test, chạy ~7 giây
 scripts/          build_kb, crawl, convert dataset, RUN.ps1
 data/  model/     artifact sinh ra — chroma, bm25, sqlite, GGUF
-evaluation/       ngoại tuyến: chấm điểm hệ thống
-datagen/          ngoại tuyến: sinh dữ liệu fine-tune (import lẫn nhau với evaluation)
-ablation/         ngoại tuyến: so sánh các arm cấu hình
-docs/             tài liệu còn hiệu lực
+research/         NGOẠI TUYẾN — không thứ gì trong đây phục vụ một request
+  evaluation/       chấm điểm hệ thống
+  datagen/          sinh dữ liệu fine-tune (import lẫn nhau với evaluation)
+  ablation/         so sánh các arm cấu hình
+  LLMData/          dataset thô
+  guideline_docs/   PDF guideline gốc
+  dashboards/       dashboard HTML + sơ đồ kiến trúc (trước là visualization/)
+  dataset_viz/      biểu đồ phân bố dataset (trước là visualize/)
+  notebooks/        notebook thăm dò
+docs/             tài liệu — đọc docs/README.md trước để biết cái nào có hiệu lực
   docs/archive/     prompt & plan đã xong việc, giữ để truy vết
   docs/reports/     báo cáo dài: context.md, report.md, audit
 ```
+
+Root có đúng 10 thư mục. Các package trong `research/` import nhau bằng tên
+tuyệt đối (`from datagen.x import y`) nên đường dẫn file không khớp tên module —
+cố ý, đổi lại thì phải sửa ~40 dòng import. `pyproject.toml` đã có
+`pythonpath = ["src", "research"]`; `tasks.sh` tự export `PYTHONPATH`. Chạy tay
+thì cần `PYTHONPATH=src:research`.
+
+### Chạy cái gì bằng lệnh nào
+
+`tasks.sh` là cửa chính trên bash/WSL; các `.ps1` là cửa tương đương trên
+Windows thuần. Chúng không phải bản sao thừa của nhau — chọn theo shell bạn dùng.
+
+| Việc | bash / WSL | Windows |
+|---|---|---|
+| Chạy cả hệ thống | `./tasks.sh run-all` | `scripts/RUN.ps1` |
+| Build knowledge base | `./tasks.sh build-kb` | `scripts/KB.ps1` |
+| Test | `./tasks.sh test` | `pytest` |
+| Sinh dữ liệu fine-tune | `python -m datagen.main` | `datagen/RUN.bat` |
+| Biểu đồ dataset | `./tasks.sh visualize` | — |
+| Eval đầy đủ | `./tasks.sh eval` | `evaluation/e2e.ps1` |
+| Ablation | — | `ablation/run_all.ps1` |
+| Tunnel tới Ollama trên RunPod | — | `scripts/runpod.ps1` |
+| Đóng gói bàn giao Docker | — | `scripts/prepare_docker_bundle.ps1` |
+
+`./tasks.sh help` liệt kê đủ 26 lệnh con.
 
 ## Chạy trọn bộ bằng Docker — khuyến nghị để bàn giao
 

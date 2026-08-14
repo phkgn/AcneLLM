@@ -36,10 +36,10 @@ Các file model bị `.gitignore`; clone Git đơn thuần không có chúng. Tr
 project hoặc chạy trên máy mới, phải có:
 
 ```text
-model/V2/Q4/Modelfile
-model/V2/Q4/Qwen2.5-7B-Instruct.Q4_K_M.gguf
-model/acne_intake_release/Modelfile
-model/acne_intake_release/Qwen2.5-3B-Instruct.Q4_K_M.gguf
+model/generator/Modelfile.full
+model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf
+model/intaker/Modelfile
+model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf
 ```
 
 RAG cần nguyên thư mục, không chỉ riêng file SQLite:
@@ -52,8 +52,8 @@ data/intent_classify.train.jsonl
 data/intent_router_index.npz
 ```
 
-`scripts/check_docker_assets.ps1` sẽ chặn sớm nếu GGUF chỉ là Git LFS pointer,
-Chroma thiếu vector segment, Docker chưa được cài hoặc Compose không hợp lệ.
+`docker/ollama-init.sh` dừng ngay với thông báo rõ ràng nếu thiếu GGUF hoặc
+Modelfile; `prepare_docker_bundle.ps1` chặn sớm nếu thiếu Chroma segment.
 
 ## 3. Tạo cấu hình
 
@@ -87,14 +87,6 @@ Không gửi `.env` gốc vì có thể chứa API key judge/datagen. Bundle Doc
 `.env.docker`.
 
 ## 4. Preflight
-
-Windows:
-
-```powershell
-.\scripts\check_docker_assets.ps1
-```
-
-Linux/macOS có thể kiểm Compose trực tiếp:
 
 ```bash
 docker compose --env-file .env.docker config --quiet

@@ -1,6 +1,15 @@
 # Kế hoạch dọn cấu trúc thư mục (top-level)
 
-Trạng thái: **plan, chưa thực hiện**. Mọi lệnh dưới đây chỉ chạy sau khi bạn duyệt.
+Trạng thái: **Đợt 0, 1, 2 ĐÃ THỰC HIỆN (2026-08-14). Đợt 3 làm một phần.**
+
+- Đợt 0-1: xong — `research/{dashboards,dataset_viz,notebooks}`, docs đã tách archive/reports.
+- Đợt 2: xong — `datagen/`, `evaluation/`, `ablation/`, `LLMData/`, `guideline_docs/`
+  đã vào `research/`; `pythonpath = ["src", "research"]`; 52 tham chiếu đường dẫn
+  và 24 `parents[N]` đã sửa. Kiểm chứng: `research/evaluation/tests` cho kết quả
+  y hệt tree gốc (8 failed / 115 passed / 3 skipped — 8 lỗi đó có từ trước).
+- Đợt 3: README đã có cây thư mục + bảng entrypoint. `docs/archive/README.md` chưa viết.
+
+Root: 20 thư mục → **10**. Giữ tài liệu này làm bản ghi quyết định.
 
 ---
 

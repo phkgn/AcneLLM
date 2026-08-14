@@ -1,5 +1,11 @@
 # Config reference — 70 field / 15 env key
 
+> **Kiểm lại 2026-08-14:** `Settings.model_fields` hiện có **73 field**.
+> Con số trong tài liệu này đã lệch. Nguồn sự thật là `src/acne_llm/config.py`;
+> tài liệu chỉ để giải thích *ý nghĩa* field, không phải để đếm.
+> (`docs/CONFIG_MAP.md` nói 85 field — lệch nhiều nhất nên đã chuyển vào `docs/archive/`.)
+
+
 Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị trong
 `.env` có thể override field tương ứng; bảng dưới ghi default trong code.
 
