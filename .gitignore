@@ -7,8 +7,8 @@ venv/
 *.egg-info/
 dist/
 build/
-!visualization/build/
-!visualization/build/**
+!research/dashboards/build/
+!research/dashboards/build/**
 
 frontend/node_modules/
 frontend/.next/
@@ -60,11 +60,11 @@ acnellm_pipeline.html
 acnellm_trace.html
 
 *.ipynb_checkpoints/
-notebooks/*.ipynb
-visualize/*.ipynb
-visualize/*.png
-visualize/report.html
-visualize/notebook_outputs/
+research/notebooks/*.ipynb
+research/dataset_viz/*.ipynb
+research/dataset_viz/*.png
+research/dataset_viz/report.html
+research/dataset_viz/notebook_outputs/
 
 .vscode/
 .idea/
@@ -95,3 +95,10 @@ data/sessions.db
 #   python -m datagen.roledatav2.finalize
 # Giữ CODE của datagen, bỏ OUTPUT.
 datagen/*/output/
+
+# Archive nhi phan khong duoc nam trong package
+*.rar
+*.7z
+
+# Rac cua FUSE mount
+.fuse_hidden*
