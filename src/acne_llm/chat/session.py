@@ -629,7 +629,18 @@ def fold_history_facts(
     merged_clinical = AcneClinicalInput(
         lesion_types=_dedupe_values(lesion_types),  # type: ignore[arg-type]
         lesion_distribution=_dedupe_values(distribution),  # type: ignore[arg-type]
-        inflammation_level=inflammation,
+        # `inflammation` la None khi current.clinical is None VA khong snapshot
+        # nao co inflammation_level. Truong nay la Literal khong nhan None ->
+        # ValidationError -> 500 giua stream.
+        #
+        # To hop do co that: intaker khai bao ro "khong co bat ky tin hieu lam
+        # sang nao thi clinical=null", va UserInput.clinical default cung la
+        # None. Hai luot personal-case lien tiep deu khong co tin hieu lam sang
+        # la du. Xem tests/test_session_fold_branches.py.
+        #
+        # None van la sentinel dung TRONG luc fold (_max_severity dua vao no de
+        # khong ha cap severity), nen va o cho dung: luc dung object.
+        inflammation_level=inflammation or "unknown",
         scarring_signs=_dedupe_values(scarring),
         medication_history=_dedupe_values(med_history),
         hormonal_factors=_dedupe_values(hormonal),
