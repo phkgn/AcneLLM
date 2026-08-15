@@ -15,7 +15,6 @@ from __future__ import annotations
 from ...schemas import AcneClinicalInput, UserContext, UserInput
 from .models import ConversationTurn, NormalizedSnapshot
 
-
 _STOP_PRODUCT_TERMS = (
     "ngưng", "ngừng", "dừng", "không dùng", "khong dung", "bỏ",
     "không phải", "khong phai", "nói nhầm", "noi nham",
@@ -211,13 +210,12 @@ def fold_history_facts(
         #   "chi toi khong mang thai, con em thi co" -> is_pregnant = False
         # Trang thai thai ky gio chi den tu intaker. Fail-safe la GIU True:
         # rule khong bao gio duoc tu ha xuong False.
-        if not _current_mentions_pregnant:
-            if ctx.get("is_pregnant") and not is_pregnant:
-                is_pregnant = True
+        # if long ra la tan du cua nhanh `elif` da xoa -- gop lai cho ro y.
+        if not _current_mentions_pregnant and ctx.get("is_pregnant") and not is_pregnant:
+            is_pregnant = True
 
-        if not _current_mentions_breastfeed:
-            if ctx.get("is_breastfeeding") and not is_breastfeeding:
-                is_breastfeeding = True
+        if not _current_mentions_breastfeed and ctx.get("is_breastfeeding") and not is_breastfeeding:
+            is_breastfeeding = True
 
         allergies.extend(ctx.get("allergies") or [])
         products = [value for value in products if not _mentions_stop(clean, value)]

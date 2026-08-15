@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from .session import ConversationTurn, get_session_store
+from .session import ConversationTurn
 from ._retrieval import compute_evidence_quality, source_data
 from .orchestrator import prepare_chat_turn
 from ._safety import get_safety_suffix
@@ -166,8 +166,7 @@ def stream_chat_sse(
             and _supports_keyword(c.llm.stream_text, "num_predict")
         ):
             stream_kwargs["num_predict"] = _stream_num_predict
-        import re as _re
-        _CJK_RE = _re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
+        _CJK_RE = re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
         _cjk_total = 0
 
         stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)

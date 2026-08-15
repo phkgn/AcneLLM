@@ -26,7 +26,6 @@ from .models import (
     Session,
 )
 
-
 # ── Store ────────────────────────────────────────────────────────────────────
 
 class SessionStore:

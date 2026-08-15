@@ -10,7 +10,7 @@ from dataclasses import dataclass, field, replace
 import time
 from typing import TYPE_CHECKING, Literal
 
-from ..schemas import AcneClinicalInput, AdviseOutput, UserInput
+from ..schemas import AdviseOutput, UserInput
 from ._terms import CASE_INTAKE_TERMS
 from .routing.intent_router import RouteDecision, compute_route_flags, route_intent
 from .routing.llm_extractor import ExtractorFallback
@@ -27,7 +27,6 @@ from .session import (
     NormalizedSnapshot,
     build_confirmed_profile,
     fold_history_facts,
-    get_session_store,
     select_relevant_history,
     snapshot_from_user,
 )

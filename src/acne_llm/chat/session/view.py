@@ -13,7 +13,6 @@ va view -> models. Khong co chieu nguoc lai.
 """
 from __future__ import annotations
 
-from ...schemas import UserInput
 from .fold import _mentions_stop
 from .models import HISTORY_CHAR_BUDGET, HISTORY_WINDOW_TURNS, ConversationTurn
 
