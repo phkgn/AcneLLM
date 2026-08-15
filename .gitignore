@@ -102,3 +102,6 @@ datagen/*/output/
 
 # Rac cua FUSE mount
 .fuse_hidden*
+
+.coverage
+htmlcov/
