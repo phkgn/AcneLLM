@@ -1,262 +1,42 @@
-"""Conversation session store for multi-turn chat memory.
+"""Bo nho hoi thoai nhieu luot.
 
-Design goals:
-- Zero external dependency: in-memory only (dict + threading.Lock).
-- Backward-compatible: session_id=None → all calls are no-ops, behavior
-  identical to before this module existed.
-- Lightweight: only plain dataclasses, no Pydantic, no DB.
-- TTL-based expiry: sessions idle > SESSION_TTL seconds are dropped lazily
-  on the next read/write to that session.
-- Thread-safe: a single RLock guards all mutations.
+Package nay duoc tach tu mot file 714 dong o Phase 7. Bon nhom ben trong thay
+doi vi bon ly do khac nhau, nen chung o bon file khac nhau:
 
-Usage in runtime.py:
-    store = get_session_store()          # module-level singleton
-    history = store.get_history(sid)     # list[ConversationTurn], may be []
-    store.append_turn(sid, turn)
+    models.py   kieu du lieu + hang so        gan nhu khong doi
+    memory.py   SessionStore in-memory        doi khi vong doi phien doi
+    (con lai o day, se tach tiep)             fold + render prompt
+
+Moi ten cu van export lai o day, nen khong cho goi nao phai sua import.
 """
 from __future__ import annotations
 
-import threading
 import time
 from dataclasses import dataclass, field
 from typing import Literal
 
-from ..schemas import AcneClinicalInput, UserContext, UserInput
+from ...schemas import AcneClinicalInput, UserContext, UserInput
+from .models import (
+    HISTORY_CHAR_BUDGET,
+    HISTORY_WINDOW_TURNS,
+    MAX_HISTORY_TURNS,
+    SESSION_SCHEMA_VERSION,
+    SESSION_TTL,
+    ConversationTurn,
+    NormalizedSnapshot,
+    Session,
+)
+from .memory import SessionStore, get_session_store
 
+__all__ = [
+    "HISTORY_CHAR_BUDGET", "HISTORY_WINDOW_TURNS", "MAX_HISTORY_TURNS",
+    "SESSION_SCHEMA_VERSION", "SESSION_TTL", "CONTEXT_FIELD_THRESHOLD",
+    "ConversationTurn", "NormalizedSnapshot", "Session",
+    "SessionStore", "get_session_store",
+    "select_relevant_history", "build_confirmed_profile",
+    "snapshot_from_user", "fold_history_facts", "format_history_block",
+]
 
-
-# ── Constants ────────────────────────────────────────────────────────────────
-
-SESSION_TTL: float = 1800.0        # seconds idle before session expires
-MAX_HISTORY_TURNS: int = 6         # keep last N turns (0 = unlimited)
-SESSION_SCHEMA_VERSION: int = 2
-# Nguồn sự thật duy nhất cho ngân sách ký tự lịch sử.
-HISTORY_CHAR_BUDGET: int = 2000    # ~570 tokens; prompt thực đo được 828 tokens / ctx 3072
-
-# Nguồn sự thật duy nhất cho cửa sổ lịch sử đưa vào prompt.
-HISTORY_WINDOW_TURNS: int = 6      # 3 lượt hỏi-đáp; budget chars mới là giới hạn thật
-
-
-# ── Data classes ─────────────────────────────────────────────────────────────
-
-@dataclass
-class NormalizedSnapshot:
-    """Structured facts extracted from one user turn.
-
-    Stored beside the raw/clean turn text so later turns can fold memory
-    without re-running regex normalization over the whole history.
-    """
-    context: dict = field(default_factory=dict)
-    clinical: dict = field(default_factory=dict)
-    clean_text: str = ""
-
-
-@dataclass
-class ConversationTurn:
-    role: Literal["user", "assistant"]
-    content: str                            # raw text of the turn
-    timestamp: float = field(default_factory=time.time)
-    mode: str = "hybrid"                    # pipeline mode that produced this turn
-    used_chunks: list[str] = field(default_factory=list)
-    normalized_snapshot: NormalizedSnapshot | None = None
-    metadata: dict = field(default_factory=dict)
-    # ponytail: intent_label / intent_confidence / turn_type da bi xoa. Chung chi
-    # duoc GHI (boi SessionStore in-memory) va khong dong nao doc ra -- ban SQLite
-    # con khong khoi phuc chung khi doc, nen hai store lech nhau ma khong ai biet.
-    # Du lieu intent van con nguyen trong `metadata`.
-
-
-@dataclass
-class Session:
-    session_id: str
-    turns: list[ConversationTurn] = field(default_factory=list)
-    created_at: float = field(default_factory=time.time)
-    last_active: float = field(default_factory=time.time)
-    # Accumulated user context across turns (age, skin_type, etc.)
-    # Populated by callers; never overwritten, only merged.
-    user_context: dict = field(default_factory=dict)
-    # Tracks which follow-up fields have already been asked to avoid repeating.
-    # e.g. {"lesion_types", "distribution", "duration_weeks"}
-    asked_fields: set = field(default_factory=set)
-    # ── Session-level intent tracking (task #6) ──────────────────────────────
-    total_clarify_count: int = 0    # số lần bot hỏi clarify trong session này
-    accumulated_clinical_score: float = 0.0  # tổng score completeness tích lũy
-    schema_version: int = SESSION_SCHEMA_VERSION
-
-    def is_expired(self, ttl: float = SESSION_TTL) -> bool:
-        return (time.time() - self.last_active) > ttl
-
-    def touch(self) -> None:
-        self.last_active = time.time()
-
-
-# ── Store ────────────────────────────────────────────────────────────────────
-
-class SessionStore:
-    """Thread-safe in-memory session store.
-
-    All public methods are no-ops when session_id is None or empty, which
-    preserves the pre-history behavior of the chat pipeline exactly.
-    """
-
-    def __init__(
-        self,
-        ttl: float = SESSION_TTL,
-        max_turns: int = MAX_HISTORY_TURNS,
-    ) -> None:
-        self._sessions: dict[str, Session] = {}
-        self._lock = threading.RLock()
-        self.ttl = ttl
-        self.max_turns = max_turns
-
-    # ── Internal helpers ─────────────────────────────────────────────────────
-
-    def _is_valid_sid(self, session_id: str | None) -> bool:
-        return bool(session_id and session_id.strip())
-
-    def _expire_if_stale(self, session_id: str) -> bool:
-        """Remove session if TTL exceeded. Returns True if removed."""
-        sess = self._sessions.get(session_id)
-        if sess is not None and sess.is_expired(self.ttl):
-            del self._sessions[session_id]
-            return True
-        return False
-
-    # ── Public API ────────────────────────────────────────────────────────────
-
-    def get_or_create(self, session_id: str | None) -> Session | None:
-        """Return existing session (if live) or create a new one.
-
-        Returns None when session_id is falsy.
-        """
-        if not self._is_valid_sid(session_id):
-            return None
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            self._expire_if_stale(sid)
-            if sid not in self._sessions:
-                self._sessions[sid] = Session(session_id=sid)
-            sess = self._sessions[sid]
-            sess.touch()
-            return sess
-
-    def get_history(self, session_id: str | None) -> list[ConversationTurn]:
-        """Return the last max_turns turns for this session, oldest first.
-
-        Returns [] when session_id is falsy or session does not exist / expired.
-        """
-        if not self._is_valid_sid(session_id):
-            return []
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            self._expire_if_stale(sid)
-            sess = self._sessions.get(sid)
-            if sess is None:
-                return []
-            sess.touch()
-            if self.max_turns and self.max_turns > 0:
-                return list(sess.turns[-self.max_turns :])
-            return list(sess.turns)
-
-    def append_turn(
-        self,
-        session_id: str | None,
-        turn: ConversationTurn,
-    ) -> None:
-        """Append a turn to the session's history.
-
-        No-op when session_id is falsy.
-        """
-        if not self._is_valid_sid(session_id):
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            self._expire_if_stale(sid)
-            if sid not in self._sessions:
-                self._sessions[sid] = Session(session_id=sid)
-            sess = self._sessions[sid]
-
-            if turn.role == "assistant" and turn.mode == "clarify":
-                sess.total_clarify_count += 1
-
-            sess.turns.append(turn)
-            # Keep only the last max_turns when an explicit bound is configured.
-            if self.max_turns and self.max_turns > 0 and len(sess.turns) > self.max_turns:
-                sess.turns = sess.turns[-self.max_turns :]
-            sess.touch()
-
-    def merge_user_context(
-        self,
-        session_id: str | None,
-        context: dict,
-    ) -> None:
-        """Update confirmed profile with latest explicit values."""
-        if not self._is_valid_sid(session_id) or not context:
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            sess = self._sessions.get(sid)
-            if sess is None:
-                return
-            for k, v in context.items():
-                if v is not None:
-                    sess.user_context[k] = v
-
-    def get_user_context(self, session_id: str | None) -> dict:
-        """Return accumulated user context for session. Returns {} if not found."""
-        if not self._is_valid_sid(session_id):
-            return {}
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            sess = self._sessions.get(sid)
-            return dict(sess.user_context) if sess else {}
-
-    # ponytail: get_asked_fields / mark_fields_asked da bi xoa. Co che "dung hoi
-    # lai field da hoi" bi go o runtime.py -- model doc duoc luot truoc no da hoi
-    # gi. Cot `asked_fields` van con trong schema SQLite (DEFAULT '[]'), khong ton gi.
-
-    def increment_followup_count(self, session_id: str | None, amount: float = 1.0) -> None:
-        """Increment accumulated follow-up/progress score for this session."""
-        if not self._is_valid_sid(session_id):
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            sess = self._sessions.get(sid)
-            if sess is not None:
-                sess.accumulated_clinical_score += float(amount)
-
-    def delete(self, session_id: str | None) -> None:
-        """Explicitly remove a session (e.g. on user logout)."""
-        if not self._is_valid_sid(session_id):
-            return
-        sid = session_id.strip()  # type: ignore[union-attr]
-        with self._lock:
-            self._sessions.pop(sid, None)
-
-    def active_count(self) -> int:
-        """Return number of non-expired sessions (for metrics/debug)."""
-        with self._lock:
-            now = time.time()
-            return sum(
-                1 for s in self._sessions.values()
-                if (now - s.last_active) <= self.ttl
-            )
-
-
-# ── Module-level singleton ────────────────────────────────────────────────────
-
-_store: SessionStore | None = None
-_store_lock = threading.Lock()
-
-
-def get_session_store() -> SessionStore:
-    """Return the process-wide SessionStore singleton (lazy init)."""
-    global _store
-    if _store is None:
-        with _store_lock:
-            if _store is None:
-                _store = SessionStore()
-    return _store
 
 
 
