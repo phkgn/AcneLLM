@@ -105,3 +105,6 @@ datagen/*/output/
 
 .coverage
 htmlcov/
+
+# ket qua A/B chay tay, luu vao research/ablation/runs/ neu can giu
+outputs_ab_*.txt

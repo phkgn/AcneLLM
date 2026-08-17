@@ -41,7 +41,6 @@ data/  model/     artifact sinh ra — chroma, bm25, sqlite, GGUF
 research/         NGOẠI TUYẾN — không thứ gì trong đây phục vụ một request
   evaluation/       chấm điểm hệ thống
   datagen/          sinh dữ liệu fine-tune (import lẫn nhau với evaluation)
-  ablation/         so sánh các arm cấu hình
   LLMData/          dataset thô
   guideline_docs/   PDF guideline gốc
   dashboards/       dashboard HTML + sơ đồ kiến trúc (trước là visualization/)
@@ -71,7 +70,6 @@ Windows thuần. Chúng không phải bản sao thừa của nhau — chọn the
 | Sinh dữ liệu fine-tune | `python -m datagen.main` | `datagen/RUN.bat` |
 | Biểu đồ dataset | `./tasks.sh visualize` | — |
 | Eval đầy đủ | `./tasks.sh eval` | `evaluation/e2e.ps1` |
-| Ablation | — | `ablation/run_all.ps1` |
 | Tunnel tới Ollama trên RunPod | — | `scripts/runpod.ps1` |
 | Đóng gói bàn giao Docker | — | `scripts/prepare_docker_bundle.ps1` |
 

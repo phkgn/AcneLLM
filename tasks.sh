@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # research/ khong nam tren sys.path mac dinh; cac package offline trong do
-# (datagen, evaluation, ablation, LLMData) import nhau bang ten tuyet doi.
+# (datagen, evaluation, LLMData) import nhau bang ten tuyet doi.
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/research"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

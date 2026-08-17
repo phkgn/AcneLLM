@@ -12,7 +12,10 @@ copy nó; `docker-compose` không mount nó.
 Hai cái tên `visualization/` và `visualize/` cũ đứng cạnh nhau ở root và không
 nói lên chúng khác nhau ở chỗ nào. Đổi tên khi chuyển, xem `docs/CLEANUP_PLAN.md`.
 
-Các package offline còn lại (`datagen/`, `evaluation/`, `ablation/`, `LLMData/`,
-`guideline_docs/`) **chưa** chuyển vào đây — chúng import chéo nhau bằng tên
-tuyệt đối nên cần thêm `research` vào `PYTHONPATH` trước. Xem Đợt 2 trong
-`docs/CLEANUP_PLAN.md`.
+Các package offline còn lại (`datagen/`, `evaluation/`, `LLMData/`,
+`guideline_docs/`) cũng đã nằm ở đây — chúng import chéo nhau bằng tên tuyệt đối
+nên `research` phải có trong `PYTHONPATH` (`pyproject.toml` và `tasks.sh` đã lo).
+
+`ablation/` (oracle-substitution eval, 2³ factorial + Shapley) đã bị **xoá**: không
+file nào ngoài nó import nó, nó chưa từng có `data/cases.jsonl`, và khâu ablation
+đang dùng thật là `evaluation/runners/run_ablation.py`.

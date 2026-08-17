@@ -81,9 +81,9 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 )
 
 
-DEFAULT_DATASET = Path("evaluation/datasets/eval_set.v3.jsonl")
-DEFAULT_OUTPUT = Path("evaluation/reports/ablation/results.json")
-GENERATOR_SYSTEM_PROMPT_PATH = ROOT / "model" / "system_prompt.canonical.txt"
+DEFAULT_DATASET = ROOT / "research/evaluation/datasets/eval_set.v3.jsonl"
+DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/ablation/results.json"
+GENERATOR_SYSTEM_PROMPT_PATH = ROOT / "model" / "legacy" / "system_prompt.canonical.txt"
 ARM_Y_PROVIDER = "deepseek"
 ARM_Y_MODEL = "deepseek-v4-pro"   # arm Y = "generator API MẠNH"; dùng flash ở đây
                                   # là arm mất nghĩa, nên nó không theo mặc định flash

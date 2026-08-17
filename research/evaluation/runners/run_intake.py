@@ -52,9 +52,9 @@ from evaluation.metrics.intake import (  # noqa: E402
 # Bộ cũ `intake.val.jsonl` bị bỏ vì có 0 dòng `is_pregnant=True` trên 400 dòng —
 # field quyết định chống chỉ định isotretinoin mà chưa từng được kiểm. Sinh bằng
 # `python -m evaluation.datasets.make_intake_set --yes`.
-DEFAULT_EVAL = Path("evaluation/datasets/intake_eval.v1.jsonl")
-DEFAULT_TRAIN = Path("datagen/intakedata/output/intake/intake.train.jsonl")
-DEFAULT_OUTPUT = Path("evaluation/reports/intake_eval/report.json")
+DEFAULT_EVAL = ROOT / "research/evaluation/datasets/intake_eval.v1.jsonl"
+DEFAULT_TRAIN = ROOT / "research/datagen/intakedata/output/intake/intake.train.jsonl"
+DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/intake_eval/report.json"
 CONTEXT_SCALARS = (
     "age",
     "sex",
