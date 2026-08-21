@@ -21,8 +21,26 @@ import argparse
 import json
 
 from ..config import Config
+from ...roledata.finalize import export as _export_module
 from ...roledata.finalize.export import export
-from ...roledata.finalize.split import split
+from ..gates import anchor_variants
+from .split import split
+
+
+def _system_ok_v2(system: str, anchor: str) -> bool:
+    """Chấp nhận BẤT KỲ biến thể anchor đã đăng ký, không chỉ biến thể A.
+
+    v2 rải ba biến thể theo lịch (~50/25/25) để model học LUẬT thay vì học chuỗi.
+    Phép so một-chuỗi của v1 làm export chết ở bản ghi mang biến thể B hoặc C —
+    cùng lỗi đã gặp ở `run_pipeline` khi resume. Vẫn là parity chặt: phải trùng
+    đúng một trong ba chuỗi đã đăng ký, không phải "gần giống".
+    """
+    variants = anchor_variants()
+    return system == anchor or (bool(variants) and system in variants)
+
+
+# Vá TRƯỚC khi gọi `export()`; nó đọc `_system_ok` từ namespace của module.
+_export_module._system_ok = _system_ok_v2
 
 
 def main(argv: list[str] | None = None) -> int:

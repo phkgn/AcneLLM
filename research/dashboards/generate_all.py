@@ -726,7 +726,7 @@ def generate_generator() -> dict:
 
 
 def generate_evaluation(kb: dict) -> dict:
-    eval_dataset_path = ROOT / "research/evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+    eval_dataset_path = ROOT / "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
     run_root = ROOT / "research/evaluation/reports/run_full_v3_2"
     run_summary_path = run_root / "summary.json"
     intake_path = run_root / "intake/report.json"
@@ -1263,7 +1263,7 @@ def generate_overview(stats: dict) -> None:
     sources = [ROOT / "data/raw/chunks.jsonl", ROOT / "data/raw/documents.jsonl",
                ROOT / "research/datagen/intakedata/output/intake/intake.records.jsonl",
                ROOT / "research/datagen/roledata/output/roledata.train.jsonl",
-               ROOT / "research/evaluation/datasets/generated_v3_2/eval_set.v3.jsonl",
+               ROOT / "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl",
                ROOT / "research/evaluation/reports/run_full_v3_2/ablation/results.json"]
     save_figure(fig, "_overview", "01_artifact_scale.png", "Quy mô các artifact chính", sources)
 

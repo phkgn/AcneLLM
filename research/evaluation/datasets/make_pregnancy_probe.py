@@ -25,7 +25,8 @@ CHẠY
 ----
     python -m evaluation.datasets.make_pregnancy_probe
     python -m evaluation.runners.run_intake \\
-        --eval evaluation/datasets/intake_pregnancy_probe.jsonl
+        --dataset research/evaluation/datasets/extra/intake_pregnancy_probe_41.jsonl \\
+        --output research/evaluation/reports/pregnancy_probe/report.json
 
 Nhìn `context.is_pregnant`: `accuracy_khi_co_khai` và `bo_trong`. Bỏ sót một ca
 mang thai thật (gold True, pred null/False) là hướng hỏng nguy hiểm; nhận nhầm
@@ -39,7 +40,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 SYSTEM = (ROOT / "research/datagen/intakedata/system_prompt.canonical.txt").read_text(encoding="utf-8")
-OUT = ROOT / "research/evaluation/datasets/intake_pregnancy_probe.jsonl"
+OUT = ROOT / "research/evaluation/datasets/extra/intake_pregnancy_probe_41.jsonl"
 
 # (câu, is_pregnant kỳ vọng, is_breastfeeding kỳ vọng, nhóm)
 #   True  -> đang mang thai / cho bú

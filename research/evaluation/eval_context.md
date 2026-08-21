@@ -165,7 +165,14 @@ Hội thoại 1 lượt + payload JSON vàng. Đúng 1 message `user`, message
 
 ### Khâu 2 & 3 — retrieval và ablation
 
-`evaluation/datasets/eval_set.v3.jsonl` · **197 dòng, đã sinh**
+`evaluation/datasets/generated_v3_2/eval_set.v3.jsonl` · **145 dòng, đã sinh** — bộ CHÍNH THỨC từ 2026-08-20, mặc định của cả ba runner.
+
+> Bản 195 dòng trước đây ở `datasets/eval_set.v3.jsonl` đã chuyển sang
+> `datasets/archive/generator_eval.v3_1_195.jsonl`. Nó là một pool câu hỏi KHÁC hẳn —
+> 0 câu trùng văn bản với bộ chính thức, dù trùng nhiều `sample_id` (id gán theo
+> chỉ số sinh nên va nhau giữa các thế hệ). Artifact cũ chạy trên nó
+> (`full_eval_1`, `full_eval_part2`, `v2_round2`) KHÔNG so được với artifact chạy
+> trên bộ chính thức (`run_full_v3_2`, `v1_round1`).
 
 ```json
 {

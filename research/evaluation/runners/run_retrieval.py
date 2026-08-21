@@ -44,9 +44,9 @@ from evaluation.common import utcnow  # noqa: E402
 from evaluation.judges import context as context_judge  # noqa: E402
 from evaluation.judges.clients import JudgeClient  # noqa: E402
 
-DEFAULT_DATASET = ROOT / "research/evaluation/datasets/eval_set.v3.jsonl"
+DEFAULT_DATASET = ROOT / "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
 DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/rag/results.json"
-DEFAULT_JUDGE = "deepseek-v4-pro"
+DEFAULT_JUDGE = "gpt-5.6-luna"
 
 
 def _fmt(v: Any, pct: bool = False) -> str:

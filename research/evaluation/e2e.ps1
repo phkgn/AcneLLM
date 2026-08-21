@@ -23,10 +23,10 @@ $RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 
 Push-Location $RepoRoot
 try {
-    $IntakeDataset = "evaluation/datasets/intake_eval.v2.jsonl"
-    $GeneratorDataset = "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+    $IntakeDataset = "evaluation/datasets/active/intake_eval.v2_1500.jsonl"
+    $GeneratorDataset = "evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
     $IntakeReport = "$RunOut/intake/report.json"
-    $IntakePartial = "evaluation/datasets/intake_eval.v2.partial.jsonl"
+    $IntakePartial = "evaluation/datasets/active/intake_eval.v2_1500.partial.jsonl"
     $IntakeStdoutLog = "evaluation/reports/intake_v2_no_train_cosine.stdout.log"
     $IntakeStderrLog = "evaluation/reports/intake_v2_no_train_cosine.stderr.log"
     $E2ELog = "$RunOut/e2e.console.log"

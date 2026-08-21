@@ -5,6 +5,7 @@ bắt được lỗi "tài liệu không lọt vào messages" — chính là l�
 """
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from ..generator import CaseSpec, load_taxonomy, to_record
@@ -23,6 +24,69 @@ CONTEXT = [
         ),
     }
 ]
+
+
+def seed_skeleton(
+    cfg,
+    case: CaseSpec,
+    ordinal: int,
+    smoke: bool,
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Ghi sườn phase 1 cho `payload` kiểu cũ, trả lại payload phase 2.
+
+    Đường ống giờ có hai chặng, nên test cũng phải đi qua hai chặng. Hàm này nhận
+    payload một-phase kiểu cũ (`user` + `assistant` + `points`), tách phần đề bài
+    ra file sườn và trả lại đúng phần mà teacher phase 2 được phép sinh. Nhờ vậy
+    test cũ chỉ phải thêm một dòng thay vì viết lại.
+
+    Trả về `{"assistant": ...}` hoặc `{"assistant_turns": [...]}` cho R9.
+    """
+    from ..generator import sample_len_target
+    from ..pipeline import _skeletons_cached, impl
+
+    record_id = impl._record_id(case.id, ordinal, smoke)
+    context, sources, context_meta = impl.synthesize_context(case, cfg, sequence=ordinal - 1)
+    turns = payload.get("turns")
+    if turns is not None:
+        user_turns = [t["content"] for t in turns if t["role"] == "user"]
+        replies = [t["content"] for t in turns if t["role"] == "assistant"]
+        user_value, phase2 = None, {"assistant_turns": replies}
+    else:
+        user_turns = None
+        user_value = payload.get("user")
+        phase2 = {"assistant": payload.get("assistant")}
+
+    skeleton = {
+        "record_id": record_id,
+        "case_id": case.id,
+        "ordinal": ordinal,
+        "user": user_value,
+        "user_turns": user_turns,
+        "points": [str(item) for item in (payload.get("points") or [])],
+        "input_style": payload.get("input_style", "standard"),
+        "audience": payload.get("audience", "general"),
+        "synthetic_context": context,
+        "synthetic_context_sources": sources,
+        "context_meta": context_meta,
+        "len_target": sample_len_target(case.id, ordinal, case.len_chars),
+        "last_turn_len_target": (
+            sample_len_target(f"{case.id}:last", ordinal, case.last_turn_len_chars)
+            if case.last_turn_len_chars
+            else None
+        ),
+        "opening_move": "vao_thang",
+        "opening_move_text": "Vào thẳng việc cần làm, không câu dẫn.",
+        "anchor_variant": 0,
+        "gen_model": "test-phase1",
+    }
+    path = cfg.skeleton_smoke_path if smoke else cfg.skeleton_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(skeleton, ensure_ascii=False) + "\n")
+    # Chỉ mục sườn có cache; không xoá thì test ghi file sau lần đọc đầu sẽ thấy rỗng.
+    _skeletons_cached.cache_clear()
+    return phase2
 
 
 def case_by_id(case_id: str) -> CaseSpec:

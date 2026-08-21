@@ -74,7 +74,7 @@ from datagen.intakedata.generator import (  # noqa: E402
 from datagen.intakedata.writer import iter_jsonl, write_jsonl  # noqa: E402
 from evaluation.severity import LEVELS  # noqa: E402
 
-OUT_DEFAULT = ROOT / "research/evaluation/datasets/intake_eval.v1.jsonl"
+OUT_DEFAULT = ROOT / "research/evaluation/datasets/extra/intake_eval.v1_353.jsonl"
 ANY = object()          # "field này phải KHÁC RỖNG", không quan tâm giá trị nào
 
 RICH = "advise_selfreport_rich"

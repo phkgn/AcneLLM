@@ -35,7 +35,7 @@ from evaluation.runners.run_ablation import DEFAULT_ARMS  # noqa: E402
 PY = sys.executable
 # v3: nhãn suy từ Modelfile, khử trùng bằng ngữ nghĩa. Bộ v2 gán sai 15 ca
 # reject nên mọi kết quả cũ đo nhầm chuyện — xem eval_context.md §2.
-DATASET = "evaluation/datasets/eval_set.v3.jsonl"
+DATASET = "evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
 
 STEP_DEFINITIONS = (
     ("preflight", "Kiểm tra môi trường"),

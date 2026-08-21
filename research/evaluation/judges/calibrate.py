@@ -117,6 +117,15 @@ def collect_judged(results_path: Path) -> list[dict[str, Any]]:
                     "sample_id": str(item.get("sample_id") or ""),
                     "query": str(item.get("user_query") or ""),
                     "answer": str(item.get("answer") or ""),
+                    # BẮT BUỘC: judge được đưa hai danh sách này trong
+                    # run_ablation._judge_prompt. Người chấm không có chúng thì
+                    # đang trả lời câu hỏi KHÁC — "đọc thấy đủ chưa" thay vì
+                    # "thiếu ý nào trong danh sách". κ đo được lúc đó là độ lệch
+                    # THÔNG TIN ĐẦU VÀO, không phải chất lượng judge.
+                    # Đo thật 2026-08-19 khi còn thiếu: missing_content lệch
+                    # -1.133 bậc, κ 0.063.
+                    "expected_answer_points": item.get("expected_answer_points") or [],
+                    "forbidden_claims": item.get("forbidden_claims") or [],
                     "judge": judged,
                 }
             )
@@ -175,6 +184,8 @@ def export_sheet(
         {
             "row_id": index,
             "query": row["query"],
+            "expected_answer_points": row.get("expected_answer_points") or [],
+            "forbidden_claims": row.get("forbidden_claims") or [],
             "answer": row["answer"],
             "rubric": {
                 key: value for key, value in RUBRIC.items()

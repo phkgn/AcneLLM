@@ -47,8 +47,8 @@ from evaluation.datasets.registry import freeze_dir
 CHROMA_DB = ROOT / "data" / "chroma_db" / "chroma.sqlite3"
 OUT_DIR = ROOT / "research/evaluation" / "datasets"
 DATASET_VERSION = "v3.2"
-DEFAULT_GENERATED_OUT = OUT_DIR / "generated_v3_2" / "eval_set.v3.jsonl"
-SMOKE_GENERATED_OUT = OUT_DIR / "generated_v3_2" / "eval_set.smoke.jsonl"
+DEFAULT_GENERATED_OUT = OUT_DIR / "active" / "generator_eval.v3_2_145.jsonl"
+SMOKE_GENERATED_OUT = OUT_DIR / "active" / "generator_eval.v3_2_145.smoke.jsonl"
 DEFAULT_MODEL = "deepseek-v4-pro"
 CHUNKS_PER_CASE = 5          # khớp chat_rerank_top_k = 5 của production
 MIN_CHUNK_CHARS = 300

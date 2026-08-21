@@ -22,10 +22,31 @@ ROLEDATA_V1_ROOT = MODULE_ROOT.parent / "roledata"
 PROJECT_ROOT = MODULE_ROOT.parents[2]
 FULL_TARGET = 3_500
 
-# Anchor đang được Ollama phục vụ (xác nhận bằng sha256 trong trace của run_full_v3_2).
-DEFAULT_ANCHOR_PATH = PROJECT_ROOT / "model" / "legacy" / "Modelfile"
-DEFAULT_CANONICAL_PATH = PROJECT_ROOT / "model" / "legacy" / "system_prompt.canonical.txt"
-EXPECTED_ANCHOR_SHA256 = "722281f002ce584e2c75994ee66e422e691fea453e4cab74ecb1a285b8749c64"
+# Anchor v4. Bản cũ (model/legacy, sha 722281f0) là bản Ollama đang phục vụ và là
+# bản v2 đã sinh 2.763 mẫu; nó bị thay vì GENERATOR_ROOT_CAUSE.md chỉ ra chính nó
+# gây ba trong bốn lỗi ngốn ngân sách câu trả lời (28% mở bằng câu đồng cảm, 22%
+# đóng bằng disclaimer, 29% kết bằng câu hỏi ngược) và không có một chữ nào về độ
+# dài hay cấu trúc — 0/145 câu trả lời có gạch đầu dòng. Lý do từng thay đổi ghi
+# trong header của model/generator/Modelfile.
+_PROMPTS_V4 = PROJECT_ROOT / "model" / "generator" / "prompts"
+DEFAULT_ANCHOR_PATH = PROJECT_ROOT / "model" / "generator" / "Modelfile"
+DEFAULT_CANONICAL_PATH = _PROMPTS_V4 / "system_prompt.v4.a.txt"
+EXPECTED_ANCHOR_SHA256 = "5421f2079acafe303f635ebca33bb5204ab5efde5a0f1324ad10a1cdf73fb5b5"
+
+# Ba biến thể MÃ HOÁ CÙNG MỘT BỘ LUẬT, khác cách hành văn và thứ tự mục.
+#
+# Vì sao cần: toàn bộ 48.705 dòng SFT cũ có ĐÚNG 1 system prompt, và cả 2.763 mẫu
+# v2 cũng vậy (đã kiểm: 1 sha duy nhất). Model học được *chuỗi ký tự* chứ không
+# học *luật*, nên lúc phục vụ bằng một prompt khác thì nó lạc — đúng nguyên nhân
+# A1 trong GENERATOR_ROOT_CAUSE.md. Rải ba biến thể lúc train là cách mua lại
+# quyền sửa system prompt sau khi đã finetune.
+#
+# A luôn là bản đem đi PHỤC VỤ; B và C chỉ tồn tại trong data train.
+ANCHOR_VARIANT_PATHS: tuple[Path, ...] = (
+    DEFAULT_CANONICAL_PATH,
+    _PROMPTS_V4 / "system_prompt.v4.b.txt",
+    _PROMPTS_V4 / "system_prompt.v4.c.txt",
+)
 
 # Ưu tiên nguồn cho case B*/K1, xếp từ tin cậy nhất. Tầng guideline chỉ có 776
 # chunk dùng được nhưng B*+K1 cần 1.320 mẫu, nên lấy hết tầng guideline trước rồi
@@ -40,26 +61,47 @@ KNOWLEDGE_SOURCE_PRIORITY: tuple[str, ...] = (
     "vi_medical_site",
 )
 
+# Quota vòng 2. Đổi lớn nhất: nhóm cần tài liệu (B*/K1) từ 1.570 xuống 660.
+#
+# Căn cứ là ba số trong run_full_v3_2/ASSESSMENT.md, không phải cảm tính:
+#   RRR − RNR = 0.000  — tắt hẳn RAG không làm câu trả lời tệ đi ở bất kỳ mặt nào;
+#   RRO − RNO = −0.16  — NGAY CẢ `gpt-5.6-terra`, model không hề có train/serve
+#                        mismatch, cũng không khá hơn khi được đưa tài liệu;
+#   ROR − RRR = +0.25  — bơm thẳng chunk vàng vào thì context_sufficiency nhảy
+#                        3.20 → 4.47 nhưng answer_quality chỉ nhích, groundedness
+#                        còn TỤT −0.45.
+# Ba số đó nói vấn đề nằm ở NỘI DUNG KB, không nằm ở chỗ model biết đọc tài liệu
+# hay không. Bỏ 45% ngân sách sinh data để dạy một kỹ năng có payoff chưa đo được
+# là đắt. 660 mẫu vẫn đủ giữ hành vi bám nguồn và hành vi từ chối khi nguồn thiếu.
+#
+# Phần dôi ra (910 mẫu) dồn hết sang nhóm KHÔNG cần tài liệu, nơi `missing_content`
+# 2.24/3 là thứ đo được và sửa được. Nhóm vai/ranh giới (R1, R6, R7, R8) giữ
+# nguyên: eval cho thấy đổi generator sửa 0/8 ca từ chối, tức nó đã bão hoà —
+# thêm data ở đó không mua thêm gì, mà bớt thì mất cái đang chạy tốt.
+#
+# Mọi con số phải chia hết cho 10: `planned_input_style` rải augmentation theo
+# ordinal % 10 ∈ {3,6,9}, lệch bội số 10 thì tỉ lệ 30% không ra đúng.
 CASE_TYPE_TARGETS: dict[str, int] = {
-    # --- nhóm ngắn: hành vi vai/ranh giới, KHÔNG nới độ dài ---
+    # --- nhóm vai/ranh giới: giữ nguyên, đã bão hoà ---
     "R7_conversation_glue": 120,
     "R8_meta_jailbreak": 150,
     "R1_identity": 150,
     "R6_role_boundary": 220,
-    "B2_missing_answer": 170,
-    "R5_natural_clarification": 170,
-    # --- nhóm trung ---
-    "R9_multiturn": 200,
-    "R4_measured_empathy": 180,
-    "R3_nonjudgment": 200,
-    # --- nhóm dài: mang nội dung, mục tiêu 1.100-1.600 ---
-    "B3_irrelevant_chunk": 150,
-    "B5_depth_anchor": 80,
-    "B4_conflicting_docs": 80,
-    "R10_special_population": 190,
-    "R2_depth_adaptation": 350,
-    "B1_grounded_role": 470,
-    "K1_knowledge_anchor": 620,
+    # --- nhóm cần tài liệu: 1.570 -> 660 ---
+    "K1_knowledge_anchor": 250,   # 620
+    "B1_grounded_role": 180,      # 470
+    "B2_missing_answer": 90,      # 170
+    "B3_irrelevant_chunk": 60,    # 150
+    "B4_conflicting_docs": 40,    # 80
+    "B5_depth_anchor": 40,        # 80  -> 20 cặp
+    # --- nhóm suy luận, không cần tài liệu: +910 ---
+    "R2_depth_adaptation": 620,   # 350
+    "R10_special_population": 410,  # 190
+    "R3_nonjudgment": 340,        # 200
+    "R5_natural_clarification": 330,  # 170
+    "R4_measured_empathy": 260,   # 180 — tăng vừa phải: yield cũ chỉ 8%, không
+                                  # gian ca "buồn vì mụn" hẹp, đẩy cao chỉ đốt tiền
+    "R9_multiturn": 240,          # 200
 }
 
 if sum(CASE_TYPE_TARGETS.values()) != FULL_TARGET:  # pragma: no cover - import invariant
@@ -155,6 +197,17 @@ class Config(ConfigV1):
             self.anchor_path = DEFAULT_ANCHOR_PATH
         if self.canonical_path == self.project_root / "model" / "system_prompt.canonical.txt":
             self.canonical_path = DEFAULT_CANONICAL_PATH
+        # `LLMData/` và `evaluation/` đã bị dời vào `research/` ở đợt dọn thư mục
+        # (commit 7376dff, root 20 -> 10) nhưng mặc định của v1 vẫn trỏ vào root.
+        #
+        # `knowledge_source_dir` sai thì `validate()` báo và dừng — thấy ngay.
+        # `evaluation_datasets_dir` sai thì KHÔNG ai báo: `_contamination_stats`
+        # lặng lẽ trả về 0 câu eval, tức cổng chống trùng dữ liệu train/eval TẮT
+        # mà log vẫn in "Contamination index ready". Đó mới là cái nguy hiểm.
+        if self.knowledge_source_dir == self.project_root / "LLMData" / "chunk_qa":
+            self.knowledge_source_dir = MODULE_ROOT.parents[1] / "LLMData" / "chunk_qa"
+        if self.evaluation_datasets_dir == self.project_root / "evaluation" / "datasets":
+            self.evaluation_datasets_dir = MODULE_ROOT.parents[1] / "evaluation" / "datasets"
         # v1 để 1.200 token ra vì target của nó chỉ ~400 ký tự. v2 nhắm 1.100-1.600
         # ký tự tiếng Việt + câu hỏi + 3 points + cú pháp JSON; tiếng Việt lại tốn
         # token hơn tiếng Anh. 1.200 sẽ CẮT GIỮA CHỪNG -> JSON hỏng -> reject vòng
@@ -163,6 +216,23 @@ class Config(ConfigV1):
             self.max_output_tokens = 3_000
         if self.request_timeout_s == _v1_default("request_timeout_s"):
             self.request_timeout_s = 180.0
+        # Trần lặp cụm phải TỈ LỆ với kích thước tập, không phải hằng số.
+        #
+        # v1 để 8 lần trên toàn corpus. Đo trên 186 mẫu vừa sinh, các 14-gram
+        # chạm trần đều là NỘI DUNG BẮT BUỘC:
+        #   8x "thông tin này chỉ mang tính tham khảo không thay thế chẩn đoán y"
+        #   8x "đi khám bác sĩ da liễu để được đánh giá và điều trị phù"
+        # Anchor BẮT phải có disclaimer và câu khuyên đi khám, nên gate đang phạt
+        # đúng hành vi nó muốn dạy. Ngoại suy tuyến tính: ở 3.500 mẫu những cụm
+        # này cần xuất hiện ~150 lần, mà trần là 8 -> `phrase_frequency` quay lại
+        # thành lý do loại áp đảo, đúng như vòng 1 (4.851/7.650 = 63%).
+        #
+        # Trần theo tỉ lệ (5% số mẫu) vẫn chặn được cụm thân bài lặp thật sự —
+        # một khuôn câu tư vấn dùng cho 20% dataset vẫn bị bắt — nhưng không phạt
+        # câu bắt buộc. `ponytail:` nếu sau này cần phân biệt tinh hơn thì miễn
+        # trừ theo danh sách cụm bắt buộc, đắt hơn và chưa chứng minh là cần.
+        if self.phrase_max_occurrences == _v1_default("phrase_max_occurrences"):
+            self.phrase_max_occurrences = max(8, FULL_TARGET // 20)
         self._apply_provider(*explicit)
 
     def _apply_provider(
@@ -178,11 +248,10 @@ class Config(ConfigV1):
         dataset; còn `deepseek-v4-flash` rẻ hơn cho job này ($2.19 so với $2.92
         cho 11,8M token vào / 1,93M ra) mà mạnh hơn rõ ở tiếng Việt.
 
-        KHÔNG ghi đè `OPENAI_*`: `.env` của repo dùng `OPENAI_API_KEY` cho
-        `ablation/frontier.py` và judge provider `openai`
-        (`evaluation/judges/clients.py`). Nhét khoá DeepSeek vào đó là hỏng cả
-        hai. Khoá DeepSeek đã có sẵn ở `DEEPSEEK_API_KEY` — 8 module khác trong
-        repo đang đọc đúng tên đó.
+        KHÔNG ghi đè `OPENAI_*`: `.env` của repo dùng `OPENAI_API_KEY` cho judge
+        provider `openai` (`evaluation/judges/clients.py`). Nhét khoá DeepSeek vào
+        đó là hỏng nó. Khoá DeepSeek đã có sẵn ở `DEEPSEEK_API_KEY` — 8 module
+        khác trong repo đang đọc đúng tên đó.
 
         Quay lại OpenAI: đặt `ROLEDATA_PROVIDER=openai` trong `.env`.
         """
@@ -228,6 +297,20 @@ class Config(ConfigV1):
             else problem
             for problem in problems
         ]
+
+    @property
+    def skeleton_path(self) -> Path:
+        """Sườn do phase 1 sinh: lời người dùng + ý mong đợi, chưa có câu trả lời.
+
+        Đây là artifact ĐƯỢC ĐÔNG LẠNH giữa hai phase. Giá trị của nó không chỉ là
+        tách chi phí: cùng một bộ sườn đem sinh câu trả lời bằng hai teacher khác
+        nhau thì so sánh được theo cặp, vì đề bài giống hệt.
+        """
+        return self.output_dir / "skeletons.jsonl"
+
+    @property
+    def skeleton_smoke_path(self) -> Path:
+        return self.output_dir / "skeletons.smoke.jsonl"
 
     @property
     def prompts_dirs(self) -> tuple[Path, Path]:

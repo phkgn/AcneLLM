@@ -23,6 +23,18 @@ CONTENT_CASES = {
     "R2_depth_adaptation",
     "R10_special_population",
 }
+# Case cần tài liệu tham khảo. Tách riêng khỏi CONTENT_CASES vì vòng 2 dịch quota
+# theo hai hướng NGƯỢC nhau: rời khỏi nhóm cần tài liệu, đi vào nhóm suy luận.
+CONTEXT_CASES = {
+    "B1_grounded_role",
+    "B2_missing_answer",
+    "B3_irrelevant_chunk",
+    "B4_conflicting_docs",
+    "B5_depth_anchor",
+    "K1_knowledge_anchor",
+}
+# Vai/ranh giới: eval cho thấy đổi generator sửa 0/8 ca từ chối => đã bão hoà.
+ROLE_CASES = {"R1_identity", "R6_role_boundary", "R7_conversation_glue", "R8_meta_jailbreak"}
 
 
 def test_quota_sums_to_full_target() -> None:
@@ -34,11 +46,57 @@ def test_case_set_identical_to_v1() -> None:
     assert set(CASE_TYPE_TARGETS) == set(V1_TARGETS)
 
 
-def test_quota_shifted_towards_content_cases() -> None:
-    v1_content = sum(V1_TARGETS[case] for case in CONTENT_CASES)
-    v2_content = sum(CASE_TYPE_TARGETS[case] for case in CONTENT_CASES)
-    assert v2_content > v1_content, "v2 phải dịch quota sang nhóm mang nội dung"
-    assert v2_content - v1_content >= 300
+def test_quota_moved_away_from_context_cases() -> None:
+    """Nhóm cần tài liệu phải TỤT MẠNH so với v1.
+
+    Căn cứ trong run_full_v3_2/ASSESSMENT.md: RRR−RNR = 0.000 (tắt RAG không làm
+    tệ đi), RRO−RNO = −0.16 (frontier model cũng không hưởng lợi từ tài liệu),
+    ROR−RRR = +0.25 với groundedness còn tụt −0.45 khi bơm chunk vàng. Ba số đó
+    nói vấn đề nằm ở nội dung KB. Giữ 45% ngân sách ở đó là trả tiền cho một kỹ
+    năng chưa đo được payoff.
+    """
+    v1_context = sum(V1_TARGETS[case] for case in CONTEXT_CASES)
+    v2_context = sum(CASE_TYPE_TARGETS[case] for case in CONTEXT_CASES)
+    assert v2_context < v1_context
+    assert v2_context / FULL_TARGET < 0.25, "nhóm cần tài liệu phải dưới 25% ngân sách"
+
+
+def test_freed_quota_went_to_reasoning_cases() -> None:
+    """Phần dôi phải chảy vào nhóm suy luận không cần tài liệu, không bốc hơi."""
+    reasoning = set(CASE_TYPE_TARGETS) - CONTEXT_CASES - ROLE_CASES
+    v1_reasoning = sum(V1_TARGETS[case] for case in reasoning)
+    v2_reasoning = sum(CASE_TYPE_TARGETS[case] for case in reasoning)
+    assert v2_reasoning - v1_reasoning >= 800
+
+
+# Quota nhóm vai ở VÒNG 1 của v2 (không phải của roledata v1 — v1 để R1=200,
+# R6=250, R7=150, vòng 1 đã cắt xuống rồi).
+ROUND1_ROLE_TARGETS = {
+    "R1_identity": 150,
+    "R6_role_boundary": 220,
+    "R7_conversation_glue": 120,
+    "R8_meta_jailbreak": 150,
+}
+
+
+def test_role_quota_untouched() -> None:
+    """Nhóm vai đã bão hoà: thêm không mua được gì, bớt thì mất cái đang chạy tốt.
+
+    Vòng 2 chỉ dịch quota giữa nhóm-cần-tài-liệu và nhóm-suy-luận; nhóm vai phải
+    y nguyên vòng 1, để nếu safety có tụt thì biết chắc không phải do đổi quota.
+    """
+    for case, count in ROUND1_ROLE_TARGETS.items():
+        assert CASE_TYPE_TARGETS[case] == count, case
+    assert set(ROUND1_ROLE_TARGETS) == ROLE_CASES
+
+
+def test_every_quota_is_a_multiple_of_ten() -> None:
+    """`planned_input_style` rải augmentation theo ordinal % 10 ∈ {3,6,9}.
+
+    Lệch bội số 10 thì tỉ lệ 30% không ra đúng — im lặng, chỉ lộ ra khi đếm data.
+    """
+    for case, count in CASE_TYPE_TARGETS.items():
+        assert count % 10 == 0, f"{case}={count}"
 
 
 def test_compute_budget_is_exact_and_deterministic() -> None:
@@ -158,7 +216,7 @@ def test_default_provider_is_deepseek_v4_flash() -> None:
 
 def test_default_does_not_reach_for_the_openai_key() -> None:
     """Mặc định DeepSeek mà không có DEEPSEEK_API_KEY thì phải BÁO THIẾU,
-    không được lặng lẽ dùng OPENAI_API_KEY của ablation/judge."""
+    không được lặng lẽ dùng OPENAI_API_KEY của judge."""
     cfg = Config(_env_values={"OPENAI_API_KEY": "sk-proj-openai-thật"})
     assert cfg.api_key != "sk-proj-openai-thật"
     assert any("API_KEY" in problem for problem in cfg.validate())
@@ -187,8 +245,8 @@ def test_deepseek_provider_reads_its_own_env() -> None:
 
 
 def test_deepseek_provider_does_not_hijack_openai_key() -> None:
-    """`OPENAI_API_KEY` còn được `ablation/frontier.py` và judge provider `openai`
-    dùng. Đổi provider cho datagen KHÔNG được đụng vào nó."""
+    """`OPENAI_API_KEY` còn được judge provider `openai` dùng.
+    Đổi provider cho datagen KHÔNG được đụng vào nó."""
     cfg = Config(_env_values=dict(ENV_DEEPSEEK))
     assert cfg.api_key != ENV_DEEPSEEK["OPENAI_API_KEY"]
     assert cfg._env_values["OPENAI_API_KEY"] == ENV_DEEPSEEK["OPENAI_API_KEY"]

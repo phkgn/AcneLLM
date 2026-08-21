@@ -81,18 +81,24 @@ from evaluation.metrics.scorecard import (  # noqa: E402
 )
 
 
-DEFAULT_DATASET = ROOT / "research/evaluation/datasets/eval_set.v3.jsonl"
+DEFAULT_DATASET = ROOT / "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
 DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/ablation/results.json"
-GENERATOR_SYSTEM_PROMPT_PATH = ROOT / "model" / "legacy" / "system_prompt.canonical.txt"
-ARM_Y_PROVIDER = "deepseek"
-ARM_Y_MODEL = "deepseek-v4-pro"   # arm Y = "generator API MẠNH"; dùng flash ở đây
+GENERATOR_SYSTEM_PROMPT_PATH = (
+    ROOT / "model" / "generator" / "prompts" / "system_prompt.v4.a.txt"
+)  # anchor cua acne-generator-v2. sha256(rstrip) = 5421f207... , khop
+   # byte-for-byte voi khoi SYSTEM trong model/generator/Modelfile.
+   # Bản legacy (model/legacy/system_prompt.canonical.txt, 4809 byte,
+   # sha 722281f0...) la anchor cua v1 — dung no voi generator v2 la
+   # doi CA model LAN system prompt trong cung mot thi nghiem.
+ARM_Y_PROVIDER = "openai"
+ARM_Y_MODEL = "gpt-5.6-terra"   # arm Y = "generator API MẠNH"; dùng flash ở đây
                                   # là arm mất nghĩa, nên nó không theo mặc định flash
 # GHIM THEO NGÀY khi nhà cung cấp có bản ghim ngày. "gpt-5.4-mini" là bí danh —
 # nhà cung cấp dời bí danh thì điểm đổi lặng lẽ, mà cache cũ vẫn giữ điểm của
 # bản trước. DeepSeek hiện không phát hành bí danh ghim ngày nên không ghim được;
 # ponytail: ghim lại ngay khi DeepSeek có bản ghim ngày.
-DEFAULT_JUDGE_PROVIDER = "deepseek"
-DEFAULT_JUDGE_MODEL = "deepseek-v4-pro"
+DEFAULT_JUDGE_PROVIDER = "openai"
+DEFAULT_JUDGE_MODEL = "gpt-5.6-luna"
 # Arm = 3 ký tự, mỗi ký tự một khâu: [intaker][rag][generator].
 #   R = chạy thật · O = thay bằng bản hoàn hảo (oracle) · N = tắt hẳn
 # Không gian đầy đủ 2 × 3 × 2 = 12 tổ hợp; DEFAULT_ARMS là gói 6 arm khuyên dùng.
@@ -131,7 +137,9 @@ def _frontier_system_prompt() -> str:
     otherwise the experiment changes both model and system instructions.
     """
     try:
-        prompt = GENERATOR_SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+        # rstrip: file tren dia co newline cuoi, khoi SYSTEM trong Modelfile
+        # thi khong. Bo no di de hai ben byte-identical dung nghia.
+        prompt = GENERATOR_SYSTEM_PROMPT_PATH.read_text(encoding="utf-8").rstrip()
     except OSError as exc:
         raise RuntimeError(
             f"frontier generator system prompt is unavailable: "

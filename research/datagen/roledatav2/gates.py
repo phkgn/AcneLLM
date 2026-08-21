@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import functools
 import re
+import unicodedata
 from typing import Any, Mapping
 
 import yaml
@@ -32,7 +33,7 @@ from ..roledata.gates import (  # dùng lại nguyên vẹn
 )
 from ..roledata.gates import _words as _words_v1
 from ..roledata.gates import evaluate_record as evaluate_record_v1
-from .config import MODULE_ROOT
+from .config import ANCHOR_VARIANT_PATHS, MODULE_ROOT
 from .knowledge import context_is_vietnamese
 
 __all__ = [
@@ -41,13 +42,31 @@ __all__ = [
     "LENGTH_TOLERANCE",
     "LENGTH_TOLERANCE_HIGH",
     "LENGTH_TOLERANCE_LOW",
+    "anchor_variants",
     "assistant_turns",
+    "entities_grounded",
     "evaluate_record",
     "grounded_rate",
     "has_structure",
+    "looks_english",
     "schema_valid",
+    "user_facts_echoed",
     "vietnamese_only",
 ]
+
+
+@functools.lru_cache(maxsize=1)
+def anchor_variants() -> tuple[str, ...]:
+    """Các system prompt hợp lệ, đọc từ `ANCHOR_VARIANT_PATHS`.
+
+    Biến thể A (phần tử đầu) là bản đem đi phục vụ. B và C mã hoá cùng bộ luật
+    nhưng khác hành văn — có mặt để model học luật thay vì học chuỗi ký tự.
+    """
+    return tuple(
+        path.read_text(encoding="utf-8-sig").strip()
+        for path in ANCHOR_VARIANT_PATHS
+        if path.is_file()
+    )
 
 # Bất đối xứng, và có lý do đo được: smoke lần đầu loại hai mẫu TỐT (đủ ý, đủ
 # cấu trúc) chỉ vì hụt sàn 3 và 29 ký tự — 847 so với sàn 850. Đó là đo nhiễu,
@@ -106,6 +125,152 @@ def _contains_any_folded(text: str, phrases: tuple[str, ...]) -> bool:
 
 _TAXONOMY_PATH = MODULE_ROOT / "taxonomy.yaml"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# entities_grounded — thay `grounding_judge`
+#
+# Vòng 1 gỡ `grounded_rate` cho nguồn tiếng Anh (đúng: trùng token EN-VI luôn = 0)
+# rồi thay bằng điểm judge. Judge đó cho 1043 điểm 5 / 2 điểm 4 / 0 điểm <=3 trên
+# 1.045 mẫu — phương sai gần bằng không, tức không phải thước đo. Nguyên nhân:
+# `roledata/generator.py::judge_knowledge` dùng CHÍNH model vừa sinh ra câu trả
+# lời để chấm nó, ở temperature 0, với prompt hai dòng. Self-preference bias.
+#
+# Thay bằng phép so tập hợp: tên thuốc, tên guideline và con số phần trăm KHÔNG
+# bị dịch, nên so trực tiếp được giữa nguồn tiếng Anh và đáp án tiếng Việt.
+# Chạy thử trên 1.264 mẫu context của vòng 1: bắt 192 mẫu bịa entity/số mà judge
+# cho 5/5 hết. Miễn phí, tất định, và chặt hơn 1.755 lời gọi API.
+# ─────────────────────────────────────────────────────────────────────────────
+_GROUNDED_TERMS: tuple[str, ...] = (
+    "isotretinoin", "tretinoin", "adapalene", "tazarotene", "trifarotene",
+    "doxycycline", "minocycline", "tetracycline", "lymecycline", "sarecycline",
+    "clindamycin", "erythromycin", "benzoyl peroxide", "salicylic", "azelaic",
+    "niacinamide", "retinoid", "spironolactone", "dapsone", "hydroquinone",
+    "nice", "aad", "ng198", "pubmed", "cochrane", "fda", "ema",
+    "cutibacterium", "propionibacterium",
+)
+# Chỉ bắt phần trăm và số thập phân — số nguyên trần dễ trùng với số thứ tự
+# gạch đầu dòng ("1.", "2.") nên đo nó là đo nhiễu.
+_NUMERIC_CLAIM = re.compile(r"\d+(?:[.,]\d+)?\s*%")
+
+
+def entities_grounded(context: list[dict[str, str]] | None, answer: str) -> bool:
+    """Tên thuốc/nguồn/số % trong câu trả lời đều phải có mặt trong tài liệu.
+
+    So cả `source_name` chứ không chỉ `text`: nhãn "Nguồn 1 — PubMed" nằm trong
+    lượt user nên assistant nói "theo PubMed" là có căn cứ. Bỏ qua nhãn này thì
+    tỉ lệ báo động giả nhảy từ 9% lên 27%.
+    """
+    if not context:
+        return True
+    source = " ".join(
+        f"{item.get('text', '')} {item.get('source_name', '')}"
+        for item in context
+        if isinstance(item, dict)
+    ).casefold()
+    folded = answer.casefold()
+    if any(term in folded and term not in source for term in _GROUNDED_TERMS):
+        return False
+    squeezed = source.replace(" ", "")
+    return all(
+        claim.strip().replace(" ", "") in squeezed for claim in _NUMERIC_CLAIM.findall(folded)
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# user_facts_echoed — nửa còn lại của "đủ ý"
+#
+# `points_covered` chỉ kiểm points <-> câu trả lời, mà points do chính model sinh
+# ra cùng lúc với câu trả lời, nên nó chỉ xác nhận model tự nhất quán với mình.
+# Không gate nào kiểm câu trả lời có DÙNG những gì người dùng vừa kể hay không.
+# Đó chính là `missing_content` 2.24/3: câu trả lời đúng nhưng chung chung, dán
+# vào ai cũng được. Đo bằng phủ từ nội dung, thô nhưng bắt đúng ca văn mẫu.
+# ─────────────────────────────────────────────────────────────────────────────
+_ECHO_MIN_RATIO = 0.30
+# `stream_user.j2` xếp các khối theo thứ tự: tài liệu → ngữ cảnh → dữ kiện an
+# toàn → "Tin nhắn hiện tại:". Chỉ khối cuối mới là lời người dùng.
+_CURRENT_MESSAGE = "Tin nhắn hiện tại:"
+
+
+def _fold_one(text: str) -> str:
+    decomposed = unicodedata.normalize("NFD", text)
+    stripped = "".join(char for char in decomposed if not unicodedata.combining(char))
+    return stripped.replace("đ", "d").replace("Đ", "D")
+
+
+# Dò TIẾNG ANH, không dò tiếng Việt. Hai lần thử trước đều sai vì chọn nhầm chiều:
+#
+#   `vietnamese_only` (v1) thực chất là bộ dò DẤU — nó trả False cho câu tiếng Việt
+#   không dấu hoàn toàn hợp lệ ("Ban nen rua mat diu nhe..."), mà 30% mẫu có
+#   `input_style` thuộc {no_accent, teencode, typo, mixed} nên lời người dùng KHÔNG
+#   có dấu là đúng thiết kế.
+#
+#   Đếm từ chức năng TIẾNG VIỆT cũng hỏng: một ý ngắn đặc nội dung như "rửa mặt dịu
+#   nhẹ hai lần mỗi ngày giúp giảm bít tắc lỗ chân lông" không chứa từ chức năng nào
+#   và bị coi là không phải tiếng Việt.
+#
+# Chiều đúng là dò tiếng Anh: tiếng Anh dày đặc từ chức năng (the/of/to/is/are/with)
+# và chúng gần như không bao giờ xuất hiện trong văn tiếng Việt, kể cả khi câu có
+# thuật ngữ y khoa tiếng Anh. Thứ cần chặn chỉ là một thứ: teacher chép nguyên câu
+# từ chunk nguồn tiếng Anh.
+_EN_FUNCTION_WORDS = frozenset(
+    (
+        "the", "of", "to", "in", "is", "are", "was", "were", "be", "been", "and",
+        "or", "with", "for", "that", "this", "these", "those", "there", "their",
+        "have", "has", "had", "can", "could", "should", "would", "may", "might",
+        "after", "before", "when", "while", "whether", "which", "who", "from",
+        "not", "but", "also", "such", "other", "than", "then", "they", "it",
+    )
+)
+
+
+def looks_english(text: str) -> bool:
+    """Văn bản có phải tiếng Anh không — dùng để chặn chép từ chunk nguồn.
+
+    Ngưỡng 15% mật độ từ chức năng tiếng Anh. Câu tiếng Việt có lẫn thuật ngữ
+    ("Hormonal therapy for acne là bất kỳ loại thuốc nào...") chỉ đạt ~7% nên đi
+    qua — đúng ý: thuật ngữ y khoa tiếng Anh là hợp lệ, chép nguyên đoạn thì không.
+    """
+    words = _words_v1(text)
+    if len(words) < 4:
+        return False
+    return sum(word in _EN_FUNCTION_WORDS for word in words) / len(words) >= 0.15
+
+
+def _fold_diacritics(text: str) -> str:
+    """Bỏ dấu tiếng Việt, đ -> d.
+
+    BẮT BUỘC cho gate này: 30% mẫu có `input_style` thuộc {no_accent, teencode,
+    typo, mixed}, tức lượt user viết "em buon qua, mat day mun hoai" trong khi
+    câu trả lời luôn là tiếng Việt chuẩn "nhìn gương thấy mụn mãi không khỏi".
+    So thẳng thì "buon" != "buồn" và mẫu TỐT bị loại oan — đo augmentation chứ
+    không đo chất lượng. Đã thấy thật khi chạy thử gate trên data vòng 1.
+    """
+    return _fold_one(text)
+
+
+# STOPWORDS của v1 có dấu; token đem so đã bỏ dấu nên phải bỏ dấu cả bảng này,
+# không thì "được"/"duoc" lọt qua và làm loãng tỉ lệ.
+_FOLDED_STOPWORDS = frozenset(_fold_one(word) for word in STOPWORDS)
+
+
+def user_facts_echoed(user_text: str, answer: str) -> bool:
+    """>=30% từ nội dung TRONG LỜI NGƯỜI DÙNG xuất hiện lại trong câu trả lời.
+
+    Phải cắt lấy riêng khối "Tin nhắn hiện tại:", không đo cả lượt user: với case
+    có tài liệu thì lượt user chứa nguyên chunk nguồn tiếng Anh, đo cả cụm là đo
+    echo của TÀI LIỆU chứ không phải của người dùng — và ngưỡng 30% khi đó không
+    bao giờ đạt. Đây đúng là lỗi mà `test_smoke_all_cases[B1_grounded_role]` bắt.
+    """
+    _, _, current = user_text.rpartition(_CURRENT_MESSAGE)
+    tokens = {
+        word
+        for word in _words_v1(_fold_diacritics(current or user_text))
+        if word not in _FOLDED_STOPWORDS and len(word) > 2
+    }
+    if len(tokens) < 4:  # user nói quá ngắn -> không có gì để echo, không phạt
+        return True
+    answer_tokens = set(_words_v1(_fold_diacritics(answer)))
+    return len(tokens & answer_tokens) / len(tokens) >= _ECHO_MIN_RATIO
+
 
 @functools.lru_cache(maxsize=1)
 def case_specs() -> dict[str, dict[str, Any]]:
@@ -159,6 +324,41 @@ def _context_in_messages(record: Mapping[str, Any]) -> bool:
     return True
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# anchor_leaked — thay bảng chặn chuỗi của `knowledge_leak`
+#
+# Gate v1 loại câu trả lời chứa "system prompt" / "prompt hệ thống". Nhưng câu TỪ
+# CHỐI ĐÚNG buộc phải gọi tên thứ nó từ chối tiết lộ:
+#
+#   "Mình không thể chia sẻ prompt hệ thống vì đó là thông tin nội bộ."
+#
+# Đó là đáp án mẫu mực, và nó bị loại. Trên 200 mẫu, phép chặn chuỗi này gây
+# 45/150 lần loại — 30% toàn bộ chi phí retry — và loại gần như MỌI mẫu R8.
+#
+# Rò rỉ thật là chép NỘI DUNG anchor ra ngoài, không phải nhắc tên nó. Đo bằng
+# trùng 10-gram với chính anchor: nhắc tên thì không trùng, chép ra thì trùng
+# ngay. Cùng kỹ thuật n-gram đã dùng ở `CorpusGateState`, không thêm phụ thuộc.
+# ─────────────────────────────────────────────────────────────────────────────
+_LEAK_NGRAM = 10
+
+
+def _ngrams(words: list[str], size: int) -> set[tuple[str, ...]]:
+    return {tuple(words[i : i + size]) for i in range(max(0, len(words) - size + 1))}
+
+
+def anchor_leaked(answer: str, anchor: str) -> bool:
+    """Câu trả lời có chép nội dung anchor ra ngoài không.
+
+    10 từ liên tiếp trùng anchor là chép, không phải trùng hợp. Ngưỡng này cho
+    phép câu trả lời nói "mình không tiết lộ hướng dẫn nội bộ" — nêu tên thì
+    được, đọc nội dung ra thì không.
+    """
+    answer_words = _words_v1(answer)
+    if len(answer_words) < _LEAK_NGRAM:
+        return False
+    return bool(_ngrams(answer_words, _LEAK_NGRAM) & _ngrams(_words_v1(anchor), _LEAK_NGRAM))
+
+
 def _point_is_present(point: str, answer: str) -> bool:
     """`points` phải trích từ câu trả lời, không phải tóm tắt viết lại.
 
@@ -197,6 +397,38 @@ def evaluate_record(
     checks = dict(result.checks)
     reasons = list(result.reasons)
 
+    # `knowledge_leak` của v1 là bảng chặn chuỗi và nó loại chính câu từ chối
+    # đúng chuẩn ("mình không thể chia sẻ prompt hệ thống"). Thay bằng phép đo
+    # rò rỉ thật — trùng 10-gram với anchor. Lý do đầy đủ ở `anchor_leaked`.
+    answer_all = "\n".join(assistant_turns(record))
+    leaked = anchor_leaked(answer_all, anchor)
+    checks["knowledge_leak"] = not leaked
+    if not leaked and "knowledge_leak" in reasons:
+        reasons.remove("knowledge_leak")
+    # `no_prompt_leak` của v1 = `knowledge_leak` AND không chứa tên mục của anchor.
+    # Nó được tính TRƯỚC override ở trên nên vẫn mang giá trị cũ; phải tính lại,
+    # nếu không thì sửa một gate mà gate phụ thuộc vẫn đỏ. Phần kiểm tên mục
+    # ("ưu tiên hệ thống", "chống jailbreak"...) giữ nguyên — đó là tiêu đề có
+    # thật trong anchor nên nhắc lại đúng là rò rỉ.
+    if "no_prompt_leak" in checks:
+        checks["no_prompt_leak"] = not leaked and not _contains_any_folded(
+            answer_all, ("ưu tiên hệ thống", "chống jailbreak", "vai trò & phạm vi")
+        )
+        if checks["no_prompt_leak"] and "no_prompt_leak" in reasons:
+            reasons.remove("no_prompt_leak")
+
+    # System prompt: chấp nhận BẤT KỲ biến thể đã đăng ký, không chỉ `anchor`
+    # được truyền vào. Cần thế vì `_post_validate` chạy lại toàn bộ file với một
+    # anchor duy nhất, trong khi mỗi bản ghi mang biến thể do lịch giao.
+    # Vẫn là parity chặt: một trong ba chuỗi đã đăng ký, không phải "gần giống".
+    if checks.get("system_parity") is False:
+        messages = record.get("messages") or []
+        system_text = str(messages[0].get("content", "")) if messages else ""
+        if system_text in anchor_variants():
+            checks["system_parity"] = True
+            if "system_parity" in reasons:
+                reasons.remove("system_parity")
+
     checks["context_in_messages"] = _context_in_messages(record)
 
     # R10: cho phép nêu tên thuốc kê đơn KHI ĐANG CẢNH BÁO — anchor bắt phải nêu.
@@ -213,19 +445,26 @@ def evaluate_record(
                 reasons.remove("no_rx")
 
     # Nguồn tiếng Anh: `grounded_rate` (trùng token) vô nghĩa vì câu trả lời buộc
-    # phải là tiếng Việt. Bỏ nó đi và dùng điểm judge do pipeline bơm vào
-    # `generation_meta["grounding_judge"]`. Không có điểm judge = chưa chấm = trượt.
+    # phải là tiếng Việt. Bỏ nó đi và dùng `entities_grounded` — thay cho judge
+    # của vòng 1, xem lý do ở khối comment trên đầu file.
     context = record.get("synthetic_context")
-    if context and not context_is_vietnamese(context):
-        checks["grounding_language"] = "en"
-        checks.pop("grounded_rate_pass", None)
-        if "grounded_rate_pass" in reasons:
-            reasons.remove("grounded_rate_pass")
-        score = (record.get("generation_meta") or {}).get("grounding_judge")
-        checks["grounding_judge"] = score if isinstance(score, (int, float)) else None
-        checks["grounding_judge_pass"] = isinstance(score, (int, float)) and score >= 4
-    elif context:
-        checks["grounding_language"] = "vi"
+    if context:
+        answer_all = "\n".join(assistant_turns(record))
+        checks["grounding_language"] = "vi" if context_is_vietnamese(context) else "en"
+        if checks["grounding_language"] == "en":
+            checks.pop("grounded_rate_pass", None)
+            if "grounded_rate_pass" in reasons:
+                reasons.remove("grounded_rate_pass")
+        # Chạy cho CẢ nguồn Việt lẫn Anh: nguồn tiếng Việt vẫn bịa được tên thuốc,
+        # và `grounded_rate` là thước trùng-token nên không bắt được chuyện đó.
+        checks["entities_grounded"] = entities_grounded(context, answer_all)
+
+    # `knowledge_accuracy` của v1 đọc điểm judge trong generation_meta. Pipeline
+    # v2 không gọi judge nữa nên trường đó không tồn tại và gate sẽ luôn đỏ. Gỡ
+    # hẳn: `entities_grounded` ở trên là thứ thay thế nó.
+    checks.pop("knowledge_accuracy", None)
+    if "knowledge_accuracy" in reasons:
+        reasons.remove("knowledge_accuracy")
 
     if case_spec is not None:
         turns = assistant_turns(record)
@@ -244,12 +483,23 @@ def evaluate_record(
         answer = "\n".join(turns)
         if min_points:
             points = [str(item) for item in (record.get("points") or []) if str(item).strip()]
+            covered = sum(_point_is_present(point, answer) for point in points)
             checks["points_declared"] = len(points)
-            checks["points_covered"] = len(points) >= min_points and all(
-                _point_is_present(point, answer) for point in points
-            )
+            checks["points_covered_count"] = covered
+            # ĐẾM số ý được phủ, không đòi phủ HẾT. Hợp đồng là "phủ ít nhất
+            # min_points ý", nên teacher khai 4 ý mà phủ 3 với min_points=3 là
+            # đã đạt — bản cũ dùng `all()` nên phạt chính sự hào phóng đó.
+            #
+            # Bắt được trên 200 mẫu: R5 khai thêm một ý META về việc CẦN HỎI GÌ
+            # ("cần hỏi thêm vị trí mụn và mức độ viêm"). Câu trả lời có hỏi thật,
+            # nhưng hỏi thẳng bằng lời khác nên chỉ trùng 0.22-0.50 token. Hành vi
+            # hỏi lại đã có gate `clarify_present` lo; `points_covered` không nên
+            # phạt lần thứ hai vì cùng một chuyện.
+            checks["points_covered"] = len(points) >= min_points and covered >= min_points
         if require_structure:
             checks["has_structure"] = has_structure(turns[-1] if turns else "")
+        if case_spec.get("echo_user_facts"):
+            checks["user_facts_echoed"] = user_facts_echoed(_first_user_text(record), answer)
 
     for name, value in checks.items():
         if value is False and name not in reasons:

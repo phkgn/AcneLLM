@@ -21,7 +21,7 @@ from acne_llm.config import settings
 from evaluation.common import EVAL_DIR, ROOT, sha256_text, utcnow
 
 CACHE_DB = EVAL_DIR / "reports" / "judge_cache.sqlite"
-DEFAULT_JUDGE_PROVIDER = "deepseek"
+DEFAULT_JUDGE_PROVIDER = "openai"
 DEFAULT_OPENAI_JUDGE_MODEL = "gpt-5-mini-2025-08-07"
 DEFAULT_OPENAI_FAITHFULNESS_MODEL = "gpt-5-nano-2025-08-07"
 DEFAULT_DEEPSEEK_JUDGE_MODEL = "deepseek-v4-pro"      # judge — cần chấm chắc tay
@@ -49,6 +49,11 @@ PRICES = {
     "gpt-4o-mini": (0.15, 0.60),
     "gpt-4.1-nano": (0.10, 0.40),
     "gpt-4o": (2.50, 10.00),
+    # GPT-5.6: gia sau dot cat 30/07/2026. Luna re hon 5.4-nano ma the he moi hon.
+    # Long-context request tinh gia khac (0.40/1.80) — chua phan biet o day vi
+    # prompt judge luon ngan hon nguong.
+    "gpt-5.6-luna": (0.20, 1.20),
+    "gpt-5.6-terra": (2.00, 12.00),
     "gpt-5.4-nano": (0.20, 1.25),
     "gpt-5.4-nano-2026-03-17": (0.20, 1.25),
     "gpt-5.4-mini": (0.75, 4.50),

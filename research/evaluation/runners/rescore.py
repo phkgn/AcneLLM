@@ -51,7 +51,7 @@ from evaluation.runners.run_ablation import _score_candidate  # noqa: E402
 
 DEFAULT_INPUT = ROOT / "research/evaluation/reports/full_eval/ablation/rows.jsonl"
 DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/rescore"
-DEFAULT_JUDGE = "deepseek-v4-pro"
+DEFAULT_JUDGE = "gpt-5.6-luna"
 ANSWER_FACES = ("answer_quality", "role_tone", "incorrect_content", "missing_content")
 
 
@@ -79,6 +79,44 @@ def rebuilt_context(card: Mapping[str, Any]) -> dict[str, Any]:
         **{face: card.get(face) for face in CONTEXT_FACES},
         "details": (card.get("details") or {}).get("context"),
     }
+
+
+_VERBOSE_FACES = ("answer_quality", "role_tone", "incorrect_content", "missing_content")
+
+
+def _print_verbose(
+    idx: int, total: int, source: Mapping[str, Any],
+    result: Mapping[str, Any] | None, err: Mapping[str, str] | None, elapsed: float,
+) -> None:
+    """Một khối/câu: điểm CŨ -> MỚI cho từng mặt, kèm lý do judge.
+
+    Mục đích là nhìn ra ngay judge mới lệch judge cũ ở đâu, không phải đợi hết
+    rồi mới so hai file summary.
+    """
+    rec = source.get("record") or {}
+    sid = str(rec.get("sample_id") or "?")
+    old = rec.get("scorecard") or {}
+    print(f"\n[{idx:>3}/{total}] {source.get('arm','?'):4s} {sid}   {elapsed/max(idx,1):.1f}s/dòng")
+    print(f"  hỏi   {str(rec.get('user_query') or '')[:88]}")
+    if err:
+        print(f"  LỖI   {err['error'][:120]}")
+        return
+    new = (result or {}).get("record", {}).get("scorecard") or {}
+    parts = []
+    for face in _VERBOSE_FACES:
+        a, b = old.get(face), new.get(face)
+        if not isinstance(b, (int, float)):
+            continue
+        if isinstance(a, (int, float)):
+            d = b - a
+            flag = "  " if abs(d) < 1e-9 else ("^^" if d > 0 else "vv")
+            parts.append(f"{face}={a:g}->{b:g}{flag}")
+        else:
+            parts.append(f"{face}=?->{b:g}")
+    print("  điểm  " + " · ".join(parts))
+    reason = (result or {}).get("record", {}).get("judge_reason")
+    if reason:
+        print(f"  lý do {str(reason)[:220]}")
 
 
 def rescore_one(judge: JudgeClient, arm: str, record: Mapping[str, Any]) -> dict[str, Any]:
@@ -179,6 +217,10 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--no-cache", action="store_true",
                     help="chấm mới 100%%: bỏ qua cache judge (vẫn ghi)")
     ap.add_argument("--restart", action="store_true", help="bỏ checkpoint, chấm lại từ đầu")
+    ap.add_argument(
+        "--verbose", "-v", action="store_true",
+        help="in chi tiết từng câu: điểm cũ -> điểm mới, lý do judge, đầu câu hỏi",
+    )
     args = ap.parse_args(argv)
 
     src = Path(args.input)
@@ -243,10 +285,16 @@ def main(argv: list[str] | None = None) -> None:
                     sink.write(json.dumps(result, ensure_ascii=False) + "\n")
                     sink.flush()
             finished += 1
-            print(f"\r  {finished}/{len(todo)} · "
-                  f"{(time.time() - t0) / max(finished, 1):.1f}s/dòng · "
-                  f"lỗi {len(failed)}", end="", flush=True)
-    print()
+            if args.verbose:
+                _print_verbose(finished, len(todo), source, locals().get("result"),
+                               failed[-1] if failed and failed[-1]["sample_id"] == sample_id else None,
+                               time.time() - t0)
+            else:
+                print(f"\r  {finished}/{len(todo)} · "
+                      f"{(time.time() - t0) / max(finished, 1):.1f}s/dòng · "
+                      f"lỗi {len(failed)}", end="", flush=True)
+    if not args.verbose:
+        print()
 
     all_rows = load_rows(out_rows)
     summary = summarise(all_rows)

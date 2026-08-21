@@ -54,8 +54,8 @@ from evaluation.datasets.make_intake_set import (  # noqa: E402
 
 TRAIN_PATH = ROOT / "research/datagen/intakedata/output/intake/intake.train.jsonl"
 VAL_PATH = ROOT / "research/datagen/intakedata/output/intake/intake.val.jsonl"
-OUT_DEFAULT = ROOT / "research/evaluation/datasets/intake_eval.v2.jsonl"
-SMOKE_OUT_DEFAULT = ROOT / "research/evaluation/datasets/intake_eval.v2.smoke.jsonl"
+OUT_DEFAULT = ROOT / "research/evaluation/datasets/active/intake_eval.v2_1500.jsonl"
+SMOKE_OUT_DEFAULT = ROOT / "research/evaluation/datasets/extra/intake_eval.v2_smoke_10.jsonl"
 DEFAULT_MODEL = "deepseek-v4-pro"
 EMBEDDING_MODEL = "AITeamVN/Vietnamese_Embedding"
 MAX_OUTPUT_TOKENS = 8_000

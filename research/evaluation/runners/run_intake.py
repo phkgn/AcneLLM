@@ -52,7 +52,7 @@ from evaluation.metrics.intake import (  # noqa: E402
 # Bộ cũ `intake.val.jsonl` bị bỏ vì có 0 dòng `is_pregnant=True` trên 400 dòng —
 # field quyết định chống chỉ định isotretinoin mà chưa từng được kiểm. Sinh bằng
 # `python -m evaluation.datasets.make_intake_set --yes`.
-DEFAULT_EVAL = ROOT / "research/evaluation/datasets/intake_eval.v1.jsonl"
+DEFAULT_EVAL = ROOT / "research/evaluation/datasets/active/intake_eval.v2_1500.jsonl"
 DEFAULT_TRAIN = ROOT / "research/datagen/intakedata/output/intake/intake.train.jsonl"
 DEFAULT_OUTPUT = ROOT / "research/evaluation/reports/intake_eval/report.json"
 CONTEXT_SCALARS = (
@@ -328,6 +328,44 @@ def _field_accuracy(
         out[field] = {"kieu": "scalar", **_accuracy_one(values, scalar_pred.get(field, []))}
     for field, values in list_gold.items():
         out[field] = {"kieu": "list", **_accuracy_one(values, list_pred.get(field, []))}
+    return out
+
+
+def _field_accuracy_by_quota(
+    scalar_gold: Mapping[str, list[Any]],
+    scalar_pred: Mapping[str, list[Any]],
+    list_gold: Mapping[str, list[Any]],
+    list_pred: Mapping[str, list[Any]],
+    quota_paths: Sequence[Any],
+) -> dict[str, Any]:
+    """Accuracy chấm CHỈ trên dòng được sinh ra để dò chính field đó.
+
+    `intake_eval.v2` phân tầng theo `meta.quota_path`: mỗi dòng nhắm đúng MỘT
+    field, các field còn lại để `null` theo thiết kế. Chấm một field trên toàn
+    bộ dataset là gộp cả nghìn dòng nền `null` vào mẫu số — nó đẩy
+    `baseline_luon_doan_pho_bien` lên 0,92-0,96 và làm `lift` mất nghĩa. Ví dụ
+    `context.is_pregnant`: 1440/1500 dòng là null, nên model luôn trả null đã
+    được 0,96; nhưng bộ có đúng 60 dòng thiết kế riêng, chia 30 true / 30 false,
+    và trên 60 dòng đó sàn chỉ còn 0,5.
+
+    Bộ không có `quota_path` (v1) trả về {} thay vì trả số sai.
+    """
+    out: dict[str, Any] = {}
+    for kind, gold_map, pred_map in (
+        ("scalar", scalar_gold, scalar_pred),
+        ("list", list_gold, list_pred),
+    ):
+        for field, values in gold_map.items():
+            preds = pred_map.get(field) or []
+            n = min(len(values), len(preds), len(quota_paths))
+            idx = [i for i in range(n) if quota_paths[i] == field]
+            if not idx:
+                continue
+            out[field] = {
+                "kieu": kind,
+                "n_quota": len(idx),
+                **_accuracy_one([values[i] for i in idx], [preds[i] for i in idx]),
+            }
     return out
 
 
@@ -627,6 +665,7 @@ def _intent_metrics(gold: Sequence[str], pred: Sequence[str]) -> dict[str, Any]:
 def evaluate_rows(
     rows: Sequence[dict[str, Any]],
     infer: Callable[[str], dict[str, Any]],
+    verbose: bool = False,
 ) -> dict[str, Any]:
     samples: list[dict[str, Any]] = []
     excluded_multiturn = 0
@@ -644,13 +683,15 @@ def evaluate_rows(
     enum_predictions: dict[str, list[str | None]] = defaultdict(list)
     negation_pairs: list[tuple[set[str], set[str]]] = []
     canonical_pairs: list[tuple[str, str | None]] = []
+    quota_paths: list[Any] = []
     latencies_ms: list[float] = []
     schema_valid = 0
     parse_failures = 0
     schema_violations = 0
     started = time.perf_counter()
 
-    for record in rows:
+    total = len(rows)
+    for row_index, record in enumerate(rows, start=1):
         text = _current_text(record)
         try:
             gold = _gold_payload(record)
@@ -692,6 +733,20 @@ def evaluate_rows(
         gold_intents.append(gold_intent)
         pred_intents.append(pred_intent)
         enum_predictions["intent"].append(_enum_value(predicted.get("intent")))
+
+        if verbose:
+            # Một dòng/mẫu: thấy tiến độ và nhìn ra ngay nhãn nào hay sai,
+            # không phải đợi hết rồi mới mở JSON.
+            mark = "OK " if pred_intent == gold_intent else "SAI"
+            secs = latencies_ms[-1] / 1000
+            line = (
+                f"[{row_index:>4}/{total}] {mark} "
+                f"{gold_intent:>9} -> {pred_intent:<11} {secs:5.1f}s  "
+                f"{text[:56].replace(chr(10), ' ')}"
+            )
+            if format_error:
+                line += f"  ⚠ {format_error[:40]}"
+            print(line, flush=True)
 
         root_confidence = predicted.get("confidence")
         if (
@@ -761,6 +816,7 @@ def evaluate_rows(
 
         meta = record.get("meta") if isinstance(record.get("meta"), Mapping) else {}
         seed = meta.get("seed") if isinstance(meta.get("seed"), Mapping) else {}
+        quota_paths.append(meta.get("quota_path"))
         predicted_entities = {
             *_list_values(pred_context, "allergies"),
             *_list_values(pred_context, "current_products"),
@@ -811,6 +867,9 @@ def evaluate_rows(
     )
     extraction["field_accuracy"] = _field_accuracy(
         scalar_gold, scalar_pred, list_gold, list_pred
+    )
+    extraction["field_accuracy_by_quota"] = _field_accuracy_by_quota(
+        scalar_gold, scalar_pred, list_gold, list_pred, quota_paths
     )
     extraction["severity"] = _severity_metrics(
         scalar_gold.get("clinical.inflammation_level") or [],
@@ -868,10 +927,15 @@ def evaluate_rows(
     }
 
 
-def _build_model_infer(settings: Settings) -> tuple[Callable[[str], dict[str, Any]], Callable[[], None]]:
+def _build_model_infer(
+    settings: Settings, model: str | None = None
+) -> tuple[Callable[[str], dict[str, Any]], Callable[[], None]]:
+    # Cùng quy ước với run_ablation.py --model: cờ CLI đè .env, mặc định là
+    # settings.intake_model. Ghi tường minh để tên model vào thẳng report.json.
+    model = model or settings.intake_model
     backend = OllamaBackend(
         base_url=settings.ollama_url,
-        model=settings.intake_model,
+        model=model,
         fallback_model=None,
         num_ctx=min(settings.llm_num_ctx, 4096),
         num_predict=768,
@@ -887,7 +951,7 @@ def _build_model_infer(settings: Settings) -> tuple[Callable[[str], dict[str, An
     )
     intake = UnifiedIntake(
         backend,
-        model=settings.intake_model,
+        model=model,
         timeout=settings.intake_timeout,
     )
 
@@ -912,6 +976,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--train", default=str(DEFAULT_TRAIN))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--limit", type=int, default=0, help="0 = all held-out rows")
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="intaker local; mặc định settings.intake_model (.env). Ghi tường minh "
+             "để tên model vào report.json — khỏi đoán theo .env lúc chạy.",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true",
+        help="in 1 dòng/mẫu: gold -> pred, thời gian, đầu câu hỏi",
+    )
     args = parser.parse_args(argv)
     if args.limit < 0:
         parser.error("--limit must be non-negative")
@@ -945,6 +1019,18 @@ def _print_tables(report: Mapping[str, Any]) -> None:
                   f"{data.get('lift', 0):>+7.3f}"
                   f"{(f'{khi:.3f}' if khi is not None else '—'):>13}"
                   f"{data.get('n_co_khai', 0):>8}{data.get('bo_trong', 0):>7}{flag}")
+    by_quota = extraction.get("field_accuracy_by_quota") or {}
+    if by_quota:
+        print(f"\n{'FIELD (chỉ dòng quota_path trùng)':32}{'acc':>7}{'sàn':>7}"
+              f"{'lift':>7}{'n quota':>9}")
+        for name, data in sorted(by_quota.items(), key=lambda kv: kv[1].get("lift", 0)):
+            print(f"  {name:30}{data.get('accuracy', 0):>7.3f}"
+                  f"{data.get('baseline_luon_doan_pho_bien', 0):>7.3f}"
+                  f"{data.get('lift', 0):>+7.3f}{data.get('n_quota', 0):>9}")
+        print("\n  Bảng này mới là bảng nên trích. Bảng phía trên chấm mỗi field")
+        print("  trên TOÀN bộ dataset, kể cả dòng sinh ra để dò field khác (gold")
+        print("  = null theo thiết kế), nên sàn bị đẩy lên và lift mất nghĩa.")
+
         print("\n  sàn = luôn đoán một giá trị phổ biến nhất. lift = acc − sàn.")
         print("  lift gần 0 nghĩa là accuracy đến từ việc đoán 'không khai', "
               "không phải từ năng lực trích.")
@@ -1002,15 +1088,16 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
         rows = rows[: args.limit]
 
     settings = Settings()
-    infer, close = _build_model_infer(settings)
+    model_name = args.model or settings.intake_model
+    infer, close = _build_model_infer(settings, args.model)
     try:
-        result = evaluate_rows(rows, infer)
+        result = evaluate_rows(rows, infer, verbose=args.verbose)
     finally:
         close()
     report = {
         "schema_version": 1,
         "mode": "single_turn_no_cache_no_fallback",
-        "model": settings.intake_model,
+        "model": model_name,
         "dataset": str(dataset_path.relative_to(ROOT)),
         "train_overlap_guard": str(train_path.relative_to(ROOT)),
         "generated_at_epoch": int(time.time()),

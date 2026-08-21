@@ -93,10 +93,10 @@ def test_generator_version_matches_current_v3_schema():
     assert mes.DATASET_VERSION == "v3.2"
     assert mes.DEFAULT_MODEL == "deepseek-v4-pro"
     assert mes.DEFAULT_GENERATED_OUT.as_posix().endswith(
-        "evaluation/datasets/generated_v3_2/eval_set.v3.jsonl"
+        "evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
     )
     assert mes.SMOKE_GENERATED_OUT.as_posix().endswith(
-        "evaluation/datasets/generated_v3_2/eval_set.smoke.jsonl"
+        "evaluation/datasets/active/generator_eval.v3_2_145.smoke.jsonl"
     )
 
 

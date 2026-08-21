@@ -11,7 +11,6 @@ import time
 from typing import TYPE_CHECKING, Literal
 
 from ..schemas import AdviseOutput, UserInput
-from ._terms import CASE_INTAKE_TERMS
 from .routing.intent_router import RouteDecision, compute_route_flags, route_intent
 from .routing.llm_extractor import ExtractorFallback
 from .routing.llm_router import RouterFallback
@@ -47,8 +46,6 @@ MAX_MESSAGE_WORDS = 500
 def _count_words(text: str) -> int:
     return len(text.split())
 
-
-_CASE_INTAKE_TERMS = CASE_INTAKE_TERMS
 
 
 @dataclass

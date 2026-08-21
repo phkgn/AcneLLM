@@ -18,7 +18,7 @@ from datagen.roledatav2.gates import CorpusGateState
 from datagen.roledatav2.generator import load_taxonomy, sample_len_target
 from datagen.roledatav2.knowledge import context_is_vietnamese
 
-from .helpers import ANCHOR, answer_of_length, points_for
+from .helpers import ANCHOR, answer_of_length, points_for, seed_skeleton
 
 impl = v2_pipeline.impl
 
@@ -111,6 +111,16 @@ def _grounded_answer(context, target: int, bullets: int) -> tuple[str, list[str]
     return answer, points
 
 
+def _echo_prefix(user_text: str) -> str:
+    """Nhắc lại dữ kiện người dùng — để qua gate `user_facts_echoed`.
+
+    Mẫu thật cũng phải làm đúng việc này: anchor v4 bắt "dùng lại dữ kiện người
+    dùng đã kể", và gate đo >=30% từ nội dung của lượt user quay lại trong đáp án.
+    Câu trả lời văn mẫu chung chung sẽ trượt — đó là điều gate sinh ra để bắt.
+    """
+    return f"Về việc {user_text.rstrip('?.').lower()}: "
+
+
 def _build_payload(case, cfg, ordinal: int) -> dict:
     context, _, _ = impl.synthesize_context(case, cfg, sequence=ordinal - 1)
     target = sample_len_target(case.id, ordinal, case.len_chars)
@@ -144,10 +154,13 @@ def _build_payload(case, cfg, ordinal: int) -> dict:
         answer = (head + body)[:target]
         points = points_for(bullets)
 
+    user_text = CASE_USER.get(case.id, "Mình bị mụn ở cằm, nên làm gì?")
+    if case.echo_user_facts:
+        answer = (_echo_prefix(user_text) + answer)[:target]
     if phrase and phrase[:30] not in answer:  # cụm bắt buộc không được bị cắt mất
         answer = (phrase + " " + answer)[:target]
     return {
-        "user": CASE_USER.get(case.id, "Mình bị mụn ở cằm, nên làm gì?"),
+        "user": user_text,
         "assistant": answer,
         "points": points if case.min_points else [],
         "input_style": "standard",
@@ -180,6 +193,7 @@ def test_every_case_can_pass_the_pipeline_offline(case_id: str, tmp_path: Path) 
     cfg = _cfg(tmp_path)
     case = next(item for item in load_taxonomy(cfg) if item.id == case_id)
     writer = _Writer()
+    phase2 = seed_skeleton(cfg, case, 1, True, _build_payload(case, cfg, 1))
     accepted, _ = asyncio.run(
         impl._generate_one(
             case=case,
@@ -188,7 +202,7 @@ def test_every_case_can_pass_the_pipeline_offline(case_id: str, tmp_path: Path) 
             cfg=cfg,
             anchor=ANCHOR,
             style_guide="giọng thân thiện, đi thẳng vào vấn đề",
-            provider=_Provider(_build_payload(case, cfg, 1)),
+            provider=_Provider(phase2),
             writer=writer,
             corpus=CorpusGateState(14, 8),
             skip_gates=False,
@@ -200,9 +214,13 @@ def test_every_case_can_pass_the_pipeline_offline(case_id: str, tmp_path: Path) 
     checks = record["gate_results"]["checks"]
     assert checks["length_band"] is True
     assert checks["context_in_messages"] is True
-    if case.context and checks.get("grounding_language") == "en":
-        assert checks["grounding_judge_pass"] is True, "nguồn EN phải được judge chấm"
-        assert "grounded_rate_pass" not in checks, "nguồn EN không được chấm bằng trùng token"
+    if case.context:
+        assert checks["entities_grounded"] is True, "không được bịa tên thuốc/nguồn/số"
+        assert "grounding_judge" not in checks, "v2 vòng 2 không dùng judge nữa"
+        if checks.get("grounding_language") == "en":
+            assert "grounded_rate_pass" not in checks, "nguồn EN không chấm bằng trùng token"
+    if case.echo_user_facts:
+        assert checks["user_facts_echoed"] is True
     if case.min_points:
         assert checks["points_covered"] is True
     if case.require_structure:

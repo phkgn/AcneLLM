@@ -206,6 +206,17 @@ def _post_validate(
     }
 
 
+def _anchor_ok(record: dict[str, Any], anchor: str) -> bool:
+    """System prompt của một bản ghi đã lưu có hợp lệ để resume không.
+
+    Tách thành hàm riêng để v2 override được: v2 rải BA biến thể anchor trong
+    cùng một dataset (xem `roledatav2/config.py::ANCHOR_VARIANT_PATHS`), nên phép
+    so bằng một chuỗi duy nhất ở đây sẽ từ chối mọi bản ghi mang biến thể B hoặc
+    C và làm resume chết. v1 chỉ có một anchor nên hành vi không đổi.
+    """
+    return record.get("messages", [{}])[0].get("content") == anchor
+
+
 def _record_id(case_id: str, ordinal: int, smoke: bool) -> str:
     marker = "S" if smoke else ""
     return f"roledata-{case_id}-{marker}{ordinal:06d}"
@@ -463,7 +474,7 @@ async def run_pipeline(args: argparse.Namespace) -> int:
     if args.no_resume and args.limit is not None and cfg.checkpoint_path.exists():
         cfg.checkpoint_path.unlink()
     existing = list(iter_jsonl(output_path))
-    if any(record.get("messages", [{}])[0].get("content") != anchor for record in existing):
+    if any(not _anchor_ok(record, anchor) for record in existing):
         logger.error("Resume re-audit failed: existing record has non-canonical system anchor.")
         return 2
     counts = _case_counts(existing)

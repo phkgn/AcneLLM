@@ -13,7 +13,7 @@ from datagen.roledatav2.config import Config
 from datagen.roledatav2.gates import CorpusGateState
 from datagen.roledatav2.generator import sample_len_target
 
-from .helpers import ANCHOR, answer_of_length, case_by_id, points_for
+from .helpers import ANCHOR, answer_of_length, case_by_id, points_for, seed_skeleton
 
 impl = v2_pipeline.impl
 
@@ -36,7 +36,7 @@ def test_impl_resolves_v2_modules() -> None:
     assert impl.Config.__module__ == "datagen.roledatav2.config"
     assert impl.evaluate_record.__module__ == "datagen.roledatav2.gates"
     assert impl.to_record.__module__ == "datagen.roledatav2.generator"
-    assert impl.CASE_TYPE_TARGETS["B1_grounded_role"] == 470
+    assert impl.CASE_TYPE_TARGETS["B1_grounded_role"] == 180  # vòng 1: 470
     assert impl._generate_one.__module__ == "datagen.roledatav2.pipeline"
 
 
@@ -97,11 +97,13 @@ def _cfg(tmp_path: Path) -> Config:
 
 def _run(case_id: str, payload: dict, tmp_path: Path, ordinal: int = 1):
     cfg = _cfg(tmp_path)
-    provider = FakeProvider(payload)
+    case = case_by_id(case_id)
+    # Đường ống hai phase: đề bài phải nằm sẵn trong file sườn trước khi phase 2 chạy.
+    provider = FakeProvider(seed_skeleton(cfg, case, ordinal, True, payload))
     writer = FakeWriter()
     accepted, rejected = asyncio.run(
         impl._generate_one(
-            case=case_by_id(case_id),
+            case=case,
             ordinal=ordinal,
             smoke=True,
             cfg=cfg,
@@ -119,12 +121,17 @@ def _run(case_id: str, payload: dict, tmp_path: Path, ordinal: int = 1):
 def test_dry_run_accepts_a_valid_record(tmp_path: Path) -> None:
     case = case_by_id("R10_special_population")
     target = sample_len_target(case.id, 1, case.len_chars)
+    user = "Mình đang mang thai, bị mụn nhiều ở cằm thì nên làm sao?"
+    # R10 bật `echo_user_facts`: câu trả lời phải nhắc lại dữ kiện người dùng
+    # (mang thai, mụn ở cằm). Văn độn thuần tuý sẽ trượt — đúng ý đồ của gate.
+    echo = "Bạn đang mang thai và bị mụn nhiều ở cằm, mình lưu ý mấy điểm sau. "
     answer = (
-        answer_of_length(target - 120, bullets=3)
+        echo
+        + answer_of_length(target - 120 - len(echo), bullets=3)
         + "\nBạn nên trao đổi với bác sĩ da liễu trước khi dùng bất kỳ sản phẩm nào nhé."
     )
     payload = {
-        "user": "Mình đang mang thai, bị mụn nhiều ở cằm thì nên làm sao?",
+        "user": user,
         "assistant": answer,
         "points": points_for(3),
         "input_style": "standard",
@@ -140,8 +147,9 @@ def test_dry_run_accepts_a_valid_record(tmp_path: Path) -> None:
 
 def test_prompt_carries_length_and_points(tmp_path: Path) -> None:
     payload = {
-        "user": "Mình bị mụn.",
+        "user": "Mình bị mụn ở cằm ba tháng nay.",
         "assistant": answer_of_length(300),
+        "points": points_for(3),
         "input_style": "standard",
         "audience": "general",
     }
@@ -149,10 +157,73 @@ def test_prompt_carries_length_and_points(tmp_path: Path) -> None:
     prompt = provider.prompts[0][1]["content"]
     case = case_by_id("B1_grounded_role")
     target = sample_len_target(case.id, 1, case.len_chars)
-    assert f"khoảng {target} ký tự" in prompt
-    assert f"ít nhất {case.min_points} ý riêng biệt" in prompt
+    assert f"~{target} ký tự" in prompt
+    assert "TỐI ĐA" in prompt, "phải nêu trần cứng bằng số, không phải ±%"
+    # Ràng buộc độ dài phải nằm CUỐI prompt: đặt ở giữa thì bị luật sau lấn át,
+    # smoke đầu vượt band ở 6/9 ca loại và lần nào cũng vượt trần.
+    assert prompt.rindex("ĐỘ DÀI") > prompt.rindex("OUTPUT CONTRACT")
     assert "CẤU TRÚC BẮT BUỘC" in prompt
-    assert '"points"' in prompt
+    # Phase 2 nhận đề bài đã chốt, không tự nghĩ ra — đây là bất biến của hai phase.
+    assert "LỜI NGƯỜI DÙNG ĐÃ CHỐT" in prompt
+    assert "Mình bị mụn ở cằm ba tháng nay." in prompt
+    assert "CÁC Ý BẮT BUỘC PHỦ" in prompt
+    for point in points_for(3):
+        assert point in prompt
+
+
+def test_phase2_ignores_teacher_invented_question(tmp_path: Path) -> None:
+    """Teacher phase 2 trả kèm `user` thì bản ghi vẫn phải dùng câu hỏi của sườn.
+
+    Đây là lý do tồn tại của hai phase: `points` và câu hỏi tới từ một lời gọi
+    KHÁC lời gọi viết câu trả lời, nên `points_covered` mới là ràng buộc thật chứ
+    không phải model tự chấm sự nhất quán của chính nó.
+    """
+    case = case_by_id("R10_special_population")
+    target = sample_len_target(case.id, 1, case.len_chars)
+    user = "Mình đang mang thai, bị mụn nhiều ở cằm thì nên làm sao?"
+    echo = "Bạn đang mang thai và bị mụn nhiều ở cằm, mình lưu ý mấy điểm sau. "
+    answer = (
+        echo
+        + answer_of_length(target - 120 - len(echo), bullets=3)
+        + "\nBạn nên trao đổi với bác sĩ da liễu trước khi dùng bất kỳ sản phẩm nào nhé."
+    )
+    cfg = _cfg(tmp_path)
+    phase2 = seed_skeleton(
+        cfg,
+        case,
+        1,
+        True,
+        {
+            "user": user,
+            "assistant": answer,
+            "points": points_for(3),
+            "input_style": "standard",
+            "audience": "general",
+        },
+    )
+    # Teacher cố tình bịa thêm câu hỏi khác và đổi input_style.
+    phase2 = dict(phase2, user="CÂU HỎI DO TEACHER TỰ BỊA", input_style="teencode")
+    writer = FakeWriter()
+    accepted, _ = asyncio.run(
+        impl._generate_one(
+            case=case,
+            ordinal=1,
+            smoke=True,
+            cfg=cfg,
+            anchor=ANCHOR,
+            style_guide="giọng thân thiện",
+            provider=FakeProvider(phase2),
+            writer=writer,
+            corpus=CorpusGateState(14, 8),
+            skip_gates=False,
+        )
+    )
+    assert accepted is True
+    record = writer.records[0]
+    user_message = next(m["content"] for m in record["messages"] if m["role"] == "user")
+    assert user in user_message
+    assert "TỰ BỊA" not in user_message
+    assert record["input_style"] == "standard"
 
 
 def test_dry_run_rejects_short_answer_and_audits(tmp_path: Path) -> None:
@@ -184,17 +255,54 @@ def test_dry_run_rejects_flat_prose_without_bullets(tmp_path: Path) -> None:
     assert accepted is False, "độ dài đúng nhưng không có cấu trúc thì vẫn phải trượt"
 
 
-def test_input_style_mismatch_is_rejected(tmp_path: Path) -> None:
-    """Bất biến của v1 phải còn nguyên sau khi thay `_generate_one`."""
-    payload = {
-        "user": "Mình bị mụn.",
-        "assistant": answer_of_length(1_300, bullets=3),
-        "points": points_for(3),
-        "input_style": "teencode",  # ordinal=1 phải là "standard"
-        "audience": "general",
-    }
-    accepted, rejected, _, _ = _run("B1_grounded_role", payload, tmp_path)
-    assert accepted is False and rejected > 0
+def _phase2(case, ordinal, cfg, provider, writer):
+    return asyncio.run(
+        impl._generate_one(
+            case=case,
+            ordinal=ordinal,
+            smoke=True,
+            cfg=cfg,
+            anchor=ANCHOR,
+            style_guide="g",
+            provider=provider,
+            writer=writer,
+            corpus=CorpusGateState(14, 8),
+            skip_gates=False,
+        )
+    )
+
+
+def test_no_skeletons_at_all_fails_loudly(tmp_path: Path) -> None:
+    """Chưa chạy phase 1 thì phải chết ngay, kèm lệnh cần chạy.
+
+    Im lặng rơi về một-phase là kiểu hỏng tệ nhất: pipeline vẫn chạy, vẫn tốn
+    tiền, và `points_covered` lại quay về tự chấm chính nó mà không ai biết.
+    """
+    cfg = _cfg(tmp_path)
+    with pytest.raises(RuntimeError, match="phase1"):
+        _phase2(
+            case_by_id("B1_grounded_role"),
+            1,
+            cfg,
+            FakeProvider({"assistant": answer_of_length(1_300, bullets=3)}),
+            FakeWriter(),
+        )
+
+
+def test_one_missing_skeleton_is_skipped_not_fatal(tmp_path: Path) -> None:
+    """Thiếu ĐÚNG một sườn thì bỏ qua slot, không được làm sập cả mẻ.
+
+    Phase 1 bỏ cuộc ở một ordinal sau 4 lượt là chuyện bình thường (trùng lặp,
+    tiếng Anh...). Bản đầu raise cho mọi trường hợp thiếu và giết nguyên mẻ 232
+    mẫu vì một lỗ duy nhất — mất sạch phần đã trả tiền trong cùng lần chạy.
+    """
+    cfg = _cfg(tmp_path)
+    case = case_by_id("R1_identity")
+    seed_skeleton(cfg, case, 1, True, {"user": "Bạn là ai?", "input_style": "standard"})
+    writer = FakeWriter()
+    accepted, rejected = _phase2(case, 99, cfg, FakeProvider({"assistant": "x"}), writer)
+    assert accepted is False and rejected == 0
+    assert writer.records == []
 
 
 def test_len_target_is_deterministic_and_in_band() -> None:

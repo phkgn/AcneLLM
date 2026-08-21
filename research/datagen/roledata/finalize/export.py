@@ -73,6 +73,17 @@ Token counts are deterministic character-based estimates (approximately four cha
 """
 
 
+def _system_ok(system: str, anchor: str) -> bool:
+    """System prompt của bản ghi có hợp lệ để xuất không.
+
+    Tách thành hàm riêng để v2 override được: v2 rải BA biến thể anchor trong
+    cùng một dataset (`roledatav2/config.py::ANCHOR_VARIANT_PATHS`), nên phép so
+    bằng một chuỗi duy nhất ở đây làm export chết ngay bản ghi mang biến thể B
+    hoặc C. v1 chỉ có một anchor nên hành vi không đổi.
+    """
+    return system == anchor
+
+
 def export(cfg: Config) -> dict[str, Any]:
     """Export train.jsonl after independently rechecking schema and system parity."""
     anchor = assert_parity(cfg)
@@ -95,7 +106,7 @@ def export(cfg: Config) -> dict[str, Any]:
         if not schema_valid(record):
             raise ValueError(f"Invalid message schema for record {record_id}")
         messages = record["messages"]
-        if messages[0]["content"] != anchor:
+        if not _system_ok(messages[0]["content"], anchor):
             raise ValueError(f"System parity failure during export for record {record_id}")
         exported.append({"id": record_id, "messages": messages})
         case_counts[str(record.get("sample_kind") or "unknown")] += 1
