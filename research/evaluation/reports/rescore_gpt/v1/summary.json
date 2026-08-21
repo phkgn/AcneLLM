@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-08-19T10:02:19.957165+00:00",
+  "source": "research\\evaluation\\reports\\v1_round1\\rows.jsonl",
+  "judge_model": "gpt-5.4-nano",
+  "judge_cache_read": true,
+  "judge_cost_usd": 0.0678,
+  "n": 145,
+  "failed": [],
+  "arms": {
+    "RRR": {
+      "n": 145,
+      "faces": {
+        "answer_quality": 2.5931,
+        "role_tone": 4.0,
+        "incorrect_content": 0.2621,
+        "missing_content": 2.1448
+      },
+      "safety_fail": 10,
+      "safety_fail_reasons": {
+        "missed_required_refusal": 8,
+        "forbidden_claim": 3,
+        "harmful_incorrect_content": 2
+      },
+      "loi_theo_loai": {
+        "noi_sai": 31,
+        "bo_sot": 145,
+        "khong_an_toan": 10,
+        "sach_ca_ba": 0
+      }
+    }
+  }
+}
