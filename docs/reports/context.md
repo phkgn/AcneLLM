@@ -1,657 +1,489 @@
-# AcneLLM — Project Context
+# AcneLLM — Current Project Context
 
-Chatbot tư vấn da mụn tiếng Việt. Local-first: hai model chạy qua Ollama, RAG hybrid trên
-ChromaDB + BM25. Cloud API (DeepSeek/OpenAI) **chỉ** dùng cho eval judge và datagen,
-không nằm trên đường chạy của người dùng.
+> Xác minh theo source và artifact trong active worktree ngày **2026-08-23**.
+> Tài liệu này mô tả kiến trúc đang chạy, ranh giới dữ liệu/eval và các invariant
+> cần giữ. Nội dung trong `docs/archive/`, `docs/history/`, patch audit cũ hoặc
+> `model/legacy/` chỉ dùng để truy vết, không được ưu tiên hơn source hiện hành.
 
-> Viết lại từ code thực tế, **2026-08-11**, sau đợt dọn dẹp lớn (`src/` 17.440 → 15.839
-> dòng, 507 test xanh). Mọi mục trỏ tới file có thật. §16 liệt kê chính xác cái gì đã
-> thay đổi trong đợt đó — đọc nếu bạn quen bản cũ.
+## 1. Cách đọc source of truth
 
----
+Khi code, tài liệu và artifact không đồng ý với nhau, dùng thứ tự sau:
 
-## 1. Mindset của repo — đọc phần này trước
+1. Source đang được import từ `src/acne_llm/` và wiring trong
+   `src/acne_llm/di.py`.
+2. Config thực tế trong `src/acne_llm/config.py`, `.env` chỉ override.
+3. Test chạy trên chính worktree và interpreter của repo.
+4. Metadata của từng eval artifact: dataset, model, judge, commit, step status và
+   drop reason.
+5. Tài liệu active.
+6. Tài liệu archive/history và report cũ.
 
-Sáu nguyên tắc rút ra từ chính comment trong code, không phải khẩu hiệu. Đọc để hiểu
-tại sao code trông như vậy trước khi định "dọn dẹp" nó.
+Một report lịch sử vẫn có giá trị cho đúng snapshot đã đo, nhưng không tự động
+chứng minh runtime hiện tại. Một test suite xanh cũng không thay thế eval model
+thật hoặc kiểm tra parity của endpoint SSE.
 
-**a. Một đường chuẩn bị duy nhất cho mọi entrypoint.**
-`chat/orchestrator.py:prepare_chat_turn` là đường duy nhất. SSE, `/debug/trace`, CLI và
-eval adapter đều gọi nó. Hệ quả: `/debug/trace` cho ra **đúng** cái production làm, không
-phải mô phỏng lại.
+## 2. Sản phẩm hiện tại
 
-**b. Rule không được tự viết câu trả lời.**
-Guardrail quyết **nội dung** (ruling), generator viết **câu chữ**. Refusal không
-short-circuit trả chuỗi cứng — nó chuyển thành `refuse_user.j2` rồi để LLM diễn đạt, bản
-disclaimer cứng được nối lại ở `_safety.get_safety_suffix`.
+AcneLLM là hệ thống tư vấn mụn tiếng Việt, local-first:
 
-**c. Model đọc ngữ nghĩa, regex đọc thực thể.**
-Đây là ranh giới quan trọng nhất của repo, và nó được rút ra từ một phép đo chứ không
-phải sở thích. Tên thuốc là **thực thể**: nó có trong văn bản hoặc không, phủ định không
-làm chữ đó biến mất, nên khớp chuỗi là đủ. "Đang mang thai" là **trạng thái**: có phủ
-định, có thì, có chủ ngữ — chỉ model đọc được.
+- frontend Next.js;
+- backend FastAPI;
+- model phục vụ qua Ollama;
+- hybrid RAG bằng ChromaDB, BM25, Reciprocal Rank Fusion và cross-encoder;
+- session/audit/feedback lưu bằng SQLite;
+- endpoint chat production trả Server-Sent Events, không dùng WebSocket.
 
-Đo trên 13 câu đối kháng, lớp regex thai kỳ cũ sai 3: *"trước em mang thai nhưng giờ sinh
-rồi"* → True, *"chị tôi đang mang thai"* → gán cho người dùng. Đo end-to-end ở cổng thuốc
-còn tệ hơn: 5/5 câu bị chặn, 4 sai — kể cả *"em không mang thai, dùng tretinoin được
-không"*. Toàn bộ lớp đó đã bị gỡ (§16).
+Runtime có đúng hai vai trò model:
 
-**d. LLM-first, rule là lưới an toàn — nhưng lưới phải đặt đúng chỗ.**
-Route: unified LLM → semantic kNN → rule. Extract: unified LLM → rule, và rule **chỉ**
-chạy khi JSON không parse được. Fail ở tầng nào thì `log_pipeline_stage(..., level=
-"WARNING", fallback=...)` ghi lại, pipeline chạy tiếp.
-
-Ngoại lệ cố ý: hai cổng tất định chạy **trước mọi model** — prompt injection và vùng sinh
-dục. Ý nghĩa của một cổng cứng nằm ở chỗ nó không thể bị model thuyết phục; nhờ chính
-model đánh giá cuộc tấn công vào nó là vô nghĩa.
-
-**e. Đừng trả giá suy luận trước khi biết có cần không.**
-Extractor chỉ chạy sau khi route ra `advise|knowledge`. Pre-LLM chỉ cần `description`.
-
-**f. Không đo bằng từ vựng.**
-KB 60% Việt / 40% Anh nên mọi phép khớp từ đều thưởng cho đoạn cùng ngôn ngữ với câu hỏi,
-bất kể nội dung. `grounding_support` (char-3gram dice) và `forbidden_claims` đã bị gỡ khỏi
-eval vì lý do này. Xem `evaluation/eval_context.md` §6g.
-
-**g. Ngưỡng phải ghi kèm thang đo của nó.**
-Nhiều bug lịch sử là tune ngưỡng trên sai thang. `config.py` cố ý mang comment dài giải
-thích *score này là xác suất hay logit, đo sau bước nào* — đừng cắt gọn chúng. Xem §11.
-
----
-
-## 2. Stack thực tế
-
-| Layer | Thành phần | Nguồn sự thật |
+| Model | Trách nhiệm | Output |
 |---|---|---|
-| Generator | `acne-generator` — Qwen2.5-7B-Instruct Q4_K_M + LoRA role | `.env: LLM_MODEL`, `model/generator/Modelfile.full` |
-| Fallback generator | `qwen2.5:3b` — chỉ khi runner Ollama chết | `config.py: llm_fallback_model` |
-| Unified Intake | `acne-intaker` — Qwen2.5-3B-Instruct Q4_K_M + LoRA, temp 0 | `model/intaker/Modelfile` |
-| Router (arm legacy) | `acnellm-intent` | `config.py: router_model` |
-| Extractor (arm legacy) | `acne-extractor:1.5b` | `config.py: extractor_model` |
-| Semantic router | kNN trên embedding, k=9, OOS distance 0.483609 | `chat/routing/semantic_router.py` |
-| Embedding | `AITeamVN/Vietnamese_Embedding` (dim 1024) | `config.py` |
-| Reranker | `BAAI/bge-reranker-v2-m3` cross-encoder | `config.py` |
-| Vector DB | ChromaDB — **24.393 chunk** | `data/chroma_db/` |
-| Sparse | BM25 (`rank-bm25`), pickle + sha256 | `data/bm25_index.pkl` |
-| API | FastAPI + uvicorn, **SSE only** | `api/app.py` |
-| Frontend | Next.js 15 + Tailwind + Zustand | `frontend/src/` |
-| Session | SQLite `data/sessions.db`, TTL 1800s, 6 turn | `db/session_store.py` |
-| Audit | SQLite `data/audit.db` | `db/audit.py` |
-| Cache | DiskCache 2GB `data/cache` | `cache.py` |
-| Config | pydantic-settings | `config.py` |
+| `acne-intaker` | hiểu một lượt chat, chọn intent và trích xuất dữ kiện | JSON theo intake contract |
+| `acne-generator` | viết câu trả lời từ prompt/context đã chuẩn bị | prose streaming |
 
-### Phân tầng KB theo `source_type` (24.393 chunk)
+`acne-intaker` là **một instance, một inference dùng chung** cho routing và
+extraction. Không còn runtime mode để chọn kiến trúc router/extractor cũ. Các
+file trong `model/legacy/` là archive nghiên cứu và không tham gia startup.
 
-| source_type | chunk |
+## 3. Bản đồ repository
+
+```text
+src/acne_llm/
+  api/                 FastAPI app, routes, auth/middleware, metrics
+  chat/
+    intake.py          điều phối preprocess, history, safety, route, extraction
+    unified_intake.py  adapter duy nhất gọi intake LLM
+    intake_contract.py contract chung cho Unified/Semantic/rule fallback
+    routing/           semantic router, rule router/extractor, route flags
+    session/           models, view/select, snapshot/fold
+    _retrieval.py      query, retrieval passes, rerank và filter context
+    orchestrator.py    chuẩn bị một turn trước generation
+    runtime.py         stream generator, safety suffix, persist, SSE
+    _safety.py         hậu kiểm/cảnh báo trên output text
+  db/                  SQLite session, audit, feedback
+  guardrails/          kiểm tra trust boundary và policy thuốc
+  llm/                 Ollama client và prompt builder
+  rag/                 dense/sparse/hybrid retrieval, reranker, cache
+  schemas/             contract Pydantic/domain
+
+frontend/              Next.js UI và SSE consumer
+config/                prompts, guardrail config, drug knowledge config
+scripts/               run/build/crawl/bundle tooling
+research/
+  evaluation/          eval intake, retrieval và ablation
+  datagen/             sinh/chuẩn hóa dữ liệu fine-tune
+  LLMData/             dữ liệu nghiên cứu
+  dashboards/          dashboard và sơ đồ kiến trúc
+data/                  raw/chunks, indexes, SQLite DB và cache cục bộ
+model/                 Modelfile, model artifact, legacy archive
+tests/                 unit/integration tests
+docs/                  tài liệu active, archive/history và reports
+```
+
+`pyproject.toml` cấu hình `pythonpath = ["src", "research"]`. Vì thế source tại
+`research/evaluation/` được import/chạy với tên module `evaluation`, ví dụ
+`python -m evaluation.full_evaluation`.
+
+Các thư mục root không tracked hoặc artifact phát sinh cục bộ không nên được ghi
+thành layout canonical chỉ vì chúng tồn tại trong một worktree.
+
+## 4. Wiring khi startup
+
+`src/acne_llm/api/app.py` tạo FastAPI app và gọi
+`src/acne_llm/di.py::build_container()` trong lifespan. Container production:
+
+1. tạo Ollama backend cho generator;
+2. tạo đúng một `UnifiedIntake` cho intake model;
+3. giữ hai compatibility attribute `llm_router` và `llm_extractor`, nhưng cả hai
+   cùng trỏ tới instance `UnifiedIntake` đó;
+4. nạp Semantic Router local nếu asset hợp lệ;
+5. nạp Chroma, BM25 và reranker khi KB sẵn sàng;
+6. tạo prompt builder, guardrails, audit/feedback stores;
+7. luôn dùng `SQLiteSessionStore` cho session production.
+
+Compatibility attribute không có nghĩa là có hai model call. Nó chỉ giảm churn
+cho caller cũ trong khi contract đã hợp nhất.
+
+In-memory session store không còn public export trong package production. Test
+muốn store độc lập phải dùng helper/fixture dưới `tests/`, tránh singleton rò
+state giữa test.
+
+## 5. Vòng đời một chat turn
+
+### 5.1 HTTP và preprocess
+
+`GET /api/v1/chat/stream` ở `src/acne_llm/api/routes/chat.py` kiểm tra message,
+giới hạn kích thước/số từ rồi gọi `chat/runtime.py::stream_chat_sse()`.
+
+`chat/intake.py::run_intake()` chuẩn hóa text, nạp history từ SQLite và chọn
+history liên quan. Raw input, clean text và bản bỏ dấu có mục đích khác nhau;
+không được thay thế lẫn nhau nếu chưa đo mất thông tin như phủ định, thuốc hoặc
+vị trí tổn thương.
+
+### 5.2 Intake success path
+
+```text
+raw message + relevant history
+  -> guardrail pre-check
+  -> UnifiedIntake.run(...)
+  -> một JSON chứa intent + extraction
+  -> normalize/validate theo intake contract
+  -> RouteDecision + UserInput/clinical facts
+```
+
+Kết quả Unified Intaker được cache/reuse trong cùng turn: routing và extraction
+không tạo hai lượt gọi LLM riêng. Dữ kiện extraction được fold với history theo
+quy tắc session trước khi dùng cho policy/retrieval/prompt.
+
+### 5.3 Failure path cố định
+
+```text
+Unified Intaker (LLM)
+  -> nếu timeout, model lỗi, JSON/schema/intent không dùng được
+Semantic Router (embedding local, không LLM)
+  -> nếu unavailable hoặc lỗi
+rule router + rule extractor (deterministic, không LLM)
+```
+
+Semantic và rule fallback là cơ chế availability/degradation. Chúng không được
+mô tả là LLM phụ, và cũng không phải safety authority. Rule files được giữ khi
+chúng phục vụ fallback; sự tồn tại của regex không đồng nghĩa normal path phụ
+thuộc regex.
+
+### 5.4 Route decision và metadata
+
+`RouteDecision` tách rõ:
+
+- `primary_intent`: `advise`, `knowledge`, `clarify` hoặc `reject`;
+- `turn_type`: loại turn thực tế, thường là `answer`;
+- `route_flags`: tín hiệu text-derived để chọn prompt/cảnh báo;
+- `intent_confidence`: confidence của route source.
+
+`turn_type` không được giả làm primary intent. Confidence từ Semantic Router là
+`nearest_similarity` đã clip, không phải xác suất đã calibration. Không dùng nó
+như xác suất lâm sàng nếu chưa hiệu chuẩn.
+
+`product_safety_check` đã bị loại vì không có behavioral consumer. Nếu một flag
+không thay đổi refusal, retrieval, prompt hoặc output thì không được gọi nó là
+guardrail.
+
+### 5.5 Orchestration, retrieval và prompt
+
+`chat/orchestrator.py::prepare_chat_turn()` nhận intake result và quyết định:
+
+- trả fixed refusal/reject/clarify;
+- chọn knowledge hay advice template;
+- có cần retrieval không;
+- query và context nào được đưa vào prompt.
+
+`chat/_retrieval.py` thực hiện các pass phù hợp:
+
+1. xây query từ câu hiện tại và dữ kiện đã chọn;
+2. hybrid retrieval qua dense Chroma + sparse BM25;
+3. hợp nhất bằng RRF;
+4. retrieval bổ sung cho guideline/safety khi cần;
+5. cross-encoder rerank;
+6. áp floor, giới hạn số chunk/nguồn và budget context;
+7. đưa provenance cùng chunk vào prompt.
+
+`src/acne_llm/llm/prompt_builder.py` mới là nơi lắp system/template, history,
+profile, route flags và retrieved context. Text từ KB/history đi qua trust-boundary
+sanitization trước khi vào prompt.
+
+### 5.6 Generation, output safety và persistence
+
+`chat/runtime.py` gọi generator bằng streaming, phát event SSE, ghép câu trả lời
+và gọi `chat/_safety.py::get_safety_suffix()` để bổ sung/chuẩn hóa cảnh báo cuối.
+Sau khi hoàn tất, runtime lưu cả user turn và assistant turn vào SQLite, đồng
+thời ghi audit/metrics theo cấu hình.
+
+Debug route `/api/v1/debug/trace` tái dùng pipeline chuẩn bị turn đến trước
+generator. Nó không ghi session và không gọi generator, nên hữu ích để định vị
+lỗi intake/retrieval/prompt nhưng không chứng minh parity của token streaming,
+suffix hay persistence.
+
+## 6. Safety: trách nhiệm được chia theo tầng
+
+Không có một file duy nhất đại diện cho toàn bộ safety.
+
+| Tầng | Trách nhiệm | Không phải |
+|---|---|---|
+| `guardrails/runner.py` | trust-boundary validation, PII warning, chống chỉ định/tương tác thuốc từ dữ kiện có cấu trúc | classifier tổng quát cho mọi nội dung |
+| `chat/routing/intent_router.py` | sinh route flags cho prompt/output | refusal gate |
+| Semantic/rule fallback | giữ routing/extraction hoạt động khi Intaker lỗi | safety authority |
+| system prompt/templates | hướng generator trả lời đúng phạm vi và phong cách | hard deterministic guarantee |
+| `chat/_safety.py` | dose/self-use checks và safety suffix cuối output | thay thế input medication policy |
+
+Medication refusal kết hợp facts đã fold trong session với thuốc nhắc ở turn
+hiện tại. Trạng thái mang thai/cho con bú phải đến từ field có cấu trúc, không
+được suy ra chỉ vì câu có nhắc từ “mang thai”; nếu không sẽ tạo false positive
+cho phủ định, câu hỏi kiến thức hoặc câu nói về người khác.
+
+Policy hiện có các nhóm rủi ro quyết định như thai kỳ với retinoid/tetracycline,
+isotretinoin dùng cùng tetracycline, giới hạn tuổi và anti-androgen cho nam. Mọi
+thay đổi policy phải có tập false-positive/false-negative riêng trước khi xóa
+hoặc mở rộng rule.
+
+AcneLLM là công cụ hỗ trợ thông tin, không thay thế bác sĩ và không nên tự động
+được tuyên bố “medical-safe” chỉ từ unit test hoặc một ablation run.
+
+## 7. Session và multi-turn context
+
+Production session nằm trong `src/acne_llm/db/session_store.py` và được truy cập
+qua DI. Package `src/acne_llm/chat/session/` chia ba trách nhiệm:
+
+- `models.py`: kiểu dữ liệu, schema version, TTL/window constants;
+- `view.py`: chọn turn liên quan, profile xác nhận và render history block;
+- `fold.py`: snapshot và quy tắc hợp nhất facts qua nhiều lượt.
+
+TTL mặc định hiện tại là 1.800 giây. Giá trị cụ thể phải đọc từ config khi chạy,
+vì `.env` có thể override.
+
+Các rủi ro cần test khi thay session contract gồm: phủ định/correction ở turn
+sau, fact cũ thắng fact mới, cross-session leakage, transaction/concurrency,
+TTL, schema migration và persistence sau lỗi stream.
+
+## 8. Data và quá trình xây Knowledge Base
+
+Source build canonical là `scripts/build_kb.py`:
+
+```text
+data/raw/documents.jsonl
+  -- chunk/filter/provenance --> data/raw/chunks.jsonl
+  -- embedding -------------> data/chroma_db/
+  -- tokenization -----------> data/bm25_index.pkl
+```
+
+Ba step `chunk`, `embed`, `bm25` có thể chạy độc lập và có guard chống build
+index rỗng. Chroma phục vụ dense retrieval; BM25 phục vụ sparse retrieval. App
+chỉ coi hybrid KB sẵn sàng khi cả hai asset cần thiết tồn tại/nạp được.
+
+Các bất biến dữ liệu:
+
+- mỗi chunk phải giữ provenance đủ để truy nguồn;
+- filter chất lượng/chủ đề xảy ra trước index;
+- dense và sparse index phải được build từ cùng snapshot chunks;
+- đổi chunking/normalization phải invalidate index/cache liên quan;
+- không suy ra số chunk hiện tại từ report cũ, phải đọc live artifact/KB stats;
+- raw data, cache, SQLite và GGUF lớn không mặc định là Git source.
+
+## 9. Config contract hiện hành
+
+Default canonical ở `src/acne_llm/config.py`. Các giá trị quan trọng tại thời
+điểm xác minh:
+
+| Nhóm | Key/default |
 |---|---|
-| `vi_medical_site` | 12.359 |
-| `pubmed_review` | 5.218 |
-| `blog` | 3.571 |
-| `en_medical_site` | 2.258 |
-| `clinical_textbook` | 621 |
-| `aad_guideline` | 180 |
-| `nice_guideline` | 172 |
-| `unknown` | 14 |
-
-Ba loại cuối (`nice_guideline` + `aad_guideline` + `clinical_textbook` = **973 chunk**)
-là "tầng khuyến cáo chính thức" mà guideline pass retrieve giới hạn trong đó. Lý do: dense
-+ BM25 trên toàn corpus luôn ưu ái bài phổ thông tiếng Việt (12.359 vs 973 — tỉ lệ áp đảo +
-trùng token), nên guideline không bao giờ tự vào được top-k dù KB có sẵn.
-
----
-
-## 3. Cây thư mục thật
-
-```
-src/acne_llm/                    15.839 dòng
-├── api/                         710
-│   ├── app.py                   FastAPI + lifespan → build_container, CORS, middleware
-│   ├── deps.py                  get_container, require_admin (fail closed)
-│   ├── observability.py         APIKey / RateLimit / RequestLogging, MetricsRegistry
-│   └── routes/
-│       ├── chat.py              /chat/stream (SSE), /debug/trace 🔒, /chat/feedback
-│       ├── admin.py             /admin/* 🔒 — audit log, session stats, feedback
-│       ├── kb.py                /kb/retrieve, /kb/search, /kb/stats, /kb/chunk/{id}
-│       ├── health.py            /health, /models
-│       └── metrics.py           /metrics (Prometheus)
-├── chat/                        7.657  ← trái tim hệ thống
-│   ├── intake.py                run_intake() — guardrails + route + extract + fold
-│   ├── orchestrator.py          prepare_chat_turn() — đường chuẩn bị DUY NHẤT
-│   ├── runtime.py               stream_chat_sse() — SSE, persist, audit
-│   ├── unified_intake.py        1 inference phục vụ cả classify() lẫn run()
-│   ├── _intake_parse.py         parser khoan dung cho JSON của intaker
-│   ├── _retrieval.py            retrieve_for_chat() — RRF, guideline pass, OOD guard
-│   ├── _safety.py               get_safety_suffix() — tầng hậu kiểm DUY NHẤT
-│   ├── session.py               data model + fold_history_facts + format_history_block
-│   ├── preprocess.py            NFC, bỏ control char, strip_accents
-│   ├── confidence_hint.py       field conf thấp → nhắc model hỏi lại
-│   ├── _intent_patch.py         vá clarify→advise (tạm, xem §15)
-│   ├── _terms.py                bảng từ khoá dùng chung
-│   └── fallback/                CHỈ chạy khi tầng model fail
-│       ├── rule_normalizer.py   1.975 dòng — trích xuất bằng regex
-│       ├── rule_extractor.py    confidence cho bản rule
-│       ├── intent_router.py     route tầng 3 + compute_route_flags (LUÔN chạy)
-│       ├── semantic_router.py   route tầng 2 (kNN)
-│       ├── llm_router.py        arm legacy
-│       └── llm_extractor.py     arm legacy
-├── rag/                         1.159
-│   ├── retriever.py             HybridRetriever — dense + BM25 + RRF + trust boost
-│   ├── reranker.py              cross-encoder, cache (query, chunk_id)
-│   ├── embedder.py  vectorstore.py  sparse.py  chunker.py  cleaning.py
-├── llm/                         534
-│   ├── ollama_backend.py        HTTP client, stream + fallback model
-│   └── prompt_builder.py        Jinja2 + sanitize (trust boundary)
-├── guardrails/                  545
-│   ├── runner.py                pre_check, genital scope, medication_safety_refusal
-│   └── pii.py                   contains_pii / mask_pii  (đổi tên từ ood_detector.py)
-├── db/                          602    session_store.py (SQLite) · audit.py · base.py
-├── utils/                       771    logging (log_pipeline_stage) · retrieval_query · chunk_filter
-├── schemas/                     597    core · clinical · extraction · kb
-├── crawler/                     2.438  ← NGOẠI TUYẾN, không nằm trên đường chạy request nào
-├── cache.py  cli.py  config.py  di.py
-```
-
-🔒 = sau `require_admin` (header `x-admin-key`).
-
-`crawler/` nằm trong `src/` vì lịch sử, nhưng không module runtime nào import nó — vì thế
-dependency của nó (trafilatura, playwright, bs4…) nằm ở `requirements-dev.txt`, không phải
-`requirements.txt`.
-
----
-
-## 4. Đường chạy một tin nhắn — chi tiết theo code
-
-### 4.1 Entrypoint
-
-`GET /api/v1/chat/stream` → `runtime.stream_chat_sse` → `orchestrator.prepare_chat_turn`
-→ `intake.run_intake`. **Không có endpoint WebSocket** — frontend dùng SSE hoàn toàn
-(`frontend/src/lib/api.ts`).
-
-### 4.2 `run_intake()` — thứ tự CHÍNH XÁC (`chat/intake.py:211`)
-
-```
-①  Guard độ dài        4000 ký tự / 500 từ → ValueError (route trả 413)
-②  prepare_user_text() → clean_text, clean_text_no_accent
-③  store.get_history(session_id)          ← c.session_store, KHÔNG còn fallback ngầm
-④  _resolve_mode()     auto → hybrid nếu c.rag_ready, ngược lại llm_only
-⑤  base_user = UserInput(description=light_normalize(raw))     ← CHƯA trích xuất gì
-⑥  _extract_safety_terms(clean_text, base_user)
-       → danh sách CHỦ ĐỀ được nhắc tới. Chỉ dùng cho RETRIEVAL.
-         KHÔNG dùng để suy trạng thái — xem §1c.
-⑦  guardrails.pre_check(base_user)                → reject cứng "pre_check_invalid"
-⑧  genital scope                                  → reject cứng, TRỪ mixed scope
-⑨  medication_safety_refusal(base_user)  [current_turn]
-       → ở bước này base_user chưa có context, nên chỉ cặp thuốc-thuốc từ text mới chặn được
-⑩  ROUTE  ─ ladder, xem §5
-⑪  compute_route_flags(clean_text, history) → merge vào MỌI đường route
-⑫  clarify downgrade: clarify + _has_established_case(history) → advise
-⑬  intent == reject   → return ngay (llm_only, history=[], không extract)
-⑭  intent == clarify  → select_relevant_history, return (không extract)
-⑮  EXTRACT  ─ chỉ advise|knowledge, xem §6
-⑯  red_flags_input ≠ ∅ → gắn LẠI cờ `urgency_red_flag`
-       compute_route_flags ở ⑪ chạy TRƯỚC extract nên không thấy clinical. Thiếu bước
-       này thì mọi red flag intaker trích được đều không bật cảnh báo khẩn (bug đã sửa).
-⑰  guardrails.pre_check(base_user) LẦN 2 — full field sau khi đã trích xuất
-⑱  medication_safety_refusal  [post_extract]   ← thai kỳ chặn được ở ĐÂY, không sớm hơn
-⑲  advise only: confirmed_profile ← build_confirmed_profile(...) → merge vào session
-⑳  advise only: fold_history_facts(base_user, history)
-㉑  medication_safety_refusal  [session_fold]  ← thuốc đã xác nhận từ turn trước
-㉒  normalized_query = build_current_turn_query(clean_text, selected_history)
-    → IntakeResult
-```
-
-Ba lần gọi `medication_safety_refusal` là **cố ý**: current turn (chặn sớm cặp thuốc),
-post-extract (đủ field, thai kỳ chặn ở đây), session-fold (thuốc xác nhận turn trước).
-
-Đánh đổi mới sau khi gỡ lớp regex: thai kỳ **không còn chặn được trước khi gọi model**.
-Vẫn chặn trước retrieval và trước generator, chỉ là tốn một lần inference. Bù lại không
-còn chặn nhầm người nói "em không mang thai".
-
-### 4.3 `prepare_chat_turn()` (`chat/orchestrator.py:47`)
-
-```
-run_intake()
-  ↓
-should_retrieve = mode==hybrid ∧ không refusal ∧ effective_mode ∉ {refuse,clarify}
-                  ∧ intent ∉ {clarify,reject} ∧ (is_acne_signal ∨ safety_terms ∨ history)
-  ↓ nếu true
-retrieve_for_chat()   → RetrievalOutput | None
-  ↓
-chọn template:  scope_refusal|refuse → refuse_user.j2
-                reject               → reject_user.j2
-                clarify              → clarify_user.j2
-                knowledge            → knowledge_user.j2
-                mặc định (advise)    → stream_user.j2
-  ↓
-hint = refusal.disclaimer (nếu có) + confidence_hedge(field conf < 0.6)
-  ↓
-c.prompt.build(user, retrieval, template, max_context_chars,
-               history, prompt_note=hint, confirmed_profile)
-  → PreparedChatTurn(system_prompt, user_prompt, retrieval, …)
-```
-
-`user_override` chỉ nhận từ caller tin cậy (CLI/eval) và **chỉ** fact an toàn mới ảnh
-hưởng prompt.
-
-### 4.4 `stream_chat_sse()` (`chat/runtime.py:58`)
-
-```
-prepare_chat_turn()
-  → route_flags có "progress_followup": increment_followup_count(session)
-  → route_flags có "crisis_signal": yield prefix đồng cảm TRƯỚC khi stream
-  → c.llm.stream_text(system, user)   [knowledge: num_predict=-1, không hard-cap]
-       ├ strip CJK từng token (guard rò tiếng Trung/Nhật/Hàn)
-       └ yield event "token"
-  → yield event "source" cho từng chunk (TOÀN VĂN, không cắt 220 ký tự)
-  → get_safety_suffix()  → yield "token"
-  → sess.append_turn(user: RAW message) + append_turn(assistant: full text)
-  → compute_evidence_quality(retrieval)
-  → audit.log(AuditEntry)  — mask_pii nếu pii_detected
-  → yield event "done" {mode, latency_ms, used_chunks, evidence_quality,
-                        primary_intent, route_flags}
-```
-
-Turn `user` lưu **nguyên văn** người gõ, không phải bản đã preprocess.
-
-Việc ghi session nằm **sau** bước sinh và cả khối trong `try`: Ollama chết giữa chừng thì
-không lượt nào được lưu, session giữ nguyên trạng thái cũ thay vì đọng một câu hỏi không
-có trả lời.
-
----
-
-## 5. Routing — ladder ba tầng
-
-`RouteDecision(primary_intent, confidence, source, reason_code, route_flags, turn_type)`.
-`primary_intent ∈ {advise, knowledge, clarify, reject}`.
-
-| # | Tầng | Điều kiện dùng | Thất bại → |
-|---|---|---|---|
-| 1 | `c.llm_router` — **UnifiedIntake** (`acne-intaker`) khi `INTAKE_MODE=unified` | luôn thử trước | `RouterFallback` → tầng 2 |
-| 2 | `c.semantic_router` — kNN k=9, OOS nếu cosine distance > 0.483609, ambiguity margin 0.08 | router LLM fail/thiếu | exception → tầng 3 |
-| 3 | `route_intent()` rule (`fallback/intent_router.py`) | hai tầng trên fail | không có tầng 4 |
-
-Chỉ tầng 3 mới chạy `normalize_chat_message()` + `extract_with_confidence()` — fallback về
-rule **đắt hơn**, không rẻ hơn.
-
-**Hai patch bắt buộc sau khi route:**
-
-- `compute_route_flags(clean_text, history)` merge vào **mọi** đường. Unified và semantic
-  trả `route_flags=[]`, làm chết im lặng cảnh báo khẩn cấp (`_safety`) và guidance an toàn.
-  Cờ là tín hiệu văn bản nên không phụ thuộc router nào thắng.
-  ⚠️ Hàm được gọi **không có** `user` (chạy trước extract), nên nhánh clinical bên trong nó
-  luôn tắt — bước ⑯ ở §4.2 gắn bù cờ `urgency_red_flag`.
-- **clarify downgrade**: intaker học multi-turn từ 200/200 mẫu đều gán `clarify`, nên mọi
-  follow-up có history bị kéo về clarify. Khi phiên đã có case thật, hạ xuống `advise` +
-  flag `clarify_downgraded`. **Gỡ sau khi datagen multi-turn cân lại nhãn.**
-
-`route_flags` sinh ở `compute_route_flags` (`fallback/intent_router.py:268`):
-`repeated_question`, `emotional_distress`, `crisis_signal`, `product_safety_check`,
-`urgency_red_flag`, `progress_followup`, `multi_condition`. Thêm ở nơi khác:
-`mixed_genital_scope`, `clarify_downgraded`, `medication_safety_block`,
-`pre_check_invalid`, `genital_scope`.
-
----
-
-## 6. Extraction — Unified Intake
-
-`UnifiedIntake` (`chat/unified_intake.py`) là **một inference phục vụ hai interface**:
-`classify()` trả `RouteDecision`, `run()` trả `LLMExtractResult`.
-
-- Cache **LRU 8 ô + lock**, khoá `(clean_text, history_json)`. Bản cũ là *một ô duy nhất
-  trên instance dùng chung*: hai request song song ghi đè ô của nhau giữa `classify()` và
-  `run()`, request bị đè phải gọi intaker lần hai — chi phí intake gấp đôi một cách không
-  xác định dưới tải.
-- Prompt runtime `_RUNTIME_SYSTEM` **trùng byte** với `SYSTEM` trong `model/intaker/Modelfile`
-  và `datagen/intakedata/system_prompt.canonical.txt`. Ba nơi, sửa một là lệch train/serve.
-- Dùng `response_format="json"` chứ **không** grammar — llama.cpp không parse nổi nested
-  `anyOf`-null, trả 400.
-- Hậu kiểm duy nhất: parse được JSON object + `_validate_contract`. Sai enum/shape thì
-  parser khoan dung ở `_intake_parse.py` **drop field**, không fallback: một field hỏng
-  không đáng vứt cả inference.
-- `intent` là ngoại lệ — sai enum thì raise, vì không route được thì không còn đường nào.
-- History: tối đa 3 turn gần nhất, mỗi turn ≤ 300 ký tự, chỉ role `user`/`assistant`.
-
-**Không còn lớp regex hỗ trợ.** `_intake_parse.py` từng chạy `_raw_safety_lists()` và
-`_raw_safety_overrides()` trên **mỗi lượt** rồi OR vào kết quả model. Đã gỡ — xem §1c và
-§16. `rule_normalizer` + `rule_extractor` vẫn còn nguyên nhưng chỉ được gọi khi
-`UnifiedIntake` ném `ExtractorFallback`.
-
-Schema trả về: `{intent, confidence, description, context, clinical}`, mọi scalar và mọi
-phần tử list đều là `{"value":…, "confidence":0..1}`.
-
-**Enum cứng** (đổi ở đây là đổi cả datagen + Modelfile + eval):
-`lesion_types`: comedone, whitehead, blackhead, closed_comedone, papule, pustule, nodule,
-cyst, scar, post_inflammatory_hyperpigmentation, other ·
-`inflammation_level`: none, mild, moderate, severe, unknown ·
-`lesion_distribution`: forehead, cheeks, chin, jawline, nose, around_mouth, back, chest,
-shoulders, neck, t_zone, other · `skin_type`: dry, oily, combination, sensitive, normal, unknown.
-
-**Dải confidence** do system prompt của intaker định nghĩa — mọi ngưỡng đọc số này phải
-neo theo nó: `0.9–1.0` nêu rõ · `0.6–0.85` suy luận hợp lý · `0.3–0.55` mơ hồ.
-
----
-
-## 7. Retrieval (`chat/_retrieval.py:187`)
-
-```
-query = intake.normalized_query        ← query CỦA LƯỢT HIỆN TẠI. Planner đã bị gỡ.
-cache key = ("chat-query-v6", query, top_k, rerank_top_k, min_score, safety_terms)
-
-① retriever.retrieve(query, top_k=25, mode="hybrid")
-      dense (Chroma cosine, distance ≤ 0.60) + BM25 → RRF (k=60) → trust_boost theo source_type
-② GUIDELINE PASS — chạy cho MỌI truy vấn
-      retrieve_safety_pass(query, safety_terms=None, top_k=5,
-                           source_types=(nice_guideline, aad_guideline, clinical_textbook))
-      → RRF merge vào pool. KHÔNG ép chunk nào vào câu trả lời; cross-encoder vẫn quyết.
-③ SAFETY PASS — chỉ khi _has_medical_safety_terms() (thai kỳ, isotretinoin, kháng sinh…)
-      Generic ingredient term KHÔNG kích hoạt
-④ reranker.rerank(query, pool, top_k = chat_rerank_top_k * 3 = 15)
-      ⚠️ rerank chấm HẾT pool rồi mới cắt — pool ~30-35 cặp là chi phí thật
-⑤ cap_per_source(max_per_source=1, limit=5)   ← cap SAU rerank, TRƯỚC OOD guard
-      chunk bị loại giữ làm spill, lấp lại nếu chưa đủ limit → không bao giờ trả ít hơn
-⑥ OOD guard mềm: giữ chunk có score ≥ chat_rerank_floor (0.50)
-      không chunk nào đạt → return None → LLM trả lời KHÔNG dùng RAG
-⑦ drop_acne_boils_mismatched_chunks → drop_body_region_mismatched_chunks → drop_noisy_chunks
-   (KHÔNG dùng keyword-mismatch filter sau reranker — cross-encoder đã score rồi)
-⑧ ensure_guideline_slot — nếu top-N cuối không có đoạn khuyến cáo nào thì thay đoạn điểm
-   THẤP NHẤT bằng đoạn khuyến cáo tốt nhất còn trong pool
-
-Không có reranker → _full_filter (noise + keyword mismatch)
-```
-
-`compute_evidence_quality`: avg ≥ 0.90 → `strong`, ≥ 0.50 → `moderate`, < 0.50 → `weak`,
-không retrieval → `unverified`.
-
-⚠️ **Đổi logic retrieval thì PHẢI tăng version trong cache key.** Khoá cache chỉ gom query
-+ vài tham số, không phản ánh code. Quên tăng → cache trả kết quả cũ và bạn tưởng thay đổi
-không có tác dụng. Lịch sử: v3 guideline pass · v4 bỏ sigmoid lần hai · v5 cap_per_source ·
-v6 ensure_guideline_slot.
-
----
-
-## 8. Session & context (`chat/session.py`)
-
-- `SQLiteSessionStore` — `data/sessions.db`, TTL 1800s, giữ 6 turn (`HISTORY_WINDOW_TURNS`).
-  **Nguồn duy nhất trong production**: `runtime`/`intake` đọc thẳng `c.session_store`.
-  `SessionStore` in-memory cùng file giờ là **test double**, có ghi rõ trong docstring.
-- `NormalizedSnapshot` chỉ persist khi `primary_intent == "advise"`.
-- **`select_relevant_history`** — không đoán "có phải follow-up không" bằng whitelist tiền tố:
-  - `knowledge` → chỉ **user turn gần nhất**, giữ prose cũ của bot ra ngoài prompt.
-  - còn lại → cả cửa sổ 6 turn; `format_history_block()` cắt theo `HISTORY_CHAR_BUDGET=2000`.
-  - turn genital luôn bị lọc bỏ.
-- **`fold_history_facts`** — chỉ chạy khi `advise`: last-write-wins cho scalar · ADDITIVE cho
-  `lesion_types`/`distribution`/`red_flags` · MAX theo `_SEVERITY_ORDER` cho
-  `inflammation_level` · tôn trọng phủ định (`_mentions_stop`, `_STOP_PRODUCT_TERMS`).
-- **`build_confirmed_profile`** — ngưỡng **theo nhóm trường**, neo vào dải của intaker (§6):
-
-  | Trường | Ngưỡng | Vì sao |
-  |---|---|---|
-  | `is_pregnant`, `is_breastfeeding` | **không gác** | cổng chỉ nổ khi True; bỏ sót là hướng hỏng nguy hiểm, chặn nhầm chỉ phiền |
-  | còn lại | `CONTEXT_FIELD_THRESHOLD = 0.60` | ngữ cảnh; nhớ nhiều hơn thì sát hơn |
-
-  Con số chọn theo **hướng hỏng**, không theo mức quan trọng của trường. Ngưỡng cũ 0.82 nằm
-  giữa dải "suy luận" — dữ kiện model đoán ở 0.84 lọt, 0.80 rớt, một ranh giới vô nghĩa còn
-  sót từ thang điểm rule.
-
-Ba trường `intent_label` / `intent_confidence` / `turn_type` trên `ConversationTurn` đã bị
-xoá: chúng chỉ được **ghi** bởi store in-memory và bản SQLite không khôi phục khi đọc — hai
-store lệch nhau mà không ai phát hiện, vì không dòng nào đọc chúng.
-
----
-
-## 9. Guardrails (`guardrails/runner.py`, 499 dòng)
-
-Chỉ còn **ba cổng**, tất cả đều chạy trước generator:
-
-| Hàm | Chạy ở đâu | Tính chất |
-|---|---|---|
-| `pre_check(user)` | intake ⑦ và ⑰ | prompt injection → raise → reject cứng |
-| `is_genital_scope` | intake ⑧ | hard reject, trừ mixed scope |
-| `medication_safety_refusal(user, terms)` | intake ⑨ ⑱ ㉑ | trả `AdviseOutput` → refuse |
-
-`medication_safety_refusal` chặn bốn thứ, tất cả viết thẳng trong hàm:
-
-1. thai kỳ/cho bú + bất kỳ retinoid/tetracycline nào
-2. isotretinoin + tetracycline (nguy cơ tăng áp lực nội sọ)
-3. tetracycline khi < 8 tuổi · isotretinoin khi < 12 tuổi
-4. spironolactone/cyproterone cho nam
-
-Ba nhóm sau từng do `DrugChecker` + `drugs_acne.yaml` lo. Class đó đã bị xoá (§16);
-`config/drugs_acne.yaml` **giữ lại** vì `datagen/gates.py` đọc nó để lấy danh sách hoạt chất.
-
-`_contains_any` khớp theo **ranh giới từ**, gộp thành một regex compile sẵn. Bản cũ chỉ áp
-ranh giới cho 6 alias, 414 term còn lại dùng `in` — mà bảng có term hai ký tự không dấu
-("co", "ma", "cam"), nên `is_acne_scope_text("con chó nhà tôi bị ốm")` trả True. Đo lại trên
-4.695 câu thật: sửa đổi kết luận ở 1,2% số câu, phần lớn là sửa đúng.
-
-Soft OOS **không** ở guardrails — nó thuộc về intaker/`SemanticRouter`.
-`contains_pii`/`mask_pii` nằm ở `guardrails/pii.py`, dùng lúc ghi audit.
-
-Vùng mụn hợp lệ: mặt, trán, má, cằm, mũi, quai hàm, hàm, miệng, lưng, ngực, vai, cổ, gáy.
-
----
-
-## 10. Prompt (`llm/prompt_builder.py` + `config/prompts/*.j2`)
-
-`PromptBuilder.build()` ráp bốn khối, xếp ngược thứ hạng (cao nhất xuống cuối):
-tài liệu tham khảo → ngữ cảnh gần nhất → dữ kiện an toàn đã xác nhận → tin nhắn hiện tại.
-
-- `_escape_jinja` / `_sanitize_chunk_text` / `_sanitize_user_description` /
-  `sanitize_history_turns`: chunk và text người dùng là **trust boundary** — chống prompt
-  injection qua nội dung crawl. Đừng gỡ.
-- `known_facts` và `route_guidance` **đã bỏ**: SYSTEM không có luật xử lý chúng nên model tự
-  đoán. Kênh duy nhất báo "extractor không chắc" giờ là `build_confidence_hint`.
-- `llm_use_modelfile_system=True` (mặc định): **không** gửi system message qua API, để
-  `SYSTEM` trong Modelfile tự lo — tránh hai system prompt chồng nhau. Nên `sys_p` trả về
-  luôn là chuỗi rỗng.
-
-Template: `stream_user.j2` (advise) · `knowledge_user.j2` · `clarify_user.j2` ·
-`reject_user.j2` · `refuse_user.j2`. Hai file `*.legacy.j2` giữ cho arm A/B.
-
----
-
-## 11. Config — ba tầng, đừng trộn
-
-| Tầng | Chứa gì | KHÔNG chứa gì |
-|---|---|---|
-| `model/**/Modelfile` | artifact-level: `FROM`, `TEMPLATE`, `SYSTEM`, stop token | `num_ctx`, `temperature`, `top_p` — Python cần quyền override per-request |
-| `.env` | secret + giá trị khác theo máy/lần chạy | hằng số tuning |
-| `config.py` | **single source of truth cho SCHEMA + DEFAULTS** | secret |
-
-### Knob quan trọng và thang đo của nó
-
-| Key | Default | Cảnh báo |
-|---|---|---|
-| `chat_retrieve_top_k` | 25 | pool ĐƯA VÀO cross-encoder |
-| `chat_rerank_top_k` | 5 | giữ lại sau rerank |
-| `chat_guideline_top_k` | 5 | guideline pass, chạy mọi truy vấn |
-| `chat_safety_top_k` | 5 | chỉ khi có medical safety term |
-| `chat_max_chunks_per_source` | 1 | chunker chồng lấn 40 token → 2 chunk kề nhau gần trùng |
-| `chat_max_context_chars` | 6000 | eval oracle dùng lại đúng số này |
-| `chat_rerank_floor` | 0.50 | **xác suất thật** từ `CrossEncoder.predict()`. Ngưỡng 0.45→0.58 trước đây tune trên thang bị sigmoid hai lần ([0.500, 0.731]) |
-| `reranker_min_sigmoid` | 0.30 | cùng thang xác suất; đúng chủ đề ~0.95-0.999, lạc đề < 0.1 |
-| `chat_min_chunk_score` | 0.25 | ⚠️ chạy trên **hai thang**: sau reranker vô tác dụng, chỉ nhánh không-reranker mới có nghĩa |
-| `dense_max_distance` | 0.60 | cosine distance Chroma ≈ similarity 0.40 |
-| `extract_min_field_conf` | 0.60 | ngưỡng trường ngữ cảnh vào `confirmed_profile`. Từng bị `max(0.82, …)` khoá cứng nên **chưa bao giờ có tác dụng** — đã gỡ |
-| `route_min_confidence` | 0.55 | routing dưới ngưỡng → clarify |
-| `admin_api_key` | `""` | 🔒 khoá cho `/admin/*` + `/debug/trace`. **Rỗng = từ chối** (fail closed) |
-| `api_key` | `""` | khoá toàn cục, cố ý để trống: `EventSource` không gửi được header → bật lên là chết `/chat/stream` |
-| `cors_origins` | `["localhost:3000", ":8000"]` | đừng dùng `"*"` |
-| `llm_keep_alive` | -1 | Ollama parse như Go duration: int hoặc string **có unit**. `"-1"` dạng string → 400 |
-| `ollama_generate_timeout` | 30.0 (config) / 300 (.env máy CPU) | thấp cố ý để latency lộ ra |
-
-Mọi `getattr(settings, x, default)` trong code phải có default **trùng** `config.py`.
-Từng có 5 chỗ lệch (`chat_retrieve_top_k` 8≠25, `chat_rerank_top_k` 3≠5, …) khiến test chạy
-một hệ còn production chạy hệ khác. Đã đồng bộ.
-
----
-
-## 12. Evaluation
-
-### 12.1 `evaluation/` — 3 khâu
-
-Giả thiết nền: hệ thống có 3 khâu **intaker → RAG → generator**; câu trả lời dở thì phải
-biết lỗi ở khâu nào.
-
-| Khâu | Đo gì | Judge | Lệnh |
-|---|---|---|---|
-| 1 | intaker rút đúng 15 slot không | không | `python -m evaluation.runners.run_intake` |
-| 2 | tài liệu retrieval mang về có dùng được không | có | `python -m evaluation.runners.run_retrieval` |
-| 3 | thay/tắt từng khâu, câu trả lời chênh bao nhiêu | có | `python -m evaluation.runners.run_ablation` |
-
-**Khâu 2 KHÔNG dùng recall@k trên chunk vàng** — chấm theo danh tính chunk là chấm oan.
-Judge hỏi thẳng "đoạn này liên quan không, gộp lại đủ trả lời không".
-
-Arm = 3 ký tự `[intaker][rag][generator]`, `R`=thật · `O`=hoàn hảo · `N`=tắt.
-Mặc định 6 arm: `RRR RNR ROR ORR RRO RNO`.
-
-Chín mặt điểm, không mặt nào đếm từ. Safety **luôn báo riêng**.
-
-**Bộ đề mới — `intake_pregnancy_probe.jsonl`.** 41 câu đối kháng cho riêng `is_pregnant`:
-phủ định, thì quá khứ, ngôi thứ ba, tự đính chính, giả định, câu hỏi kiến thức, diễn đạt
-gián tiếp. 37% dương tính, so với bộ cũ mà `run_intake.py:52` ghi là *0 dòng
-`is_pregnant=True` trên 400*. Sinh lại bằng
-`python -m evaluation.datasets.make_pregnancy_probe`.
-
-Đây là bằng chứng đi kèm quyết định gỡ lớp regex thai kỳ: sau khi gỡ, **không còn gì đỡ
-phía sau intaker** ở trường đó. Nhìn `accuracy_khi_co_khai` và `bo_trong`.
-
-### 12.2 Nợ đã biết của eval
-
-- **Judge chưa hiệu chỉnh.** `judges/calibrate.py` có sẵn nhưng chưa chạy.
-- Câu hỏi sinh ngược từ chunk luôn trả lời được từ KB → `ROR − RRR` là **cận trên**.
-- Không có số retrieval nội tại.
-- `answer_quality` vẫn gộp "sai" và "thiếu" — món nợ có ý thức.
-
-### 12.3 `ablation/` — module song song ở root
-
-Không import gì từ `evaluation/`, chạm product code qua `repo_adapter.py`, chạy đủ lattice
-2³ = 8 arm. ⚠️ Hai module cùng đo một thứ với hai định nghĩa arm khác nhau — trước khi trích
-số vào luận văn phải chọn một làm nguồn sự thật.
-
----
-
-## 13. Datagen (`datagen/`)
-
-| Module | Sinh cho | Output |
-|---|---|---|
-| `datagen/intakedata/` | `acne-intaker` | `output/intake/intake.{train,val,smoke}.jsonl` |
-| `datagen/roledata/` | generator, v1 | `datagen/roledata/output/` |
-| `datagen/roledatav2/` | generator, v2 — thêm `len_chars` + `min_points` | `datagen/roledatav2/output/` |
-
-Mọi record dùng `system_prompt.canonical.txt` **byte-identical** với Modelfile và
-`_RUNTIME_SYSTEM`. Ghi append-only sau khi qua gate. `--yes` bắt buộc với mọi mode tốn phí.
-
-Pipeline **resume được**: `slots` chỉ sinh từ `counts[case]+1` tới target, output append-only.
-Chạy lại không làm lại phần đã có.
-
-⚠️ **Gate `phrase_frequency` xung đột với taxonomy.** Nó cấm một cụm 14 từ lặp quá 8 lần
-trên toàn corpus, trong khi taxonomy bắt model luôn xưng danh, luôn khuyên gặp bác sĩ,
-luôn nói "không phải bác sĩ". Đo trên corpus v2 (2.763 mẫu): 98,02% cụm 14-gram chỉ xuất
-hiện **một lần** — tập rất đa dạng — nhưng 248 cụm chạm trần, và chúng chính là các câu bắt
-buộc đó. Kết quả: 63% số lần bị loại là do gate này, 749 slot bỏ cuộc sau 4-8 lần thử.
-
-Nâng cap chỉ là vá tuyến tính. Hướng đúng: miễn trừ phần boilerplate bắt buộc khỏi gate.
-
----
-
-## 14. Dev workflow
-
-```bash
-./tasks.sh install          # venv + deps (Linux dùng .venv-linux)
-./tasks.sh serve            # tự start ollama, kill port 8000, uvicorn --reload
-./tasks.sh frontend         # next dev :3000
-./tasks.sh build-kb         # data/raw/documents.jsonl → chroma + bm25
-./tasks.sh test             # pytest
-./tasks.sh lint  stats  chat  docker-{build,up,logs,down}
-```
-
-Windows:
+| Generator | `LLM_MODEL=acne-generator`, context 8192, predict 2048 |
+| Intake | `INTAKE_MODEL=acne-intaker`, `INTAKE_TIMEOUT=60` |
+| Embedding | `AITeamVN/Vietnamese_Embedding` |
+| Reranker | `BAAI/bge-reranker-v2-m3` |
+| Semantic route | k=9, OOS distance=0.483609, ambiguity margin=0.08 |
+| Chat retrieval | retrieve 25, rerank 5, guideline 5, safety 5 |
+| Context filter | rerank floor 0.50, max context 6000 chars |
+| Session | SQLite path `data/sessions.db`, TTL 1800 s |
+
+Runtime intake contract chỉ còn `INTAKE_MODEL` và `INTAKE_TIMEOUT`. Các key
+`INTAKE_MODE`, `ROUTER_*`, `EXTRACTOR_*` là legacy và không được đưa trở lại
+active env example, Docker, startup log hay config docs.
+
+Không copy mọi default vào `.env`: điều đó tạo hai nguồn truth. `.env` nên giới
+hạn ở secret, URL/model và override thực sự phụ thuộc deployment.
+
+## 10. API và deployment surface
+
+Các route chính:
+
+| Endpoint | Ghi chú |
+|---|---|
+| `GET /api/v1/chat/stream` | endpoint sản phẩm, SSE |
+| `POST /api/v1/chat/feedback` | feedback |
+| `GET /api/v1/health` | Ollama/KB readiness |
+| `GET /api/v1/models` | model discovery |
+| `/api/v1/kb/*` | retrieve/search/stats/chunk inspection |
+| `GET /api/v1/debug/trace` | admin-protected, dừng trước generator |
+| `/api/v1/admin/*` | audit/session/feedback, admin-protected |
+| `GET /metrics` | Prometheus |
+
+`ADMIN_API_KEY` bảo vệ dữ liệu nhạy cảm. Để trống là fail closed cho admin/debug.
+`API_KEY` toàn cục mặc định trống vì native browser EventSource không gắn được
+custom header; bật nó mà không đổi transport sẽ làm chat SSE thất bại.
+
+Compose có các service: Ollama, init model, backend `acne-llm`, frontend và
+Nginx gateway. Backend/Ollama nằm trong network nội bộ; gateway là surface cho
+browser. GPU dùng overlay `docker-compose.gpu.yml`; CPU vẫn chạy nhưng inference
+có thể rất chậm.
+
+## 11. Evaluation: thiết kế và ranh giới bằng chứng
+
+### 11.1 Ba lane
+
+Harness tracked nằm ở `research/evaluation/`:
+
+1. **Intake eval**: schema/parse, intent classification, extraction field metrics,
+   latency; ép không fallback để đo đúng Intaker.
+2. **Retrieval eval**: LLM judge chấm relevance, precision, sufficiency, ranking
+   và groundedness; không dùng lexical overlap làm proxy chính.
+3. **Ablation**: thay/tắt từng khâu bằng arm ba ký tự `[intake][RAG][generator]`,
+   với `R`=real, `O`=oracle, `N`=off (chỉ RAG).
+
+Các arm thường dùng:
+
+| Arm | Ý nghĩa |
+|---|---|
+| `RRR` | hệ thống thật làm baseline |
+| `RNR` | tắt RAG |
+| `ROR` | oracle retrieval context |
+| `ORR` | oracle intake |
+| `RRO` | oracle/frontier generator |
+| `RNO` | generator mạnh khi tắt RAG |
+
+Safety failure phải báo riêng với quality score. Một row fail safety có thể bị
+loại khỏi paired quality comparison; vì vậy không được cộng hoặc suy luận chéo
+hai tập bằng chứng như thể cùng sample population.
+
+### 11.2 Artifact `run_full_v3_2`
+
+`research/evaluation/reports/run_full_v3_2/summary.json` ghi rõ:
+
+- preflight: `ok`;
+- intake: `skipped`;
+- retrieval: `skipped`;
+- ablation: `ok`.
+
+Do đó folder này là bằng chứng cho ablation đã chạy, không phải fresh full eval
+cho cả ba lane. Các file intake/retrieval cùng folder có thể là artifact tồn dư
+từ run trước và không được nhập nhằng với run metadata hiện tại.
+
+Kết luận có thể giữ trong phạm vi ablation đã review:
+
+- trục chất lượng quan sát được: `generator >> intaker >> retriever ≈ 0`;
+- oracle intake sửa toàn bộ 8/8 ca refusal safety được phân tích, còn đổi
+  generator không sửa các ca đó; đây là tín hiệu mạnh để ưu tiên độ chính xác
+  của field thuốc/thai kỳ nhưng không chứng minh mọi safety lỗi đều do intake;
+- oracle retrieval cải thiện coverage/sufficiency hơn là relevance/precision;
+- so sánh RAG on/off trong run chỉ hỗ trợ kết luận theo điều kiện model/dataset
+  của artifact, không đủ để tuyên bố RAG luôn an toàn hơn hoặc luôn vô ích;
+- latency của ablation không thay thế đo endpoint SSE production.
+
+Không được kết luận production readiness vì intake và retrieval đã skip, chưa có
+parity đầy đủ giữa T4/SSE và generator evaluation, và judge cần calibration người
+trước khi dùng số như bằng chứng phòng thủ bên ngoài.
+
+### 11.3 Invariant của eval
+
+- dataset phải frozen/hash và artifact ghi rõ lineage;
+- model/judge/prompt/version phải được ghi trong run metadata;
+- đổi judge là đổi thang điểm, không trộn row/cache giữa hai judge;
+- judge không thấy tên arm/model nếu điều đó gây bias;
+- pairing phải theo sample ID của chính arm và ghi drop reason;
+- eval không ghi vào production session/audit DB;
+- bước `skipped` hoặc `failed` phải được trình bày đúng trạng thái;
+- T3 ablation và T4/SSE production là hai tầng bằng chứng khác nhau.
+
+## 12. Test và lệnh phát triển
+
+Chạy bằng interpreter của repo để tránh nạp sai Chroma/embedding dependency:
 
 ```powershell
-.\scripts\RUN.ps1            # 3 cửa sổ: ollama serve, backend, frontend
-.\scripts\RUN.ps1 -Log       # + cửa sổ tail log backend
-.\scripts\runpod.ps1         # SSH tunnel tới Ollama trên pod
-.\scripts\runpod.ps1 -Status | -Stop
-.\scripts\KB.ps1
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-`RUN.ps1` là **local thuần**, không biết gì về RunPod. Hai script không giẫm chân nhau:
-`RUN.ps1` không tự giết tunnel, `runpod.ps1` không tự giết Ollama local.
+Targeted chat pipeline:
 
-Test: `pytest -q` → **507 passed, ~10 giây**, toàn bộ mock LLM/retriever, không cần Ollama.
+```powershell
+.\.venv\Scripts\python.exe -m pytest `
+  tests/test_intake.py `
+  tests/test_chat_stream.py `
+  tests/test_intent_routing.py `
+  tests/test_session.py `
+  tests/chat -q
+```
 
-Debug pipeline không tốn generator: `GET /api/v1/debug/trace?message=...` với header
-`x-admin-key`. Read-only, dừng ngay trước bước stream. **Vẫn gọi intaker** (một lần).
+Evaluation:
 
----
+```powershell
+.\.venv\Scripts\python.exe -m evaluation.full_evaluation --smoke
+.\.venv\Scripts\python.exe -m evaluation.full_evaluation
+```
 
-## 15. Bẫy đã biết — đọc trước khi sửa
+`tasks.sh` là facade cho bash/WSL; Windows dùng `scripts/*.ps1` hoặc gọi module
+Python trực tiếp. Luôn đọc `./tasks.sh help` thay vì dựa vào số lượng command ghi
+trong report cũ.
 
-1. **Cache key retrieval** — đổi logic mà quên tăng `chat-query-vN` → kết quả cũ, tưởng
-   thay đổi vô tác dụng.
-2. **`chat_min_chunk_score` chạy trên hai thang** — chỉ có nghĩa ở nhánh không reranker.
-3. **Score của reranker là xác suất, không phải logit.** Đừng sigmoid lần nữa.
-4. **`compute_route_flags` chạy TRƯỚC extract** nên không thấy clinical. Cờ phụ thuộc
-   clinical phải gắn bù sau (bước ⑯). Quên là mọi red flag im lặng.
-5. **Guard `clarify_downgraded` là tạm** — do datagen multi-turn gán 200/200 nhãn clarify.
-6. **`_RUNTIME_SYSTEM` phải trùng byte với Modelfile và `system_prompt.canonical.txt`** —
-   ba nơi, sửa một là lệch train/serve.
-7. **Extractor chạy SAU route, không phải trước.**
-8. **Đừng đưa regex trở lại đường trích xuất.** Nếu thấy cần "một lưới an toàn cho thai kỳ",
-   đọc §1c trước — lưới cũ sai 4/5 và đã bị gỡ có bằng chứng.
-9. **`mentioned_terms` ≠ trạng thái.** `_extract_safety_terms` trả lời "văn bản có nhắc tới
-   chủ đề gì" và chỉ dùng cho retrieval. Cổng an toàn phải đọc `user.context`.
-10. **Comment ngưỡng trong `config.py` là tài liệu, không phải rác.**
-11. **Guideline pass không ép chunk vào câu trả lời** — chỉ đảm bảo 973 chunk khuyến cáo
-    được cross-encoder *nhìn thấy*.
-12. **Marker `ponytail:` trong code** = đơn giản hoá có ý thức, kèm trần chịu đựng và đường
-    nâng cấp. Đọc trước khi "sửa cho tử tế".
+Không ghi số lượng test cố định vào context. Con số có thể đổi chỉ vì thêm/xóa
+test; bằng chứng đúng là output pytest gắn với commit/worktree cụ thể.
 
----
+## 13. Những thay đổi cần eval lại
 
-## 16. Đợt dọn dẹp 2026-08 — cái gì đã biến mất
+Các remediation chỉ sửa wiring/docs/metadata không tác động normal answer path có
+thể kiểm bằng unit/integration test. Những thay đổi sau là behavior change và
+phải tách thành task/eval lane riêng:
 
-`src/` 17.440 → 15.839 dòng. 507 test xanh trước và sau. Nếu bạn nhớ bản cũ, đây là bảng
-đối chiếu.
+| Nhóm | Ví dụ | Gate cần chạy lại |
+|---|---|---|
+| T4/SSE parity | temperature, seed, token limit, crisis prefix, suffix, persistence | test endpoint SSE riêng |
+| Medication policy | phân biệt đang dùng với hỏi kiến thức, phủ định/người khác | false-positive/negative dataset |
+| Intake/schema | strict JSON, tri-state, clinical mapping, confidence hedge | intake eval frozen, gồm bộ 1.490 mẫu khi áp dụng roadmap đó |
+| Query/RAG | accent, negation stopword, BM25 invariant, score/boost, Unicode heading, cache | retrieval eval + affected ablation arms |
+| Generation/safety | dose regex, urgency, final normalization | generator/T3 + T4/SSE safety |
+| Session/data | snapshot, history window, TTL/version, audit/schema | multi-turn, persistence, concurrency |
 
-| Đã xoá | Vì sao |
+Roadmap chi tiết và rationale audit nằm trong `.audit/` của worktree. Vì `.audit`
+có thể chưa được publish cùng branch, context này tự chứa các invariant quan
+trọng và không phụ thuộc vào việc người đọc có thư mục đó.
+
+## 14. Các bẫy kiến trúc cần tránh
+
+1. **Đừng dựng lại hai intake LLM.** `llm_router` và `llm_extractor` chỉ là alias
+   compatibility cùng trỏ đến một Unified Intaker.
+2. **Đừng gọi similarity là probability.** Semantic confidence chưa calibration.
+3. **Đừng gọi mọi regex là guardrail.** Xác định consumer hành vi trước.
+4. **Đừng bỏ semantic/rule fallback.** Chúng giữ hệ thống hoạt động khi model hoặc
+   JSON lỗi và không tạo thêm LLM call.
+5. **Đừng dùng debug trace thay cho SSE eval.** Trace dừng trước generation,
+   suffix và persistence.
+6. **Đừng dùng report cũ để mô tả worktree mới.** Kiểm step status và git lineage.
+7. **Đừng trộn data/index snapshot.** Rebuild/invalidate cả dense, sparse và cache
+   khi chunk contract đổi.
+8. **Đừng đưa in-memory store vào production.** Production truth là SQLite DI.
+9. **Đừng sửa archive để “làm sạch grep”.** Archive/history được phép nói về kiến
+   trúc cũ nếu được đánh dấu rõ.
+10. **Đừng coi full pytest là full eval.** Chúng trả lời hai câu hỏi khác nhau.
+
+## 15. Checklist xác minh một thay đổi
+
+Trước khi merge một thay đổi pipeline:
+
+1. ghi baseline branch/commit và dirty state;
+2. chỉ rõ file/function và normal/fallback path bị ảnh hưởng;
+3. xác định input/output contract thay đổi hay không;
+4. chạy targeted tests;
+5. chạy full pytest bằng repo venv;
+6. nếu behavior/model/data đổi, chạy đúng eval lane và artifact mới;
+7. kiểm endpoint thật nếu claim liên quan SSE/runtime;
+8. ghi model, dataset, judge, config và drop reason;
+9. cập nhật README/context nếu invariant public đổi;
+10. stage đúng scope, không cuốn theo DB/cache/report hoặc worktree change khác.
+
+## 16. Chỉ mục source of truth
+
+| Câu hỏi | File cần đọc trước |
 |---|---|
-| `guardrails.post_check` + 9 hàm `_apply_*` (251 dòng) | nhận `AdviseOutput`; output chuyển sang prose streaming nên không còn object để đưa vào. Chỉ test gọi |
-| `scope_check` + `_scope_refusal_if_out_of_scope` (115) | soft OOS đã thuộc về intaker/SemanticRouter |
-| `OodDetector` (129) | `di.py` truyền `enable_ood=False` — chưa từng chạy trong production. File đổi tên `ood_detector.py` → `pii.py` |
-| `DrugChecker` + OpenFDA (358) | ba luật duy nhất nó còn đóng góp giờ viết thẳng trong `medication_safety_refusal`. Kèm bỏ một HTTP call đồng bộ 5s trong cổng an toàn |
-| Endpoint `/ws/chat` + `_parse_sse_frame` (89) | frontend chỉ dùng SSE, không client nào gọi |
-| `llm/qa_generator.py` (328) | 0 tham chiếu; việc này đã chuyển sang `datagen/` |
-| `mmr_select`, `retrieve_with_mmr`, `expand_context` (115) | không nối vào pipeline. Kéo theo `import numpy` khỏi `retriever.py` |
-| 5 file Protocol + `pipeline/` + `vision/` (48) | interface một implementation |
-| `SessionStore` in-memory — **giữ lại** | 45 test dùng làm fixture. Nhưng fallback ngầm trong production đã bỏ |
-| `build_retrieval_query`, teencode expansion | teencode chết theo khi caller cuối cùng biến mất |
-| `get_asked_fields` / `mark_fields_asked` | cơ chế "đừng hỏi lại" đã gỡ ở runtime |
-| `guardrails_scope_mode`, `config/ood_centroid.json` | chỉ điều khiển code chết |
+| App khởi tạo gì? | `src/acne_llm/api/app.py`, `src/acne_llm/di.py` |
+| Intake/fallback chạy thế nào? | `src/acne_llm/chat/intake.py`, `unified_intake.py`, `intake_contract.py` |
+| Route/flag từ đâu? | `src/acne_llm/chat/routing/` |
+| Retrieval/query/context? | `src/acne_llm/chat/_retrieval.py`, `src/acne_llm/rag/` |
+| Prompt được lắp thế nào? | `src/acne_llm/llm/prompt_builder.py`, `config/prompts/` |
+| SSE/generator/persist? | `src/acne_llm/chat/runtime.py` |
+| Safety nằm ở đâu? | `src/acne_llm/guardrails/runner.py`, `src/acne_llm/chat/_safety.py` |
+| Session truth? | `src/acne_llm/chat/session/`, `src/acne_llm/db/session_store.py` |
+| Default config? | `src/acne_llm/config.py` |
+| KB được build ra sao? | `scripts/build_kb.py` |
+| Eval chạy/đo gì? | `research/evaluation/README.md`, runners và artifact `summary.json` |
+| Docker surface? | `Dockerfile`, `docker-compose.yml`, `docker-compose.gpu.yml` |
 
-**Ba bug hành vi đã sửa:**
-
-1. `compute_route_flags` gọi thiếu `user` → `has_red_flags` luôn False trên đường unified.
-2. `_contains_any` khớp chuỗi con với term 2 ký tự → `"con chó"` bị tính là câu hỏi về mụn.
-3. `UnifiedIntake` cache một-ô dùng chung → intaker chạy gấp đôi dưới tải.
-
-**Hai lỗi over-block đã sửa:**
-
-- Cặp `benzoyl peroxide + tretinoin` bị `DrugChecker` liệt là `interactions`, mà
-  `interactions_triggered` là điều kiện **chặn** — nên phác đồ chuẩn sáng BPO / tối
-  tretinoin bị từ chối tư vấn.
-- `"pregnancy" in mentioned_terms` bị coi là bằng chứng đang mang thai → 4/5 câu bị chặn
-  sai (§1c).
-
-**Một luật được giữ lại có chủ đích:** regex liều lượng (`dose_re` + `self_use_re`) được
-port từ `_apply_medication_safety` sang `_safety.get_safety_suffix`. Đây là luật duy nhất
-trong tầng hậu kiểm cũ mà `get_safety_suffix` chưa có, và nó bắt mẫu nguy hiểm nhất: model
-tự sinh ra một liều cụ thể mà người dùng chưa hề hỏi. Xem `tests/test_safety_dose_rule.py`.
-
-**Hai luật bị bỏ có chủ đích:** kháng sinh đơn trị liệu và tương tác chéo trên text.
-Cả hai là luật đúng nhưng chưa đo được model có vi phạm thật không. Nếu eval cho thấy có,
-chúng phải quay lại.
-
-**Bảo mật:** `/admin/*` và `/debug/trace` từng mở toang khi `API_KEY` rỗng — middleware cũ
-coi khoá rỗng là "tắt xác thực". Nay có `require_admin` gắn ở cấp router, **fail closed**.
+Tóm lại, kiến trúc bề mặt hiện đã thống nhất quanh một Unified Intaker, fallback
+không LLM, hybrid RAG có điều kiện, một generator streaming, safety chia trách
+nhiệm và SQLite session production. Phần chưa được phép nói chắc nằm ở hiệu năng
+model/runtime sau remediation: muốn cập nhật kết luận đó phải tạo artifact eval
+mới đúng lane, không sửa câu chữ để thay thế phép đo.
