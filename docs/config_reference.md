@@ -1,9 +1,7 @@
-# Config reference — 70 field / 15 env key
+# Config reference — 66 fields
 
-> **Kiểm lại 2026-08-14:** `Settings.model_fields` hiện có **73 field**.
-> Con số trong tài liệu này đã lệch. Nguồn sự thật là `src/acne_llm/config.py`;
-> tài liệu chỉ để giải thích *ý nghĩa* field, không phải để đếm.
-> (`docs/CONFIG_MAP.md` nói 85 field — lệch nhiều nhất nên đã chuyển vào `docs/archive/`.)
+> **Kiểm lại 2026-08-23:** `Settings.model_fields` có **66 fields**.
+> Nguồn sự thật là `src/acne_llm/config.py`; tài liệu này giải thích ý nghĩa.
 
 
 Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị trong
@@ -14,10 +12,10 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 | Field | Default |
 |---|---|
 | `ollama_url` | `http://localhost:11434` |
-| `llm_model` | `acnellm-role` |
+| `llm_model` | `acne-generator` |
 | `llm_fallback_model` | `qwen2.5:3b` |
-| `llm_num_ctx` | `3072` |
-| `llm_num_predict` | `1200` |
+| `llm_num_ctx` | `8192` |
+| `llm_num_predict` | `2048` |
 | `llm_temperature` | `0.35` |
 | `llm_top_p` | `0.85` |
 | `llm_top_k` | `40` |
@@ -28,19 +26,12 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 | `ollama_generate_timeout` | `30.0` |
 | `llm_use_modelfile_system` | `True` |
 
-## Intake (9)
+## Intake (2)
 
 | Field | Default | Vai trò |
 |---|---|---|
-| `intake_mode` | `unified` | `unified` hoặc arm `legacy`. |
-| `intake_model` | `acne-intake` | Router + extractor hợp nhất. |
+| `intake_model` | `acne-intaker` | Một inference sinh route + extraction. |
 | `intake_timeout` | `60.0` | Timeout unified intake. |
-| `extractor_mode` | `llm` | Legacy A/B. |
-| `extractor_model` | `acne-extractor:1.5b` | Legacy A/B. |
-| `extractor_timeout` | `20.0` | Legacy A/B. |
-| `router_mode` | `llm` | Legacy generative/semantic A/B. |
-| `router_model` | `acnellm-intent` | Legacy A/B. |
-| `router_timeout` | `8.0` | Legacy A/B. |
 
 ## Embedding và semantic router (8)
 
@@ -69,17 +60,19 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 | `guardrails_yaml` | `./config/guardrails.yaml` |
 | `seed_sources` | `./data/seed_sources.yaml` |
 
-## Guardrails, retrieval và ranking (13)
+## Retrieval, routing confidence, and ranking (14)
 
 | Field | Default | Ghi chú |
 |---|---|---|
-| `guardrails_scope_mode` | `soft` | API legacy; semantic router sở hữu soft OOS live. |
 | `rerank_top_k` | `3` | Non-chat caller. |
-| `chat_retrieve_top_k` | `6` | Pool production và default eval. |
-| `chat_rerank_top_k` | `3` | Chunk cuối vào prompt. |
+| `chat_retrieve_top_k` | `25` | Pool production đưa vào reranker. |
+| `chat_rerank_top_k` | `5` | Chunk cuối vào prompt. |
 | `chat_max_context_chars` | `6000` | Budget tài liệu. |
 | `chat_safety_top_k` | `5` | Safety retrieval pass. |
-| `chat_rerank_floor` | `0.58` | Floor chung, phải lớn hơn sigmoid random `0.50`. |
+| `chat_guideline_top_k` | `5` | Guideline pass cho mọi query. |
+| `chat_min_chunk_score` | `0.25` | Filter cho nhánh không có reranker. |
+| `chat_max_chunks_per_source` | `1` | Đa dạng nguồn trong context. |
+| `chat_rerank_floor` | `0.50` | Floor sau reranker. |
 | `extract_min_field_conf` | `0.60` | Confidence field intake. |
 | `route_min_confidence` | `0.55` | Dưới ngưỡng thì clarify. |
 | `reranker_batch_size` | `16` | Batch cross-encoder. |
@@ -90,7 +83,7 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 Boost source/trust/authority không phải setting. Nguồn duy nhất là các hằng số
 trong `src/acne_llm/rag/retriever.py`.
 
-## Runtime storage, API, judge, crawler (17)
+## Runtime storage, API, judge, crawler (18)
 
 | Field | Default |
 |---|---|
@@ -105,10 +98,11 @@ trong `src/acne_llm/rag/retriever.py`.
 | `frontend_url` | `http://localhost:3000` |
 | `cors_origins` | localhost frontend + backend |
 | `api_key` | rỗng |
+| `admin_api_key` | rỗng; admin/debug fail closed |
 | `rate_limit_per_minute` | `60` |
 | `metrics_enabled` | `True` |
-| `judge_provider` | `openai` |
-| `judge_model` | `gpt-5.4-mini` |
+| `judge_provider` | `deepseek` |
+| `judge_model` | `deepseek-v4-pro` |
 | `crawl_concurrency` | `8` |
 | `crawl_rate_per_sec` | `1.0` |
 
@@ -125,10 +119,7 @@ trong `src/acne_llm/rag/retriever.py`.
 
 ## Env key hợp lệ
 
-`.env` hiện có đúng 15 key: `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`,
+Các env triển khai được phép gồm `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`,
 `DATAGEN_API_KEY`, `API_KEY`, `OLLAMA_URL`, `DEVICE`, `LOG_LEVEL`, `LLM_MODEL`,
-`INTAKE_MODE`, `INTAKE_MODEL`, `JUDGE_PROVIDER`, `JUDGE_MODEL`,
+`INTAKE_MODEL`, `JUDGE_PROVIDER`, `JUDGE_MODEL`,
 `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `CORS_ORIGINS`.
-
-Brief nói 16 nhưng chỉ liệt kê 15 key mục tiêu. Repo ưu tiên danh sách tường minh;
-không có field/key nào bị giữ lại chỉ để làm đủ số đếm.

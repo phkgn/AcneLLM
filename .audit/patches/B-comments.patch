@@ -1,0 +1,79 @@
+# SUPERSEDED PROVENANCE ONLY: do not apply wholesale.
+# Basket B: comments/docstrings/log wording only. Unapplied proposal.
+# No runtime branch or data shape is changed.
+--- a/src/acne_llm/chat/session/fold.py
++++ b/src/acne_llm/chat/session/fold.py
+@@ -1,7 +1,7 @@
+ """Gop du kien tu cac luot truoc vao luot hien tai.
+
+-File nguy hiem nhat trong package: `medication_safety_refusal` -- cong tat dinh
+-DUY NHAT con lai -- doc `is_pregnant`, `is_breastfeeding` va `medications` do
++File nguy hiem nhat trong package: `medication_safety_refusal` -- mot cong tat dinh
++quan trong -- doc `is_pregnant`, `is_breastfeeding` va `medications` do
+ chinh cac ham o day tra ve. Sai o day la tat cong an toan, im lang.
+
+ Ca hai loi an toan tim ra o Phase 7 deu nam trong file nay:
+@@ -205,7 +205,7 @@
+         # người dùng đã hỏi về chủ đề khác không liên quan đến thai kỳ.
+         # ponytail: hai nhanh phu dinh bang keyword da bi xoa o Phase 7.
+         # 17 chuoi tung co quyen set is_pregnant = False -- tuc la TAT cong
+-        # chong chi dinh thai ky, cong tat dinh duy nhat con lai. Chung khong
++        # chong chi dinh thai ky, mot cong tat dinh quan trong. Chung khong
+         # kiem chu ngu va khong kiem pham vi phu dinh:
+         #   "chi toi khong mang thai, con em thi co" -> is_pregnant = False
+         # Trang thai thai ky gio chi den tu intaker. Fail-safe la GIU True:
+--- a/src/acne_llm/schemas/extraction.py
++++ b/src/acne_llm/schemas/extraction.py
+@@ -5,7 +5,7 @@
+ trình match (method + similarity + điều chỉnh ngữ cảnh), không phải ML/calibration.
+
+ Khung này KHÔNG đổi schema ngoài (UserInput): nó là kênh phụ nội bộ để
+-completeness/intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
++intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
+ confidence thấp — thuần rule, không gọi LLM.
+ """
+ from __future__ import annotations
+--- a/src/acne_llm/utils/chunk_filter.py
++++ b/src/acne_llm/utils/chunk_filter.py
+@@ -1,4 +1,4 @@
+-"""Shared chunk-quality filters used by both pipeline/hybrid.py and chat/runtime.py.
++"""Shared chunk-quality filters used by chat/_retrieval.py and evaluation adapters.
+
+ Centralising here ensures both code paths apply identical noise-removal and
+ score-pruning logic without duplication.
+--- a/src/acne_llm/utils/fuzzy_match.py
++++ b/src/acne_llm/utils/fuzzy_match.py
+@@ -57,11 +57,11 @@
+
+
+ def find_in_text(text: str, canonicals: tuple[str, ...], *, accept: float, review: float, max_ngram: int = 3) -> "list[FuzzyHit]":
+-    """Two-tier fuzzy match: accept >= auto-include, review <= accept < review = review list.
++    """Return accepted fuzzy matches only; `review` is a lower prefilter threshold.
+
+     Args:
+         accept: Auto-accept threshold (high confidence, no manual review needed)
+-        review: Include in review list (lower confidence, needs verification)
++        review: Ignore candidates below this lower threshold; no review list is returned
+     """
+     if not text or not canonicals:
+         return []
+@@ -70,7 +70,7 @@
+         hit = best_match(gram, canonicals)
+         if hit is None:
+             continue
+-        # Two-tier: accept >= auto-accept, review <= accept < review = review needed
++        # `review` prefilters weak candidates; the return value keeps only `accept` hits.
+         if hit.similarity < review:
+             continue
+         prev = best_per_canonical.get(hit.canonical)
+--- a/src/acne_llm/utils/logging.py
++++ b/src/acne_llm/utils/logging.py
+@@ -147,7 +147,7 @@
+         lines.append("RAG         : unavailable (llm_only fallback)")
+     # DrugChecker da bi xoa (Phase 5) -- khong con bang thuoc de dem.
+     lines.extend([
+-        "safety      : substrate always-on | cong tat dinh: injection, genital, thuoc",
++        "safety      : substrate always-on | cac cong tat dinh: injection, genital, thuoc, session medication safety",
+         "────────────────────────────────────────────────",
+     ])
+     logger.info("\n{}", "\n".join(lines))

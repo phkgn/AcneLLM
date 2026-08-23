@@ -134,6 +134,63 @@ Kết quả Unified Intaker được cache/reuse trong cùng turn: routing và e
 không tạo hai lượt gọi LLM riêng. Dữ kiện extraction được fold với history theo
 quy tắc session trước khi dùng cho policy/retrieval/prompt.
 
+#### Vì sao chuẩn hóa user case bằng schema định nghĩa trước?
+
+Schema không dùng để chẩn đoán thay người dùng. Nó là **hợp đồng dữ liệu trung
+gian** để biến cách diễn đạt tự do thành các field mà routing, safety, retrieval,
+prompt, session và evaluation có thể dùng nhất quán. Ví dụ câu “mụn bọc đau ở
+hai má gần ba tháng, đang bôi Differin” có thể được chuẩn hóa thành
+`lesion_types=["nodule"]`, `lesion_distribution=["cheeks"]`,
+`duration_weeks=12` và `current_products=["adapalene"]`. Raw description vẫn
+được giữ; schema không thay thế nguyên văn của người dùng.
+
+Repo có hai contract gần nhau nhưng không được nhập làm một:
+
+- runtime dùng `UserInput`, `UserContext` và `AcneClinicalInput` trong
+  `src/acne_llm/schemas/core.py`;
+- pipeline sinh dữ liệu nghiên cứu có `NormalizedAcneCase` trong
+  `src/acne_llm/schemas/clinical.py`, với nhiều field phục vụ tạo/kiểm dữ liệu.
+
+Các field được chọn theo bốn tiêu chí: phù hợp phạm vi mụn; cần cho cá nhân hóa;
+nhạy cảm với safety; và có behavioral consumer hoặc có thể đánh giá được. Vì
+vậy contract bao gồm tuổi/giới/loại da/thời gian, loại và vị trí tổn thương, mức
+viêm, thai kỳ/cho con bú, dị ứng, thuốc và sản phẩm đang dùng. Nếu thêm field mới
+nhưng không có consumer, provenance hoặc eval target thì chưa có căn cứ đưa nó
+vào runtime contract.
+
+Căn cứ của từng phép chuẩn hóa phải được phân biệt rõ:
+
+- `inflammation_level` được runtime prompt neo theo IGA (AAD 2024), dựa trên
+  loại tổn thương và mức lan; `unknown` là mặc định khi không đủ tín hiệu;
+- taxonomy loại/vị trí tổn thương là vocabulary giới hạn cho domain và các
+  consumer trong repo; source hiện hành không trích một chuẩn y khoa riêng cho
+  từng enum nên không được mô tả toàn bộ taxonomy là chuẩn chẩn đoán đã xác nhận;
+- alias như `BHA -> salicylic acid`, `BPO -> benzoyl peroxide`,
+  `Differin -> adapalene` và quy đổi năm/tháng/ngày sang tuần là quy ước kỹ thuật
+  để giảm nhiều cách viết của cùng một dữ kiện, không phải kết luận lâm sàng;
+- chỉ trích điều người dùng thực sự tự khai; câu hỏi kiến thức, phủ định, thuốc
+  đã ngưng hoặc thông tin về người khác không được biến thành fact hiện tại.
+
+Schema/Pydantic bảo đảm **hình thức**: key được phép, kiểu dữ liệu, enum, giới
+hạn tuổi/confidence và biểu diễn giá trị thiếu. Parser runtime còn drop field sai
+enum/sai kiểu thay vì để nó đi vào Pydantic hoặc vứt cả inference. Tuy nhiên,
+schema không bảo đảm **ngữ nghĩa**: output `is_pregnant=true` có thể hợp schema
+nhưng vẫn sai chủ thể, thời hoặc phủ định. Vì thế field nhạy cảm vẫn cần
+confidence, guard/fallback và bộ probe đối kháng; không được xem JSON hợp lệ như
+clinical truth.
+
+Artifact `research/evaluation/reports/v2_full/intake/report.json` minh họa đúng
+ranh giới này trên 1.490 single-turn rows, không fallback: schema-valid 98,12%,
+intent accuracy 95,70%, nhưng extraction micro-F1 chỉ 61,31%, hallucinated-field
+rate 8,20%, `inflammation_level` F1 21,26% và còn 28 schema violations. Do đó
+repo đã chứng minh model thường trả đúng cấu trúc, chưa chứng minh mọi field đủ
+tin cậy như hồ sơ lâm sàng.
+
+Kết luận cần giữ khi mô tả hệ thống: đây là **chuẩn hóa dữ liệu trường hợp người
+dùng**, không phải **chuẩn hóa chẩn đoán lâm sàng**. Chất lượng contract được
+đánh giá theo ba lớp tách biệt: schema validity, semantic field accuracy và tác
+động hành vi/safety ở downstream.
+
 ### 5.3 Failure path cố định
 
 ```text

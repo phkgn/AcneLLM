@@ -1,9 +1,7 @@
-# Config layout — trạng thái sau refactor evaluation
+# Config layout — runtime một Intaker
 
-> **Kiểm lại 2026-08-14:** `Settings.model_fields` hiện có **73 field**.
-> Con số trong tài liệu này đã lệch. Nguồn sự thật là `src/acne_llm/config.py`;
-> tài liệu chỉ để giải thích *ý nghĩa* field, không phải để đếm.
-> (`docs/CONFIG_MAP.md` nói 85 field — lệch nhiều nhất nên đã chuyển vào `docs/archive/`.)
+> **Kiểm lại 2026-08-23:** `Settings.model_fields` có **66 fields**.
+> Nguồn sự thật là `src/acne_llm/config.py`.
 
 
 Tài liệu này mô tả trạng thái đang chạy của repo. Nếu tài liệu và code lệch nhau,
@@ -30,10 +28,9 @@ Session history cũng do module sở hữu:
 - `HISTORY_CHAR_BUDGET = 2000`
 - `HISTORY_WINDOW_TURNS = 6`
 
-## `.env` / `.env.baseline`: 15 key
+## `.env` / `.env.baseline`
 
-Brief ghi “16 key”, nhưng danh sách đích mà brief chỉ định chỉ có 15 key. Repo giữ
-đúng 15 key đã nêu, không thêm một key giả chỉ để khớp số đếm:
+Các key triển khai thường dùng:
 
 ```ini
 OPENAI_API_KEY=
@@ -43,11 +40,10 @@ API_KEY=
 OLLAMA_URL=http://localhost:11434
 DEVICE=cpu
 LOG_LEVEL=DEBUG
-LLM_MODEL=acnellm-role
-INTAKE_MODE=unified
-INTAKE_MODEL=acne-intake
-JUDGE_PROVIDER=openai
-JUDGE_MODEL=gpt-5.4-mini
+LLM_MODEL=acne-generator
+INTAKE_MODEL=acne-intaker
+JUDGE_PROVIDER=deepseek
+JUDGE_MODEL=deepseek-v4-pro
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-chat
 CORS_ORIGINS=["*"]
@@ -65,28 +61,27 @@ Các key đã bỏ khỏi `.env`:
   `PROMPTS_DIR`, `GUARDRAILS_YAML`, `SEED_SOURCES`, `API_HOST`, `API_PORT`,
   `LLM_FALLBACK_MODEL`, `GUARDRAILS_SCOPE_MODE`.
 - Chỉ dùng cho legacy hoặc che latency: `EXTRACTOR_MODE`, `EXTRACTOR_MODEL`,
-  `EXTRACTOR_TIMEOUT`, `OLLAMA_GENERATE_TIMEOUT`.
+  `EXTRACTOR_TIMEOUT`, `ROUTER_MODE`, `ROUTER_MODEL`, `ROUTER_TIMEOUT`,
+  `INTAKE_MODE`, `OLLAMA_GENERATE_TIMEOUT`.
 
-## `Settings`: 70 field
+## `Settings`: 66 fields
 
 | Nhóm | Số field | Ghi chú |
 |---|---:|---|
 | LLM | 14 | Timeout generate mặc định 30 giây. |
-| Unified intake | 3 | Runtime mặc định `unified` / `acne-intake`. |
-| Legacy extractor/router | 6 | Giữ cho A/B, không đưa vào `.env`. |
+| Unified intake | 2 | `intake_model` và `intake_timeout`. |
 | Embedding/reranker device | 3 | Không còn multilingual field chết. |
 | Semantic router | 5 | Train-only index + thresholds. |
 | Storage/finetune/config paths | 9 | Default cố định trong code. |
-| Guardrails | 1 | Scope mode legacy. |
-| Retrieval | 6 | Production pool `chat_retrieve_top_k=6`. |
+| Retrieval | 9 | Production pool `chat_retrieve_top_k=25`. |
 | Extraction confidence | 2 | Field/route confidence. |
 | Reranker tuning | 3 | Batch/cache/min sigmoid. |
 | Dense retrieval | 1 | `dense_max_distance=0.60`. |
 | Cache/session/audit/log | 6 | Session history không còn ở config. |
-| API | 7 | Host/port/CORS/auth/rate/metrics. |
-| Judge | 2 | `openai` + `gpt-5.4-mini`. |
+| API | 8 | Host/port/CORS/two auth keys/rate/metrics. |
+| Judge | 2 | `deepseek` + `deepseek-v4-pro`. |
 | Crawler | 2 | Concurrency/rate. |
-| **Tổng** | **70** | Kiểm bằng `len(Settings.model_fields)`. |
+| **Tổng** | **66** | Kiểm bằng `len(Settings.model_fields)`. |
 
 Các field đã xóa hoàn toàn:
 
@@ -118,8 +113,8 @@ Hai rerank floor cuối được thay bằng một field duy nhất:
 
 Judge Python và dashboard đều để `Settings` quyết định provider/model. Dashboard
 không truyền `--provider` hoặc `--model`, nên `.env` không còn bị hardcode CLI đè.
-Artifact judge ghi `judge_provider`/`judge_model` thật đã gọi. Arm Y cố định
-`gpt-5.6-terra`, khác judge `gpt-5.4-mini`.
+Artifact judge phải ghi `judge_provider`/`judge_model` thật đã gọi; mặc định
+hiện tại là `deepseek` / `deepseek-v4-pro`.
 
 ## Chốt kiểm tra
 
@@ -128,4 +123,4 @@ Artifact judge ghi `judge_provider`/`judge_model` thật đã gọi. Arm Y cố 
 .\.venv\Scripts\python.exe -m pytest tests/test_env_keys.py -q
 ```
 
-Kết quả kỳ vọng: `70 gpt-5.4-mini` và test xanh.
+Kết quả kỳ vọng: `66 deepseek-v4-pro` và test xanh.

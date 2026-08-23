@@ -321,7 +321,7 @@ def page_intake() -> Page:
         "03 - Intake Safety Routing",
         "Intake, Hard Safety and Router-First Control Flow",
         "Rules decide hard safety; router selects intent; extractor enriches fields; history is folded only through confirmed snapshots",
-        "src/acne_llm/chat/intake.py; preprocess.py; unified_intake.py; chat/fallback/*; guardrails/*; src/acne_llm/di.py",
+        "src/acne_llm/chat/intake.py; preprocess.py; unified_intake.py; chat/routing/*; guardrails/*; src/acne_llm/di.py",
     )
     p.vertex("input_lane", "INPUT NORMALIZATION", 42, 130, 350, 790, kind="lane", color="blue")
     p.vertex("safety_lane", "HARD SAFETY", 412, 130, 330, 790, kind="lane", color="red")
@@ -336,13 +336,12 @@ def page_intake() -> Page:
     p.vertex("hard_decision", "hard refusal?", 492, 430, 170, 120, kind="decision", color="red")
     p.vertex("ruling", "AdviseOutput ruling\ncauses + mandatory disclaimer\n(generator still writes prose)", 457, 680, 240, 125, color="red")
 
-    p.vertex("mode", "INTAKE_MODE selector", 832, 190, 210, 70, color="purple")
-    p.vertex("unified", "unified\nUnifiedIntake → acne-intaker\none JSON contract: route + fields", 802, 340, 260, 120, color="orange")
-    p.vertex("legacy", "legacy fallback\nSemanticRouter / LLMRouter / rules\nLLMExtractor / rule extractor", 1087, 340, 190, 120, color="purple")
+    p.vertex("unified", "Unified Intaker (only intake LLM)\nacne-intaker\none JSON: route + fields", 802, 250, 260, 120, color="orange")
+    p.vertex("fallback", "Fallback (no LLM)\nSemanticRouter → rule router\nrule extractor", 1087, 250, 190, 120, color="purple")
     p.vertex("route", "RouteDecision\nprimary_intent + confidence\nroute_flags + reason_code", 802, 565, 225, 120, color="purple")
     p.vertex("extract", "Field results\nvalue + method + confidence\nlow-confidence → prompt hedge", 1052, 565, 225, 120, color="yellow")
     p.vertex("intake_result", "IntakeResult\nroute + fields + confirmed profile + safety terms", 852, 710, 375, 72, color="purple")
-    p.vertex("fallback", "Timeout / schema / model failure → deterministic fallback", 852, 815, 375, 48, color="gray", dashed=True)
+    p.vertex("failure", "Timeout / JSON / intent / model failure", 852, 815, 375, 48, color="gray", dashed=True)
 
     p.vertex("fold", "Fold confirmed history\ncurrent snapshot + prior safe facts\nprofile safety terms", 1402, 205, 407, 120, color="green")
     p.vertex("med_check", "Medication & clinical safety re-check\ncurrent + extracted + folded context", 1402, 405, 407, 105, color="red")
@@ -354,16 +353,13 @@ def page_intake() -> Page:
     p.edge("clean", "pii_scope")
     p.edge("pii_scope", "hard_decision")
     p.edge("hard_decision", "ruling", "yes", color="red")
-    p.edge("hard_decision", "mode", "no")
-    p.edge("mode", "unified", "unified", color="orange")
-    p.edge("mode", "legacy", "legacy")
+    p.edge("hard_decision", "unified", "no", color="orange")
     p.edge("unified", "route")
     p.edge("unified", "extract")
-    p.edge("legacy", "route")
-    p.edge("legacy", "extract")
-    p.edge("unified", "fallback", dashed=True)
-    p.edge("legacy", "fallback", dashed=True)
-    p.edge("fallback", "intake_result", "rules", dashed=True)
+    p.edge("unified", "failure", dashed=True)
+    p.edge("failure", "fallback", dashed=True)
+    p.edge("fallback", "route", dashed=True)
+    p.edge("fallback", "extract", dashed=True)
     p.edge("route", "intake_result")
     p.edge("extract", "intake_result")
     p.edge("intake_result", "fold")
@@ -585,7 +581,8 @@ def build() -> None:
     tree = ET.ElementTree(mxfile)
     ET.indent(tree, space="  ")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    tree.write(OUT, encoding="utf-8", xml_declaration=True)
+    xml_text = ET.tostring(mxfile, encoding="unicode", xml_declaration=True)
+    OUT.write_text(xml_text, encoding="utf-8", newline="\n")
     print(f"Wrote {OUT} ({len(pages)} pages)")
 
 

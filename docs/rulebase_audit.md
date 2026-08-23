@@ -147,7 +147,7 @@ Không chặn pipeline nhưng xoá thông tin, nên LLM không có cơ hội s�
 `_SEX_TERMS`, `_PRODUCT_TERMS`, `_MEDICATION_TERMS`, `_DISTRIBUTION_TERMS`, `_LESION_TERMS`, `_HORMONAL_TERMS`, `_ALLERGY_TERMS`, `_TREATMENT_GOAL_TERMS`, `_RED_FLAG_TERMS`, `_SKIN_TYPE_QUESTION_MARKERS`, `_ACNE_RESOLVED_PATTERNS` / `_ACNE_PRESENT_PATTERNS`.
 
 - **Chạy mọi turn** tại `intake.py:302` → `base_user`.
-- Chỉ bị LLM ghi đè khi `intent ∈ {advise, knowledge}` **và** `extractor_mode == "llm"` **và** không raise `ExtractorFallback`.
+- Chỉ bị Unified Intaker ghi đè khi `intent ∈ {advise, knowledge}` và extraction dùng chung hợp lệ; nếu model/JSON fail thì giữ kết quả rule.
 - **Với clarify / reject, output của rule là output cuối** — LLM extraction không bao giờ chạy.
 - **Đây là khối lớn nhất và trùng lặp nhiều nhất với intaker 3B.** Cùng một việc (BHA → salicylic acid, phủ định, canonical hoá) làm hai lần bằng hai cơ chế.
 - **Đề xuất:** ứng viên số một để co lại sau khi intaker được retrain — giữ làm fallback thuần, ngừng chạy vô điều kiện.
