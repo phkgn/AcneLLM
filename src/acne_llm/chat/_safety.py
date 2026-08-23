@@ -7,8 +7,8 @@ from ..schemas import UserInput
 
 # ── Liều lượng cụ thể trong câu trả lời (port từ guardrails._apply_medication_safety)
 #
-# Đây là luật DUY NHẤT được giữ lại từ tầng post_check cũ. Lý do: cổng đầu vào
-# (medication_safety_refusal) chỉ thấy thứ NGƯỜI DÙNG nhắc tới. Nó không thấy
+# Đây là hậu kiểm chuyên biệt cho liều thuốc trong output. Các cổng input
+# (trong đó có medication_safety_refusal) chỉ thấy thứ NGƯỜI DÙNG nhắc tới; chúng không thấy
 # được model tự sinh ra một liều cụ thể mà người dùng chưa hề hỏi:
 #
 #   User: "mụn viêm đỏ khắp hai má, em nên làm gì"

@@ -9,7 +9,6 @@ from typing import Any
 
 from ..llm.ollama_backend import OllamaBackend
 from ._intake_parse import (
-    ExtractorFallback,
     LLMExtractResult,
     _INTENT,
     _coerce_conf,
@@ -18,9 +17,9 @@ from ._intake_parse import (
     _to_user_input,
     _validate_contract,
 )
+from .intake_contract import ExtractorFallback, RouterFallback
 from .routing.intent_router import RouteDecision
 from .session import HISTORY_WINDOW_TURNS
-from .routing.llm_router import RouterFallback
 
 
 _RUNTIME_SYSTEM = """Bạn là Unified Intake cho hệ thống tư vấn da mụn. Đọc turn hiện tại và tối đa 3 turn lịch sử gần nhất, rồi chỉ trả về DUY NHẤT một JSON hợp lệ, không Markdown, không giải thích, không thêm khóa.

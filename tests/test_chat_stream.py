@@ -7,9 +7,13 @@ from fastapi.testclient import TestClient
 
 from acne_llm.api.routes import chat
 from acne_llm.config import settings as _settings
+from acne_llm.chat.routing.intent_router import RouteDecision
+from acne_llm.chat.session import ConversationTurn
+from acne_llm.db.session_store import SQLiteSessionStore
+from acne_llm.schemas import RetrievedChunk, RetrievalOutput
+from tests.helpers import get_session_store
 
-# /debug/trace nam sau cong admin (fail closed). Test nao goi no phai dung
-# fixture nay de cap khoa.
+
 _ADMIN_KEY = "test-admin-key"
 _ADMIN_HEADERS = {"x-admin-key": _ADMIN_KEY}
 
@@ -20,10 +24,6 @@ def admin_key():
     _settings.admin_api_key = _ADMIN_KEY
     yield _ADMIN_HEADERS
     _settings.admin_api_key = old
-from acne_llm.chat.routing.intent_router import RouteDecision
-from acne_llm.chat.session import ConversationTurn, get_session_store
-from acne_llm.db.session_store import SQLiteSessionStore
-from acne_llm.schemas import AdviseOutput, RetrievedChunk, RetrievalOutput
 
 
 class _MockLLM:
@@ -83,12 +83,6 @@ class _MockRetriever:
         )
 
     def retrieve_safety_pass(self, query, safety_terms, top_k=5, source_types=None):
-        # Production dùng CHUNG hàm này cho hai việc: guideline pass (truyền
-        # source_types, safety_terms=None, chạy mọi truy vấn) và safety pass thật
-        # (truyền safety_terms, chỉ chạy khi có từ khoá y tế). Mock cũ chỉ có một
-        # xô nên guideline pass làm hỏng mọi assert về safety_calls — và trước đó
-        # thì chữ ký thiếu source_types khiến pass này ném TypeError im lặng,
-        # tức là guideline pass CHƯA TỪNG được test nào chạm tới.
         if source_types:
             self.guideline_calls.append((query, tuple(source_types), top_k))
         else:
@@ -122,8 +116,6 @@ class _MockContainer:
     def __init__(self):
         self.llm = _MockLLM()
         self.prompt = _MockPrompt()
-        # Runtime doc thang c.session_store (khong con fallback ngam), nen test
-        # double phai tu cap store. SessionStore in-memory la test double chinh thuc.
         self.session_store = get_session_store()
         self.settings = SimpleNamespace(
             llm_temperature=0.3,
@@ -260,30 +252,22 @@ def test_stream_endpoint_soft_rejects_out_of_domain_with_llm_and_without_rag():
     assert container.llm.user_prompts
     assert container.retriever.queries == []
     assert container.retriever.safety_calls == []
-    assert container.retriever.guideline_calls == []   # reject thì không retrieve gì cả
+    assert container.retriever.guideline_calls == []
 
 
-def test_guideline_pass_chay_cho_moi_truy_van_khong_doi_safety_term():
-    """Câu hỏi thường, không từ khoá y tế nào -> vẫn phải đi lấy khuyến cáo.
-
-    Đo trên 152 truy vấn thật: pass này bơm ~760 đoạn guideline vào pool nhưng
-    chỉ 16 đoạn sống sót ra câu trả lời. Nếu pass im lặng ngừng chạy thì con số
-    đó về 0 mà không test nào kêu — trước bản vá chữ ký mock thì nó ném
-    TypeError và bị `except Exception` nuốt mất đúng như vậy.
-    """
+def test_guideline_pass_runs_for_regular_queries_without_safety_terms():
     container = _MockContainer()
     container.rag_ready = True
     container.retriever = _MockRetriever()
-    c = TestClient(_app(container))
+    client = TestClient(_app(container))
 
-    r = c.get("/api/v1/chat/stream", params={"message": _SUFFICIENT_MSG})
+    response = client.get("/api/v1/chat/stream", params={"message": _SUFFICIENT_MSG})
 
-    assert r.status_code == 200
-    assert container.retriever.guideline_calls, "guideline pass phải chạy"
+    assert response.status_code == 200
+    assert container.retriever.guideline_calls
     _, source_types, _ = container.retriever.guideline_calls[-1]
-    assert "nice_guideline" in source_types and "aad_guideline" in source_types
-    # Không có từ khoá y tế -> safety pass thật KHÔNG được chạy (nó tốn thêm
-    # một lượt embed + query Chroma, ~50-100ms mỗi request).
+    assert "nice_guideline" in source_types
+    assert "aad_guideline" in source_types
     assert container.retriever.safety_calls == []
 
 
@@ -316,12 +300,6 @@ def test_stream_endpoint_acne_partial_goes_to_llm():
 
 
 def test_duong_advise_khong_con_noi_cau_hoi_cung():
-    """Hoi hay khong gio la viec cua generator.
-
-    Ban cu: luat tinh ra mot cau hoi, prompt bao model "KHONG dat cau hoi bo
-    sung", roi runtime noi cau cung vao cuoi -> model van hoi, nguoi dung nhan
-    HAI cau hoi. Gio khong noi gi ca: model mock khong hoi thi output khong co
-    dau hoi nao.""" 
     advise_container = _MockContainer()
     advise_container.semantic_router = SimpleNamespace(
         classify=lambda text: RouteDecision(
@@ -338,7 +316,6 @@ def test_duong_advise_khong_con_noi_cau_hoi_cung():
 
     assert advise_response.status_code == 200
     assert advise_container.prompt.templates[-1] == "stream_user.j2"
-    # Mock LLM khong sinh cau hoi -> khong duoc co dau hoi nao chen them.
     assert advise_response.text.count("?") == 0
 
     class _ClarifyQuestionLLM(_MockLLM):
@@ -418,9 +395,9 @@ def test_stream_endpoint_merges_session_context_before_completeness(tmp_path):
 
 def test_stream_endpoint_persists_answer_turns_in_session():
     session_id = "test-session-answer-turns"
-    store = get_session_store()
-    store.delete(session_id)
-    c = TestClient(_app())
+    container = _MockContainer()
+    store = container.session_store
+    c = TestClient(_app(container))
 
     try:
         first = c.get(
@@ -524,9 +501,8 @@ def test_stream_knowledge_pustule_question_does_not_append_urgent_suffix():
 
 def test_stream_endpoint_advise_metadata_has_no_subject_and_persists_snapshot():
     session_id = "test-stream-other-subject"
-    store = get_session_store()
-    store.delete(session_id)
     container = _MockContainer()
+    store = container.session_store
     c = TestClient(_app(container))
 
     try:
@@ -536,9 +512,6 @@ def test_stream_endpoint_advise_metadata_has_no_subject_and_persists_snapshot():
         )
 
         assert r.status_code == 200
-        # `route_metadata` khong con di vao prompt (orchestrator da bo tham so
-        # do khi don prompt). Kiem tren SSE metadata -- day moi la thu client
-        # thay, va la hop dong that su can giu.
         assert '"primary_intent": "advise"' in r.text
         assert "query_subject" not in r.text
         history = store.get_history(session_id)
@@ -549,9 +522,8 @@ def test_stream_endpoint_advise_metadata_has_no_subject_and_persists_snapshot():
 
 def test_stream_endpoint_persists_self_snapshot_when_safety_clarify_is_overridden():
     session_id = "test-stream-self-clarify-memory"
-    store = get_session_store()
-    store.delete(session_id)
     container = _MockContainer()
+    store = container.session_store
     c = TestClient(_app(container))
 
     try:

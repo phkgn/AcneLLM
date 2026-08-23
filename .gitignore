@@ -108,3 +108,20 @@ htmlcov/
 
 # ket qua A/B chay tay, luu vao research/ablation/runs/ neu can giu
 outputs_ab_*.txt
+
+# Codex/local artifact build workspaces
+.codex_tmp/
+
+# Audit and Obsidian exports are published as versioned release archives.
+.audit/obsidian_export/
+.audit/runs/
+
+# Presentation scratch renders and inspection dumps; keep only the verified deck.
+docs/presentations/*
+!docs/presentations/AcneLLM_Project_E2E_20min_Scientific_Verified.pptx
+
+# Packaged evaluation evidence is a release artifact; JSON/JSONL truth stays tracked.
+research/evaluation/reports/v2_full.zip
+
+# Duplicate root downloader; canonical tooling lives under research/guideline_docs/.
+guideline_docs/

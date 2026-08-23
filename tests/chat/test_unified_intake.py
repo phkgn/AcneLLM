@@ -9,8 +9,8 @@ from types import SimpleNamespace
 import pytest
 
 from acne_llm.chat.intake import run_intake
-from acne_llm.chat.routing.llm_extractor import ExtractorFallback
-from acne_llm.chat.routing.llm_router import RouterFallback
+from acne_llm.chat.intake_contract import ExtractorFallback, RouterFallback
+from acne_llm.chat.routing.intent_router import RouteDecision
 from acne_llm.chat.session import ConversationTurn
 from acne_llm.chat.unified_intake import (
     UnifiedIntake,
@@ -407,8 +407,6 @@ def _container(adapter: UnifiedIntake):
     return SimpleNamespace(
         rag_ready=False,
         settings=SimpleNamespace(
-            intake_mode="unified",
-            extractor_mode="llm",
             extract_min_field_conf=0.60,
         ),
         llm_router=adapter,
@@ -481,13 +479,42 @@ def test_run_intake_integration_uses_unified_contract_without_crashing(
         assert "tretinoin" not in result.user.context.current_products
 
 
-def test_unified_remains_default_and_legacy_adapters_live_in_fallback_package():
-    from acne_llm.chat.routing.llm_extractor import LLMExtractor
-    from acne_llm.chat.routing.llm_router import LLMRouter
+def test_unified_json_failure_uses_semantic_then_rule_without_second_inference():
+    backend = _Backend(response="not json")
+    adapter = UnifiedIntake(backend, "acne-intaker", 60.0)
+    container = _container(adapter)
+    container.semantic_router = SimpleNamespace(
+        classify=lambda text: RouteDecision(
+            primary_intent="knowledge",
+            confidence=0.81,
+            source="semantic",
+            reason_code="semantic_router",
+        )
+    )
 
-    assert Settings.model_fields["intake_mode"].default == "unified"
-    assert LLMExtractor.__module__ == "acne_llm.chat.routing.llm_extractor"
-    assert LLMRouter.__module__ == "acne_llm.chat.routing.llm_router"
+    result = run_intake(container, "BHA là gì?")
+
+    assert result.route_decision is not None
+    assert result.route_decision.source == "semantic"
+    assert result.user.description == "BHA là gì?"
+    assert len(backend.calls) == 1
+
+
+def test_runtime_settings_expose_only_unified_intake_controls():
+    fields = Settings.model_fields
+
+    assert fields["intake_model"].default == "acne-intaker"
+    assert fields["intake_timeout"].default == 60.0
+    for legacy_name in (
+        "intake_mode",
+        "router_mode",
+        "router_model",
+        "router_timeout",
+        "extractor_mode",
+        "extractor_model",
+        "extractor_timeout",
+    ):
+        assert legacy_name not in fields
 
 
 def test_unified_route_van_co_route_flags():
@@ -495,7 +522,7 @@ def test_unified_route_van_co_route_flags():
 
     Nếu intake không gắn bù, ``urgency_red_flag`` mất -> cảnh báo khẩn cấp ở
     ``_safety`` và guidance an toàn ở ``prompt_builder`` chết im lặng khi
-    ``intake_mode=unified``.
+    đường Unified Intaker production.
     """
     message = "mụn mủ sưng lớn, đau nhiều và lan rộng khắp mặt em"
     adapter, _backend = _adapter(_payload(message, intent="advise"))

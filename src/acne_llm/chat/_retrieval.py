@@ -63,8 +63,8 @@ def merge_retrieval_outputs(
 # -- Medical safety terms for safety pass gate --------------------------------
 
 # FIX: Safety pass chỉ chạy khi có ít nhất 1 medical safety term thực sự.
-# Generic ingredient terms từ product_safety_check KHÔNG trigger safety pass
-# để tránh extra embed + Chroma query không cần thiết (~50-100ms/request).
+# Chỉ các medical safety term bên dưới trigger pass bổ sung; ingredient chung
+# không tự mở thêm embed + Chroma query (~50-100ms/request).
 _MEDICAL_SAFETY_TERMS = frozenset({
     "mang thai", "pregnant", "pregnancy",
     "cho con bu", "cho con bú", "breastfeeding", "lactation",
@@ -249,9 +249,8 @@ def retrieve_for_chat(
         ret = c.retriever.retrieve(retrieve_query, top_k=top_k, mode="hybrid")
 
         # FIX: Safety pass chi chay khi co medical safety term thuc su
-        # (pregnancy, isotretinoin, khang sinh...) — khong chay voi generic
-        # ingredient terms tu product_safety_check de tranh extra embed +
-        # Chroma query khong can thiet (~50-100ms/request).
+        # (pregnancy, isotretinoin, khang sinh...) — không chạy chỉ vì ingredient
+        # chung, tránh extra embed + Chroma query không cần thiết.
         # Guideline pass — chay cho MOI truy van, khong doi safety term.
         # Ly do: dense+BM25 tren toan corpus luon uu ai bai pho thong tieng Viet
         # (ty le ap dao + trung token), nen NICE/EuroGuiDerm khong bao gio vao

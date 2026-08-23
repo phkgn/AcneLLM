@@ -47,24 +47,9 @@ class Settings(BaseSettings):
     llm_use_modelfile_system: bool = True
 
     # ── Unified intake ──────────────────────────────────────────────────────
-    # Unified là runtime mặc định; legacy chỉ giữ lại cho arm A/B.
-    intake_mode: Literal["unified", "legacy"] = "unified"
+    # Một model duy nhất sinh route và extraction; semantic/rule không gọi LLM.
     intake_model: str = "acne-intaker"
     intake_timeout: float = 60.0
-
-    # ── Intake extractor ────────────────────────────────────────────────────
-    # Dedicated small-model producer for UserInput + per-field confidence only.
-    # Rule modules remain live and are used whenever this path fails.
-    extractor_mode: Literal["llm", "rule"] = "llm"
-    extractor_model: str = "acne-extractor:1.5b"
-    extractor_timeout: float = 20.0
-
-    # ── LLM-first intent router ─────────────────────────────────────────────
-    # "llm": generative router primary, semantic then rule as fallbacks.
-    # "semantic": disable the generative router for baseline/A-B comparison.
-    router_mode: Literal["llm", "semantic"] = "llm"
-    router_model: str = "acnellm-intent"
-    router_timeout: float = 8.0
 
     @field_validator("intake_timeout")
     @classmethod

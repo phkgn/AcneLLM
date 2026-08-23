@@ -82,7 +82,7 @@ def run(
     checkpoint_every: int = typer.Option(50, "--checkpoint-every", help="Save checkpoint sau N docs"),
     no_checkpoint: bool = typer.Option(False, "--no-checkpoint", help="Tat checkpoint"),
 ):
-    session_log = configure_logging(level=log_level, log_dir=LOG_DIR)
+    session_log = configure_logging(level=log_level, log_dir=LOG_DIR, file_prefix="crawl")
     clog.info(f"Session log -> {session_log}")
     asyncio.run(
         _run(source, out, max_concurrency, source_concurrency,

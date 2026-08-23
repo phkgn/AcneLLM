@@ -9,6 +9,7 @@ from typing import Any
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 from ..schemas.extraction import FieldResult, ListFieldResult
 from ..schemas.extraction import ExtractionConfidence
+from .intake_contract import ExtractorFallback
 from .preprocess import strip_accents
 
 
@@ -114,10 +115,6 @@ _OLLAMA_JSON_SCHEMA: dict[str, Any] = {
     },
     "additionalProperties": False,
 }
-
-
-class ExtractorFallback(Exception):
-    """Signal that intake must use the deterministic rule fallback."""
 
 
 @dataclass(frozen=True)

@@ -64,11 +64,15 @@ def test_moi_submodule_import_doc_lap_duoc():
         importlib.import_module(f"acne_llm.chat.session.{module_name[:-3]}")
 
 
-def test_get_session_store_van_la_singleton_sau_khi_tach():
-    """Bien `_store` o cap module. Neu __init__ import lai bang duong khac,
-    Python co the tao HAI module object -> hai singleton -> history bien mat."""
-    from acne_llm.chat.session import get_session_store as a
-    from acne_llm.chat.session.memory import get_session_store as b
+def test_production_session_package_does_not_export_in_memory_store():
+    session = importlib.import_module("acne_llm.chat.session")
 
-    assert a is b
-    assert a() is b()
+    assert not hasattr(session, "SessionStore")
+    assert not hasattr(session, "get_session_store")
+    assert importlib.util.find_spec("acne_llm.chat.session.memory") is None
+
+
+def test_test_helper_returns_independent_stores():
+    from tests.helpers import get_session_store
+
+    assert get_session_store() is not get_session_store()

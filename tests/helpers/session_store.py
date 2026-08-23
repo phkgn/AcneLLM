@@ -1,4 +1,4 @@
-"""SessionStore in-memory.
+"""Test-only in-memory implementation of the production session protocol.
 
 DOC KY: day KHONG phai duong chay production.
 
@@ -19,7 +19,7 @@ from __future__ import annotations
 import threading
 import time
 
-from .models import (
+from acne_llm.chat.session.models import (
     MAX_HISTORY_TURNS,
     SESSION_TTL,
     ConversationTurn,
@@ -181,15 +181,6 @@ class SessionStore:
 
 # ── Module-level singleton ────────────────────────────────────────────────────
 
-_store: SessionStore | None = None
-_store_lock = threading.Lock()
-
-
 def get_session_store() -> SessionStore:
-    """Return the process-wide SessionStore singleton (lazy init)."""
-    global _store
-    if _store is None:
-        with _store_lock:
-            if _store is None:
-                _store = SessionStore()
-    return _store
+    """Return a fresh test store so state cannot leak between test owners."""
+    return SessionStore()

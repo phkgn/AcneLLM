@@ -130,94 +130,33 @@ def build_container(settings) -> Container:
         use_modelfile_system=getattr(settings, "llm_use_modelfile_system", False),
     )
 
-    intake_mode = getattr(settings, "intake_mode", "legacy")
-    if intake_mode == "unified":
-        intake_model = getattr(settings, "intake_model", "acne-intaker")
-        intake_timeout = float(getattr(settings, "intake_timeout", 60.0))
-        intake_backend = OllamaBackend(
-            base_url=settings.ollama_url,
-            model=intake_model,
-            fallback_model=None,
-            num_ctx=min(int(getattr(settings, "llm_num_ctx", 4096)), 4096),
-            num_predict=768,
-            temperature=0.0,
-            top_p=1.0,
-            top_k=20,
-            repeat_penalty=1.0,
-            repeat_last_n=64,
-            keep_alive=getattr(settings, "llm_keep_alive", -1),
-            timeout=intake_timeout,
-            health_timeout=getattr(settings, "ollama_health_timeout", 5.0),
-            use_modelfile_system=True,
-        )
-        unified = UnifiedIntake(
-            intake_backend,
-            model=intake_model,
-            timeout=intake_timeout,
-        )
-        llm_router = unified
-        llm_extractor = unified
-        # intake.py is intentionally unchanged and still uses extractor_mode as
-        # its interface-presence gate. Unified mode owns both interfaces.
-        if getattr(settings, "extractor_mode", "llm") != "llm":
-            settings.extractor_mode = "llm"
-    else:
-        from .chat.routing.llm_extractor import LLMExtractor
-        from .chat.routing.llm_router import LLMRouter
-
-        llm_router = None
-        if getattr(settings, "router_mode", "llm") == "llm":
-            router_model = getattr(settings, "router_model", "acnellm-intent")
-            router_timeout = float(getattr(settings, "router_timeout", 8.0))
-            router_backend = OllamaBackend(
-                base_url=settings.ollama_url,
-                model=router_model,
-                fallback_model=None,
-                num_ctx=min(int(getattr(settings, "llm_num_ctx", 4096)), 4096),
-                num_predict=48,
-                temperature=0.1,
-                top_p=0.9,
-                top_k=20,
-                repeat_penalty=1.05,
-                repeat_last_n=64,
-                keep_alive=-1,
-                timeout=router_timeout,
-                health_timeout=getattr(settings, "ollama_health_timeout", 5.0),
-                use_modelfile_system=True,
-            )
-            llm_router = LLMRouter(
-                router_backend,
-                model=router_model,
-                timeout=router_timeout,
-            )
-
-        llm_extractor = None
-        if getattr(settings, "extractor_mode", "llm") == "llm":
-            extractor_model = getattr(
-                settings, "extractor_model", "acne-extractor:1.5b"
-            )
-            extractor_timeout = float(getattr(settings, "extractor_timeout", 20.0))
-            extractor_backend = OllamaBackend(
-                base_url=settings.ollama_url,
-                model=extractor_model,
-                fallback_model=None,
-                num_ctx=min(int(getattr(settings, "llm_num_ctx", 4096)), 4096),
-                num_predict=512,
-                temperature=0.0,
-                top_p=0.9,
-                top_k=20,
-                repeat_penalty=1.05,
-                repeat_last_n=64,
-                keep_alive=getattr(settings, "llm_keep_alive", -1),
-                timeout=extractor_timeout,
-                health_timeout=getattr(settings, "ollama_health_timeout", 5.0),
-                use_modelfile_system=True,
-            )
-            llm_extractor = LLMExtractor(
-                extractor_backend,
-                model=extractor_model,
-                timeout=extractor_timeout,
-            )
+    intake_model = getattr(settings, "intake_model", "acne-intaker")
+    intake_timeout = float(getattr(settings, "intake_timeout", 60.0))
+    intake_backend = OllamaBackend(
+        base_url=settings.ollama_url,
+        model=intake_model,
+        fallback_model=None,
+        num_ctx=min(int(getattr(settings, "llm_num_ctx", 4096)), 4096),
+        num_predict=768,
+        temperature=0.0,
+        top_p=1.0,
+        top_k=20,
+        repeat_penalty=1.0,
+        repeat_last_n=64,
+        keep_alive=getattr(settings, "llm_keep_alive", -1),
+        timeout=intake_timeout,
+        health_timeout=getattr(settings, "ollama_health_timeout", 5.0),
+        use_modelfile_system=True,
+    )
+    unified = UnifiedIntake(
+        intake_backend,
+        model=intake_model,
+        timeout=intake_timeout,
+    )
+    # Keep both interface names while callers migrate; both are the same object
+    # and therefore share one inference for route plus extraction.
+    llm_router = unified
+    llm_extractor = unified
 
     prompt = PromptBuilder(settings.prompts_dir)
     # Soft OOS thuoc ve SemanticRouter/intaker. GuardrailRunner chi con giu cac

@@ -83,37 +83,15 @@ def log_pipeline_stage(
 def log_runtime_banner(container: Any) -> None:
     """Log the effective DI/runtime topology as one startup record."""
     settings = container.settings
-    intake_mode = str(getattr(settings, "intake_mode", "legacy"))
     fallback_chain = "semantic → rule → deterministic"
     lines = [
         "── AcneLLM runtime ─────────────────────────────",
-        f"intake_mode : {intake_mode:<9} (fallback: {fallback_chain})",
+        f"intake      : unified (fallback: {fallback_chain})",
+        "intake model: "
+        f"{getattr(settings, 'intake_model', 'unknown')} "
+        f"keep_alive={getattr(settings, 'llm_keep_alive', 'default')} "
+        f"timeout={getattr(settings, 'intake_timeout', 'default')}s",
     ]
-    if intake_mode == "unified":
-        lines.append(
-            "intake 3B   : "
-            f"{getattr(settings, 'intake_model', 'unknown')} "
-            f"keep_alive={getattr(settings, 'llm_keep_alive', 'default')} "
-            f"timeout={getattr(settings, 'intake_timeout', 'default')}s"
-        )
-    else:
-        router_name = (
-            getattr(settings, "router_model", "unknown")
-            if getattr(settings, "router_mode", "llm") == "llm"
-            else "semantic"
-        )
-        extractor_name = (
-            getattr(settings, "extractor_model", "unknown")
-            if getattr(settings, "extractor_mode", "llm") == "llm"
-            else "rule"
-        )
-        lines.append(
-            "intake legacy: "
-            f"router={router_name} "
-            f"extractor={extractor_name} "
-            f"timeout={getattr(settings, 'router_timeout', 'default')}/"
-            f"{getattr(settings, 'extractor_timeout', 'default')}s"
-        )
     lines.append(
         "answer 7B   : "
         f"{getattr(settings, 'llm_model', 'unknown')} "
@@ -147,13 +125,18 @@ def log_runtime_banner(container: Any) -> None:
         lines.append("RAG         : unavailable (llm_only fallback)")
     # DrugChecker da bi xoa (Phase 5) -- khong con bang thuoc de dem.
     lines.extend([
-        "safety      : substrate always-on | cong tat dinh: injection, genital, thuoc",
+        "safety      : input guards + medication policy + output safety suffix",
         "────────────────────────────────────────────────",
     ])
     logger.info("\n{}", "\n".join(lines))
 
 
-def configure_logging(level: str = "INFO", log_dir: str | Path = "data/logs") -> Path:
+def configure_logging(
+    level: str = "INFO",
+    log_dir: str | Path = "data/logs",
+    *,
+    file_prefix: str = "runtime",
+) -> Path:
     """Configure loguru sinks.
 
     Returns the path to the session log file.
@@ -165,7 +148,7 @@ def configure_logging(level: str = "INFO", log_dir: str | Path = "data/logs") ->
     except OSError:
         log_dir = Path(tempfile.gettempdir()) / "acne_llm_logs"
         log_dir.mkdir(parents=True, exist_ok=True)
-    session_log = log_dir / f"crawl_{ts}.log"
+    session_log = log_dir / f"{file_prefix}_{ts}.log"
 
     logger.remove()
 
@@ -192,7 +175,7 @@ def configure_logging(level: str = "INFO", log_dir: str | Path = "data/logs") ->
     except OSError as exc:
         fallback_dir = Path(tempfile.gettempdir()) / "acne_llm_logs"
         fallback_dir.mkdir(parents=True, exist_ok=True)
-        session_log = fallback_dir / f"crawl_{ts}.log"
+        session_log = fallback_dir / f"{file_prefix}_{ts}.log"
         logger.warning(
             "Cannot open log file in {}; using temp log {} ({})",
             log_dir,

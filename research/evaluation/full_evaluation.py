@@ -35,7 +35,11 @@ from evaluation.runners.run_ablation import DEFAULT_ARMS  # noqa: E402
 PY = sys.executable
 # v3: nhãn suy từ Modelfile, khử trùng bằng ngữ nghĩa. Bộ v2 gán sai 15 ca
 # reject nên mọi kết quả cũ đo nhầm chuyện — xem eval_context.md §2.
-DATASET = "evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
+# Đường dẫn tương đối so với REPO ROOT, vì preflight kiểm `ROOT / DATASET` và
+# subprocess chạy với cwd=ROOT. Tiền tố `research/` là bắt buộc — hằng số này
+# có từ thời `evaluation/` nằm ngay repo root, đợt gom vào `research/` quên sửa
+# nên preflight báo thiếu file dù file có thật.
+DATASET = "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl"
 
 STEP_DEFINITIONS = (
     ("preflight", "Kiểm tra môi trường"),

@@ -53,10 +53,8 @@ services:
       LLM_USE_MODELFILE_SYSTEM: "true"
       OLLAMA_HEALTH_TIMEOUT: ${OLLAMA_HEALTH_TIMEOUT:-10}
       OLLAMA_GENERATE_TIMEOUT: ${OLLAMA_GENERATE_TIMEOUT:-300}
-      INTAKE_MODE: unified
       INTAKE_MODEL: ${INTAKE_MODEL_NAME:-acne-intaker}
       INTAKE_TIMEOUT: ${INTAKE_TIMEOUT:-120}
-      EXTRACTOR_MODE: llm
       DEVICE: ${DEVICE:-cpu}
       CHROMA_DIR: /app/data/chroma_db
       BM25_PATH: /app/data/bm25_index.pkl

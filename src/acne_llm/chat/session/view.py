@@ -1,12 +1,12 @@
 """Chon va render phan hoi thoai duoc dua vao prompt.
 
 Ba ham nay khong phai "session" theo bat ky nghia nao -- chung tra loi cau hoi
-"luot nao, dinh dang gi thi di vao prompt". Chung o chung file voi SessionStore
+"luot nao, dinh dang gi thi di vao prompt". Chung từng ở chung file với store
 va fold_history_facts suot 714 dong chi vi lich su, va do la ly do ten file cu
 noi doi ro nhat: `format_history_block` render chuoi cho prompt builder.
 
 Tach o Phase 7. Doi vi ly do khac han hai file kia: file nay doi khi PROMPT
-doi, memory.py doi khi vong doi phien doi, fold.py doi khi luat gop du kien doi.
+doi, còn fold.py đổi khi luật gộp dữ kiện đổi.
 
 Phu thuoc mot chieu: view -> fold (build_confirmed_profile dung _mentions_stop)
 va view -> models. Khong co chieu nguoc lai.

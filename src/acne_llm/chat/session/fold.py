@@ -1,7 +1,7 @@
 """Gop du kien tu cac luot truoc vao luot hien tai.
 
-File nguy hiem nhat trong package: `medication_safety_refusal` -- cong tat dinh
-DUY NHAT con lai -- doc `is_pregnant`, `is_breastfeeding` va `medications` do
+File nhạy cảm với safety: `medication_safety_refusal` đọc `is_pregnant`,
+`is_breastfeeding` và `medications` do
 chinh cac ham o day tra ve. Sai o day la tat cong an toan, im lang.
 
 Ca hai loi an toan tim ra o Phase 7 deu nam trong file nay:
@@ -45,9 +45,8 @@ def _mentions_stop(clean_text: str, value: str) -> bool:
         "benzoyl_peroxide": ("benzoyl peroxide", "bpo"),
         "adapalene": ("adapalene", "differin"),
     }
-    # Intaker canonical hoá ra "salicylic acid" (dấu cách) nhưng aliases lại key
-    # bằng "salicylic_acid" -> nhánh alias chưa từng khớp dữ liệu thật, nên
-    # "tôi ngưng BHA" không bao giờ gỡ được salicylic acid khỏi profile.
+    # Alias map dùng khóa underscore còn intaker trả tên có dấu cách; chuẩn hóa
+    # khóa ở đây để cả tên canonical và alias như BHA/BPO đều khớp.
     alias_key = value_lower.replace(" ", "_")
     mentioned = next(
         (term for term in aliases.get(alias_key, (value_lower,)) if term in lowered),
@@ -205,7 +204,7 @@ def fold_history_facts(
         # người dùng đã hỏi về chủ đề khác không liên quan đến thai kỳ.
         # ponytail: hai nhanh phu dinh bang keyword da bi xoa o Phase 7.
         # 17 chuoi tung co quyen set is_pregnant = False -- tuc la TAT cong
-        # chong chi dinh thai ky, cong tat dinh duy nhat con lai. Chung khong
+        # chong chi dinh thai ky, mot cong tat dinh quan trong. Chung khong
         # kiem chu ngu va khong kiem pham vi phu dinh:
         #   "chi toi khong mang thai, con em thi co" -> is_pregnant = False
         # Trang thai thai ky gio chi den tu intaker. Fail-safe la GIU True:
@@ -334,5 +333,3 @@ def fold_history_facts(
         "context": merged_context,
         "clinical": merged_clinical if has_clinical else None,
     })
-
-

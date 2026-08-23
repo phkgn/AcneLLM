@@ -1,7 +1,8 @@
 """SQLite-backed SessionStore — một file sessions.db thay cho nhiều file JSONL.
 
-Session store duy nhất của hệ thống: một file sessions.db, giao tiếp qua
-interface ổn định cho di.py/runtime.py. Tự quản schema riêng (bảng sessions + turns)
+Session store của production runtime: một file sessions.db, giao tiếp qua
+interface ổn định cho di.py/runtime.py. Test dùng store in-memory riêng ngoài
+production package. Store này tự quản schema (bảng sessions + turns)
 trong file DB độc lập, không phụ thuộc audit schema ở db/base.py.
 
 Ngữ nghĩa:

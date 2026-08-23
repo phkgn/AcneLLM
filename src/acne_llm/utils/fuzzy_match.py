@@ -57,11 +57,11 @@ def best_match(query: str, canonicals: tuple[str, ...], *, scorer=fuzz.ratio) ->
 
 
 def find_in_text(text: str, canonicals: tuple[str, ...], *, accept: float, review: float, max_ngram: int = 3) -> "list[FuzzyHit]":
-    """Two-tier fuzzy match: accept >= auto-include, review <= accept < review = review list.
+    """Return accepted matches; ``review`` is only a lower prefilter threshold.
 
     Args:
         accept: Auto-accept threshold (high confidence, no manual review needed)
-        review: Include in review list (lower confidence, needs verification)
+        review: Ignore weaker candidates; this function returns no review list
     """
     if not text or not canonicals:
         return []
@@ -70,7 +70,7 @@ def find_in_text(text: str, canonicals: tuple[str, ...], *, accept: float, revie
         hit = best_match(gram, canonicals)
         if hit is None:
             continue
-        # Two-tier: accept >= auto-accept, review <= accept < review = review needed
+        # Prefilter weak candidates before retaining only accept-level hits.
         if hit.similarity < review:
             continue
         prev = best_per_canonical.get(hit.canonical)

@@ -12,8 +12,7 @@ from typing import TYPE_CHECKING, Literal
 
 from ..schemas import AdviseOutput, UserInput
 from .routing.intent_router import RouteDecision, compute_route_flags, route_intent
-from .routing.llm_extractor import ExtractorFallback
-from .routing.llm_router import RouterFallback
+from .intake_contract import ExtractorFallback, RouterFallback
 from ._intent_patch import CLARIFY_DOWNGRADED, repaired_intent
 from .routing.rule_normalizer import normalize_chat_message
 from .preprocess import light_normalize
@@ -229,7 +228,6 @@ def run_intake(
     store = c.session_store
     history = store.get_history(session_id)
     mode = _resolve_mode(mode_request, c, clean_text=clean_text, history=history)
-    intake_settings = getattr(c, "settings", None)
     # Extractor rule giờ CHỈ là fallback. Trước đây nó chạy ở đây mọi turn và
     # guardrails phán trên số của nó — nên "ngưng tretinoin rồi" vẫn ra
     # medications=['tretinoin'] và bắn safety trước khi intaker kịp nói.
@@ -526,8 +524,6 @@ def run_intake(
     route_source = (
         "unified_intake"
         if route_decision.reason_code == "unified_intake"
-        else "legacy_llm"
-        if route_decision.source == "llm"
         else route_decision.source
     )
     log_pipeline_stage(
@@ -600,13 +596,15 @@ def run_intake(
             teencode_replaced=prepared.teencode_replaced,
         )
 
-    # Advise/knowledge only: now pay the 1.5B extraction cost. The rule parser
-    # above remains the fallback if the model is unavailable or invalid.
+    # Advise/knowledge only: reuse the Unified Intaker result. The rule parser
+    # remains the fallback if the shared model result is unavailable or invalid.
     extract_started = time.perf_counter()
     extraction_source = "rule"
-    extractor_mode = getattr(intake_settings, "extractor_mode", "rule")
     llm_extractor = getattr(c, "llm_extractor", None)
-    if extractor_mode == "llm" and llm_extractor is not None:
+    if (
+        llm_extractor is not None
+        and route_decision.reason_code == "unified_intake"
+    ):
         try:
             extracted = llm_extractor.run(
                 clean_text=clean_text,
@@ -616,11 +614,7 @@ def run_intake(
             )
             base_user = extracted.user
             _extraction_conf = extracted.confidence
-            extraction_source = (
-                "unified_intake"
-                if route_decision.reason_code == "unified_intake"
-                else "legacy_llm"
-            )
+            extraction_source = "unified_intake"
         except ExtractorFallback as exc:
             base_user = _rule_user()
             _extraction_conf = _rule_conf()
@@ -646,15 +640,14 @@ def run_intake(
     else:
         base_user = _rule_user()
         _extraction_conf = _rule_conf()
-        if extractor_mode == "llm":
-            log_pipeline_stage(
-                session_id,
-                "EXTRACT",
-                extract_started,
-                level="WARNING",
-                fallback="rule",
-                reason="extractor_unavailable",
-            )
+        log_pipeline_stage(
+            session_id,
+            "EXTRACT",
+            extract_started,
+            level="WARNING",
+            fallback="rule",
+            reason="unified_intake_unavailable",
+        )
 
     _cl = base_user.clinical
     log_pipeline_stage(

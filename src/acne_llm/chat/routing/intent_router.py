@@ -48,7 +48,7 @@ class RouteDecision:
             "primary_intent": self.primary_intent,
             "intent_confidence": self.confidence,
             "intent_source": self.source,
-            "turn_type": self.turn_type if self.turn_type != "answer" else self.primary_intent,
+            "turn_type": self.turn_type,
             "route_flags": list(self.route_flags),
             "detected_language": self.detected_language,
             "reason_code": self.reason_code,
@@ -268,11 +268,6 @@ _PROGRESS_TERMS = (
     "không đỡ", "khong do", "đỡ hơn", "do hon", "rát hơn", "rat hon",
     "không hiệu quả", "khong hieu qua", "routine trước", "routine truoc",
 )
-_SAFETY_PRODUCT_TERMS = (
-    "retinol", "retinoid", "tretinoin", "adapalene", "isotretinoin",
-    "benzoyl peroxide", "bpo", "aha", "bha", "salicylic", "azelaic",
-    "dùng chung", "dung chung", "kết hợp", "ket hop", "+",
-)
 _URGENCY_TERMS = (
     "đau nhiều", "dau nhieu", "sưng lớn", "sung lon", "mụn mủ", "mun mu",
     "rỉ dịch", "ri dich", "lan rộng", "lan rong", "sốt ", " sốt", " sot ",
@@ -327,16 +322,6 @@ def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     """Fast shared substring matcher for static chat term lists."""
     regex = _terms_regex(tuple(terms))
     return bool(regex and regex.search(text.lower()))
-
-
-def _contains_product_safety_term(text: str) -> bool:
-    """Match short ingredient aliases as tokens, never as substrings."""
-    short_aliases = {"aha", "bha", "bpo"}
-    return any(
-        re.search(rf"(?<!\w){re.escape(term)}(?!\w)", text) is not None
-        if term in short_aliases else term in text
-        for term in _SAFETY_PRODUCT_TERMS
-    )
 
 
 def _clinical_has_case_signal(clinical: AcneClinicalInput | None) -> bool:
@@ -402,8 +387,6 @@ def compute_route_flags(
         flags.append("emotional_distress")
     if _contains_any(lowered, _CRISIS_TERMS):
         flags.append("crisis_signal")
-    if _contains_product_safety_term(lowered):
-        flags.append("product_safety_check")
     has_red_flags = bool(user is not None and user.clinical and user.clinical.red_flags_input)
     if _contains_any(lowered, _URGENCY_TERMS) or has_red_flags:
         flags.append("urgency_red_flag")

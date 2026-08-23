@@ -2,10 +2,10 @@ from types import SimpleNamespace
 
 from acne_llm.chat.intake import run_intake
 from acne_llm.chat.routing.intent_router import RouteDecision
-from acne_llm.chat.routing.llm_extractor import ExtractorFallback
-from acne_llm.chat.routing.llm_router import RouterFallback
-from acne_llm.chat.session import ConversationTurn, get_session_store
+from acne_llm.chat.intake_contract import ExtractorFallback, RouterFallback
+from acne_llm.chat.session import ConversationTurn
 from acne_llm.db.session_store import SQLiteSessionStore
+from tests.helpers import get_session_store
 from acne_llm.guardrails.runner import GuardrailRunner
 
 
@@ -43,7 +43,7 @@ def test_intake_folds_prior_snapshot_into_current_self_turn():
     session_id = "test-intake-folds-prior"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
 
     try:
         first = run_intake(c, "tôi 22 tuổi da dầu", session_id=session_id)
@@ -158,7 +158,7 @@ def test_intake_does_not_fold_self_history_into_general_knowledge():
     session_id = "test-knowledge-no-fold"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
 
     try:
         first = run_intake(c, "tôi 22 tuổi da dầu bị mụn ở cằm", session_id=session_id)
@@ -185,7 +185,7 @@ def test_intake_advise_for_other_person_uses_personal_gate_by_design():
     session_id = "test-other-subject-accepted-contamination"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
 
     try:
         first = run_intake(c, "tôi 22 tuổi da dầu bị mụn ở cằm", session_id=session_id)
@@ -223,7 +223,7 @@ def test_current_knowledge_turn_ignores_richer_personal_turn():
     session_id = "test-current-turn-priority"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
     try:
         first = run_intake(
             c,
@@ -250,7 +250,7 @@ def test_knowledge_followup_uses_only_previous_user_turn():
     session_id = "test-knowledge-followup-user-only"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
     try:
         first = run_intake(c, "Mụn đầu đen là gì?", session_id=session_id)
         store.append_turn(session_id, ConversationTurn(
@@ -276,7 +276,7 @@ def test_confirmed_product_can_be_removed_by_explicit_correction():
     session_id = "test-confirmed-profile-remove"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
     try:
         first = run_intake(c, "Tôi đang dùng BHA.", session_id=session_id)
         assert "BHA" in first.confirmed_profile["current_products"]
@@ -292,7 +292,7 @@ def test_medication_correction_tombstones_old_drug_in_fold_and_snapshot():
     session_id = "test-medication-correction-tombstone"
     store = get_session_store()
     store.delete(session_id)
-    c = _container()
+    c = _container(session_store=store)
     try:
         first = run_intake(
             c,
@@ -383,7 +383,7 @@ def test_intake_semantic_clarify_skips_extractor():
     assert extractor.calls == 0
 
 
-def test_intake_advise_runs_extractor_after_router():
+def test_semantic_fallback_uses_rule_extractor_without_another_llm_call():
     class _FallbackExtractor:
         calls = 0
 
@@ -401,13 +401,13 @@ def test_intake_advise_runs_extractor_after_router():
         )
     )
     c = _container(semantic_router=semantic_router)
-    c.settings = SimpleNamespace(extractor_mode="llm", extract_min_field_conf=0.60)
+    c.settings = SimpleNamespace(extract_min_field_conf=0.60)
     c.llm_extractor = extractor
 
     result = run_intake(c, "tôi bị mụn viêm ở cằm")
 
     assert result.route_decision.primary_intent == "advise"
-    assert extractor.calls == 1
+    assert extractor.calls == 0
 
 
 def test_intake_llm_router_success_skips_semantic_and_receives_history(tmp_path):
@@ -485,7 +485,7 @@ def test_intake_llm_failure_uses_semantic_fallback():
     assert semantic_calls == ["Retinol là gì?"]
 
 
-def test_intake_llm_and_semantic_failure_uses_legacy_rule_fallback():
+def test_intake_llm_and_semantic_failure_uses_rule_fallback():
     llm_router = SimpleNamespace(
         classify=lambda clean_text, history: (_ for _ in ()).throw(
             RouterFallback("model down")
@@ -503,7 +503,7 @@ def test_intake_llm_and_semantic_failure_uses_legacy_rule_fallback():
     assert result.route_decision.reason_code == "personal_acne_case"
 
 
-def test_semantic_mode_container_shape_preserves_previous_primary_behavior():
+def test_container_without_unified_intaker_starts_at_semantic_fallback():
     semantic_router = SimpleNamespace(
         classify=lambda text: RouteDecision(
             primary_intent="knowledge",
@@ -513,7 +513,7 @@ def test_semantic_mode_container_shape_preserves_previous_primary_behavior():
         )
     )
     c = _container(llm_router=None, semantic_router=semantic_router)
-    c.settings = SimpleNamespace(router_mode="semantic", extractor_mode="rule")
+    c.settings = SimpleNamespace()
 
     result = run_intake(c, "BHA là gì?")
 

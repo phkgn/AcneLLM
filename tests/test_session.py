@@ -7,13 +7,12 @@ import threading
 from acne_llm.chat.session import (
     ConversationTurn,
     NormalizedSnapshot,
-    SessionStore,
     fold_history_facts,
     format_history_block,
-    get_session_store,
     snapshot_from_user,
     select_relevant_history,
 )
+from tests.helpers import SessionStore
 from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
 
 
@@ -316,15 +315,6 @@ class TestThreadSafety:
         assert errors == [], f"Thread errors: {errors}"
         # 5 threads × 20 turns = 100 turns, but max_turns=200 so none dropped
         assert len(store.get_history("shared")) == 100
-
-
-# ── Singleton ─────────────────────────────────────────────────────────────────
-
-class TestSingleton:
-    def test_get_session_store_returns_same_instance(self):
-        s1 = get_session_store()
-        s2 = get_session_store()
-        assert s1 is s2
 
 
 # ── format_history_block ──────────────────────────────────────────────────────

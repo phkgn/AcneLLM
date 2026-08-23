@@ -2,7 +2,8 @@
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
 from acne_llm.chat.routing.intent_router import is_repeated_question, route_intent
 from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
-from acne_llm.chat.session import ConversationTurn, get_session_store
+from acne_llm.chat.session import ConversationTurn
+from tests.helpers import SessionStore
 from acne_llm.chat.intake import run_intake
 from acne_llm.chat.routing.intent_router import RouteDecision
 from types import SimpleNamespace
@@ -116,15 +117,11 @@ def test_urgency_red_flag():
     assert "urgency_red_flag" in r.route_flags
 
 
-def test_product_safety_check_flag():
-    r = route_intent("dung retinol ket hop voi aha co duoc khong", _user("retinol + aha"), [])
-    assert "product_safety_check" in r.route_flags
+def test_answer_metadata_keeps_turn_type_distinct_from_intent():
+    decision = RouteDecision(primary_intent="advise", confidence=0.9)
 
-
-def test_laughter_does_not_match_aha_product_alias():
-    r = route_intent("hahahaha", _user("hahahaha"), [])
-
-    assert "product_safety_check" not in r.route_flags
+    assert decision.metadata()["primary_intent"] == "advise"
+    assert decision.metadata()["turn_type"] == "answer"
 
 
 def test_multi_condition_flag():
@@ -193,7 +190,7 @@ def test_rule_source_when_classifier_disabled():
 class _StubRouter:
     """Gia lap UnifiedIntake.classify: tra intent nhung route_flags RONG.
 
-    Day chinh la cau hinh production (INTAKE_MODE=unified). Duong rule fallback
+    Đây chính là cấu hình production với Unified Intaker. Đường rule fallback
     khong dinh bug vi `route_intent` co truyen `user` vao compute_route_flags;
     duong unified/semantic thi khong, nen co clinical bi mat im lang.
     """
@@ -215,11 +212,11 @@ def test_red_flag_lam_sang_bat_duoc_co_urgency():
     """
     c = SimpleNamespace(
         rag_ready=False,
-        session_store=get_session_store(),
+        session_store=SessionStore(),
         guardrails=SimpleNamespace(pre_check=lambda user: None),
         llm_router=_StubRouter(),
         semantic_router=None,
-        settings=SimpleNamespace(extractor_mode="rule"),
+        settings=SimpleNamespace(),
     )
     # "mụn bọc có mủ" KHONG khop tu nao trong _URGENCY_TERMS (bang do co
     # "mụn mủ" chu khong phai "có mủ"), nen co urgency CHI co the den tu

@@ -43,6 +43,7 @@ class SemanticPrediction:
     neighbor_indices: tuple[int, ...] | None = None
 
     def route_decision(self) -> RouteDecision:
+        """Map nearest cosine similarity into metadata, not a calibrated probability."""
         return RouteDecision(
             primary_intent=self.primary_intent,
             confidence=max(0.0, min(1.0, self.nearest_similarity)),

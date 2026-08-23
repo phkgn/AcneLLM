@@ -1,4 +1,4 @@
-"""Shared chunk-quality filters used by both pipeline/hybrid.py and chat/runtime.py.
+"""Shared chunk-quality filters used by chat/_retrieval.py and evaluation adapters.
 
 Centralising here ensures both code paths apply identical noise-removal and
 score-pruning logic without duplication.

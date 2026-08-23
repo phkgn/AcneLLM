@@ -1,7 +1,7 @@
 """Kieu du lieu va hang so cua session. Khong phu thuoc module nao khac.
 
 Tach khoi session.py o Phase 7. Ly do: `ConversationTurn` duoc import o 13 noi,
-va truoc day moi noi trong so do phai keo theo ca 714 dong -- gom SessionStore,
+va truoc day moi noi trong so do phai keo theo ca 714 dong -- gom session store,
 fold_history_facts va render prompt -- chi de lay mot dataclass.
 """
 from __future__ import annotations
@@ -46,8 +46,7 @@ class ConversationTurn:
     normalized_snapshot: NormalizedSnapshot | None = None
     metadata: dict = field(default_factory=dict)
     # ponytail: intent_label / intent_confidence / turn_type da bi xoa. Chung chi
-    # duoc GHI (boi SessionStore in-memory) va khong dong nao doc ra -- ban SQLite
-    # con khong khoi phuc chung khi doc, nen hai store lech nhau ma khong ai biet.
+    # từng được ghi nhưng không có consumer; SQLite không khôi phục các field cũ.
     # Du lieu intent van con nguyen trong `metadata`.
 
 

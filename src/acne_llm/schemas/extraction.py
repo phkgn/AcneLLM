@@ -5,7 +5,7 @@ Mọi extractor rule-based (skin_type, products, severity, intent...) trả về
 trình match (method + similarity + điều chỉnh ngữ cảnh), không phải ML/calibration.
 
 Khung này KHÔNG đổi schema ngoài (UserInput): nó là kênh phụ nội bộ để
-completeness/intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
+intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
 confidence thấp — thuần rule, không gọi LLM.
 """
 from __future__ import annotations
