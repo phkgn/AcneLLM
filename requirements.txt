@@ -1,57 +1,55 @@
 # ============================================================
-# requirements.txt — AcneLLM
-# Cập nhật: 2026-05. Tương thích Python 3.10+, chạy được cả
-# Windows và Linux (Ubuntu 22.04+) mà không cần đổi code.
+# requirements.txt — AcneLLM RUNTIME
+# Cập nhật: 2026-08. Python 3.10+, chạy được cả Windows và Linux.
 #
-# Lưu ý: cài torch RIÊNG trước theo hướng dẫn trong README.md
-# để chọn đúng CPU / CUDA build.
+# File này CHỈ chứa thứ mà một request `/api/v1/chat/stream` cần.
+# Danh sách được dò bằng AST trên `src/acne_llm/` (trừ `crawler/`), không
+# phải chép tay — nên đừng thêm gói "cho chắc" vào đây.
+#
+# Công cụ ngoại tuyến (crawl, datagen, eval, biểu đồ, test) nằm ở
+# `requirements-dev.txt`. Dockerfile chỉ cài file này, vì image chỉ copy `src/`
+# và không bao giờ chạy crawler.
+#
+# torch: cài RIÊNG trước theo README để chọn đúng bản CPU / CUDA.
 # ============================================================
 
 # ── Core ─────────────────────────────────────────────────────
 pydantic>=2.7,<3.0
 pydantic-settings>=2.3,<3.0
-python-dotenv>=1.0
+python-dotenv>=1.0        # pydantic-settings cần để đọc .env
 loguru>=0.7
-typer>=0.12
-jinja2>=3.1
-pyyaml>=6.0
+jinja2>=3.1               # prompt template (config/prompts/*.j2)
+pyyaml>=6.0               # guardrails.yaml
 rich>=13.0
-openai>=1.0,<3.0          # dùng cho judge/dataset gen (DeepSeek compat)
+typer>=0.12               # acne_llm/cli.py
 
 # ── API ──────────────────────────────────────────────────────
 fastapi>=0.115,<1.0
-uvicorn[standard]>=0.30   # includes websockets, httptools, uvloop (Linux)
-httpx[http2]>=0.27,<1.0
-python-multipart>=0.0.9
+uvicorn[standard]>=0.30
 starlette>=0.37,<1.0      # bundled với fastapi, pin để tránh conflict
+httpx[http2]>=0.27,<0.28  # 0.28 bỏ Client(app=...) -> starlette.TestClient vỡ
 
-# ── LLM / RAG ────────────────────────────────────────────────
+# ── RAG ──────────────────────────────────────────────────────
 chromadb>=0.5,<2.0
-sentence-transformers>=3.0
-transformers>=4.44
-torch>=2.2                # cài riêng theo README để chọn đúng CUDA / CPU build
+sentence-transformers>=3.0   # embedder + cross-encoder reranker
+torch>=2.2                   # cài riêng theo README
 rank-bm25>=0.2.2
-underthesea>=6.8          # NLP tiếng Việt — sentence & word tokenize
-rapidfuzz>=3.0            # fuzzy matching cho intake extraction (rule-based, deterministic)
-
-# ── Crawl ────────────────────────────────────────────────────
-trafilatura>=1.12
-readability-lxml>=0.8
-beautifulsoup4>=4.12
-lxml>=5.2
-tenacity>=8.5
-datasketch>=1.6
-langdetect>=1.0.9
-playwright>=1.44          # JS-render fallback; chạy thêm: playwright install chromium
-ddgs>=9.14
+underthesea>=6.8             # tách từ tiếng Việt cho BM25
+numpy>=1.26,<3.0
 
 # ── Cache ────────────────────────────────────────────────────
-diskcache>=5.6            # disk-backed cache cho embedding + retrieval
+diskcache>=5.6            # cache embedding + kết quả retrieval
 
-# ── Test ─────────────────────────────────────────────────────
-pytest>=8.2
-pytest-asyncio>=0.23
+# ── Intake ───────────────────────────────────────────────────
+# Chỉ còn dùng ở nhánh fallback: khi UnifiedIntake không parse nổi JSON thì
+# rule_normalizer/rule_extractor chạy thay. Đường chính do intaker LLM lo.
+rapidfuzz>=3.0
 
-# ── Utils ────────────────────────────────────────────────────
-tqdm>=4.66
-numpy>=1.26,<3.0
+# ── ĐÃ BỎ khỏi file này ──────────────────────────────────────
+# transformers      — sentence-transformers tự kéo về, không import trực tiếp
+# python-multipart  — không endpoint nào nhận form/upload
+# lxml              — chỉ là dependency của trafilatura/readability (crawler)
+# tqdm              — không nơi nào import
+# Nhóm crawler (trafilatura, readability-lxml, beautifulsoup4, playwright,
+# tenacity, datasketch, langdetect, ddgs) chuyển sang requirements-dev.txt:
+# `src/acne_llm/crawler/` không nằm trên đường chạy request nào.

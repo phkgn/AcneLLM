@@ -79,6 +79,37 @@ class OllamaBackend:
             raise RuntimeError(f"Ollama chat failed: {e}; body={detail}") from e
         return r.json()
 
+    def _log_token_budget(self, done_chunk: dict) -> None:
+        """Ghi lai ngan sach token that. Do, dung doan.
+
+        `prompt_eval_count` = so token prompt sau khi ollama tokenize; `eval_count`
+        = so token da sinh. Tong hai so nay vuot num_ctx nghia la co thu bi cat,
+        va ollama cat im lang -- khong exception, khong warning.
+        """
+        prompt_tokens = done_chunk.get("prompt_eval_count")
+        out_tokens = done_chunk.get("eval_count") or 0
+        if not isinstance(prompt_tokens, int):
+            return
+        used = prompt_tokens + out_tokens
+        headroom = self.num_ctx - used
+        if headroom <= 0:
+            logger.warning(
+                "[ollama] TRAN NGU CANH: prompt {} + sinh {} = {} token > num_ctx {}. "
+                "Ollama da cat bot ma khong bao. Tang num_ctx hoac giam "
+                "chat_max_context_chars.",
+                prompt_tokens, out_tokens, used, self.num_ctx,
+            )
+        elif headroom < self.num_ctx * 0.1:
+            logger.warning(
+                "[ollama] gan tran: prompt {} + sinh {} = {}/{} token, con {} cho.",
+                prompt_tokens, out_tokens, used, self.num_ctx, headroom,
+            )
+        else:
+            logger.debug(
+                "[ollama] token: prompt {} + sinh {} = {}/{}",
+                prompt_tokens, out_tokens, used, self.num_ctx,
+            )
+
     def _post_chat_stream(self, payload: dict, model: str | None = None) -> Iterator[str]:
         if model is not None:
             payload = dict(payload)
@@ -100,6 +131,14 @@ class OllamaBackend:
                     logger.debug(f"Ollama stream returned non-JSON line: {line[:120]}")
                     continue
                 if data.get("done"):
+                    # Goi cuoi cua ollama mang so token THAT. Truoc day break ngay
+                    # nen ta phai uoc luong bang ky tu -- uoc luong tieng Viet lech
+                    # 2,5 den 3,5 ky tu/token, tuc sai so gan gap doi.
+                    # Ky tu prompt hien tai (SYSTEM 5.032 + context 6.000 + history
+                    # 2.000 + con lai) uoc ra 3.900-5.500 token vao, cong
+                    # num_predict 1.200, trong khi num_ctx mac dinh 4.096.
+                    # Neu that su tran thi ollama cat bot va KHONG bao gi ca.
+                    self._log_token_budget(data)
                     break
                 content = (data.get("message") or {}).get("content") or ""
                 if content:
@@ -147,25 +186,6 @@ class OllamaBackend:
         except Exception:
             return []
 
-    def show_params(self) -> dict:
-        """Đọc params Ollama THỰC SỰ áp dụng (qua /api/show).
-
-        Dùng để verify Modelfile có override Python config không. Gọi lúc boot
-        và log ra — nếu thấy num_ctx/temperature ở đây không khớp config.py,
-        nghĩa là Modelfile đang nướng param → cần `ollama create` lại.
-        """
-        try:
-            r = self._health_client.post("/api/show", json={"name": self.model})
-            r.raise_for_status()
-            data = r.json()
-            return {
-                "parameters": data.get("parameters", ""),
-                "template_preview": (data.get("template") or "")[:200],
-            }
-        except Exception as e:
-            logger.warning(f"Ollama /api/show failed: {e}")
-            return {}
-
     def _build_messages(self, system: str, user: str) -> list[dict]:
         """Build messages list.
 
@@ -199,20 +219,9 @@ class OllamaBackend:
             "repeat_last_n":  self.repeat_last_n,
         }
 
-    def generate_json(self, system: str, user: str, schema: dict,
-                      temperature: float | None = None) -> str:
-        payload = {
-            "model": self.model,
-            "messages": self._build_messages(system, user),
-            "format": schema,
-            "options": self._sampling_options(temperature=temperature),
-            "stream": False,
-            "keep_alive": self.keep_alive,
-        }
-        return self._chat(payload)["message"]["content"]
-
     def generate_text(self, system: str, user: str,
-                      temperature: float | None = None) -> str:
+                      temperature: float | None = None,
+                      response_format: str | dict | None = None) -> str:
         payload = {
             "model": self.model,
             "messages": self._build_messages(system, user),
@@ -220,6 +229,8 @@ class OllamaBackend:
             "stream": False,
             "keep_alive": self.keep_alive,
         }
+        if response_format is not None:
+            payload["format"] = response_format
         return self._chat(payload)["message"]["content"]
 
     def stream_text(self, system: str, user: str,

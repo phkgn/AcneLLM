@@ -6,8 +6,11 @@ import type { ChatSettings } from "@/lib/types";
 // ============================================================
 
 // ── API connection ───────────────────────────────────────────
-// Override bằng NEXT_PUBLIC_API_URL trong .env.local
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Docker build truyền chuỗi rỗng để browser gọi same-origin qua gateway.
+// Local npm dev không định nghĩa biến này nên vẫn dùng backend localhost:8000.
+export const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+).replace(/\/$/, "");
 
 // ── UI ────────────────────────────────────────────────────────
 export const CHAT_INPUT_ID = "chat-message-input";

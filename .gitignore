@@ -7,11 +7,21 @@ venv/
 *.egg-info/
 dist/
 build/
+!research/dashboards/build/
+!research/dashboards/build/**
 
 frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/.turbo/
+
+evaluation/dashboard/node_modules/
+evaluation/dashboard/.next/
+evaluation/dashboard/logs/
+evaluation/dashboard/.jobs.json
+evaluation/dashboard/.dataset-reviews.json
+evaluation/dashboard/.dataset-reviews.backup.json
+evaluation/dashboard/*.tsbuildinfo
 
 # ── Data — không push lên GitHub ────────────────────────────
 data/raw/
@@ -19,6 +29,7 @@ data/processed/
 data/chroma_db/
 data/bm25_index.pkl
 data/bm25_index.pkl.sha256
+data/intent_router_index.npz
 data/finetune/
 data/finetune/clean/
 data/eval_reports/
@@ -49,11 +60,11 @@ acnellm_pipeline.html
 acnellm_trace.html
 
 *.ipynb_checkpoints/
-notebooks/*.ipynb
-visualize/*.ipynb
-visualize/*.png
-visualize/report.html
-visualize/notebook_outputs/
+research/notebooks/*.ipynb
+research/dataset_viz/*.ipynb
+research/dataset_viz/*.png
+research/dataset_viz/report.html
+research/dataset_viz/notebook_outputs/
 
 .vscode/
 .idea/
@@ -67,3 +78,63 @@ src/acne_llm/_archive/
 
 # Temp files from editor
 *.tmp
+
+# Guideline: giu SCRIPT + manifest, bo DU LIEU (80MB PDF/txt, tai lai bang TAI-PDF.bat)
+guideline_docs/*_docs/
+# Tesseract language data 26MB - tai lai tu tessdata_best, xem pdf_to_text.py
+tessdata/
+
+# ── Thêm 2026-08 ─────────────────────────────────────────────
+# SQLite WAL/SHM: sinh ra lúc chạy, đổi liên tục, vô nghĩa khi commit
+data/*.db-shm
+data/*.db-wal
+data/sessions.db
+
+# Output của datagen: 22MB train.jsonl + audit log. Sinh lại được bằng
+#   python -m datagen.roledatav2.pipeline --yes
+#   python -m datagen.roledatav2.finalize
+# Giữ CODE của datagen, bỏ OUTPUT.
+datagen/*/output/
+
+# Archive nhi phan khong duoc nam trong package
+*.rar
+*.7z
+
+# Rac cua FUSE mount
+.fuse_hidden*
+
+.coverage
+htmlcov/
+
+# ket qua A/B chay tay, luu vao research/ablation/runs/ neu can giu
+outputs_ab_*.txt
+
+# Codex/local artifact build workspaces
+.codex_tmp/
+
+# Audit and Obsidian exports are published as versioned release archives.
+.audit/obsidian_export/
+.audit/runs/
+
+# Presentation scratch renders and inspection dumps; keep only the verified deck.
+docs/presentations/*
+!docs/presentations/AcneLLM_Project_E2E_20min_Scientific_Verified.pptx
+!docs/presentations/AcneLLM_Project_E2E_20min_SPEAKER_SCRIPT.txt
+!docs/presentations/AcneLLM_Defense_E2E_Context_2026-08-25.md
+!docs/presentations/AcneLLM_Defense_16slides_E2E_20260825.pptx
+!docs/presentations/AcneLLM_Defense_16slides_CONTEXT.md
+
+# Packaged evaluation evidence is a release artifact; JSON/JSONL truth stays tracked.
+research/evaluation/reports/v2_full.zip
+
+# Duplicate root downloader; canonical tooling lives under research/guideline_docs/.
+guideline_docs/
+
+# Copyrighted medical guideline PDFs/extracted text (keep scripts + manifest.json tracked).
+research/guideline_docs/*_docs/
+
+# Mutable runtime/eval caches and superseded/trash data archives.
+research/evaluation/reports/judge_cache.sqlite
+research/datagen/roledatav2/_output.round1.cu/
+research/evaluation/datasets/_trash/
+research/evaluation/reports/run_full_v3_2.zip

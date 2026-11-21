@@ -122,7 +122,13 @@ class Recommendation(BaseModel):
     step: int = Field(ge=1)
     action: str
     rationale: Optional[str] = None
-    source_chunk_id: Optional[str] = None
+    source_chunk_id: Optional[str] = Field(
+        default=None,
+        description=(
+            "Deprecated compatibility field; not required or validated."
+        ),
+        json_schema_extra={"deprecated": True},
+    )
     category: Literal[
         "skincare", "medication", "lifestyle", "procedure", "see_doctor", "other"
     ] = "other"

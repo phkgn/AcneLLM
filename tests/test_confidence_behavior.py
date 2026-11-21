@@ -1,10 +1,15 @@
-"""Test hanh vi MOI do confidence dieu khien: completeness gating + route clarify."""
+"""Hanh vi do confidence dieu khien.
+
+Truoc day file nay test `completeness.check_completeness` -- module do da bi xoa.
+Viec "field co gia tri nhung do tin cay thap thi HEDGE chu khong hoi lai" gio do
+`confidence_hint.build_confidence_hint` dam nhiem, va no la kenh DUY NHAT bao cho
+generator biet extractor khong chac (known_facts da ra khoi prompt).
+"""
 from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
-from acne_llm.schemas.extraction import FieldResult, ListFieldResult
-from acne_llm.chat.completeness import check_completeness
-from acne_llm.chat.extraction_confidence import extract_with_confidence, ExtractionConfidence
-from acne_llm.chat.normalizer import normalize_chat_message
-from acne_llm.chat.intent_router import route_intent
+from acne_llm.schemas.extraction import FieldResult, ListFieldResult, ExtractionConfidence
+from acne_llm.chat.confidence_hint import build_confidence_hint
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
+from acne_llm.chat.routing.intent_router import route_intent
 from acne_llm.config import Settings
 
 
@@ -14,34 +19,31 @@ def _user(lesion_types=None, dist=None, inflammation="none"):
                                    inflammation_level=inflammation))
 
 
-def test_low_confidence_field_triggers_missing():
-    """Field co gia tri nhung confidence THAP -> coi nhu thieu -> hoi lai."""
-    user = _user(lesion_types=["papule"], dist=["cheeks"], inflammation="moderate")
-    # confidence map: lesion_types conf cao, distribution conf THAP (duoi 0.6)
+def test_field_do_tin_cay_thap_duoc_hedge_chu_khong_hoi_lai():
+    """Field yeu van GIU trong prompt, kem mot cau noi ro la suy doan."""
     conf = ExtractionConfidence(
-        lesion_types=ListFieldResult(items=(FieldResult.make("papule", "pattern"),)),     # 0.85
-        distribution=ListFieldResult(items=(FieldResult.make("cheeks", "fuzzy", confidence=0.40),)),  # thap
+        lesion_types=ListFieldResult(items=(FieldResult.make("papule", "pattern"),)),      # 0.85
+        distribution=ListFieldResult(items=(FieldResult.make("cheeks", "fuzzy", confidence=0.40),)),
     )
-    r = check_completeness(user, confidence=conf)
-    # distribution conf thap -> van nam trong missing
-    assert "distribution" in (r.missing_fields or []) or r.kind in ("partial", "missing_core")
+    hint = build_confidence_hint(conf, field_threshold=0.6)
+    assert "CHƯA CHẮC CHẮN" in hint
+    assert "vị trí" in hint.lower() or "distribution" in hint.lower()
 
 
-def test_high_confidence_field_not_missing():
-    user = _user(lesion_types=["papule"], dist=["cheeks"], inflammation="moderate")
+def test_moi_field_deu_chac_thi_khong_hedge_gi():
+    """Khong co gi de canh bao thi tra chuoi rong -- khong ton token prompt."""
     conf = ExtractionConfidence(
         lesion_types=ListFieldResult(items=(FieldResult.make("papule", "pattern"),)),
-        distribution=ListFieldResult(items=(FieldResult.make("cheeks", "pattern"),)),  # 0.85 cao
+        distribution=ListFieldResult(items=(FieldResult.make("cheeks", "pattern"),)),
     )
-    r = check_completeness(user, confidence=conf)
-    assert "distribution" not in (r.missing_fields or [])
+    hint = build_confidence_hint(conf, field_threshold=0.6)
+    assert "CHƯA CHẮC CHẮN" not in hint
 
 
-def test_completeness_backward_compat_no_confidence():
-    """Khong truyen confidence -> hanh vi cu (chi xet co gia tri)."""
-    user = _user(lesion_types=["papule"], dist=["cheeks"], inflammation="moderate")
-    r = check_completeness(user)
-    assert r.kind == "sufficient"
+def test_field_rong_khong_bi_liet_ke_la_khong_chac():
+    """Khong khai khac voi khai ma trich khong chac. Chi cai thu hai moi hedge."""
+    hint = build_confidence_hint(ExtractionConfidence(), field_threshold=0.6)
+    assert "CHƯA CHẮC CHẮN" not in hint
 
 
 def test_route_min_confidence_in_settings():

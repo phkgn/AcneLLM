@@ -1,0 +1,45 @@
+{
+  "run_id": "full_eval",
+  "out_dir": "evaluation/reports/full_eval",
+  "started_at": "2026-08-06T17:26:55.516752+00:00",
+  "finished_at": null,
+  "current_step": "retrieval",
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Kiểm tra môi trường",
+      "status": "ok",
+      "started_at": "2026-08-06T17:26:55.516752+00:00",
+      "finished_at": "2026-08-06T17:26:55.569061+00:00",
+      "duration_s": 0.0,
+      "detail": ""
+    },
+    {
+      "id": "intake",
+      "label": "Khâu 1 — Intaker",
+      "status": "skipped",
+      "started_at": "2026-08-06T17:26:55.580776+00:00",
+      "finished_at": "2026-08-06T17:26:55.596422+00:00",
+      "duration_s": 0.0,
+      "detail": "đã có evaluation/reports/full_eval/intake/report.json — xoá file để chạy lại"
+    },
+    {
+      "id": "retrieval",
+      "label": "Khâu 2 — Tài liệu RAG (judge chấm)",
+      "status": "running",
+      "started_at": "2026-08-06T17:26:55.596422+00:00",
+      "finished_at": null,
+      "duration_s": null,
+      "detail": ""
+    },
+    {
+      "id": "ablation",
+      "label": "Khâu 3 — Ablation oracle",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": null,
+      "detail": ""
+    }
+  ]
+}

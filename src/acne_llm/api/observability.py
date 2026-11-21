@@ -72,6 +72,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
             status_code = response.status_code
+            # Gan header TRUOC khi tra ve. Ban cu gan trong `finally`, tuc la sau
+            # khi response da roi khoi ham -- voi StreamingResponse thi header da
+            # gui di roi, dong do khong lam gi ca.
+            response.headers["X-Request-ID"] = request_id
             return response
         finally:
             latency_ms = (time.perf_counter() - started) * 1000
@@ -81,16 +85,17 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 status_code,
                 latency_ms,
             )
+            # CANH BAO: voi SSE, `call_next` tra ve ngay khi co header dau tien,
+            # nen so nay la time-to-first-byte chu KHONG phai tong thoi gian tra
+            # loi. Dung doc p95 cua /metrics nhu latency chat.
             logger.info(
-                "request_id={} method={} path={} status={} latency_ms={:.1f}",
+                "request_id={} method={} path={} status={} ttfb_ms={:.1f}",
                 request_id,
                 request.method,
                 request.url.path,
                 status_code,
                 latency_ms,
             )
-            if "response" in locals():
-                response.headers["X-Request-ID"] = request_id
 
 
 class APIKeyMiddleware(BaseHTTPMiddleware):
@@ -130,4 +135,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             if len(hits) >= self.per_minute:
                 return Response("Rate limit exceeded", status_code=429)
             hits.append(now)
+            # ro ri: defaultdict khong bao gio xoa key, moi IP tung goi API de lai
+            # mot entry vinh vien. Don cac client da het han khi so key vuot nguong.
+            if len(self._hits) > 1024:
+                for ip in [k for k, v in self._hits.items() if not v or now - v[-1] > 60]:
+                    del self._hits[ip]
         return await call_next(request)

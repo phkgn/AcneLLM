@@ -22,9 +22,7 @@ from acne_llm.utils.logging import configure_logging
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging(level=getattr(settings, "log_level", "INFO"))
-    logger.info("AcneLLM starting...")
     app.state.container = build_container(settings)
-    logger.info("AcneLLM ready")
     yield
     await app.state.container.close()
     logger.info("AcneLLM stopped")

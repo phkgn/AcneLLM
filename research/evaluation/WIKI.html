@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wiki — Module Evaluation AcneLLM</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --fg:#1c1b19; --muted:#6b675f; --line:#e3ded5;
+    --card:#fff; --accent:#8a5a2b; --ok:#2f6f4e; --warn:#9a5b1c; --bad:#a33a2e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 24px 96px}
+  h1{font-size:30px;line-height:1.25;margin:0 0 6px}
+  h2{font-size:22px;margin:56px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  h3{font-size:17px;margin:32px 0 8px}
+  p{margin:0 0 14px}
+  .sub{color:var(--muted);margin:0 0 40px;font-size:15px}
+  code{background:#f0ece4;padding:1px 6px;border-radius:4px;
+    font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre{background:#2a2724;color:#eee9e0;padding:16px 18px;border-radius:8px;
+    overflow-x:auto;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre code{background:none;padding:0;color:inherit;font-size:13px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:15px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;background:#f4f0e9}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .flow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin:20px 0}
+  .box{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:14px 16px}
+  .box b{display:block;font-size:15px;margin-bottom:4px}
+  .box span{color:var(--muted);font-size:13.5px;line-height:1.55}
+  .arrow{align-self:center;color:var(--muted);font-size:20px}
+  .tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:20px;
+    border:1px solid var(--line);background:#f4f0e9;color:var(--muted)}
+  .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+  .bug{border-left:4px solid var(--bad)}
+  .fix{border-left:4px solid var(--ok)}
+  .note{background:#f4f0e9;border-left:4px solid var(--accent);
+    padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0}
+  ol,ul{margin:0 0 14px;padding-left:22px}
+  li{margin-bottom:7px}
+  .kv{color:var(--muted);font-size:14px}
+  hr{border:0;border-top:1px solid var(--line);margin:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Wiki — Module Evaluation</h1>
+<p class="sub">Đo cái gì, đo thế nào, đang hỏng chỗ nào, sửa ra sao.</p>
+
+<h2>1. Hệ thống làm việc theo 3 khâu</h2>
+
+<p>Người dùng hỏi: <em>“Em 22 tuổi, đang mang thai, bị mụn viêm ở cằm, dùng gì được ạ?”</em></p>
+<p>Máy làm 3 việc nối tiếp nhau:</p>
+
+<div class="flow">
+  <div class="box"><b>1 · Đọc hiểu</b><span>Rút ra: 22 tuổi, có thai, mụn viêm, vùng cằm</span></div>
+  <div class="arrow">→</div>
+  <div class="box"><b>2 · Tra tài liệu</b><span>Tìm đoạn hướng dẫn y khoa liên quan trong kho</span></div>
+  <div class="arrow">→</div>
+  <div class="box"><b>3 · Viết trả lời</b><span>Dựa vào 1 và 2 để soạn câu trả lời</span></div>
+</div>
+
+<p>Câu trả lời cuối cùng mà dở thì <strong>lỗi ở khâu nào?</strong> Nhìn vào câu trả lời
+không biết được. Có thể máy đọc sót chữ “mang thai”. Có thể tra nhầm tài liệu.
+Có thể đọc và tra đều đúng nhưng viết dở.</p>
+
+<p>Toàn bộ module eval sinh ra để trả lời câu đó.</p>
+
+<h2>2. Eval làm đúng 4 việc</h2>
+
+<table>
+<tr><th style="width:52px">Khâu</th><th>Đo gì</th><th style="width:120px">Cần AI chấm?</th><th style="width:150px">Chạy bằng</th></tr>
+<tr><td><b>1</b></td><td>Máy <b>đọc hiểu</b> có đúng không</td><td class="ok">Không</td><td><code>run_intake</code></td></tr>
+<tr><td><b>2</b></td><td>Máy <b>tra tài liệu</b> có đúng không</td><td class="ok">Không</td><td><em>đã bỏ</em></td></tr>
+<tr><td><b>3</b></td><td>Máy <b>viết</b> tốt đến đâu khi được cho đủ thông tin</td><td class="warn">Có</td><td><code>run_ablation</code></td></tr>
+<tr><td><b>4</b></td><td><b>Khâu nào</b> đang kéo chân hệ thống</td><td class="warn">Có</td><td><code>run_ablation</code></td></tr>
+</table>
+
+<h3>Khâu 1 — Máy đọc hiểu có đúng không</h3>
+<p>Có sẵn 400 câu hỏi kèm <strong>đáp án chuẩn</strong> do người soạn: câu này đúng ra
+phải rút được tuổi 22, có thai, mụn viêm, vùng cằm. Cho máy đọc rồi so từng mục.</p>
+<p>Đo 15 mục: tuổi, giới tính, có thai, đang cho bú, loại da, thời gian bị, dị ứng,
+thuốc đang dùng, sản phẩm đang dùng, loại tổn thương, mức viêm, vùng phân bố,
+mục tiêu điều trị, dấu hiệu nguy hiểm, và ý định của câu hỏi.</p>
+<p class="kv">Không cần AI chấm — chỉ là so hai bảng với nhau. Không tốn tiền.</p>
+
+<h3>Khâu 2 — Máy tra tài liệu có đúng không</h3>
+<p>Có sẵn 100 câu hỏi, mỗi câu kèm <strong>danh sách đoạn tài liệu đúng</strong> do người
+chọn, và mức độ liên quan 0–2 cho từng đoạn. Cho máy đi tìm rồi so danh sách.</p>
+<p>Câu hỏi cụ thể: đoạn đúng có nằm trong top 3 không? top 5 không? xếp thứ mấy?
+Chạy trên 5 cách tìm khác nhau để biết cách nào tốt nhất.</p>
+<p class="kv">Cũng không cần AI chấm. Không tốn tiền.</p>
+
+<h3>Khâu 3 — Máy viết tốt đến đâu khi được cho đủ</h3>
+<p>Đây là câu hỏi tách bạch: <em>giả sử hai khâu trước làm hoàn hảo, thì riêng khâu
+viết tốt đến mức nào?</em></p>
+<p>Cách làm: bơm sẵn thông tin đúng và tài liệu đúng cho máy, chỉ để nó viết,
+rồi chấm câu trả lời. Nếu điểm vẫn thấp thì vấn đề nằm ở chính model, không phải
+ở hai khâu trước.</p>
+
+<h3>Khâu 4 — Khâu nào đang kéo chân</h3>
+<p>Đây là ý tưởng cốt lõi của cả module: <strong>thay từng khâu bằng bản hoàn hảo,
+xem câu trả lời có tốt lên không.</strong></p>
+<ul>
+  <li>Chạy bình thường cả 3 khâu → được <b>điểm gốc</b></li>
+  <li>Bơm sẵn thông tin đúng cho khâu 1, hai khâu kia để nguyên → điểm mới trừ điểm gốc = <b>khâu đọc hiểu đang làm mất bấy nhiêu</b></li>
+  <li>Bơm sẵn tài liệu đúng cho khâu 2 → <b>khâu tra tài liệu đang làm mất bấy nhiêu</b></li>
+  <li>Cho model mạnh viết thay khâu 3 → <b>khâu viết đang làm mất bấy nhiêu</b></li>
+</ul>
+<p>Khâu nào chênh lệch nhiều nhất, khâu đó đáng sửa trước.</p>
+
+<h2>3. Cách gọi tên các lượt chạy</h2>
+
+<p>Mỗi lượt chạy có <strong>mã 3 ký tự</strong>, mỗi ký tự ứng với một khâu:</p>
+
+<pre><code>[ đọc hiểu ][ tra tài liệu ][ viết ]
+
+   R = chạy thật        O = thay bằng bản hoàn hảo</code></pre>
+
+<table>
+<tr><th style="width:90px">Mã</th><th>Nghĩa</th><th>Dùng để</th></tr>
+<tr><td><code>RRR</code></td><td>chạy thật cả 3 khâu</td><td>điểm gốc, mốc so sánh</td></tr>
+<tr><td><code>ORR</code></td><td>đọc hiểu hoàn hảo</td><td>khâu 4</td></tr>
+<tr><td><code>ROR</code></td><td>tra tài liệu hoàn hảo</td><td>khâu 4</td></tr>
+<tr><td><code>RRO</code></td><td>viết hoàn hảo (dùng model mạnh)</td><td>khâu 4</td></tr>
+<tr><td><code>OOR</code></td><td>hai khâu đầu hoàn hảo, khâu viết chạy thật</td><td><b>khâu 3</b></td></tr>
+</table>
+
+<p>5 mã này chạy trên cùng 100 câu hỏi → <strong>500 lượt sinh câu trả lời + 500 lượt chấm</strong>.
+Chấm theo từng câu rồi so cặp với <code>RRR</code>, kèm khoảng tin cậy 95%.</p>
+
+<div class="note">
+<b>Vì sao chấm theo cặp?</b> Vì cả 5 lượt chạy trên đúng cùng một bộ câu hỏi.
+So chênh lệch trên từng câu chặt hơn nhiều so với lấy trung bình hai bên rồi trừ.
+</div>
+
+<h2>4. Chạy như thế nào</h2>
+
+<pre><code># Cả 4 khâu
+python -m evaluation.full_evaluation
+
+# Chỉ khâu 1 và 2 — không tốn xu nào
+python -m evaluation.full_evaluation --skip ablation
+
+# Thử ống nước, 10 mẫu mỗi bước
+python -m evaluation.full_evaluation --smoke</code></pre>
+
+<p>Trước khi chạy, máy tự kiểm: Ollama có bật không, có đủ model không, kho tài liệu
+có sẵn không, có khoá API không. Thiếu gì nó in ra hướng dẫn sửa. Một bước hỏng
+không làm sập bước sau.</p>
+
+<hr>
+
+<h2>5. Module đang bị gì</h2>
+
+<p><span class="tag">Phần code</span> &nbsp;<span class="ok"><b>Ổn.</b></span>
+Đã gọn từ 33.900 xuống ~4.500 dòng, 42 bài test đều pass, dữ liệu và thư viện đủ.</p>
+
+<p><span class="tag">Phần dữ liệu</span> &nbsp;<span class="bad"><b>Có 3 lỗ hổng.</b></span>
+Chỉ ảnh hưởng khâu 3 và 4. Khâu 1 và 2 sạch.</p>
+
+<p>Gốc rễ của cả ba: bộ 100 câu đang dùng vốn được làm cho việc
+<strong>đo tra tài liệu</strong> (khâu 2). Giờ đem dùng luôn cho việc
+<strong>chấm câu trả lời</strong> (khâu 3–4) — nó không được thiết kế cho việc đó.</p>
+
+<div class="card bug">
+<h3>Lỗ 1 — Người chấm không có đáp án mẫu</h3>
+<p>Khi nhờ AI chấm, chương trình có gửi kèm ba mục: “hành vi mong đợi”,
+“các ý mong đợi”, “những câu cấm nói”. Nhưng <strong>cả ba mục này không tồn tại</strong>
+trong bộ 100 câu. Nên cái gửi đi luôn là rỗng.</p>
+<p>Kết quả: AI được hỏi <em>“chấm câu này 1–5 điểm”</em> mà không có gì để đối chiếu.
+Chấm cảm tính, điểm dao động lớn.</p>
+</div>
+
+<div class="card bug">
+<h3>Lỗ 2 — Danh sách câu cấm rỗng</h3>
+<p>Một câu trả lời bị đánh trượt an toàn vì 3 lý do: nguy hiểm cho thai phụ,
+nói điều bị cấm, hoặc đáng từ chối mà không từ chối.</p>
+<p>Lý do thứ hai <strong>không bao giờ kích hoạt</strong>, vì danh sách câu cấm rỗng ở
+mọi dòng dữ liệu.</p>
+</div>
+
+<div class="card bug">
+<h3>Lỗ 3 — Không có ca nào đáng bị từ chối</h3>
+<p>Trong 100 câu: 61 câu hỏi kiến thức, 39 câu xin tư vấn.
+<strong>0 câu đáng bị từ chối, 0 câu cần hỏi lại.</strong></p>
+<p>Nên phép đo “có từ chối đúng lúc không” chỉ bắt được một chiều: máy
+<em>từ chối nhầm</em>. Nó <strong>không bao giờ</strong> bắt được chiều ngược lại —
+đáng từ chối mà vẫn trả lời. Mà chiều sau mới là chiều nguy hiểm.</p>
+</div>
+
+<div class="card bug">
+<h3>Và: chưa ai kiểm cái thước đo</h3>
+<p>Khâu 3 và 4 đều dựa vào một AI chấm điểm. Chưa ai kiểm xem AI đó chấm có
+giống người không.</p>
+<p>Nói cách khác: <strong>chưa biết thước có chuẩn không mà đã đo.</strong></p>
+</div>
+
+<h2>6. Sửa ra sao</h2>
+
+<div class="card fix">
+<h3>Vá lỗ 3 — thêm ca đáng từ chối <span class="tag">rẻ nhất, làm trước</span></h3>
+<p>Thêm khoảng 20 câu đáng bị từ chối và 10 câu cần hỏi lại.</p>
+<ul>
+  <li><b>Đáng từ chối:</b> đòi kê đơn thuốc cụ thể, đòi chẩn đoán chắc chắn,
+      hỏi chuyện ngoài phạm vi da liễu</li>
+  <li><b>Cần hỏi lại:</b> câu hỏi thiếu thông tin then chốt để trả lời an toàn</li>
+</ul>
+<p><strong>Bạn tự viết được.</strong> Những ca này kiểm tra <em>chính sách</em>, không
+kiểm tra kiến thức y khoa — nên không cần bác sĩ.</p>
+</div>
+
+<div class="card fix">
+<h3>Vá lỗ 1 — thêm đáp án mẫu</h3>
+<p>Mỗi câu trong bộ 100 đã có sẵn danh sách đoạn tài liệu đúng. Dùng chính các
+đoạn đó để soạn ra “các ý mong đợi”.</p>
+<p>Cách nhanh: cho AI soạn nháp — nhưng <strong>chỉ được lấy từ đoạn tài liệu đúng
+đó</strong>, cấm dùng kiến thức riêng của nó. Rồi người đọc lại và duyệt.
+100 dòng, làm một buổi.</p>
+</div>
+
+<div class="card fix">
+<h3>Vá lỗ 2 — soạn danh sách câu cấm</h3>
+<p>Một danh sách dùng chung, ví dụ: <em>“tretinoin an toàn cho bà bầu”</em>,
+<em>“isotretinoin không cần theo dõi”</em>. Vài chục mục, soạn một lần, dùng mãi.</p>
+<p>Đây là kiểu <strong>chuyên gia mã hoá một lần, người thường áp dụng nhiều lần</strong> —
+giống các quy tắc an toàn đã có sẵn trong hệ thống.</p>
+</div>
+
+<div class="card fix">
+<h3>Kiểm thước đo — lấy chỉ số đồng thuận</h3>
+<p>Quy trình 3 bước:</p>
+<ol>
+  <li>Máy xuất ra 50 câu trả lời đã được AI chấm — nhưng <strong>giấu điểm của AI</strong>
+      và <strong>giấu luôn lượt chạy nào</strong>, để người chấm không bị ảnh hưởng</li>
+  <li>Người chấm điền điểm 1–5</li>
+  <li>Nhập lại, máy tính chỉ số đồng thuận giữa người và AI</li>
+</ol>
+<pre><code>python -m evaluation.judges.calibrate --export --results .../ablation/results.json
+# → người chấm calibration_sheet.jsonl
+python -m evaluation.judges.calibrate --import calibration_sheet.jsonl</code></pre>
+</div>
+
+<div class="note">
+<b>Một lưu ý về chuyên môn.</b> Nếu không có bác sĩ da liễu để chấm độ đúng y khoa,
+thì <strong>đừng chấm độ đúng y khoa</strong> — thay bằng câu hỏi mà người thường trả lời
+được: <em>“câu này có được đoạn tài liệu kèm theo chống lưng không?”</em>
+Đó là bài đọc hiểu, không phải bài y khoa. Kho tài liệu chính là chuyên gia,
+đã được thẩm định sẵn.
+<br><br>
+Đổi lại, kết luận cũng phải khiêm tốn theo: được phép nói
+<em>“hệ thống không bịa ra ngoài tài liệu”</em>, <strong>không</strong> được nói
+<em>“hệ thống tư vấn đúng”</em>.
+</div>
+
+<h2>7. Thứ tự nên làm</h2>
+
+<table>
+<tr><th style="width:44px">#</th><th>Việc</th><th style="width:150px">Ai làm</th><th style="width:110px">Tốn tiền</th></tr>
+<tr><td>1</td><td>Chạy khâu 1 + 2 để xác nhận ống nước thông</td><td>máy</td><td class="ok">Không</td></tr>
+<tr><td>2</td><td>Thêm ~20 ca đáng từ chối, ~10 ca cần hỏi lại</td><td>bạn</td><td class="ok">Không</td></tr>
+<tr><td>3</td><td>Thêm đáp án mẫu cho 100 câu</td><td>AI soạn nháp, bạn duyệt</td><td class="warn">Ít</td></tr>
+<tr><td>4</td><td>Soạn danh sách câu cấm</td><td>bạn (1 lần)</td><td class="ok">Không</td></tr>
+<tr><td>5</td><td>Chạy khâu 3 + 4</td><td>máy</td><td class="warn">Có</td></tr>
+<tr><td>6</td><td>Kiểm thước đo — chấm tay 50 câu</td><td>bạn</td><td class="ok">Không</td></tr>
+</table>
+
+<p>Sau khi sửa dữ liệu phải cập nhật lại file <code>MANIFEST.json</code>, nếu không
+chương trình sẽ báo lỗi — nó cố tình kiểm tra để không ai lỡ tay sửa bộ đề thi.</p>
+
+<div class="note">
+<b>Chưa chạy thật lần nào sau đợt dọn code.</b> Mới kiểm tới mức chương trình
+khởi động được và các bài test pass. Bước 1 ở bảng trên chính là để xác nhận
+phần còn lại có thật sự thông không.
+</div>
+
+</div>
+</body>
+</html>

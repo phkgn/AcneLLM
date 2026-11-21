@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ChatMessage, EvidenceQuality, FeedbackRating } from "@/lib/types";
 import { submitFeedback } from "@/lib/api";
 import { useChatStore } from "@/stores/chatStore";
-import { CitationCard } from "./CitationCard";
+import { SourceCard } from "./SourceCard";
 
 const EVIDENCE_CONFIG: Record<EvidenceQuality, { label: string; className: string }> = {
   strong:     { label: "Bang chung tot",  className: "border-green-200 bg-green-50 text-green-700" },
@@ -119,13 +119,13 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
           )}
         </div>
 
-        {/* Citations */}
-        {!isUser && message.citations && message.citations.length > 0 ? (
+        {/* Nguồn tài liệu */}
+        {!isUser && message.sources && message.sources.length > 0 ? (
           <div className="space-y-2">
-            {message.citations.map((citation, index) => (
-              <CitationCard
-                key={`${citation.chunk_id}-${index}`}
-                citation={citation}
+            {message.sources.map((source, index) => (
+              <SourceCard
+                key={`${source.chunk_id}-${index}`}
+                source={source}
                 index={index + 1}
               />
             ))}

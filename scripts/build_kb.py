@@ -47,8 +47,16 @@ from acne_llm.schemas.kb import DocumentRaw, KBChunk, infer_source_type
 # -- Chunk quality filters ---------------------------------------------------
 
 # Acne signals — VI: mở rộng thêm thuật ngữ điều trị và da liên quan mụn
+#
+# "mụn" đứng một mình KHÔNG đủ: tiếng Việt gọi bọng nước là "mụn nước" (zona,
+# thuỷ đậu, herpes, tay chân miệng), hạt cơm là "mụn cóc" (HPV), herpes môi là
+# "mụn rộp". Không loại trừ thì 363 chunk về các bệnh NGOÀI PHẠM VI lọt vào KB
+# (102 từ guideline da liễu toàn khoa + 261 từ corpus web), mang nhãn
+# trust_level=high. Nguy hiểm nhất là nó phá gate `refusal_fidelity: 1.0`:
+# người dùng hỏi "mụn nước ở môi" thì retriever có sẵn phác đồ herpes để bám vào
+# thay vì để model từ chối như thiết kế.
 _ACNE_SIGNALS_VI = re.compile(
-    r"mụn|trứng cá|trung ca|bọc|đầu đen|đầu trắng|mủ|sẹo mụn|sẹo thâm|"
+    r"mụn(?!\s*(?:nước|cóc|rộp|thịt|cơm|nhọt))|trứng cá|trung ca|bọc|đầu đen|đầu trắng|mủ|sẹo mụn|sẹo thâm|"
     r"da liễu|da dầu|nhờn|sebum|nang lông|viêm nang|lỗ chân lông|"
     r"benzoyl|salicylic|retinoid|retinol|tretinoin|isotretinoin|adapalene|"
     r"niacinamide|azelaic|comedone|bã nhờn|kháng sinh da|"
@@ -534,7 +542,7 @@ def step_embed(batch_size: int = 32, force: bool = False) -> int:
 
     try:
         from acne_llm.config import settings
-        emb_model = getattr(settings, "embedding_model_multilingual", "") or settings.embedding_model
+        emb_model = settings.embedding_model
         device = settings.device
     except Exception:
         emb_model = "AITeamVN/Vietnamese_Embedding"

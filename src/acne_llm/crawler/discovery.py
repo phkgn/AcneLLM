@@ -234,9 +234,9 @@ def _same_domain(base: str, link: str) -> bool:
         if d1 == d2:
             return True
         # Handle www. prefix mismatch (e.g. mediplus.vn vs www.mediplus.vn)
-        d1_clean = d1.removeprefix("www.")
-        d2_clean = d2.removeprefix("www.")
-        return d1_clean == d2_clean
+        left_domain = d1.removeprefix("www.")
+        right_domain = d2.removeprefix("www.")
+        return left_domain == right_domain
     except Exception:
         return False
 

@@ -1,51 +1,22 @@
-[CÂU HỎI CỦA NGƯỜI DÙNG]
-{{ description }}
-
-{% if age is not none or (sex and sex != "unknown") or (skin_type and skin_type != "unknown") or is_pregnant or is_breastfeeding or (allergies and allergies != "không") or (medications and medications != "không") or (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") or known_facts or (vision_summary and vision_summary != "không có dữ liệu hình ảnh") %}
-[THÔNG TIN NGƯỜI DÙNG ĐÃ KHAI BÁO VÀ TRÍCH XUẤT]
-(Lưu ý: Các thông tin dưới đây được hệ thống trích xuất tự động từ câu hỏi. Nếu có điểm mâu thuẫn hoặc chưa chắc chắn, hãy luôn ưu tiên nội dung câu hỏi tự nhiên ở trên của người dùng).
-{% if age is not none %}- Tuổi: {{ age }}
-{% endif %}{% if sex and sex != "unknown" %}- Giới tính: {{ sex }}
-{% endif %}{% if skin_type and skin_type != "unknown" %}- Loại da: {{ skin_type }}
-{% endif %}{% if is_pregnant %}- Đang mang thai: CÓ
-{% endif %}{% if is_breastfeeding %}- Đang cho con bú: CÓ
-{% endif %}{% if allergies and allergies != "không" %}- Tiền sử dị ứng/kích ứng: {{ allergies }}
-{% endif %}{% if medications and medications != "không" %}- Thuốc đang dùng: {{ medications }}
-{% endif %}{% if normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc" %}- Tóm tắt lâm sàng: {{ normalized_case_plan }}
-{% elif known_facts %}- Các dữ kiện bệnh lý đã biết: {{ known_facts }}
-{% endif %}{% if vision_summary and vision_summary != "không có dữ liệu hình ảnh" %}- Phân tích hình ảnh: {{ vision_summary }}
-{% endif %}
-{% endif %}
-
-{% if query_vi and not (normalized_case_plan and normalized_case_plan != "chưa có thông tin lâm sàng" and normalized_case_plan != "không có dữ liệu cấu trúc") %}
-- Từ khóa tìm kiếm lâm sàng: {{ query_vi }}
-{% endif %}
-{% if route_metadata %}
-- Chỉ dẫn định hướng: {{ route_metadata }}
-{% endif %}
-{% if query_subject == "other" %}
-- Lưu ý đối tượng: Người dùng đang hỏi hộ cho người khác. Không gộp thông tin này vào hồ sơ bệnh án cá nhân của người dùng.
-{% endif %}
-{% if completeness_hint %}
-- Gợi ý thu thập thông tin bổ sung: {{ completeness_hint }}
-{% endif %}
-
-{% if history_block %}
-[LỊCH SỬ TRÒ CHUYỆN]
-{{ history_block }}
-{% endif %}
-
-{% if has_retrieved_context %}
-[TÀI LIỆU Y KHOA THAM KHẢO]
+{# Nhãn khối trùng đúng thứ tự ưu tiên dữ kiện Modelfile SYSTEM đã tuyên bố:
+   tin nhắn hiện tại > dữ kiện an toàn > ngữ cảnh gần nhất > tài liệu tham khảo.
+   Xếp ngược lại: ưu tiên thấp lên đầu, cao xuống cuối (chỗ model chú ý mạnh nhất).
+   ponytail: bỏ known_facts + route_metadata — SYSTEM không có luật nào cho chúng.
+   Bản 7 khối cũ giữ ở stream_user.legacy.j2. #}
+{% if has_retrieved_context %}Tài liệu tham khảo:
 {{ retrieved_context }}
-{% endif %}
 
-[YÊU CẦU TRẢ LỜI]
-- Hãy trả lời trực tiếp và giải quyết câu hỏi trong phần [CÂU HỎI CỦA NGƯỜI DÙNG].
-- Trả lời bằng tiếng Việt tự nhiên, thân thiện, ngắn gọn và cô đọng (tránh dài dòng lan man).
-{% if has_retrieved_context %}- Sử dụng thông tin trong phần [TÀI LIỆU Y KHOA THAM KHẢO] để trả lời. Đặt trích dẫn nguồn dạng [N] (ví dụ: [1]) ngay sau mỗi câu hoặc ý phát biểu sử dụng thông tin từ nguồn đó. Không gộp tất cả các số trích dẫn về cuối câu trả lời.
-{% else %}- Hiện tại chưa tìm thấy tài liệu tham khảo chính xác phù hợp. Hãy trả lời thận trọng dựa trên dữ kiện đã biết của người dùng, nêu rõ khi thiếu căn cứ và tuyệt đối không tự bịa đặt thông tin.
-{% endif %}- Chỉ thêm disclaimer y khoa ("Thông tin trên chỉ mang tính chất tham khảo...") tối đa một lần ở cuối câu trả lời nếu thực sự cần thiết (bỏ qua nếu cuộc trò chuyện trước đó đã có disclaimer).
-{% if extended_rules %}
-- Hướng dẫn bổ sung: {{ extended_rules }}
+{% endif %}
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
+{{ history_block }}
+
+{% endif %}
+{% if confirmed_safety_facts %}Dữ kiện an toàn đã xác nhận: {{ confirmed_safety_facts }}
+
+{% endif %}
+Tin nhắn hiện tại:
+{{ description }}
+{% if prompt_note %}
+
+({{ prompt_note }})
 {% endif %}

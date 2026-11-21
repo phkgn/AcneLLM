@@ -1,0 +1,74 @@
+{
+  "snapshot_date": "2026-08-09",
+  "repository": "E:\\project\\AcneLLM",
+  "branch": "codex/simplify-chat-pipeline",
+  "process_verdict": {
+    "score": "7/10",
+    "correct": [
+      "Crawl and curated guideline ingestion before KB indexing",
+      "Vietnamese dense embeddings plus BM25 and cross-encoder reranking",
+      "Separate intaker and generator fine-tuning objectives",
+      "Layered evaluation followed by bottleneck conclusions"
+    ],
+    "corrections": [
+      "Define evaluation contract before collection",
+      "BAAI/bge-reranker-v2-m3 is the reranker, not the embedding model",
+      "Production deployment follows model packaging and gates; only the scaffold may be built early",
+      "docker/ollama-init.sh currently points to legacy model paths",
+      "data/kb_manifest.json is currently absent"
+    ]
+  },
+  "knowledge_base": {
+    "seed_registry": {"total": 32, "enabled": 22, "disabled": 10, "source": "data/seed_sources.yaml"},
+    "guideline_manifest": {"total": 22, "en": 10, "vi": 12, "source": "guideline_docs/manifest.json"},
+    "documents": 6835,
+    "chunks": 24393,
+    "chunking": {"target_words": 200, "overlap_words": 40, "minimum_words": 50},
+    "embedding_model": "AITeamVN/Vietnamese_Embedding",
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "bm25_bytes": 49426991,
+    "chroma_sqlite_bytes": 249208832,
+    "lineage_manifest_present": false
+  },
+  "finetune": {
+    "intaker": {"status": "complete", "target": 4000, "accepted": 4000, "train": 3600, "validation": 400, "base": "Qwen2.5-3B-Instruct-bnb-4bit"},
+    "generator": {"status": "incomplete", "target": 3500, "accepted": 3465, "deficit": 35, "train": 2945, "validation": 277, "holdout": 243, "base": "Qwen2.5-7B-Instruct-bnb-4bit"},
+    "shared_notebook_parameters": {"max_seq_length": 2048, "effective_batch": 16, "epochs": 3, "learning_rate": 0.0002, "lora_r": 16, "lora_alpha": 32, "lora_dropout": 0.05, "warmup_ratio": 0.03, "weight_decay": 0.01, "scheduler": "cosine", "optimizer": "adamw_8bit", "quantization": "Q4_K_M"}
+  },
+  "evaluation": {
+    "dataset": {"rows": 145, "answer_quality": 100, "policy_safety": 45, "version": "v3.2", "frozen": true},
+    "intake": {"rows": 1490, "schema_valid_rate": 0.9812, "intent_accuracy": 0.9570, "macro_f1": 0.7405, "reject_recall": 0.9333, "extraction_micro_f1": 0.6131, "hallucinated_field_rate": 0.0820, "latency_p50_ms": 2061.39, "latency_p95_ms": 2428.66},
+    "retrieval": {"rows": 120, "no_context": 29, "context_relevance": 2.6082, "context_precision": 0.5150, "context_sufficiency": 3.2088, "ranking_quality": 0.9254, "judge": "deepseek-v4-pro", "judge_cost_usd": 0.71},
+    "ablation_answer_quality_delta": {
+      "ORR": {"paired_n": 125, "mean": 0.0400, "ci95": [-0.0560, 0.1440]},
+      "RNR": {"paired_n": 123, "mean": 0.0000, "ci95": [-0.0976, 0.0894]},
+      "ROR": {"paired_n": 92, "mean": 0.2500, "ci95": [0.0870, 0.4130]},
+      "RRO": {"paired_n": 122, "mean": 1.0410, "ci95": [0.8361, 1.2295]},
+      "RNO": {"paired_n": 121, "mean": 1.1983, "ci95": [0.9833, 1.4380]}
+    },
+    "limitation": "The latest full_evaluation summary skipped intake and retrieval and completed only ablation; existing intake/retrieval artifacts are separate, so this is not one atomic end-to-end run."
+  },
+  "primary_sources": [
+    "data/seed_sources.yaml",
+    "guideline_docs/manifest.json",
+    "src/acne_llm/rag/chunker.py",
+    "scripts/build_kb.py",
+    "guideline_docs/build_guideline_chunks.py",
+    "src/acne_llm/config.py",
+    "src/acne_llm/di.py",
+    "src/acne_llm/chat/intake.py",
+    "src/acne_llm/chat/_retrieval.py",
+    "src/acne_llm/chat/runtime.py",
+    "datagen/intakedata/config.py",
+    "datagen/intakedata/output/intake/summary.json",
+    "datagen/roledata/config.py",
+    "datagen/roledata/output/generation_summary.json",
+    "notebooks/intaker/finetune_intake_qwen25_3b_q4.ipynb",
+    "notebooks/generator/finetune_role_qwen25_q4.ipynb",
+    "docker-compose.yml",
+    "docker/ollama-init.sh",
+    "evaluation/full_evaluation.py",
+    "evaluation/runners/run_ablation.py",
+    "evaluation/reports/run_full_v3_2"
+  ]
+}

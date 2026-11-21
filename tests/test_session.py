@@ -4,28 +4,72 @@ from __future__ import annotations
 import time
 import threading
 
-import pytest
-
 from acne_llm.chat.session import (
     ConversationTurn,
     NormalizedSnapshot,
-    Session,
-    SessionStore,
     fold_history_facts,
     format_history_block,
-    get_session_store,
     snapshot_from_user,
-    SESSION_TTL,
-    MAX_HISTORY_TURNS,
-    HISTORY_CHAR_BUDGET,
+    select_relevant_history,
 )
-from acne_llm.chat.normalizer import normalize_chat_message
+from tests.helpers import SessionStore
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _turn(role="user", content="mụn viêm ở cằm", mode="hybrid"):
     return ConversationTurn(role=role, content=content, mode=mode)
+
+
+def test_knowledge_followup_keeps_only_latest_user_turn():
+    """Knowledge trả lời từ RAG: chỉ user turn gần nhất để giải đại từ."""
+    history = [
+        _turn("user", "turn cũ"),
+        _turn("assistant", "trả lời cũ"),
+        _turn("user", "mụn viêm ở má"),
+        _turn("assistant", "trả lời gần nhất"),
+    ]
+
+    selected = select_relevant_history(
+        "còn mụn nào ngoài mụn này?",
+        "knowledge",
+        history,
+    )
+
+    assert [turn.content for turn in selected] == ["mụn viêm ở má"]
+
+
+def test_short_v_slang_is_treated_as_explicit_followup():
+    history = [_turn("user", "tôi bị mụn viêm"), _turn("assistant", "trả lời")]
+
+    selected = select_relevant_history("v dùng nghệ đi", "advise", history)
+
+    assert selected == history
+
+
+def test_plain_statement_followup_still_gets_history():
+    """Câu trần thuật không có tiền tố 'vậy/thế' vẫn phải giữ ngữ cảnh."""
+    history = [
+        _turn("user", "tôi bị mụn ở lưng và bắp tay sau"),
+        _turn("assistant", "có thể do bít tắc nang lông"),
+    ]
+
+    selected = select_relevant_history(
+        "tôi đã chà lưng kỹ rồi nhưng vẫn không hết",
+        "advise",
+        history,
+    )
+
+    assert selected == history
+
+
+def test_window_is_capped_at_six_turns():
+    history = [_turn("user" if i % 2 == 0 else "assistant", f"t{i}") for i in range(12)]
+
+    selected = select_relevant_history("vậy thì sao", "advise", history)
+
+    assert [turn.content for turn in selected] == [f"t{i}" for i in range(6, 12)]
 
 
 # ── SessionStore basic operations ────────────────────────────────────────────
@@ -179,12 +223,12 @@ class TestUserContextMerge:
         assert ctx["age"] == 22
         assert ctx["skin_type"] == "oily"
 
-    def test_first_write_wins(self):
+    def test_latest_explicit_write_wins(self):
         store = SessionStore()
         store.get_or_create("s")
         store.merge_user_context("s", {"age": 22})
-        store.merge_user_context("s", {"age": 25})  # should NOT overwrite
-        assert store.get_user_context("s")["age"] == 22
+        store.merge_user_context("s", {"age": 25})
+        assert store.get_user_context("s")["age"] == 25
 
     def test_noop_for_none_session(self):
         store = SessionStore()
@@ -273,15 +317,6 @@ class TestThreadSafety:
         assert len(store.get_history("shared")) == 100
 
 
-# ── Singleton ─────────────────────────────────────────────────────────────────
-
-class TestSingleton:
-    def test_get_session_store_returns_same_instance(self):
-        s1 = get_session_store()
-        s2 = get_session_store()
-        assert s1 is s2
-
-
 # ── format_history_block ──────────────────────────────────────────────────────
 
 class TestFormatHistoryBlock:
@@ -296,7 +331,7 @@ class TestFormatHistoryBlock:
     def test_assistant_label(self):
         turns = [ConversationTurn(role="assistant", content="BHA phù hợp")]
         block = format_history_block(turns)
-        assert "[AcneLLM]: BHA phù hợp" in block
+        assert "[Assistant]: BHA phù hợp" in block
 
     def test_respects_char_budget(self):
         # Each turn ~50 chars; budget=100 → only 2 turns max
@@ -321,7 +356,7 @@ class TestFormatHistoryBlock:
             ConversationTurn(role="user", content="tin 2"),
         ]
         block = format_history_block(turns)
-        idx1 = block.index("tin 1")
         idx2 = block.index("tra loi 1")
         idx3 = block.index("tin 2")
-        assert idx1 < idx2 < idx3
+        assert "tin 1" not in block
+        assert idx2 < idx3

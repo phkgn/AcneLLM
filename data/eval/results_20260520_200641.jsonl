@@ -1,1 +1,0 @@
-{"id": "acne_001", "question": "Mình bị mụn bọc ở má, đau lắm, nên dùng gì?", "expected_scope": "in_scope", "tags": ["nodule", "inflammatory", "treatment"], "answer": "", "mode": "error", "latency_ms": 16113, "evidence_quality": null, "citations_count": 0, "error": "[WinError 10061] No connection could be made because the target machine actively refused it", "scores": null}

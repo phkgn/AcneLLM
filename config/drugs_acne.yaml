@@ -1,6 +1,11 @@
 # ============================================================
-# drugs_acne.yaml -- Database thuoc lien quan dieu tri mun
-# Primary source cho DrugChecker (fallback: OpenFDA API)
+# drugs_acne.yaml -- Tu dien thuoc lien quan dieu tri mun
+#
+# KHONG con phuc vu runtime. DrugChecker da bi xoa o Phase 5 (xem
+# docs/CLEANUP_TASKS.md): ba luat duy nhat no con dong gop -- tetracycline <8
+# tuoi, isotretinoin <12 tuoi, spironolactone cho nam -- gio viet thang trong
+# guardrails/runner.py::medication_safety_refusal.
+# Nguoi doc file nay bay gio: datagen/gates.py:520 (danh sach hoat chat + alias).
 #
 # pregnancy_category: A/B/C/D/X/N (N = chua phan loai)
 # contraindications: list dieu kien tuyet doi khong dung

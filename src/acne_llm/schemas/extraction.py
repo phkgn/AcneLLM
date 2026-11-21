@@ -5,7 +5,7 @@ Mọi extractor rule-based (skin_type, products, severity, intent...) trả về
 trình match (method + similarity + điều chỉnh ngữ cảnh), không phải ML/calibration.
 
 Khung này KHÔNG đổi schema ngoài (UserInput): nó là kênh phụ nội bộ để
-completeness/intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
+intent_router biết "chắc đến đâu" và degrade an toàn (hỏi lại) khi
 confidence thấp — thuần rule, không gọi LLM.
 """
 from __future__ import annotations
@@ -16,7 +16,7 @@ from typing import Generic, Literal, TypeAlias, TypeVar
 T = TypeVar("T")
 
 # Cách trích được giá trị — để audit/debug và để gán confidence base.
-Method: TypeAlias = Literal["exact", "pattern", "fuzzy", "fallback", "none"]
+Method: TypeAlias = Literal["exact", "pattern", "fuzzy", "fallback", "llm", "none"]
 
 # Confidence base theo method (heuristic khởi điểm; golden set sẽ tinh chỉnh).
 METHOD_BASE_CONFIDENCE: dict[Method, float] = {
@@ -24,6 +24,7 @@ METHOD_BASE_CONFIDENCE: dict[Method, float] = {
     "pattern": 0.85,
     "fuzzy": 0.80,     # thường bị ghi đè bằng similarity thực tế
     "fallback": 0.45,
+    "llm": 0.0,        # LLM extractor luôn truyền confidence do model cung cấp
     "none": 0.0,
 }
 
@@ -122,3 +123,28 @@ class ListFieldResult(Generic[T]):
     @classmethod
     def empty(cls) -> "ListFieldResult[T]":
         return cls(items=())
+
+
+@dataclass
+class ExtractionConfidence:
+    """Map field -> FieldResult, kênh phụ cho completeness/router."""
+
+    skin_type: FieldResult[str] = field(default_factory=FieldResult.none)
+    sex: FieldResult[str] = field(default_factory=FieldResult.none)
+    age: FieldResult[int] = field(default_factory=FieldResult.none)
+    duration_weeks: FieldResult[int] = field(default_factory=FieldResult.none)
+    is_pregnant: FieldResult[bool] = field(default_factory=FieldResult.none)
+    is_breastfeeding: FieldResult[bool] = field(default_factory=FieldResult.none)
+    inflammation: FieldResult[str] = field(default_factory=FieldResult.none)
+    lesion_types: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    distribution: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    products: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    medications: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    allergies: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    scarring_signs: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    hormonal_factors: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    treatment_goals: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+    red_flags: ListFieldResult[str] = field(default_factory=ListFieldResult.empty)
+
+    def field(self, name: str) -> FieldResult | ListFieldResult:
+        return getattr(self, name)

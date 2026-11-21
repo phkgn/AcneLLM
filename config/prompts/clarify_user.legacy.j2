@@ -1,0 +1,14 @@
+{# Chỉ gửi DỮ LIỆU + hợp đồng của endpoint clarify (hỏi đúng 1 câu).
+   Luật ngôn ngữ/phong cách/grounding nằm ở Modelfile SYSTEM. #}
+<user_data>
+<message>{{ description }}</message>
+{% if history_block %}
+<conversation_history>
+{{ history_block }}
+</conversation_history>
+{% endif %}
+</user_data>
+<task>
+Chỉ xuất đúng 1 câu hỏi làm rõ cần thiết nhất trước khi tư vấn, với đúng 1 dấu “?”.
+Không viết câu dẫn hay câu hỏi thứ hai; chưa đưa routine và chưa dùng tài liệu tham khảo.
+</task>

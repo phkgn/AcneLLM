@@ -1,0 +1,3617 @@
+{
+  "summary": {
+    "generated_at": "2026-08-21T21:48:37.641871+00:00",
+    "dataset": "research/evaluation/datasets/active/generator_eval.v3_2_145.jsonl",
+    "n": 120,
+    "no_context": 29,
+    "failed": [],
+    "judge_model": "gpt-5.6-luna",
+    "judge_cache_read": true,
+    "settings": {
+      "chat_retrieve_top_k": 25,
+      "chat_rerank_top_k": 5,
+      "chat_rerank_floor": 0.5,
+      "chat_max_context_chars": 6000,
+      "embedding_model": "AITeamVN/Vietnamese_Embedding",
+      "reranker_model": "BAAI/bge-reranker-v2-m3"
+    },
+    "faces": {
+      "context_relevance": 2.5919,
+      "context_precision": 0.5344,
+      "context_sufficiency": 2.8462,
+      "ranking_quality": 0.9365,
+      "groundedness": null
+    },
+    "by_source_type": {
+      "vi_medical_site": {
+        "n": 295,
+        "điểm_TB": 2.705,
+        "tỉ_lệ_dùng_được": 0.573
+      },
+      "clinical_textbook": {
+        "n": 48,
+        "điểm_TB": 1.708,
+        "tỉ_lệ_dùng_được": 0.312
+      },
+      "aad_guideline": {
+        "n": 44,
+        "điểm_TB": 2.159,
+        "tỉ_lệ_dùng_được": 0.409
+      },
+      "pubmed_review": {
+        "n": 34,
+        "điểm_TB": 2.912,
+        "tỉ_lệ_dùng_được": 0.588
+      },
+      "en_medical_site": {
+        "n": 10,
+        "điểm_TB": 3.9,
+        "tỉ_lệ_dùng_được": 0.9
+      },
+      "blog": {
+        "n": 4,
+        "điểm_TB": 3.0,
+        "tỉ_lệ_dùng_được": 0.75
+      },
+      "unknown": {
+        "n": 3,
+        "điểm_TB": 4.333,
+        "tỉ_lệ_dùng_được": 1.0
+      },
+      "nice_guideline": {
+        "n": 2,
+        "điểm_TB": 3.0,
+        "tỉ_lệ_dùng_được": 0.5
+      }
+    },
+    "judge_cost_usd": 0.0738
+  },
+  "rows": [
+    {
+      "sample_id": "q-0001",
+      "n_chunks": 5,
+      "sources": [
+        "DaLieuHaNoi",
+        "Medlatec",
+        "DaLieuHaNoi",
+        "Medlatec",
+        "TapChiDaLieuVN"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.6,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          3.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 mô tả mụn sau gáy, đặc điểm sưng đau có mủ và nêu u bã đậu; phù hợp với triệu chứng nhưng chưa đề cập rõ việc cạo tóc sát, đội mũ bảo hiểm hay hướng xử trí cụ thể. Đoạn 2 nói về mụn mềm chảy dịch, u bã đậu, tăng dầu, hormone và đặc biệt là ma sát do đội mũ bảo hiểm chật hoặc quần áo bó; khớp một phần nguyên nhân người dùng hỏi nhưng chưa có hướng điều trị. Đoạn 3 liệt kê các nguyên nhân gồm viêm nang lông do tụ cầu, tắc nghẽn và ma sát từ mũ hoặc áo, đồng thời mở đầu phần xử lý; có liên quan nhưng phần hướng dẫn điều trị bị thiếu. Đoạn 4 cung cấp thông tin về viêm da tụ cầu gây cục cứng sau gáy rồi mềm và chảy dịch; phù hợp với triệu chứng nhưng chưa hướng dẫn tránh kích ứng, dùng benzoyl peroxide hoặc đi khám. Đoạn 5 nói về dưỡng ẩm và hàng rào da trong một bối cảnh bệnh lý khác, không trả lời câu hỏi về các cục mủ sau gáy hay cách điều trị."
+      }
+    },
+    {
+      "sample_id": "q-0002",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "TuoiTre-SucKhoe",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9278,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          2.0,
+          4.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về các lựa chọn điều trị mụn viêm gồm kháng sinh uống, kháng sinh bôi và điều trị nội tiết; có liên quan đến thuốc tránh thai và việc kháng sinh uống chỉ dùng tạm thời, nhưng không nêu loại thuốc tránh thai cụ thể, nguy cơ isotretinoin hay xử trí tác dụng phụ doxycycline. Đoạn 2 tập trung vào isotretinoin cho mụn nặng, nguy cơ quái thai và yêu cầu thỏa thuận điều trị; phù hợp một phần với câu hỏi, nhưng không nói rõ tránh thai cần dùng thế nào, khả năng ảnh hưởng khả năng sinh con sau này, thuốc tránh thai phù hợp hay doxycycline. Đoạn 3 đề cập nguy cơ quái thai của isotretinoin, các yếu tố làm mụn nặng hơn, chăm sóc da và tránh nặn mụn; chỉ trả lời một phần nhỏ câu hỏi, không đề cập thuốc tránh thai hoặc tác dụng phụ doxycycline. Đoạn 4 trình bày khá chi tiết nguy cơ dị tật thai của isotretinoin, yêu cầu tránh thai và khuyến cáo ngưng thuốc trước khi mang thai; phù hợp với mối lo về quái thai, nhưng không hướng dẫn loại thuốc tránh thai cụ thể, không nói về tác dụng phụ doxycycline và một số diễn đạt về thời gian ngưng thuốc cần được bác sĩ xác nhận theo hướng dẫn hiện hành. Đoạn 5 nêu liều isotretinoin, yêu cầu tư vấn tránh thai, nguy cơ quái thai và một số tác dụng phụ cần theo dõi; liên quan trực tiếp nhưng rất ngắn, không giải đáp lựa chọn thuốc tránh thai, hiệu quả điều trị, doxycycline hay sẹo thâm."
+      }
+    },
+    {
+      "sample_id": "q-0003",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Medlatec",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          2.0,
+          1.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 mô tả một trường hợp mụn kéo dài ở người trưởng thành, da dầu, có mụn viêm đau và mong muốn được tư vấn điều trị; khá khớp với bối cảnh câu hỏi nhưng không đề cập việc đã uống kháng sinh 12 tuần không đáp ứng hay khuyến nghị chuyển khám chuyên khoa. Đoạn 2 khuyên đi khám chuyên khoa Da liễu nếu mụn không cải thiện và cảnh báo không lạm dụng kháng sinh; có liên quan trực tiếp, nhưng không nêu rõ tiêu chí sau 12 tuần điều trị hoặc vấn đề căng thẳng tâm lý. Đoạn 3 mô tả mụn nặng, kéo dài, có mụn bọc và sẹo; phù hợp với mức độ nghiêm trọng nhưng không đưa ra hướng xử trí, không nói về thất bại sau kháng sinh hay chuyển tuyến. Đoạn 4 chủ yếu nói về thâm mụn và danh mục tài liệu tham khảo; chỉ có câu khuyên gặp bác sĩ da liễu, không trả lời tình huống hiện tại. Đoạn 5 bàn về bằng chứng và tác dụng phụ của các phương pháp peel hóa học điều trị sẹo mụn; không liên quan đến quyết định sau khi uống kháng sinh 3 tháng hoặc chuyển khám vì stress."
+      }
+    },
+    {
+      "sample_id": "q-0004",
+      "n_chunks": 5,
+      "sources": [
+        "BVDL-HCM",
+        "BVDL-HCM",
+        "Medlatec",
+        "Medlatec",
+        "TapChiDaLieuVN"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 0.8,
+      "context_sufficiency": 5.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          5.0,
+          3.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về việc bác sĩ soi da, thăm khám và tư vấn cá nhân, giúp sinh viên hiểu tình trạng da, chọn hướng chăm sóc và điều trị theo khuyến cáo; đồng thời đề cập nâng cao ý thức tự chăm sóc và nguy cơ bệnh nặng do thiếu kiến thức hoặc điều trị sai. Đoạn này khớp trực tiếp với phần lớn câu hỏi và các ý cần biết. Đoạn 2 nói về một chương trình truyền thông, trong đó bác sĩ cung cấp kiến thức về nguyên nhân, nhận biết, chăm sóc da, hướng dẫn rửa mặt, chọn sản phẩm, tránh thói quen làm mụn nặng hơn và khám tư vấn cá nhân. Đoạn này trả lời trực tiếp và đầy đủ lợi ích người dùng hỏi. Đoạn 3 nói về hậu quả của điều trị sai, nguy cơ mụn nặng hơn, sẹo và khuyến cáo không tự mua thuốc, dùng phương pháp hoặc mỹ phẩm không phù hợp; có liên quan đến lợi ích phòng biến chứng và tư vấn chuyên gia nhưng không mô tả cụ thể chương trình. Đoạn 4 nói về tránh tự nặn mụn, vai trò của thăm khám bác sĩ trong chẩn đoán và lựa chọn thuốc, cùng một số hướng điều trị; liên quan đến việc tư vấn khác với tự điều trị, nhưng có phần lan man và không tập trung vào chương trình phòng ngừa. Đoạn 5 chủ yếu nói về dưỡng ẩm, hàng rào bảo vệ da và hạn chế của các nghiên cứu về một nhóm sản phẩm; chỉ liên quan rất gián tiếp đến chăm sóc da, không trả lời lợi ích tham gia chương trình."
+      }
+    },
+    {
+      "sample_id": "q-0005",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "Youmed",
+        "DaLieuHaNoi",
+        "HelloBacsi",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8596,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          4.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 giới thiệu khái quát về thâm mụn và phân loại thâm đỏ, phù hợp với chủ đề nhưng chưa nêu thuốc cụ thể hay chống nắng nên chỉ liên quan một phần. Đoạn 2 giải thích cơ chế thâm sau mụn và nói có các sản phẩm chứa thành phần làm giảm melanin, nhưng chưa chỉ rõ hydroquinon, axit azelaic, vitamin A axít hay biện pháp chống nắng, nên dùng được rất ít để trả lời. Đoạn 3 nêu trực tiếp Retinol, Azelaic Acid và Hydroquinone, trong đó phù hợp với các hoạt chất người dùng cần biết; tuy nhiên không đề cập chống nắng và còn gộp sẹo mụn với thâm nên chưa đầy đủ. Đoạn 4 nói về nguyên nhân thâm mụn và giới thiệu kem trị thâm, nhưng không nêu rõ hoạt chất cần dùng cũng như chống nắng, nên chỉ hỗ trợ bối cảnh. Đoạn 5 là nội dung về các dạng tổn thương và vị trí cơ thể, hoàn toàn không liên quan đến điều trị thâm sau mụn."
+      }
+    },
+    {
+      "sample_id": "q-0006",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "PubMed",
+        "HelloBacsi",
+        "HelloBacsi",
+        "CMAJ"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "pubmed_review",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 1.0,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9809,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          4.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về chỉ định adapalene cho mụn có nhân, sẩn và mụn mủ, cách bôi, nguy cơ kích ứng và khuyến cáo không dùng cho phụ nữ mang thai hoặc cho con bú; khớp trực tiếp với câu hỏi và hầu hết các ý cần biết, dù chưa nêu rõ adapalene thuộc nhóm retinoid hay cơ chế làm giảm dày sừng. Đoạn 2 giới thiệu adapalene là dẫn xuất có hoạt tính retinoid và có hiệu quả điều trị mụn, nhưng không đề cập kích ứng hay thai kỳ/cho con bú; khớp một phần. Đoạn 3 chủ yếu nói về cách bôi, độ tuổi, tránh tiếp xúc niêm mạc và dấu hiệu dị ứng; có liên quan đến sử dụng adapalene nhưng thiếu cơ chế, cảnh báo kích ứng thông thường và chống chỉ định thai kỳ/cho con bú. Đoạn 4 nói khá đầy đủ về chỉ định, cách dùng, xử trí khi kích ứng, cần hỏi bác sĩ, không dùng khi mang thai hoặc cho con bú và tránh phối hợp retinoid; khớp phần lớn câu hỏi, nhưng không nêu rõ cơ chế giảm dày sừng và có nội dung giá bán, thuốc khác không liên quan. Đoạn 5 cung cấp bằng chứng adapalene hiệu quả với mụn có nhân và so sánh với tretinoin, nhưng không nói về kích ứng, thận trọng hay thai kỳ/cho con bú."
+      }
+    },
+    {
+      "sample_id": "q-0007",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8241,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          2.0,
+          3.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về tác động tâm lý của mụn và stress ở một phụ nữ 22 tuổi; có liên quan đến bối cảnh tuổi và mụn nhưng không trả lời việc chu kỳ kinh nguyệt, đồ ngọt/chiên rán có làm mụn nặng hơn hay vị trí mụn mặt và lưng, nên chỉ chạm chủ đề. Đoạn 2 mô tả một phụ nữ 22 tuổi da dầu có mụn ở mặt, lưng và ngực, nhưng chủ yếu đánh giá mức độ nặng, sẹo và đặt câu hỏi điều trị; không đề cập chu kỳ kinh nguyệt, chế độ ăn hay tỷ lệ nữ mắc mụn, nên chỉ dùng được một phần nhỏ. Đoạn 3 nói đồ ngọt, cay nóng, chiên rán, dầu mỡ nên hạn chế và hormone thay đổi có thể làm mụn nặng hơn; vì vậy có liên quan trực tiếp đến ăn uống và yếu tố nội tiết, nhưng không nêu rõ mụn theo chu kỳ kinh nguyệt, không nói vị trí mặt và lưng, cũng không đề cập nữ giới mắc mụn nhiều hơn nam giới. Đoạn 4 nói đồ uống nhiều đường có thể góp phần gây mụn và khuyên hạn chế, nhưng tập trung vào trẻ tuổi dậy thì, không đề cập chu kỳ kinh nguyệt, đồ chiên béo, vị trí mụn hay khác biệt giới tính. Đoạn 5 chỉ khuyên không chạm tay lên mặt và đi khám da liễu khi có da dầu hoặc mụn; không trả lời các ý chính về kinh nguyệt, chế độ ăn, vị trí mụn và tỷ lệ nữ mắc mụn."
+      }
+    },
+    {
+      "sample_id": "q-0008",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.7653,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          1.0,
+          2.0,
+          2.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 chủ yếu khuyên đi khám bác sĩ da liễu và liệt kê các liên kết tham khảo, nhưng không nêu treatment cụ thể cho mụn viêm sẩn-mủ hay lựa chọn bôi tại chỗ, nên chỉ liên quan gián tiếp. Đoạn 2 nói về tâm lý, sự tự ti và stress do mụn, không cung cấp hướng điều trị, nên không khớp trọng tâm câu hỏi. Đoạn 3 giải thích chung về mụn, hormone, dầu thừa và bít tắc lỗ chân lông, nhưng không đưa ra treatment dùng được, hơn nữa có cách giải thích đơn giản hóa nguyên nhân. Đoạn 4 mô tả một trường hợp mụn nặng, có mụn bọc, mụn ở lưng/ngực và sẹo, rồi nhận định mức độ nặng; không nêu phác đồ hoặc treatment cụ thể. Đoạn 5 phân biệt sẩn và mụn mủ, đồng thời khuyên dùng sản phẩm rửa mặt chứa benzoyl peroxide hoặc salicylic acid và đi khám nếu nhiều hoặc không cải thiện; có thông tin liên quan trực tiếp, nhưng thiếu retinoid, sản phẩm phối hợp, cách lựa chọn dạng bào chế và điều trị toàn thân."
+      }
+    },
+    {
+      "sample_id": "q-0009",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "Vinmec",
+        "Vinmec",
+        "Youmed",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9954,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          2.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 giải thích cấu tạo nang lông và tuyến dầu, nêu rõ mụn có thể xuất hiện trên da đầu vì nang tóc có tuyến dầu, đồng thời mô tả tắc nghẽn do dầu, vi khuẩn và viêm. Đoạn này khớp tốt với câu hỏi về mụn da đầu và một phần nguyên nhân, nhưng chưa đề cập các yếu tố như hormone, cọ xát, căng thẳng, di truyền hay thuốc. Đoạn 2 giải thích cơ chế mụn hình thành do tế bào chết, dầu thừa và vi khuẩn làm tắc lỗ chân lông, đồng thời nói về vai trò của hormone tuổi dậy thì và các dạng mụn. Nội dung liên quan nhưng không nói trực tiếp rằng mụn có thể xuất hiện ở da đầu hoặc các nguyên nhân đặc thù khác. Đoạn 3 định nghĩa mụn trứng cá là tình trạng viêm da và mô tả sẩn, mụn mủ cùng cơ chế nang lông bị tắc. Đoạn này giúp trả lời mụn là gì nhưng không giải thích riêng về mụn da đầu hay nguyên nhân tại vị trí đó. Đoạn 4 mô tả mụn đầu trắng, mụn đầu đen, vị trí thường gặp và việc tắc lỗ chân lông, nhưng phần lớn tập trung vào điều trị mụn đầu trắng; không trả lời trực tiếp mụn da đầu có phải mụn trứng cá không và thiếu các nguyên nhân đặc hiệu. Đoạn 5 đưa ra định nghĩa y khoa về trứng cá là bệnh viêm mạn tính của đơn vị tuyến bã-nang lông, cùng các loại tổn thương và vùng thường gặp. Nội dung phù hợp để xác định bản chất mụn trứng cá nhưng không đề cập da đầu hoặc lý do mụn xuất hiện ở đó."
+      }
+    },
+    {
+      "sample_id": "q-0010",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0011",
+      "n_chunks": 5,
+      "sources": [
+        "DermNetNZ",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "en_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.2,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9892,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          2.0,
+          2.0,
+          0.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 trình bày trực tiếp về liệu pháp ánh sáng xanh-đỏ, nêu an toàn trong thai kỳ, tác dụng phụ, thiết bị mặt nạ tại nhà và bằng chứng được phê duyệt cho mụn nhẹ đến trung bình; khớp gần như đầy đủ với câu hỏi và các ý cần biết, nhưng chưa đề cập IPL. Đoạn 2 chủ yếu nói về liệu pháp quang động dùng chất nhạy sáng và tác dụng phụ như đỏ, đau, nóng rát; chỉ liên quan rộng đến điều trị bằng ánh sáng, không trả lời an toàn của đèn xanh-đỏ trong thai kỳ hay mặt nạ tại nhà. Đoạn 3 liệt kê nhiều phương pháp điều trị, có nhắc LED xanh/đỏ là không đau và an toàn, nhưng không bàn cụ thể về thai kỳ, tác dụng phụ, mặt nạ tại nhà hoặc chống chỉ định IPL; một số đề xuất khác cũng không phù hợp để tự suy ra an toàn khi mang thai. Đoạn 4 nói chung về cơ chế và điều trị mụn, kèm một câu chuyện bệnh nhân không liên quan trực tiếp đến câu hỏi về đèn ánh sáng trong thai kỳ; hầu như không có thông tin dùng được về vấn đề cần hỏi. Đoạn 5 nói về độ an toàn của một số laser, salicylic acid và tretinoin khi mang thai, khuyên hỏi bác sĩ; có liên quan đến bối cảnh thai kỳ nhưng không trả lời cụ thể về đèn xanh-đỏ, IPL hay mặt nạ ánh sáng tại nhà."
+      }
+    },
+    {
+      "sample_id": "q-0012",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "HelloBacsi",
+        "EuroGuiDerm"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.8786,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          1.0,
+          3.0,
+          3.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về liều dùng, kích ứng, thời gian điều trị và điều trị duy trì bằng BPO; khớp một phần với việc có nên ngưng hay không nhưng không đề cập nguy cơ ung thư. Đoạn 2 chủ yếu nói về máy làm sạch da, không cung cấp thông tin liên quan đến nguy cơ ung thư do BPO và còn lẫn hướng dẫn không rõ ràng về việc dùng BPO. Đoạn 3 nói về cơ chế, hiệu quả, nồng độ và tác dụng phụ của BPO; có ích để cân nhắc việc tiếp tục dùng nhưng không trả lời tin đồn BPO gây ung thư. Đoạn 4 nói về thời gian thích nghi, kích ứng và cách giảm tần suất hoặc ngưng khi mụn và kích ứng nặng; liên quan một phần đến việc có nên ngưng nhưng không đề cập ung thư. Đoạn 5 nói trực tiếp về việc BPO có thể phân hủy thành benzene ở nhiệt độ cao, benzene là chất gây ung thư, nhưng nêu rõ hiện chưa chứng minh việc dùng BPO trị mụn làm tăng nguy cơ AML; đoạn bị cắt nên chưa trình bày đầy đủ kết quả các nghiên cứu và chưa đề cập lymphoma, leukemia nói chung hay ung thư nội tạng. Nhìn chung tài liệu có thông tin về an toàn và cách xử trí kích ứng, đồng thời có một phần quan trọng về AML, nhưng chưa đủ để khẳng định đầy đủ các ý người dùng cần biết hoặc đưa ra kết luận trọn vẹn về việc có nên ngưng BPO hay không."
+      }
+    },
+    {
+      "sample_id": "q-0013",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "HelloBacsi",
+        "Medlatec",
+        "SucKhoeDoiSong",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8615,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          1.0,
+          0.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về lựa chọn sản phẩm dịu nhẹ, thử phản ứng trên vùng da nhỏ và khuyên bà bầu khám bác sĩ da liễu. Nội dung phù hợp với việc điều trị mụn an toàn trong thai kỳ và có ích một phần, nhưng không nêu rõ tretinoin hoặc azelaic acid. Đoạn 2 nói về liều dùng, cách sử dụng và hiệu quả của tretinoin ở người lớn, đồng thời đề cập phối hợp kháng sinh hoặc benzoyl peroxide. Nội dung không cảnh báo tránh tretinoin khi mang thai và còn có thể gây hiểu nhầm cho người đang mang thai, nên chỉ chạm chủ đề nhưng không dùng được để trả lời an toàn. Đoạn 3 chủ yếu là tiêu đề, danh mục bài viết và nguyên nhân nội tiết gây mụn khi mang thai; không cung cấp hướng dẫn thuốc thay thế hoặc thông tin về tretinoin. Đoạn 4 hướng dẫn dùng retinol và khẳng định các nồng độ tretinoin là an toàn, trái với yêu cầu cần cảnh báo không dùng tretinoin trong thai kỳ; không phù hợp và có nguy cơ gây hại. Đoạn 5 khuyên trao đổi với bác sĩ, nêu salicylic acid có thể được cân nhắc hạn chế và cho biết đa số chuyên gia khuyên ngừng tretinoin khi mang thai. Đây là thông tin trực tiếp, nhưng không đề cập tazarotene và không nêu azelaic acid 20% là lựa chọn thay thế. Toàn bộ tài liệu có cảnh báo về tretinoin và khuyên khám chuyên khoa, nhưng thiếu tazarotene và azelaic acid 20%, đồng thời có đoạn 4 đưa thông tin trái ngược nguy hiểm; vì vậy chỉ trả lời được một phần câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0014",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0015",
+      "n_chunks": 5,
+      "sources": [
+        "Healthline-Acne",
+        "HelloBacsi",
+        "PubMed",
+        "AAD",
+        "Healthline-Acne"
+      ],
+      "source_types": [
+        "en_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "aad_guideline",
+        "en_medical_site"
+      ],
+      "context_relevance": 3.6,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9805,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          4.0,
+          2.0,
+          3.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 trình bày trực tiếp sự khác nhau về thời gian và cơ chế của Bellafill, HA, PLLA/Sculptra và cấy mỡ tự thân; nêu HA cần tiêm lại sau vài tháng, PLLA không có hiệu quả ngay mà kích thích collagen, và khoảng một nửa mỡ cấy sống sót rồi tồn tại lâu dài. Tuy nhiên đoạn này không nêu chi tiết lịch tiêm hàng tháng trong 3 tháng của Sculptra và gọi Bellafill kéo dài khoảng 12 tháng, trong khi phần khác của tài liệu nói lâu hơn. Đoạn 2 nói filler dùng cho sẹo lõm, liệt kê PMMA, HA, PLLA và mỡ tự thân, đồng thời nêu thời gian tồn tại thường 6–18 tháng; có liên quan nhưng không phân biệt rõ từng loại và có thông tin chưa phù hợp với tính lâu dài của Bellafill, mỡ tự thân và Sculptra. Đoạn 3 chỉ nói sẹo lõm và PLLA là chất kích thích tạo collagen, không cung cấp thời gian tác dụng hay so sánh các loại filler. Đoạn 4 nói chung filler có thời gian tác dụng khác nhau, thường 3 tháng đến 2 năm, có thể cần nhiều buổi và tiêm duy trì; liên quan nhưng không phân biệt Bellafill, HA, Sculptra và mỡ tự thân. Đoạn 5 mô tả Bellafill là filler lâu dài được dùng cho sẹo mụn, HA là filler tạm thời cần tiêm lại mỗi vài tháng, và PLLA là một lựa chọn khác; phù hợp với phần lớn câu hỏi nhưng bị cắt dở, không giải thích cơ chế hay thời gian của PLLA và không đề cập cấy mỡ tự thân. Nhìn chung tài liệu trả lời khá rõ về Bellafill và HA, có thông tin quan trọng về PLLA và mỡ tự thân ở đoạn 1, nhưng thiếu lịch điều trị và thời gian bán vĩnh viễn của Sculptra, đồng thời có một số mâu thuẫn về thời gian tác dụng."
+      }
+    },
+    {
+      "sample_id": "q-0016",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.7595,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          1.0,
+          3.0,
+          3.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 chủ yếu khuyên gặp bác sĩ và liệt kê tài liệu tham khảo, không trình bày routine hay hoạt chất trị thâm cụ thể; chỉ khớp rất ít với câu hỏi. Đoạn 2 cũng chủ yếu là lời khuyên đi khám, danh mục nguồn và thông tin biên tập, không cung cấp hướng dẫn treatment thực tế; khớp rất ít. Đoạn 3 nói về các yếu tố làm thâm nặng hơn và nhấn mạnh chống nắng SPF 30 trở lên, chọn sản phẩm không dầu hoặc không gây mụn; đây là một phần quan trọng của routine nhưng không đề cập các hoạt chất người dùng cần biết hay cách phối hợp. Đoạn 4 trình bày nhiều phương pháp trị thâm, nêu azelaic acid, cysteamine, vitamin C và một số dẫn xuất/chiết xuất, đồng thời giải thích tác dụng liên quan đến sắc tố; có thể dùng được một phần để trả lời, nhưng không đề cập lactic acid, cam thảo, bạch dương, mẫu đơn và không xây dựng routine cụ thể. Đoạn 5 chỉ là tiêu đề và mô tả thuật toán điều trị mụn viêm, không cung cấp thông tin về thâm mụn hoặc routine; lạc đề với nhu cầu chính."
+      }
+    },
+    {
+      "sample_id": "q-0017",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8002,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          2.0,
+          2.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 chủ yếu nói về sự tự ti và căng thẳng do mụn, không cung cấp hướng điều trị mụn viêm nặng, thuốc uống hay xử lý sẹo nên chỉ liên quan gián tiếp. Đoạn 2 mô tả đúng tình trạng mụn viêm kéo dài, mụn bọc, mụn lưng và sẹo, đồng thời nhận định đây là mụn nặng, nhưng chưa đưa ra cách điều trị cụ thể, chưa đề cập kháng sinh uống, isotretinoin, tiêm triamcinolone, chất làm đầy hay yếu tố làm nặng mụn. Đoạn 3 nói về mối liên hệ giữa mụn bọc nặng và sẹo rỗ, đề cập có nhiều phương pháp trị sẹo nhưng không nêu phương pháp chất làm đầy collagen hoặc axit hyaluronic, không nói cần lặp lại định kỳ và cũng không hướng dẫn điều trị mụn hiện tại. Đoạn 4 đưa ra lời khuyên chăm sóc hữu ích như khám bác sĩ da liễu, không nặn mụn, rửa mặt nhẹ nhàng, tránh tẩy da chết mạnh và dùng kem chống nắng; tuy nhiên không đề cập các thuốc uống cần biết, điều trị mụn viêm nặng, tiêm triamcinolone, chất làm đầy sẹo hay hạn chế đường và sữa. Đoạn 5 nói về benzoyl peroxide hoặc salicylic acid cho mụn mủ, không nặn mụn, cần khám da liễu khi không đáp ứng và mụn nang có nguy cơ gây sẹo vĩnh viễn; có ích một phần nhưng vẫn thiếu các lựa chọn điều trị toàn thân và điều trị sẹo được hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0018",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0019",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0020",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "Vinmec",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.8797,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          1.0,
+          3.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về chế độ ăn chỉ số đường huyết thấp, sữa, socola và đồ chiên. Đoạn này khớp chủ đề nhưng khẳng định đồ chiên gây mụn và khuyên tránh socola, trái với ý cần biết rằng socola và đồ chiên không được chứng minh là nguyên nhân gây mụn; phần về đường huyết và sữa có liên quan nhưng diễn đạt sữa khá chắc chắn. Đoạn 2 nói về thức ăn nhanh, đồ ăn vặt, socola và các yếu tố khác của mụn. Có đề cập socola có thể làm nặng mụn nhưng dựa trên nghiên cứu không rõ chi tiết, đồng thời không nói rõ đồ chiên không gây mụn và không đề cập đầy đủ tranh luận về đường tinh luyện hoặc sữa. Đoạn 3 nói về đồ chiên, chất kích thích và đồ cay nóng. Có liên quan đến đồ chiên nhưng khẳng định thiếu căn cứ rằng đồ chiên làm mụn nặng hơn; không trả lời về socola, hạt, đường tinh luyện hay sữa. Đoạn 4 nói về đường và tinh bột có chỉ số đường huyết cao, cùng bằng chứng hạn chế và không nhất quán về socola. Đoạn này cung cấp phần thông tin hữu ích về đường tinh luyện và cho thấy bằng chứng về socola chưa rõ, nhưng không đề cập đồ chiên hoặc hạt và chưa nói rõ kết luận tổng thể. Đoạn 5 là tổng quan nghiên cứu về thực phẩm và mụn, nêu không có bằng chứng rõ ràng cho một thực phẩm cụ thể; một số nghiên cứu không thấy socola làm nặng mụn, còn bằng chứng về sữa gây mụn vẫn gây tranh cãi. Đây là đoạn khớp nhất với câu hỏi, dù không đề cập đồ chiên hoặc hạt và không trình bày riêng mối liên hệ với chế độ ăn nhiều đường theo cách đầy đủ."
+      }
+    },
+    {
+      "sample_id": "q-0021",
+      "n_chunks": 5,
+      "sources": [
+        "PubMed",
+        "AAD",
+        "NHS-Acne",
+        "FMHub",
+        "Youmed"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "aad_guideline",
+        "unknown",
+        "pubmed_review",
+        "vi_medical_site"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9305,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          1.0,
+          3.0,
+          4.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về các lựa chọn điều trị mụn trong thai kỳ, nêu rõ azelaic acid và benzoyl peroxide được xem là lựa chọn an toàn, đồng thời loại trừ một số thuốc toàn thân nguy hiểm. Đoạn này khớp tốt với câu hỏi về treatment an toàn khi mang thai và việc không dung nạp benzoyl peroxide, nhưng không nói thời gian tối thiểu để thấy hiệu quả và chưa đề cập rõ retinoid bôi ngoài da. Đoạn 2 chủ yếu nói về việc thay sản phẩm benzoyl peroxide và các thành phần trị mụn khác, nhưng không cung cấp hướng dẫn phù hợp cho thai kỳ; còn liệt kê adapalene mà không cảnh báo tránh dùng khi mang thai. Vì vậy chỉ liên quan một phần nhỏ. Đoạn 3 mô tả cách dùng, tác dụng phụ và thời gian khoảng 6 tuần của benzoyl peroxide. Có ích cho vấn đề kích ứng và thời gian đáp ứng, nhưng không trả lời lựa chọn azelaic acid an toàn trong thai kỳ, đồng thời nói benzoyl peroxide làm nhạy cảm ánh nắng trái với ý cần biết về azelaic acid. Đoạn 4 nói trực tiếp về azelaic acid 20%, cơ chế, hiệu quả và khả năng sử dụng an toàn khi mang thai; cũng cảnh báo các tác dụng phụ như rát, châm chích. Đây là đoạn phù hợp nhất, nhưng không nêu thời gian cần dùng và không đề cập retinoid bôi ngoài da. Đoạn 5 nói về xử trí kích ứng hoặc quá liều benzoyl peroxide và thận trọng khi dùng trong thai kỳ. Có liên quan đến tiền sử đỏ rát của người hỏi, nhưng không trả lời trực tiếp về azelaic acid, retinoid và thời gian điều trị; hơn nữa thông tin về benzoyl peroxide trong thai kỳ khá dè dặt và không giải quyết đầy đủ câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0022",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0023",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0024",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0025",
+      "n_chunks": 5,
+      "sources": [
+        "Healthline-Acne",
+        "Medlatec",
+        "HelloBacsi",
+        "WebMD-Acne",
+        "AAD"
+      ],
+      "source_types": [
+        "en_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "en_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.2,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9804,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          4.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về việc chống nắng trong điều trị mụn, rửa mặt và dùng SPF, đồng thời đề cập retinoid cần tránh khi mang thai; khớp trực tiếp với câu hỏi và trả lời được vai trò của chống nắng, nhưng chưa giải thích nỗi lo bí da hay dưỡng ẩm. Đoạn 2 nói chung về sự cần thiết của chống nắng và việc xác định loại, nguyên nhân, mức độ mụn; có liên quan nhưng thông tin còn sơ lược, không hướng dẫn routine hay giải thích chống nắng khi dùng treatment. Đoạn 3 giải thích chống nắng bảo vệ khỏi tia UV, đặc biệt khi dùng retinoid và một số kháng sinh có thể làm da nhạy sáng hơn; khớp tốt với câu hỏi, nhưng một số khẳng định về chống nắng làm giảm viêm hoặc ngăn mụn nặng hơn chưa được trình bày đầy đủ và không nói về dưỡng ẩm, làm sạch dịu nhẹ. Đoạn 4 đưa ra routine sáng và tối gồm rửa mặt, thuốc trị mụn, dưỡng ẩm hoặc kem chống nắng dưỡng ẩm, chọn SPF 30 trở lên không gây bít tắc; trả lời trực tiếp phần lớn câu hỏi và giải quyết lo ngại bí da, nhưng chưa giải thích hàng rào da, ceramide/lipid và còn thiếu hướng dẫn làm sạch không quá mức. Đoạn 5 chủ yếu là câu kết và danh mục tài liệu tham khảo về điều trị mụn; hầu như không có thông tin dùng được để trả lời câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0026",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "MSDManuals-VI",
+        "Youmed",
+        "TapChiDaLieuVN",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "en_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9959,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          4.0,
+          2.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về các thuốc trị mụn và isotretinoin, nêu rằng thuốc được chỉ định khi các phương pháp khác không hiệu quả, đồng thời đề cập cơ chế, thời gian thấy hiệu quả và việc dùng theo liều bác sĩ; khớp khá rõ với câu hỏi nhưng chưa nói cụ thể mốc kháng sinh 3–4 tháng và chưa nêu đầy đủ yêu cầu theo dõi an toàn. Đoạn 2 nói trực tiếp rằng isotretinoin là lựa chọn tốt nhất cho mụn trung bình kháng kháng sinh và mụn nặng, kèm liều và thời gian điều trị; rất khớp câu hỏi, dù thiếu cảnh báo về chỉ định và theo dõi bác sĩ. Đoạn 3 nói isotretinoin dùng cho mụn nang, mụn nặng, thời gian bốn đến sáu tháng và cơ chế giảm tuyến dầu; liên quan trực tiếp nhưng không đề cập thất bại của kháng sinh hoặc yêu cầu theo dõi. Đoạn 4 nói về phối hợp isotretinoin với azithromycin hoặc clarithromycin trong mụn nặng; có liên quan đến điều trị mụn nặng nhưng không trả lời việc có nên chuyển sang isotretinoin sau khi kháng sinh không hiệu quả, và thông tin phối hợp cần được bác sĩ chỉ định. Đoạn 5 là một câu chuyện bệnh nhân bị mụn nặng, nhiều kháng sinh không hiệu quả rồi cải thiện khi dùng isotretinoin; minh họa đúng chủ đề nhưng không cung cấp hướng dẫn lâm sàng, chỉ định hay theo dõi."
+      }
+    },
+    {
+      "sample_id": "q-0027",
+      "n_chunks": 5,
+      "sources": [
+        "TapChiYHocTPHCM",
+        "SucKhoeDoiSong",
+        "SucKhoeDoiSong",
+        "TapChiYCanTho",
+        "NICE"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "vi_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "nice_guideline"
+      ],
+      "context_relevance": 3.8,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9526,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          4.0,
+          5.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về việc men gan và mỡ máu tăng nhẹ sau 4 tuần dùng isotretinoin, sau đó có xu hướng giảm về gần mức ban đầu vào tuần 16; khớp trực tiếp với một ý chính của câu hỏi và cho thấy thường có thể nhẹ, tự cải thiện dù tiếp tục điều trị. Đoạn 2 nói về cách xử trí tăng triglyceride và men gan khi dùng isotretinoin, trong đó tăng nhẹ có thể tiếp tục dùng và theo dõi, còn tăng nhiều thì cần bác sĩ cân nhắc ngừng thuốc; khớp với câu hỏi nhưng không đề cập rối loạn kinh nguyệt và một số khuyến cáo cần được bác sĩ cá thể hóa. Đoạn 3 cũng nói về ngưỡng xử trí triglyceride và men gan, khớp với phần xét nghiệm và việc có nên ngừng thuốc, nhưng không đề cập kinh thưa, liều dùng hay tư vấn đánh giá trực tiếp. Đoạn 4 trình bày các tác dụng phụ của isotretinoin, gồm rối loạn kinh nguyệt ở nữ và rối loạn mỡ máu, men gan sau 4 tuần; khớp rất rõ với các triệu chứng và thời điểm của người dùng, đồng thời cho biết các bất thường thường ở mức nhẹ, nhưng không hướng dẫn cụ thể nên làm gì tiếp theo. Đoạn 5 nói về liều isotretinoin, giảm liều khi có nguy cơ hoặc đang gặp tác dụng phụ, và theo dõi một số vấn đề trong điều trị; chỉ khớp một phần với câu hỏi, không đề cập men gan, mỡ máu hoặc kinh nguyệt."
+      }
+    },
+    {
+      "sample_id": "q-0028",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0029",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "Vinmec",
+        "SucKhoeDoiSong",
+        "TuoiTre-SucKhoe",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.6,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9516,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          5.0,
+          1.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về mặt nạ lòng trắng trứng và nước cốt chanh trị mụn đầu đen, nêu cách đánh lòng trắng, thời gian đắp và công thức dùng nước cốt của một phần tư quả chanh; khớp trực tiếp với câu hỏi nhưng chưa nêu rõ số lượng lòng trắng và cách dùng nước lạnh như ý người dùng cần. Đoạn 2 tiếp tục hướng dẫn công thức gồm lòng trắng trứng và một thìa nước cốt chanh, cách thoa và để khô, đồng thời đề cập tần suất; khớp trực tiếp, nhưng hướng dẫn lột mặt nạ có thể gây kích ứng và không hoàn toàn trùng công thức cần tìm. Đoạn 3 nêu rủi ro của trứng sống rồi đưa công thức một lòng trắng với 3-5 giọt chanh, cách đánh, thoa, để khô 15-20 phút và rửa sạch; khớp rất rõ với câu hỏi, đồng thời có cảnh báo an toàn, nhưng không nói rõ da dầu hay rửa bằng nước lạnh. Đoạn 4 chủ yếu nói về lòng đỏ với mật ong, hỗn hợp chanh nhiều thành phần và dưa chuột; chỉ có phần liên quan gián tiếp đến chanh, không cung cấp công thức trứng và chanh phù hợp. Đoạn 5 chỉ giải thích khái niệm và biểu hiện của bệnh trứng cá, không hướng dẫn dùng trứng gà và chanh."
+      }
+    },
+    {
+      "sample_id": "q-0030",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0031",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "Medlatec",
+        "Vinmec",
+        "HelloBacsi",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9232,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          3.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về nguyên nhân gây mụn viêm sưng đỏ như bít tắc nang lông, da tiết dầu và vi khuẩn; có liên quan đến tình trạng của người dùng nhưng không hướng dẫn cách chọn hoặc đắp mặt nạ. Đoạn 2 nói về lấy nhân mụn, mặt nạ đất sét, AHA/BHA và thuốc chấm mụn; có một phần liên quan nhưng khuyến khích nặn mụn và không nêu rõ thời gian đắp, rửa mặt sau khi đắp hay các thành phần trà xanh, hoa cúc. Đoạn 3 nói về việc lựa chọn mặt nạ phù hợp, kiểm tra thành phần, hỏi bác sĩ hoặc thử trên da tay; liên quan trực tiếp đến cách dùng mặt nạ cho da mụn nhưng thiếu hướng dẫn về thời gian đắp, rửa sạch sau đó và các thành phần cụ thể được hỏi. Đoạn 4 khuyên đi khám bác sĩ khi mụn sưng đỏ khó kiểm soát; phù hợp với tình trạng mụn viêm kéo dài nhưng không cung cấp hướng dẫn sử dụng mặt nạ. Đoạn 5 mô tả một số bệnh lý khác như viêm nang lông và Demodex; chỉ liên quan rộng đến chẩn đoán tổn thương da, không trả lời cách đắp mặt nạ."
+      }
+    },
+    {
+      "sample_id": "q-0032",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "Healthline-Acne",
+        "Healthline-Acne",
+        "CMAJ"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "en_medical_site",
+        "en_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.926,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          4.0,
+          2.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về công dụng của Acnes Cover 10% benzoyl peroxide trong điều trị mụn bọc, mụn sưng đỏ và làm bong lớp sừng. Nội dung khớp với một phần câu hỏi về tác dụng của benzoyl peroxide, nhưng không hướng dẫn xử trí tình trạng khô rát, có nên tiếp tục dùng hay ngừng vitamin C và kem dưỡng, cũng không cảnh báo rõ nguy cơ dùng quá liều. Đoạn 2 nói về việc tóc có thể làm mụn nặng hơn và khuyến nghị benzoyl peroxide cho mụn bọc, đồng thời nhắc đến Acnes Cover. Có liên quan đến loại mụn và hoạt chất người dùng đang dùng, nhưng hầu như không giải đáp vấn đề kích ứng, phối hợp sản phẩm hay cách sử dụng an toàn. Đoạn 3 hướng dẫn bắt đầu benzoyl peroxide từ tần suất thấp, dùng lớp mỏng, tăng dần, có thể dùng kem dưỡng sau đó, và cảnh báo phối hợp với các hoạt chất khác có thể gây khô, kích ứng, bong tróc. Đây là đoạn phù hợp nhất với câu hỏi, dù không đề cập trực tiếp vitamin C, không đánh giá cụ thể việc tiếp tục sản phẩm 10% sau khi đã kích ứng, và một số hướng dẫn còn phụ thuộc từng sản phẩm. Đoạn 4 chủ yếu nói về sữa rửa mặt trị mụn, benzoyl peroxide nồng độ thấp hơn, các hoạt chất thường gặp và khả năng làm sạch dầu. Có liên quan gián tiếp đến việc giảm kích ứng khi dùng nồng độ thấp hơn, nhưng không trả lời trực tiếp việc tiếp tục Acnes Cover, phối hợp vitamin C hay xử trí khô rát. Đoạn 5 cung cấp bằng chứng benzoyl peroxide 2,5% và 5% có hiệu quả với mụn ẩn và có thể dùng làm điều trị ban đầu. Có liên quan đến hiệu quả của benzoyl peroxide, nhưng không nói về mụn bọc sưng đau cụ thể, kích ứng, liều dùng hoặc phối hợp routine."
+      }
+    },
+    {
+      "sample_id": "q-0033",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "Medlatec",
+        "HelloBacsi",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9721,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          2.0,
+          4.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về retinoid, adapalene và benzoyl peroxide trong điều trị mụn viêm, nên khớp một phần với câu hỏi về việc tiếp tục adapalene và có dùng benzoyl peroxide hay không, nhưng không đề cập tẩy tế bào chết, dưỡng ẩm hoặc cách xử trí khô bong da. Đoạn 2 nói về quy trình chăm sóc da mụn, adapalene, dưỡng ẩm không gây bít tắc, ceramide hoặc hyaluronic acid và chống nắng, nên khớp khá tốt với câu hỏi; tuy nhiên không nói rõ tránh tẩy tế bào chết khi đang dùng thuốc và chưa hướng dẫn cụ thể việc phối hợp benzoyl peroxide với adapalene. Đoạn 3 chủ yếu cung cấp hướng dẫn liều và cách bôi adapalene, gồm bôi lớp mỏng, tránh vùng quanh mắt, môi và niêm mạc; chỉ liên quan một phần và không giải đáp các vấn đề chính về bong tróc, tẩy tế bào chết, benzoyl peroxide hoặc dưỡng ẩm. Đoạn 4 nói về liều adapalene ở người lớn, chế phẩm phối hợp adapalene-benzoyl peroxide và khả năng khô, đỏ, đóng vảy trong 4 tuần đầu, nên khớp với tình trạng của người dùng và gợi ý phối hợp hai hoạt chất, nhưng không hướng dẫn chăm sóc da, tẩy tế bào chết hay chọn dưỡng ẩm. Đoạn 5 chỉ nêu rằng kế hoạch điều trị có thể bao gồm kem dưỡng ẩm và liệt kê tài liệu tham khảo về dưỡng ẩm trong điều trị mụn; có liên quan nhưng hầu như không cung cấp hướng dẫn thực hành hoặc tiêu chí chọn sản phẩm. Nhìn chung tài liệu giải đáp được một phần về adapalene, benzoyl peroxide và dưỡng ẩm, nhưng thiếu khuyến cáo quan trọng không tẩy tế bào chết khi da đang khô kích ứng, thiếu hướng dẫn giảm tần suất hoặc điều chỉnh adapalene, và chưa đưa ra quy trình đầy đủ."
+      }
+    },
+    {
+      "sample_id": "q-0034",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9375,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          5.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về tác hại của việc không rửa mặt hằng ngày và khuyến nghị rửa ít nhất 2 lần mỗi ngày, đồng thời rửa thêm khi da đổ mồ hôi; khớp trực tiếp với câu hỏi và ý cần biết, dù chưa cảnh báo rõ việc rửa quá nhiều có thể gây hại. Đoạn 2 nói nên rửa mặt một lần buổi sáng và một lần buổi tối, tránh rửa quá nhiều vì gây khô và kích ứng; khớp trực tiếp với câu hỏi, nhưng phần lớn nội dung chuyển sang tẩy tế bào chết và toner, không tập trung vào hiệu quả hỗ trợ điều trị mụn của việc rửa mặt. Đoạn 3 giải thích rửa mặt quá nhiều có thể làm tổn thương hàng rào da, khuyến nghị rửa 2 lần mỗi ngày và có thể rửa thêm sau khi đổ nhiều mồ hôi; khớp rất rõ với cả tần suất và vấn đề rửa nhiều có hại, đồng thời nêu vai trò làm sạch trong hạn chế bít tắc và mụn. Đoạn 4 hướng dẫn chọn sữa rửa mặt, dấu hiệu sản phẩm phù hợp, khuyến nghị rửa hai lần mỗi ngày và rửa thêm bằng nước khi cần; khớp trực tiếp và cung cấp hướng dẫn thực hành, nhưng không giải thích nhiều về hiệu quả hỗ trợ điều trị mụn của việc rửa mặt. Đoạn 5 nói về tránh chạm tay lên mặt và nên gặp bác sĩ da liễu khi có vấn đề về dầu hoặc mụn; chỉ liên quan gián tiếp, không trả lời tần suất hay cách rửa mặt."
+      }
+    },
+    {
+      "sample_id": "q-0035",
+      "n_chunks": 2,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.0,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0
+        ],
+        "n_chunks": 2,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về tình trạng mụn tái phát sau khi điều trị và gợi ý xem xét các yếu tố như căng thẳng, ăn uống, giấc ngủ, nội tiết, mỹ phẩm và thuốc đang dùng. Nội dung khớp một phần với câu hỏi vì cho thấy mụn có thể quay lại do nhiều yếu tố, nhưng không hướng dẫn rõ cần kiên trì, không tự ý ngừng thuốc hoặc có thể phải thử nhiều thuốc khác nhau. Đoạn 2 giải thích các nguyên nhân và cơ chế gây mụn, gồm nội tiết, môi trường, vệ sinh, ăn uống, căng thẳng, mỹ phẩm và thuốc bôi không phù hợp. Nội dung liên quan đến việc mụn tái phát nhưng chỉ cung cấp nền tảng nguyên nhân, không trả lời hai ý người dùng cần biết về duy trì điều trị và thử các thuốc phù hợp."
+      }
+    },
+    {
+      "sample_id": "q-0036",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "HelloBacsi",
+        "Medlatec",
+        "HelloBacsi",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.905,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          3.0,
+          2.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về liệu trình laser trị mụn, thời lượng, mức độ đau và một số lợi ích sau điều trị; khớp khá rõ với câu hỏi về hiệu quả và đau, nhưng khẳng định quá mức rằng an toàn với mọi loại da, không đau và không thâm sẹo, đồng thời không nêu nguy cơ biến chứng hay việc thường phải phối hợp điều trị. Đoạn 2 chủ yếu nói về laser và filler trong điều trị sẹo mụn, không tập trung vào mụn đỏ sưng đang hoạt động; chỉ cung cấp thông tin hạn chế về đỏ, bầm, sưng và chăm sóc sau thủ thuật, nên khớp một phần nhỏ. Đoạn 3 nói laser có thể dùng cho mụn sưng đỏ và khuyên khám bác sĩ da liễu, nhưng quảng bá hiệu quả nhanh, thu nhỏ lỗ chân lông và tăng collagen mà không nói về đau, số buổi, hiệu quả không hoàn toàn hay nguy cơ tác dụng phụ; khớp một phần. Đoạn 4 nói về laser và các công nghệ ánh sáng cho mụn nặng, khuyên điều trị tại cơ sở uy tín, nhưng nội dung còn dang dở và không trả lời rõ hiệu quả thực tế, cảm giác đau hoặc nguy cơ làm da yếu; khớp hạn chế. Đoạn 5 là tổng quan trực tiếp và cân bằng nhất: laser có nhiều nghiên cứu nhưng chưa được so sánh đầy đủ với thuốc, hiệu quả không đồng đều, có thể không đủ khi dùng đơn độc, cần nhiều buổi, chi phí cao và tác dụng đôi khi tạm thời; tuy nhiên không nêu rõ mức độ đau hay các tác dụng phụ cụ thể như bỏng, rộp, đổi màu da và sẹo. Nhìn chung tài liệu giải đáp được rằng laser có thể giúp giảm mụn nhưng không chắc làm sạch hoàn toàn và thường cần nhiều buổi, đồng thời có khuyến cáo nên gặp bác sĩ; vẫn thiếu thông tin quan trọng về phối hợp điều trị, thời điểm thấy kết quả, điều trị duy trì, cảm giác đau và các nguy cơ biến chứng."
+      }
+    },
+    {
+      "sample_id": "q-0037",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "Vinmec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 1.0,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9767,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          3.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về cơ chế, chỉ định và thời gian bắt đầu thấy hiệu quả của isotretinoin, có đề cập mụn có thể nặng hơn lúc đầu và cần dùng đúng liều; khớp khá rõ với việc sau một tháng chưa cải thiện, nhưng không nêu mục tiêu ngăn mụn mới hay hướng xử trí nếu không đáp ứng. Đoạn 2 lặp lại nội dung về isotretinoin, mụn có thể nặng hơn ban đầu và hiệu quả thấy sau 1–2 tháng, đồng thời thêm chăm sóc da; khớp một phần nhưng thiếu khuyến nghị tái khám khi không đạt kết quả. Đoạn 3 là một ca bệnh mụn bùng phát nặng sau dùng isotretinoin, cho thấy tình trạng có thể xấu đi nhưng không trả lời trực tiếp việc sau một tháng chưa giảm có bình thường hay cần kiên nhẫn. Đoạn 4 nói về tác dụng phụ và tình trạng mụn nặng hơn trong giai đoạn đầu, có liên quan nhưng tập trung vào câu hỏi ngưng thuốc và không cung cấp mốc thời gian đáp ứng hoặc kế hoạch theo dõi phù hợp. Đoạn 5 giải thích mụn có thể nặng hơn trong 1–2 tháng đầu rồi mới bắt đầu sạch, khuyên báo bác sĩ da liễu nếu nặng hơn; khớp trực tiếp với câu hỏi, nhưng không nêu rõ mốc 8–12 tuần, mục tiêu ngăn mụn mới hay việc điều chỉnh nếu không đáp ứng sau thời gian điều trị."
+      }
+    },
+    {
+      "sample_id": "q-0038",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "PubMed",
+        "PubMed",
+        "Wiley",
+        "VnExpress-SucKhoe"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "pubmed_review",
+        "pubmed_review",
+        "clinical_textbook",
+        "vi_medical_site"
+      ],
+      "context_relevance": 3.6,
+      "context_precision": 1.0,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9937,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          3.0,
+          4.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về công dụng và cách dùng chế phẩm phối hợp adapalene với benzoyl peroxide, khá khớp với câu hỏi và cung cấp hướng dẫn sử dụng cơ bản, nhưng không nêu rõ nồng độ hoặc các lựa chọn bôi khác. Đoạn 2 giới thiệu chế phẩm cố định adapalene 0,1% và benzoyl peroxide 2,5% dùng một lần mỗi ngày cho mụn viêm ở người trẻ, khớp trực tiếp với câu hỏi nhưng chỉ cung cấp thông tin khái quát. Đoạn 3 mô tả nghiên cứu dùng phối hợp adapalene 0,1% và benzoyl peroxide 2,5% mỗi tối trong 12 tuần, có liên quan đến hiệu quả và cách dùng nhưng không phải tư vấn đầy đủ cho người hỏi. Đoạn 4 giải thích tác dụng chống viêm và kháng khuẩn bổ sung của hai hoạt chất, đồng thời khuyến nghị từng hoạt chất để điều trị mụn nhân và mụn viêm; phù hợp nhưng không đề cập rõ chế phẩm phối hợp cố định hay các lựa chọn như azelaic acid, clindamycin. Đoạn 5 nói về mụn bọc, mụn sưng đỏ và benzoyl peroxide, có liên quan đến tình trạng người hỏi nhưng nội dung thiên về quảng bá một sản phẩm 10% và không đề cập adapalene hoặc các lựa chọn điều trị khác."
+      }
+    },
+    {
+      "sample_id": "q-0039",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0040",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 4.2,
+      "context_precision": 0.8,
+      "context_sufficiency": 5.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về việc lạm dụng thuốc bôi chứa corticoid có thể làm mụn xuất hiện trở lại và nặng hơn, kèm nhiều tác dụng phụ trên da; khớp trực tiếp với câu hỏi. Đoạn 2 nói về dùng nhầm kem hoặc thuốc mỡ chứa corticoid, ban đầu giảm mụn nhưng về lâu dài có thể làm mụn nặng hơn; khớp trực tiếp. Đoạn 3 nói rõ corticoid có thể gây teo da, giãn mạch, nổi nhiều mụn và làm mụn bùng phát khi lạm dụng; khớp trực tiếp. Đoạn 4 mô tả mỹ phẩm hoặc kem trộn chứa corticoid gây trứng cá, da mỏng và mụn bùng phát sau khi ngừng; khớp trực tiếp. Đoạn 5 chủ yếu liệt kê phác đồ điều trị mụn bằng benzoyl peroxide, kháng sinh và retinoid, không đề cập corticoid gây mụn; hầu như không khớp câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0041",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0042",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0043",
+      "n_chunks": 5,
+      "sources": [
+        "DaLieuHaNoi",
+        "HelloBacsi",
+        "VitaClinic",
+        "Vinmec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "blog",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9391,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          2.0,
+          1.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về đặc điểm và các loại mụn li ti, trong đó mô tả mụn cám là do tắc nghẽn lỗ chân lông và mụn đầu đen thường ở vùng mũi, trán, cằm; khớp một phần với triệu chứng nhưng chưa hướng dẫn cách cải thiện cụ thể. Đoạn 2 nói trực tiếp về mụn cám ở trán, mô tả nốt nhỏ màu đen hoặc trắng, không đau, gây sần sùi và giải thích nguyên nhân do tế bào chết, bụi bẩn, dầu thừa làm bít tắc; khớp khá rõ nhưng chưa đưa ra cách điều trị. Đoạn 3 nói về sờ tay lên mũi, vệ sinh, mụn ẩn ở má, trán và cằm; chỉ phần sờ tay và bít tắc liên quan, còn nhiều nội dung lạc hướng và có nhận định thiếu cơ sở về hệ tiêu hóa. Đoạn 4 chủ yếu nói về mụn bọc ở trán và việc dễ tái phát; không phù hợp với tình trạng mụn li ti không đau của người hỏi, cũng không có hướng dẫn cụ thể. Đoạn 5 khuyên không sờ mặt để hạn chế bụi bẩn, dầu và vi khuẩn, đồng thời khuyên gặp bác sĩ da liễu khi có mụn đầu đen hoặc mụn; khớp một phần và có lời khuyên an toàn, nhưng không đề cập các hoạt chất hay quy trình chăm sóc cụ thể. Toàn bộ tài liệu giúp nhận diện khả năng mụn cám do bít tắc và khuyên tránh sờ mặt, nhưng thiếu phần hướng dẫn điều trị, chăm sóc da và cảnh báo cần thiết nên chưa đủ trả lời trọn vẹn."
+      }
+    },
+    {
+      "sample_id": "q-0044",
+      "n_chunks": 3,
+      "sources": [
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.6667,
+      "context_precision": 1.0,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          3.0
+        ],
+        "n_chunks": 3,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về cách bắt đầu dùng retinoid, thử sản phẩm, tăng dần tần suất và các kích ứng như đỏ da, bong tróc; có khớp một phần với câu hỏi về cách dùng và sợ kích ứng, nhưng khuyên dùng hằng ngày ngay từ đầu và không nêu retinoid trị những gì, cũng thiếu hướng dẫn chống nắng cụ thể. Đoạn 2 nói khá trực tiếp về nồng độ khởi đầu, dùng buổi tối, dưỡng ẩm, chống nắng ban ngày, cách giảm kích ứng và các trường hợp cần hỏi bác sĩ; khớp phần lớn với câu hỏi, nhưng không giải thích retinoid điều trị mụn, lão hóa do nắng hay tăng sắc tố sau viêm, đồng thời có một số khuyến cáo cần cá nhân hóa. Đoạn 3 nêu retinoid có tác dụng tiêu nhân mụn, ngăn hình thành nhân mụn, chống viêm và các tác dụng phụ gồm khô, đỏ, kích ứng, bong tróc, nhạy cảm ánh sáng; khớp với phần retinoid trị mụn và nguy cơ kích ứng, nhưng thiếu cách sử dụng cụ thể, dưỡng ẩm, chống nắng và các chỉ định ngoài mụn."
+      }
+    },
+    {
+      "sample_id": "q-0045",
+      "n_chunks": 4,
+      "sources": [
+        "Wiley",
+        "PubMed",
+        "EuroGuiDerm",
+        "CMAJ"
+      ],
+      "source_types": [
+        "clinical_textbook",
+        "pubmed_review",
+        "clinical_textbook",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.25,
+      "context_precision": 0.25,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9183,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "n_chunks": 4,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về các nghiên cứu và mức khuyến cáo C2 đối với một số phương pháp điều trị sẹo mụn bằng acid, nhưng không giải thích hệ thống phân loại mức độ bằng chứng A, B, C hay đầy đủ ý nghĩa của strength of recommendation; chỉ cho thấy một ví dụ về khuyến cáo thấp do bằng chứng chưa kết luận và có tác dụng phụ. Đoạn 2 nói về chất lượng thông tin trị mụn trên Instagram và đề cập rằng chỉ 11% bài đăng viện dẫn điều trị có bằng chứng mức A theo hướng dẫn AAD, nhưng không định nghĩa các mức A, B, C hoặc các mức strength of recommendation. Đoạn 3 nói về việc hạ mức strength of recommendation do thiếu bằng chứng trực tiếp ở mụn nhân trứng cá, qua đó minh họa rằng khuyến cáo phụ thuộc vào chất lượng và tính trực tiếp của bằng chứng, nhưng không nêu thang mức cụ thể từ 1 đến 5 và cũng không giải thích các mức evidence A, B, C. Đoạn 4 là thuật toán điều trị mụn, chỉ nêu một số can thiệp có bằng chứng tốt hơn, bằng chứng chất lượng thấp hơn hoặc khuyến cáo thấp, nhưng không giải thích hệ thống phân loại bằng chứng hay strength of recommendation. Nhìn chung, các đoạn chỉ cung cấp ví dụ rời rạc về chất lượng bằng chứng và mức khuyến cáo, không đủ để giải thích trực tiếp hai hệ thống mà người dùng hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0046",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "HelloBacsi",
+        "HelloBacsi",
+        "Vinmec",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.2,
+      "context_precision": 1.0,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9625,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          3.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về kháng sinh uống, thuốc tránh thai và isotretinoin trong điều trị mụn; có khớp một phần vì đề cập isotretinoin dùng cho mụn bọc, cần vài tháng mới hiệu quả và nên hỏi bác sĩ, nhưng không nêu rõ chỉ định cho mụn nặng khó trị, tác dụng phụ hay theo dõi. Đoạn 2 nói về các thuốc trị mụn và isotretinoin; khớp khá rõ vì đề cập việc dùng khi các phương pháp khác thất bại, giảm tiết dầu, mụn có thể nặng hơn lúc đầu, cần dùng đúng liều bác sĩ, nhưng thiếu các tác dụng phụ thường gặp và theo dõi y khoa toàn diện. Đoạn 3 gần như lặp lại đoạn 2, bổ sung hướng dẫn rửa mặt và không nặn mụn; phần isotretinoin vẫn liên quan nhưng không cung cấp thêm thông tin quan trọng về an toàn, tác dụng phụ hoặc theo dõi. Đoạn 4 giới thiệu isotretinoin và hiệu quả điều trị mụn; khớp một phần vì nói về mụn nặng, cần dùng đúng liều và dưới hướng dẫn bác sĩ, nhưng các con số hiệu quả và tái phát thiếu căn cứ trong đoạn, đồng thời không nói về tác dụng phụ hay theo dõi. Đoạn 5 nói isotretinoin làm giảm bã nhờn, nêu liều và theo dõi chức năng gan, mỡ máu; khớp với câu hỏi và bổ sung một phần thông tin theo dõi, nhưng không đề cập chỉ định đầy đủ, tác dụng phụ, chống chỉ định hoặc việc cần bác sĩ kê đơn; phần còn lại lạc đề về bệnh da dầu ở trẻ sơ sinh."
+      }
+    },
+    {
+      "sample_id": "q-0047",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          2.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về chế độ ăn, rửa mặt, mỹ phẩm không dầu, tẩy trang và tẩy tế bào chết. Có khớp một phần với câu hỏi vì đề cập chăm sóc da dầu và tẩy tế bào chết, nhưng không khuyên ngưng scrub vật lý, không hướng dẫn sữa rửa mặt dịu nhẹ pH 5-6, dưỡng ẩm hay chống nắng hằng ngày; một số khuyến cáo về rửa mặt và ăn kiêng cũng chưa phù hợp hoặc thiếu căn cứ rõ ràng. Đoạn 2 nói về chăm sóc da dầu sau điều trị, rửa mặt 2-3 lần, giấy thấm dầu và mỹ phẩm phù hợp. Có liên quan một phần, nhưng không giải quyết việc ngưng scrub, chọn sản phẩm dịu nhẹ, dưỡng ẩm và chống nắng. Đoạn 3 nói về không rửa mặt quá nhiều, tránh chà xát, thử sản phẩm trước khi dùng và một số kiêng khem ăn uống. Có thông tin dùng được về tránh làm tổn thương da và không rửa quá mức, nhưng không đề cập dưỡng ẩm, chống nắng, sữa rửa mặt dịu nhẹ hay thay scrub bằng AHA/PHA; một số cảnh báo và khuyến cáo ăn uống còn chung chung. Đoạn 4 giải thích da dầu và nhấn mạnh da dầu vẫn cần cấp ẩm, nhưng quảng bá mặt nạ ngủ và không hướng dẫn cách chọn dưỡng ẩm mỏng nhẹ, cũng không đề cập sữa rửa mặt, tẩy tế bào chết hoặc chống nắng. Đoạn 5 khuyên không chạm tay lên mặt và đi khám bác sĩ da liễu khi có dầu, mụn đầu đen hoặc mụn trứng cá. Chỉ liên quan rất hạn chế, không trả lời các ý chăm sóc da chính trong câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0048",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0049",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "HelloBacsi",
+        "Youmed",
+        "SucKhoeDoiSong",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.6,
+      "context_sufficiency": 5.0,
+      "ranking_quality": 0.9133,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          2.0,
+          5.0,
+          4.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về định nghĩa, tác nhân và biểu hiện của mụn đinh râu; khớp với câu hỏi và cung cấp thông tin về tụ cầu, sưng đỏ, đau, có mủ, nhưng không nêu rõ đây là tên dân gian của nhọt quanh miệng. Đoạn 2 nói về phân loại mụn và mô tả mụn đinh râu như mụn mủ, viêm nang lông; có liên quan nhưng thông tin chưa chính xác và chưa nêu vị trí quanh miệng. Đoạn 3 giải thích trực tiếp mụn đinh râu là tên dân gian của nhọt quanh miệng, đồng thời nêu đây là viêm nang lông do tụ cầu khuẩn và cơ chế gây nhiễm trùng; khớp đầy đủ với các ý cần biết. Đoạn 4 nói về nhiễm trùng da quanh miệng, nguyên nhân do viêm nang lông và tụ cầu; khớp phần lớn câu hỏi nhưng chưa nêu rõ đây là tên dân gian của nhọt và chưa mô tả đầy đủ sưng đỏ, đau, có mủ. Đoạn 5 nói về lang ben do nấm Malassezia, hoàn toàn không liên quan đến mụn đinh râu."
+      }
+    },
+    {
+      "sample_id": "q-0050",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0051",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "Vinmec",
+        "VnExpress-SucKhoe",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.7086,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          1.0,
+          3.0,
+          1.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 chủ yếu là lời mô tả của một người khác về da dầu, mụn nhiều và việc điều trị cần kiên trì; có nhắc chung đến thuốc bôi hoặc uống nhưng không đưa ra phác đồ hay hướng dẫn cụ thể phù hợp với tình trạng mụn viêm của người hỏi, nên chỉ liên quan một phần. Đoạn 2 có nhắc rằng mụn mức độ trung bình hoặc sưng viêm có thể cần kháng sinh, nhưng phần lớn là câu chuyện cảnh báo về trẻ 10 tuổi bị biến chứng do nặn mụn, không hướng dẫn đầy đủ cho người 22 tuổi và không đề cập retinoid, benzoyl peroxide hay chăm sóc da. Đoạn 3 nêu thuốc bôi kháng sinh, adapalene, tretinoin, sữa rửa mặt và việc khám da liễu khi không cải thiện; có thể dùng được một phần cho mụn viêm, nhưng thiếu khuyến cáo phối hợp kháng sinh uống với thuốc bôi trong mụn trung bình, thiếu liệu pháp hormone và hướng dẫn vệ sinh, salicylic acid. Đoạn 4 chủ yếu nói về tâm lý, sự tự ti và stress do mụn, không trả lời người hỏi nên dùng thuốc gì. Đoạn 5 trực tiếp nêu điều trị theo mức độ, gồm benzoyl peroxide, kháng sinh bôi, retinoid, tretinoin và adapalene; phần mụn mức độ trung bình khá phù hợp với tình trạng mụn sưng mủ, nhưng nội dung bị thiếu và không nêu kháng sinh uống, liệu pháp hormone, chăm sóc da nhẹ nhàng hoặc salicylic acid."
+      }
+    },
+    {
+      "sample_id": "q-0052",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "VnExpress-SucKhoe",
+        "Youmed",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9597,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          2.0,
+          4.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về thời gian cải thiện mụn và các dấu hiệu nên khám da liễu, đặc biệt khi tự điều trị trên 2 tháng không hiệu quả; khớp trực tiếp với câu hỏi về việc có nên đi khám, nhưng không nêu nguyên nhân gây mụn hay cảnh báo tránh chà xát và chất tẩy rửa mạnh. Đoạn 2 nói về chăm sóc da nhờn, sinh hoạt và khuyến nghị khám da liễu khi mụn nặng, đồng thời có ví dụ mụn tái phát; khớp một phần với câu hỏi nhưng thiếu tiêu chí rõ ràng về thất bại khi tự chăm sóc và không đề cập nguyên nhân hay tránh kích ứng. Đoạn 3 khuyên đi khám khi mụn nặng hoặc tái đi tái lại; khớp với câu hỏi ở mức hạn chế, nhưng không cung cấp hướng dẫn cụ thể, nguyên nhân mụn hoặc cảnh báo chăm sóc da. Đoạn 4 khuyên gặp bác sĩ nếu sản phẩm không cải thiện sau 12 tuần, nêu nguy cơ trì hoãn làm mụn nặng hơn và gây thâm sẹo; khớp trực tiếp với việc người dùng đã thử nhiều sản phẩm, nhưng không nói nguyên nhân mụn hay tránh chà xát, tẩy rửa mạnh. Đoạn 5 hướng dẫn điều trị mụn mủ bằng benzoyl peroxide hoặc salicylic acid, khuyên không nặn, đi khám nếu không cải thiện sau 6–8 tuần hoặc có mụn nang/nốt; khớp khá tốt với quyết định đi khám và một phần chăm sóc, nhưng không đề cập da dầu, nguyên nhân gây mụn hoặc tránh sản phẩm tẩy rửa mạnh."
+      }
+    },
+    {
+      "sample_id": "q-0053",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "DaLieuHaNoi",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.777,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          2.0,
+          4.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về đặc điểm da dầu và lợi ích chung của việc chăm sóc da, khớp một phần với bối cảnh người dùng nhưng không hướng dẫn quy trình chăm sóc, không đề cập Santagift hay việc cần khám bác sĩ. Đoạn 2 là một trường hợp tư vấn mụn ở người trưởng thành có da dầu, khá tương đồng với tình trạng người dùng nhưng chủ yếu nêu câu hỏi của người khác, chưa đưa ra hướng dẫn hay trả lời cụ thể. Đoạn 3 trình bày nhiều bước chăm sóc da mụn như rửa mặt, dưỡng ẩm, chống nắng, tẩy tế bào chết và hoạt chất trị mụn, khớp phần lớn với câu hỏi; tuy nhiên không đề cập tẩy trang, toner, mặt nạ, Santagift, dấu hiệu cần ngừng thuốc hoặc khuyến cáo không tự dùng kem khi chưa khám. Đoạn 4 đề cập một số chế độ ăn uống và thói quen hỗ trợ chăm sóc da, cùng việc rửa mặt trước khi bôi thuốc, nhưng có khuyến cáo thiếu cơ sở hoặc dễ gây hiểu nhầm như bổ sung kẽm, vitamin và chườm nóng lạnh; không nói về Santagift hay khám bác sĩ. Đoạn 5 khuyên không chạm tay lên mặt và nên gặp bác sĩ da liễu khi có mụn, phù hợp một phần với câu hỏi nhưng rất ngắn, không cung cấp quy trình chăm sóc hay hướng dẫn dùng kem trị mụn."
+      }
+    },
+    {
+      "sample_id": "q-0054",
+      "n_chunks": 5,
+      "sources": [
+        "NHS-Acne",
+        "Vinmec",
+        "HelloBacsi",
+        "Youmed",
+        "AAD"
+      ],
+      "source_types": [
+        "unknown",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.954,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          1.0,
+          2.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói trực tiếp về các phương pháp không dùng thuốc được hỏi, gồm liệu pháp quang động, dụng cụ lấy nhân mụn và peel hóa học; nêu rõ các phương pháp này có thể không hiệu quả và không thể khuyến cáo thực hiện thường quy, nên khớp đầy đủ với câu hỏi. Đoạn 2 nói về các thuốc và hoạt chất không kê đơn, không tập trung vào dụng cụ lấy nhân mụn, peel da hay liệu pháp quang động; chỉ liên quan rộng đến điều trị mụn. Đoạn 3 chủ yếu nói về không tự nặn mụn, lấy nhân mụn và rửa mặt; có thông tin hữu ích về nguy cơ tự nặn và nên nhờ chuyên gia, nhưng không đánh giá hiệu quả hoặc tần suất thực hiện các phương pháp được hỏi. Đoạn 4 nói về hoạt chất trị mụn, xông mặt, peel hóa học và chiếu ánh sáng; có mô tả cơ chế và một số lợi ích được cho là của peel, nhưng không nêu rằng các phương pháp này có thể không hiệu quả hoặc không được khuyến cáo thường quy, đồng thời chỉ đưa tần suất cho xông mặt chứ không trả lời tần suất peel hay chiếu sáng. Đoạn 5 nói về thuốc không kê đơn và chăm sóc tóc, sản phẩm không gây bít tắc; không liên quan trực tiếp đến các phương pháp không dùng thuốc mà câu hỏi nêu."
+      }
+    },
+    {
+      "sample_id": "q-0055",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Vinmec",
+        "HelloBacsi",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 1.0,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về chọn sữa rửa mặt cho da mụn, ưu tiên sản phẩm dịu nhẹ, rửa hai lần mỗi ngày và tránh chất gây kích ứng; khớp một phần với câu hỏi nhưng không nêu rõ sản phẩm không xà phòng dạng syndet, pH hay hiệu quả của syndet. Chấm 3. Đoạn 2 nói về cách rửa mặt, lựa chọn sữa rửa mặt theo mức độ mụn và thuốc điều trị, đồng thời khuyên tránh xà phòng mạnh; liên quan trực tiếp nhưng thiên về hoạt chất trị mụn và không cung cấp các đặc điểm, hiệu quả hay dạng bào chế của syndet. Chấm 3. Đoạn 3 phân loại sữa rửa mặt theo loại da và dạng kết cấu, khuyên tránh chất tẩy mạnh; có liên quan nhưng một số nhận định về foam, gel và lotion không trả lời trọng tâm về syndet, pH hoặc việc dùng hai lần mỗi ngày. Chấm 3. Đoạn 4 trực tiếp khuyên tránh sản phẩm chứa xà phòng và ưu tiên dạng gel, nhưng nội dung ngắn, có phần quảng bá chen ngang, không giải thích syndet, pH, khả năng rửa trôi, duy trì độ ẩm hay hiệu quả trên tổn thương mụn. Chấm 3. Đoạn 5 khuyên dùng sản phẩm dịu nhẹ, tránh chất tẩy quá mạnh và chất nền dầu hoặc cồn, đồng thời dưỡng ẩm; liên quan đến lựa chọn sữa rửa mặt nhưng không đề cập syndet, pH, dạng bào chế hoặc bằng chứng dùng hai lần mỗi ngày. Chấm 3. Toàn bộ tài liệu giúp trả lời rằng nên chọn sữa rửa mặt dịu nhẹ, tránh xà phòng mạnh và có thể dùng hai lần mỗi ngày, nhưng thiếu các ý cốt lõi về syndet có pH trung tính hoặc hơi acid, ít kích ứng hơn xà phòng truyền thống, hiệu quả giảm tổn thương mụn khi dùng hai lần mỗi ngày, sự tương đương giữa các dạng bào chế và gợi ý thử loại rẻ nhất. Vì vậy chỉ trả lời được phần chính, còn thiếu nhiều ý quan trọng."
+      }
+    },
+    {
+      "sample_id": "q-0056",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "HelloBacsi",
+        "HelloBacsi",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.6,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9148,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          3.0,
+          4.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về cơ chế laser loại bỏ lớp da trên cùng, đồng thời chủ yếu trình bày filler và các tác dụng phụ như đỏ, bầm, sưng cùng việc chống nắng. Có khớp một phần với câu hỏi về laser và nguy cơ sau điều trị, nhưng không nói về kem tê, lịch chiếu laser hàng tháng, đau đớn, chăm sóc cụ thể sau laser, nhiễm trùng, sẹo mới, thay đổi sắc tố hay thời điểm đánh giá hiệu quả. Đoạn 2 nói về giảm dầu, lối sống, kiểm soát căng thẳng và chống nắng để ngăn sẹo; chỉ liên quan gián tiếp, không trả lời điều trị laser, mức đau hoặc chăm sóc sau thủ thuật. Đoạn 3 nói laser tái tạo bề mặt và có thể giảm thâm sẹo, đồng thời đưa ra hướng dẫn chung về rửa mặt, không nặn mụn và chống nắng. Có thông tin dùng được một phần nhưng chủ yếu nói sẹo thâm và mụn, không giải thích đầy đủ sẹo lõm hay các yêu cầu điều trị laser. Đoạn 4 trình bày laser tái tạo bề mặt, hiệu quả phụ thuộc loại sẹo và loại da, có thể gây phản ứng, và nêu thêm filler cùng bóc tách sẹo. Khớp khá rõ với phương pháp điều trị sẹo lõm bằng laser nhưng vẫn thiếu kem tê, lịch điều trị hàng tháng, cảm giác đau, chăm sóc sau điều trị và các nguy cơ cụ thể. Đoạn 5 nói laser có thể dùng cho mụn và sẹo mụn, cần hiểu đặc điểm từng máy, nhưng không cung cấp hướng dẫn thực tế về hiệu quả, đau, chăm sóc, nguy cơ hoặc thời điểm đánh giá; hơn nữa kết luận không khuyến nghị chủ yếu dựa trên bối cảnh Nhật Bản nên ít phù hợp với câu hỏi cá nhân."
+      }
+    },
+    {
+      "sample_id": "q-0057",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "TapChiYCanTho",
+        "Youmed",
+        "Medlatec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "pubmed_review",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9413,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          3.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về tác dụng phụ của isotretinoin, nguy cơ kháng kháng sinh, việc cần dùng kháng sinh đúng liều và nên khám bác sĩ; có khớp một phần với câu hỏi, nhưng không hướng dẫn rõ thời gian dùng thuốc bôi hay tiêu chí chuyển sang thuốc uống. Đoạn 2 nói về việc dùng kháng sinh toàn thân trong thời gian ngắn, phối hợp điều trị tại chỗ và cân nhắc isotretinoin khi điều trị tại chỗ không hiệu quả; khớp khá trực tiếp với câu hỏi, nhưng chưa nêu rõ chỉ định được cấp phép và khả năng tiếp cận thuốc. Đoạn 3 nói về thời gian dùng kháng sinh, thuốc nội tiết và isotretinoin, cùng cảnh báo isotretinoin khi mang thai; có liên quan nhưng thông tin về thời gian kháng sinh 7–10 ngày dễ gây hiểu sai và thiếu hướng dẫn về việc dùng thuốc bôi đều đặn trong vài tuần. Đoạn 4 trình bày retinoid, kháng sinh đường uống và isotretinoin, nhấn mạnh cần bác sĩ theo dõi; khớp với câu hỏi nhưng có thông tin không chính xác hoặc quá đơn giản hóa, đồng thời không đề cập đầy đủ nguy cơ kháng kháng sinh và chỉ định isotretinoin. Đoạn 5 chủ yếu nói về chống nắng và các tác dụng phụ khi bắt đầu isotretinoin; chỉ liên quan một phần, không trả lời việc có nên chuyển sang kháng sinh uống hay isotretinoin và không đề cập điều trị bôi đúng thời gian."
+      }
+    },
+    {
+      "sample_id": "q-0058",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "SucKhoeDoiSong",
+        "Vinmec",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.2,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9914,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          4.0,
+          1.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về việc phối hợp retinol và benzoyl peroxide, nêu nguy cơ bong tróc, khô và kích ứng, đồng thời gợi ý dùng khác buổi; khớp trực tiếp với vấn đề chính nhưng chưa đề cập kem dưỡng ẩm và chống nắng một cách đầy đủ. Đoạn 2 nói về tác dụng phụ của retinol và các cách giảm kích ứng, gồm dùng lượng mỏng, giảm tần suất, không phối hợp retinol với benzoyl peroxide khi da đang kích ứng, dùng kem dưỡng ẩm và chống nắng; khớp trực tiếp và bao quát gần như toàn bộ các ý cần biết. Đoạn 3 nói về tác dụng phụ của benzoyl peroxide và cách xử trí bằng dưỡng ẩm, giảm tần suất hoặc tạm ngừng, đồng thời khuyên đi khám nếu nặng; khớp với tình trạng đỏ rát, bong da và bổ sung hướng xử trí hữu ích, nhưng không nói về retinol hay chống nắng. Đoạn 4 nói về việc tránh phối hợp AHA/BHA với retinol hoặc benzoyl peroxide để giảm kích ứng; chỉ liên quan gián tiếp vì người dùng không hỏi về AHA/BHA. Đoạn 5 nói về hiệu quả của retinoid và benzoyl peroxide, nồng độ benzoyl peroxide 2,5% và cách giảm tần suất nếu kích ứng; có liên quan đến điều trị mụn và kích ứng nhưng không khuyên rõ việc ngừng phối hợp khi da đang kích ứng, cũng không đề cập dưỡng ẩm hay chống nắng."
+      }
+    },
+    {
+      "sample_id": "q-0059",
+      "n_chunks": 5,
+      "sources": [
+        "TapChiDaLieuVN",
+        "PubMed",
+        "PubMed",
+        "PubMed",
+        "AAD"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "pubmed_review",
+        "pubmed_review",
+        "pubmed_review",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9671,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          1.0,
+          2.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về việc thời gian dùng azithromycin và clarithromycin khác nhau, đồng thời nhận xét hiệu quả trên tổn thương không viêm sau 12 tuần khó đánh giá khách quan. Đoạn này khớp một phần với câu hỏi về so sánh hai kháng sinh, nhưng không cung cấp tỷ lệ giảm cụ thể, không nêu kết quả thống kê p>0,05 đối với tổn thương viêm và cũng không xác nhận đầy đủ hiệu quả của cả hai phối hợp. Đoạn 2 nói về phối hợp isotretinoin với thuốc kháng histamine, không phải azithromycin hoặc clarithromycin; dù có số phần trăm giảm tổn thương sau 12 tuần, đối tượng so sánh khác câu hỏi. Đoạn 3 nói về phối hợp isotretinoin liều thấp với azithromycin dạng ngắt quãng, cho kết quả sau 24 tuần chứ không phải so sánh với clarithromycin hoặc đánh giá sau 12 tuần. Đoạn 4 mô tả thiết kế nghiên cứu, liều dùng và thời gian điều trị phối hợp isotretinoin với azithromycin, nhưng không đưa ra kết quả giảm mụn sau 12 tuần và không có nhóm clarithromycin để so sánh. Đoạn 5 là thông tin chung về isotretinoin, chỉ định và thời gian điều trị, không đề cập phối hợp với hai kháng sinh hoặc tỷ lệ giảm tổn thương sau 12 tuần."
+      }
+    },
+    {
+      "sample_id": "q-0060",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0061",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "HelloBacsi",
+        "PubMed",
+        "WebMD-Acne",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "en_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.8,
+      "context_precision": 1.0,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9462,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          4.0,
+          4.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về việc da chuyển từ nhờn sang khô khi dùng isotretinoin, tránh nắng, tránh rượu và tái khám. Nội dung khớp một phần với tình trạng da khô nhưng không đề cập rõ khô môi là tác dụng phụ thường gặp, không giải thích đầy đủ việc mụn bùng phát và không nói về liều thấp. Đoạn 2 nói về cơ chế isotretinoin, việc mụn có thể nặng hơn trong những ngày đầu, thời gian 1–2 tháng mới thấy hiệu quả, tuân thủ liều và chăm sóc da cơ bản. Khớp khá rõ với vấn đề mụn bùng phát và diễn tiến ban đầu, nhưng không đề cập khô môi, bong tróc da, cũng không cung cấp thông tin về liều thấp. Đoạn 3 là tổng quan hệ thống về isotretinoin liều thấp, nêu tác dụng phụ phụ thuộc liều và các mức liều thấp có thể giảm tác dụng phụ. Khớp trực tiếp với ý cần biết về liều thấp, nhưng không nói về khô môi hoặc tình trạng mụn bùng phát trong trường hợp cụ thể. Đoạn 4 nói isotretinoin có thể gây khô môi, mũi và da, cần bác sĩ theo dõi, đồng thời khuyên dưỡng ẩm và chống nắng. Khớp với tác dụng phụ và chăm sóc da, nhưng không nêu tần suất khô môi, không giải thích mụn bùng phát và không đề cập liều thấp. Đoạn 5 đưa ra kế hoạch chăm sóc da khi dùng isotretinoin: sữa rửa mặt dịu nhẹ, dưỡng ẩm không gây bít tắc, tránh tẩy da chết và chống nắng. Khớp trực tiếp với tình trạng khô, bong tróc và routine hiện tại, nhưng không đề cập khô môi, mụn bùng phát hay liều thấp. Nhìn chung tài liệu giải thích được một phần rằng khô da, khô môi và mụn nặng hơn lúc đầu có thể xảy ra, đồng thời đưa ra chăm sóc da và thông tin về liều thấp; tuy nhiên thiếu con số về tần suất khô môi, thiếu hướng dẫn xử trí môi nứt nẻ cụ thể, thiếu cảnh báo khi flare-up nặng cần liên hệ bác sĩ và chưa kết luận đầy đủ liệu tình trạng hiện tại có bất thường hay cần điều chỉnh điều trị."
+      }
+    },
+    {
+      "sample_id": "q-0062",
+      "n_chunks": 5,
+      "sources": [
+        "TapChiYHue",
+        "PubMed",
+        "VnExpress-SucKhoe",
+        "TapChiDaLieuVN",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "pubmed_review",
+        "vi_medical_site",
+        "pubmed_review",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về các tác dụng phụ tiêu hóa gồm buồn nôn, nôn, đau bụng và tiêu chảy xảy ra sau 4 tuần dùng thuốc; các triệu chứng được mô tả là thoáng qua, tự hết, không cần điều trị và bệnh nhân vẫn hoàn thành liệu trình 8 tuần. Đoạn này khớp trực tiếp với phần câu hỏi về tiêu chảy, đau bụng và khả năng tiếp tục liệu trình, nhưng không cung cấp số liệu về mức độ cải thiện mụn sau 8 tuần. Đoạn 2 nói về nguy cơ nhiễm C. difficile do kháng sinh và đưa ra một ca tiêu chảy phân máu, đau bụng nặng sau liệu trình azithromycin trị mụn. Có liên quan đến triệu chứng tiêu hóa và cảnh báo biến chứng, nhưng không trả lời diễn tiến thông thường hoặc hiệu quả sau 8 tuần; hơn nữa tình huống nặng này khác với mô tả hiện tại. Đoạn 3 nói chung về mụn nặng, nguy cơ tái phát, thời gian điều trị 3-4 tháng và điều trị duy trì. Chỉ liên quan gián tiếp đến việc mụn có hết hẳn sau 8 tuần, không nói riêng về azithromycin hay tỷ lệ cải thiện. Đoạn 4 trình bày nghiên cứu về minocyclin, cho thấy thương tổn viêm và không viêm giảm sau 8 tuần, đồng thời ghi nhận rối loạn tiêu hóa. Có thông tin tham khảo về hiệu quả và tác dụng phụ sau 8 tuần nhưng không phải azithromycin, không khớp với các tỷ lệ cần biết trong câu hỏi. Đoạn 5 nói về điều trị một bệnh khác bằng thuốc tím, thuốc giảm đau và acyclovir, hoàn toàn không liên quan đến azithromycin hoặc mụn."
+      }
+    },
+    {
+      "sample_id": "q-0063",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "HelloBacsi",
+        "Medlatec",
+        "SucKhoeDoiSong",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.992,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          2.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về tránh sản phẩm tẩy rửa mạnh và kỹ thuật cạo râu: rửa mặt bằng nước ấm, dùng kem cạo phù hợp, cạo theo chiều lông mọc và rửa sạch sau đó; các ý này khớp trực tiếp với câu hỏi, dù không đề cập dao cạo một cánh hay chất làm se. Phần chế độ ăn chỉ liên quan bổ trợ. Đoạn 2 nói về không rửa mặt quá nhiều, tránh chà xát và thận trọng với sản phẩm trị mụn; có liên quan đến việc dùng scrub và chăm sóc da, nhưng không nói rõ cần ngừng sữa rửa mặt có hạt, đồng thời có một số khuyến cáo dinh dưỡng và hoạt chất thiếu chính xác hoặc không trọng tâm. Đoạn 3 nói về dưỡng ẩm, mặt nạ, tẩy trang, chống nắng và không nặn mụn; hữu ích một phần cho chăm sóc da mụn nhưng không trả lời kỹ thuật cạo râu, kem cạo râu hay scrub. Đoạn 4 nói về rửa mặt nhẹ nhàng bằng sản phẩm không ăn mòn, tránh dụng cụ gây kích ứng, cạo râu cẩn thận và các biện pháp vệ sinh khác; khớp một phần với câu hỏi nhưng hướng dẫn cạo râu còn rất sơ lược và không nêu rõ tránh scrub. Đoạn 5 nói về không chạm tay lên mặt và nên khám bác sĩ da liễu khi da dầu hoặc bị mụn; liên quan nhưng chỉ cung cấp một phần nhỏ, không đề cập cạo râu hay sản phẩm scrub."
+      }
+    },
+    {
+      "sample_id": "q-0064",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "HelloBacsi",
+        "Youmed",
+        "HelloBacsi",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.2,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9634,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          3.0,
+          3.0,
+          5.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về cơ chế tắc nghẽn nang lông và đặc biệt là rối loạn nội tiết tố ở phụ nữ, bao gồm liên quan đến kỳ kinh nguyệt và thuốc tránh thai; khớp trực tiếp với câu hỏi và một ý người dùng cần biết. Đoạn 2 nói về dầu thừa, bụi bẩn, mỹ phẩm, thay đổi nội tiết tố, dị ứng mỹ phẩm và vi khuẩn; có liên quan đến nguyên nhân mụn dưới cằm, nhưng chưa đề cập rõ thói quen sờ tay, đắp mặt nạ, căng thẳng, mất ngủ hay chế độ ăn. Đoạn 3 nói về rối loạn hormone, căng thẳng, vấn đề buồng trứng/tử cung và thói quen chống tay hoặc sờ mụn; khớp với nguyên nhân nội tiết, căng thẳng và sờ tay, nhưng phần khuyến nghị về thực phẩm 'giải độc' không có cơ sở rõ ràng và không đề cập đầy đủ các yếu tố được hỏi. Đoạn 4 giải thích vai trò của androgen, PCOS, thai kỳ, mãn kinh, dậy thì và việc sử dụng hoặc ngừng thuốc tránh thai; khớp rất rõ với nguyên nhân nội tiết, chu kỳ kinh nguyệt và ngừng thuốc tránh thai. Đoạn 5 là danh sách phân loại các tổn thương và vị trí trên cơ thể, hoàn toàn không liên quan đến nguyên nhân mụn dưới cằm."
+      }
+    },
+    {
+      "sample_id": "q-0065",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "TuoiTre-SucKhoe",
+        "HelloBacsi",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.995,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          2.0,
+          1.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về giảm viêm, tránh sản phẩm quá mạnh và đặc biệt không nặn hoặc sờ mụn để giảm nguy cơ sẹo; khớp trực tiếp với câu hỏi và hai ý chính về không nặn, tránh chà xát. Đoạn 2 nói về không chạm, không nặn mụn và đề cập niacinamide hỗ trợ cải thiện sẹo; khớp khá rõ với câu hỏi nhưng không hướng dẫn sữa rửa mặt dịu nhẹ hay kem chống nắng. Đoạn 3 chủ yếu giới thiệu việc chăm sóc da sau khi nặn mụn, nhưng không đưa ra hướng dẫn cụ thể trong phần trích dẫn; chỉ khớp một phần và còn hàm ý nặn mụn đúng cách. Đoạn 4 chủ yếu là giới thiệu trang, quảng cáo và tiêu đề bài viết về chăm sóc da sau nặn mụn; không có hướng dẫn thực tế để trả lời câu hỏi. Đoạn 5 nói về thâm sau mụn, điều trị mụn sớm và giảm nguy cơ mụn nặng; liên quan gián tiếp đến phòng ngừa hậu quả của mụn nhưng không trả lời việc có nên nặn, rửa mặt dịu nhẹ hay chống nắng. Toàn bộ tài liệu giải thích khá rõ rằng không nên nặn, bóp hoặc chạm vào mụn và nên tránh kích thích da, nhưng thiếu hướng dẫn dùng sữa rửa mặt dịu nhẹ, kem chống nắng SPF 30 trở lên và chưa trả lời đầy đủ rằng việc nặn xong không để lại sẹo ở một số người không có nghĩa là nặn an toàn."
+      }
+    },
+    {
+      "sample_id": "q-0066",
+      "n_chunks": 5,
+      "sources": [
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9125,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          2.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về chăm sóc da và khẳng định laser rất hiệu quả trong mụn kháng trị. Nội dung có khớp trực tiếp với câu hỏi về laser nhưng trái với ý cần biết rằng laser không được khuyến cáo do vấn đề thiết bị và không được bảo hiểm chi trả; không đề cập nặn mụn hay vitamin B2, B6. Đoạn 2 mô tả một ca điều trị bằng nhiều loại laser, nhấn mạnh khả năng giảm dầu và kiểm soát mụn. Có liên quan đến laser nhưng chỉ là mô tả quảng bá một trường hợp, không đánh giá khuyến cáo chung, bảo hiểm, nặn mụn hoặc vitamin. Đoạn 3 giải thích nặn mụn bằng tay có thể làm nặng mụn và khuyên chăm sóc da, bổ sung vitamin C và E. Có liên quan một phần đến nặn mụn nhưng không nói về lấy nhân mụn đúng kỹ thuật, bảo hiểm, laser hay bằng chứng của vitamin B2, B6; việc khuyên vitamin C và E cũng không trả lời đúng trọng tâm. Đoạn 4 nói về khả năng vitamin B6, B12 và một số chất bổ sung làm khởi phát hoặc nặng thêm mụn, trong đó có vitamin B2 và B6. Có liên quan đến câu hỏi về vitamin nhưng không cung cấp kết luận đầy đủ về việc uống B2, B6 để điều trị mụn và không đề cập laser, nặn mụn hay bảo hiểm. Đoạn 5 trình bày các thuốc bôi trị mụn như retinoid, benzoyl peroxide và kháng sinh. Đây là thông tin điều trị mụn nói chung nhưng không trả lời các vấn đề cụ thể về laser, nặn mụn hoặc vitamin B2, B6."
+      }
+    },
+    {
+      "sample_id": "q-0067",
+      "n_chunks": 5,
+      "sources": [
+        "DaLieuHaNoi",
+        "Youmed",
+        "HelloBacsi",
+        "Vinmec",
+        "TapChiDaLieuVN"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.8932,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          4.0,
+          3.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về tránh phối hợp nhiều acid mạnh, chăm sóc da cơ bản và ngừng sản phẩm khi kích ứng; có khớp một phần với tình trạng da dễ đỏ rát nhưng không nêu rõ nên chọn loại tẩy da chết nào hay lợi ích đối với bít tắc, mụn. Đoạn 2 nói trực tiếp về việc người bị mụn có thể cân nhắc tẩy da chết, cảnh báo thuốc trị mụn như retinol và benzoyl peroxide làm da nhạy cảm hơn, đồng thời khuyên tránh tẩy da chết cơ học; khá phù hợp nhưng chưa hướng dẫn cụ thể loại hóa học nhẹ nào và có một số diễn đạt chưa chính xác. Đoạn 3 giải thích lợi ích làm thông thoáng lỗ chân lông, loại bỏ dầu thừa và phân biệt tẩy da chết cơ học với hóa học; có liên quan, nhưng lời khuyên dùng sản phẩm chà xát tự nhiên cho da nhạy cảm không an toàn và chưa đưa ra hướng dẫn rõ ràng về lựa chọn nhẹ nhàng. Đoạn 4 nói về mặt nạ đất sét, than, tẩy da chết hằng tuần, dầu thừa và cơ chế hình thành mụn; có liên quan một phần nhưng khuyến nghị tẩy da chết mỗi tuần có thể không phù hợp với da nhạy cảm, dễ kích ứng và không nêu loại an toàn. Đoạn 5 chủ yếu nói về tránh rửa quá kỹ, dưỡng ẩm, hàng rào bảo vệ da và hạn chế của các nghiên cứu; chỉ hỗ trợ gián tiếp cho vấn đề da dễ kích ứng, không trả lời việc có nên tẩy da chết hay chọn loại nào. Nhìn chung tài liệu có đề cập tránh tẩy da chết cơ học, thận trọng khi dùng thuốc trị mụn và lợi ích làm thông thoáng lỗ chân lông, nhưng thiếu hướng dẫn cụ thể về ưu tiên tẩy da chết hóa học nhẹ, cách bắt đầu an toàn và cảnh báo đầy đủ cho da đang đỏ rát."
+      }
+    },
+    {
+      "sample_id": "q-0068",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0069",
+      "n_chunks": 5,
+      "sources": [
+        "DaLieuHaNoi",
+        "SucKhoeDoiSong",
+        "TuoiTre-SucKhoe",
+        "Youmed",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.8914,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          4.0,
+          3.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 chủ yếu giải thích thuốc tránh thai là gì, gồm estrogen và progestin hoặc chỉ progestin, cùng cơ chế tránh thai; chỉ khớp gián tiếp với câu hỏi và chưa nói rõ hiệu quả trị mụn. Đoạn 2 nói trực tiếp về việc bác sĩ có thể dùng thuốc tránh thai để điều trị mụn nội tiết mức độ trung bình đến nặng, đồng thời đề cập khả năng mụn tăng lúc đầu và giảm sau đó; có thông tin hữu ích nhưng diễn giải cơ chế và thời điểm đáp ứng chưa thật chính xác, không nêu hiệu quả trên tổn thương viêm và không viêm hay so sánh các loại thuốc. Đoạn 3 khuyến cáo không tự ý dùng thuốc, cần bác sĩ chỉ định, đặc biệt khi vừa cần tránh thai vừa điều trị mụn; phù hợp về an toàn nhưng không trình bày đầy đủ vị trí điều trị của thuốc tránh thai trong phác đồ. Đoạn 4 nhấn mạnh không phải mọi trường hợp mụn đều dùng được thuốc tránh thai, cần khám và theo dõi tác dụng phụ; liên quan nhưng thiếu thông tin về hiệu quả và lựa chọn thuốc. Đoạn 5 trình bày các yếu tố và cơ chế bệnh sinh chung của mụn trứng cá, không trả lời việc thuốc tránh thai có trị mụn hay không."
+      }
+    },
+    {
+      "sample_id": "q-0070",
+      "n_chunks": 5,
+      "sources": [
+        "EuroGuiDerm",
+        "PubMed",
+        "NICE",
+        "PubMed",
+        "PubMed"
+      ],
+      "source_types": [
+        "clinical_textbook",
+        "pubmed_review",
+        "nice_guideline",
+        "pubmed_review",
+        "pubmed_review"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.926,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          4.0,
+          2.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về thời gian dùng kháng sinh toàn thân trị mụn, cho biết đa số thử nghiệm kéo dài 12 tuần và không nên dùng quá 3 tháng nếu không thật cần thiết. Nội dung khớp một phần với câu hỏi về liệu trình 12 tuần, nhưng không nói khi nào thường thấy hiệu quả hoặc thời điểm tái khám cụ thể. Đoạn 2 mô tả một nghiên cứu lột da hóa học kéo dài 12 tuần với sáu lần điều trị và theo dõi tác dụng phụ. Có liên quan đến thời lượng một nghiên cứu điều trị mụn, nhưng không trả lời trực tiếp thời gian thấy hiệu quả thường gặp hay lịch tái khám thông thường. Đoạn 3 nói trực tiếp về việc đánh giá lại ở tuần 12, ngừng kháng sinh uống nếu mụn đã sạch hoặc có thể tiếp tục tối đa thêm 12 tuần nếu chưa sạch, đồng thời tiếp tục thuốc bôi. Đoạn này khớp rõ với mốc liệu trình 12 tuần và tái khám, nhưng không nêu hiệu quả thường thấy rõ sau 6-8 tuần và chỉ áp dụng cụ thể cho phác đồ có kháng sinh uống. Đoạn 4 mô tả nghiên cứu thuốc bôi ở trẻ 8-12 tuổi kéo dài 12 tuần, đánh giá tại tuần 3, 6 và 12. Có thể hỗ trợ mốc 12 tuần và cho thấy có đánh giá ở tuần 6, nhưng không cung cấp kết luận chung rằng hiệu quả thường rõ sau 6-8 tuần hay hướng dẫn tái khám. Đoạn 5 tổng quan thời lượng các nghiên cứu điều trị mụn, trong đó phần lớn kéo dài trên 8 tuần và thời gian nghiên cứu dao động từ 3 tháng đến 3 năm. Nội dung chỉ hỗ trợ gián tiếp rằng cần nhiều tuần để đánh giá, không nêu mốc 12 tuần như một đợt điều trị chuẩn, không nói hiệu quả rõ sau 6-8 tuần và không đề cập tái khám sau 12 tuần."
+      }
+    },
+    {
+      "sample_id": "q-0071",
+      "n_chunks": 4,
+      "sources": [
+        "Medlatec",
+        "Medlatec",
+        "Youmed",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.25,
+      "context_precision": 0.0,
+      "context_sufficiency": 1.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          1.0,
+          0.0
+        ],
+        "n_chunks": 4,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về lựa chọn sản phẩm dịu nhẹ, thử trên vùng da nhỏ và nên hỏi bác sĩ khi điều trị mụn trong thai kỳ; khớp một phần với câu hỏi về việc có nên thoa kem, nhưng không nhận diện được các sẩn ngứa ở bụng và tay hay cung cấp hướng xử trí cụ thể. Đoạn 2 nói về các dạng mụn viêm, mụn mủ và mụn bọc, giúp phân biệt mụn bọc với tổn thương khác nhưng không đề cập phát ban ngứa liên quan thai kỳ, thời điểm tháng thứ 3-4, diễn tiến sau sinh hoặc thuốc an toàn. Đoạn 3 nói về điều trị mụn bọc, gồm benzoyl peroxide, thủ thuật và chăm sóc da; có nhắc thai kỳ nhưng nội dung chủ yếu dành cho mụn bọc, không phù hợp với tổn thương ngứa ở bụng và cánh tay, đồng thời một số thủ thuật không nên tự áp dụng khi mang thai. Đoạn 4 nói về sản phẩm không gây bít tắc lỗ chân lông và trang điểm trong bối cảnh mụn; không liên quan đáng kể đến sẩn ngứa khi mang thai và không trả lời các ý cần biết."
+      }
+    },
+    {
+      "sample_id": "q-0072",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "Vinmec",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9355,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về các trường hợp nên tránh peel, trong đó có người đang dùng isotretinoin trong vòng 6 tháng; khớp trực tiếp với câu hỏi về việc có nên peel khi đang uống thuốc, dù mốc thời gian này khác với ý cần biết là trong vòng 1 tháng sau ngưng thuốc. Đoạn 2 chủ yếu nói về tác dụng phụ của isotretinoin, kháng sinh và vệ sinh da; chỉ liên quan gián tiếp, không trả lời việc peel hay điều trị thâm mụn. Đoạn 3 nói về da khô khi dùng isotretinoin, chăm sóc sau khi ngừng thuốc khoảng 30 ngày, tránh nắng và khám da liễu; có liên quan đến thời điểm sau thuốc và chăm sóc da nhưng không nêu rõ chống chỉ định peel hoặc thuốc trị thâm cụ thể. Đoạn 4 nói về chống nắng và một số phương pháp điều trị tăng sắc tố như peel AHA, laser và IPL; có thông tin liên quan đến thâm mụn nhưng không cảnh báo rõ việc chống chỉ định peel khi đang dùng isotretinoin, đồng thời không nêu các lựa chọn kem bôi hydroquinone, tretinoin, fluocinolone acetonide hoặc azelaic acid. Đoạn 5 hướng dẫn chăm sóc da khi đang dùng isotretinoin, gồm sữa rửa mặt dịu nhẹ, dưỡng ẩm và chống nắng; hữu ích để giảm kích ứng và hỗ trợ thâm, nhưng không trả lời việc có được peel hay không và không đề cập thuốc điều trị tăng sắc tố."
+      }
+    },
+    {
+      "sample_id": "q-0073",
+      "n_chunks": 5,
+      "sources": [
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9902,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói trực tiếp về yếu tố di truyền trong mụn trứng cá, giải thích rằng tiền sử cha mẹ bị mụn làm con dễ bị mụn hơn, đồng thời khuyên khám khi mụn viêm nhiều. Đoạn này khớp rõ với câu hỏi về di truyền nhưng chưa đề cập đến mối liên quan với chu kỳ kinh nguyệt, độ tuổi 18–25 hoặc các cách hạn chế mụn cụ thể. Đoạn 2 chủ yếu mô tả tâm lý tự ti, căng thẳng của một phụ nữ 22 tuổi bị mụn và lời mở đầu của chuyên gia; có nhắc tuổi và stress nhưng chưa cung cấp giải thích hay hướng dẫn điều trị, nên chỉ liên quan một phần. Đoạn 3 là các trường hợp bệnh nhân bị mụn nặng và điều trị tại bệnh viện, không nói về mụn tăng theo chu kỳ kinh nguyệt, di truyền hay biện pháp hạn chế phù hợp cho người hỏi. Đoạn 4 mô tả một trường hợp nữ 22 tuổi bị mụn kéo dài, da dầu, sẹo và câu hỏi về việc sinh con có hết mụn; có khớp về tuổi và tình trạng mụn nhưng không đưa ra câu trả lời hay hướng dẫn hạn chế mụn. Đoạn 5 nói về điều trị sẹo mụn bằng laser, retinoid, salicylic acid, microneedling và các phương pháp khác; chủ yếu dành cho sẹo sau mụn, không trả lời nguyên nhân di truyền, ảnh hưởng của kinh nguyệt hoặc cách kiểm soát mụn hiện tại."
+      }
+    },
+    {
+      "sample_id": "q-0074",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "TuoiTre-SucKhoe",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9549,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          2.0,
+          3.0,
+          4.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về cơ chế mụn liên quan androgen và cho biết thuốc tránh thai phối hợp estrogen–progestin có thể giảm tiết bã nhờn, đồng thời phân biệt với thuốc chỉ chứa progestin. Nội dung khớp và trả lời được một phần lớn câu hỏi, nhưng không nêu nghiên cứu lâm sàng cụ thể hay hai hoạt chất ethinyl estradiol kết hợp cyproterone acetate hoặc levonorgestrel. Đoạn 2 nói về việc không tự ý dùng thuốc, cần bác sĩ chỉ định và không dùng cho nam giới. Nội dung liên quan đến tính an toàn và đối tượng sử dụng, nhưng không cung cấp bằng chứng hoặc chi tiết về hiệu quả điều trị mụn. Đoạn 3 nói về cơ chế giảm androgen của thuốc tránh thai phối hợp estrogen–progesterone, khả năng dùng lâu dài và các chống chỉ định. Nội dung khớp một phần, nhưng đoạn bị lẫn thông tin về kháng sinh và không nêu nghiên cứu lâm sàng hay các hoạt chất được hỏi. Đoạn 4 nói thuốc tránh thai đường uống có tác dụng kháng androgen, phù hợp với mụn nội tiết và thường cần 3–6 tháng để thấy hiệu quả; cũng đề cập các thuốc trị mụn khác. Đây là đoạn trả lời trực tiếp nhất về khả năng trị mụn, nhưng vẫn thiếu nghiên cứu lâm sàng và tên ethinyl estradiol, cyproterone acetate hoặc levonorgestrel. Đoạn 5 nói về một báo cáo dùng tosufloxacin, một kháng sinh, trong điều trị mụn viêm. Nội dung không liên quan đến thuốc tránh thai hoặc câu hỏi về bằng chứng lâm sàng của thuốc tránh thai."
+      }
+    },
+    {
+      "sample_id": "q-0075",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "Medlatec",
+        "HappySkin-VN",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "blog",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.8,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          3.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về vai trò chung của kẽm, các tác dụng phụ khi dùng quá mức như đau đầu, buồn nôn, đau bụng và tiêu chảy, đồng thời khuyên dùng đúng liều và hỏi bác sĩ. Nội dung khớp khá rõ với phần câu hỏi về lợi ích, nguy cơ và việc cần theo dõi, nhưng không hướng dẫn cụ thể thời điểm uống hay cách tránh tương tác. Đoạn 2 nói về việc cần cá nhân hóa liều dùng, tham khảo chuyên gia và nguy cơ dùng quá nhiều kẽm; có khớp với câu hỏi về hiệu quả và an toàn, nhưng vẫn thiếu hướng dẫn uống cụ thể và giải thích lợi ích đối với mụn nội tiết. Đoạn 3 khuyên ăn uống, sinh hoạt lành mạnh, đi khám và thừa nhận kẽm có thể hữu ích nhưng dùng sai có thể gây phản ứng phụ. Nội dung liên quan nhưng rất chung chung, không nêu cách uống hoặc bằng chứng cụ thể. Đoạn 4 giới thiệu tác dụng kháng khuẩn của kẽm đối với mụn và đặt đúng chủ đề hiệu quả của kẽm trị mụn nội tiết, nhưng mới chỉ cung cấp một tác dụng, chưa đề cập cách dùng, tác dụng phụ hay các lợi ích khác được hỏi. Đoạn 5 nói về dapsone đường uống, không phải kẽm, và kết luận không khuyến nghị dapsone cho mụn viêm; vì vậy lạc đề với câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0076",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "VnExpress-SucKhoe",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.0,
+      "context_precision": 0.0,
+      "context_sufficiency": 0.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về mụn thông thường tái phát và chăm sóc da, như rửa mặt dịu nhẹ, ngủ đủ, ăn uống và vệ sinh đồ dùng; không đề cập sorafenib hay phát ban do thuốc nên chỉ liên quan rất ít đến câu hỏi. Đoạn 2 gồm nhiều trường hợp mụn, kích ứng do mỹ phẩm và khuyến cáo dưỡng ẩm, rửa mặt dịu nhẹ; tuy nhiên không liên quan đến sorafenib hoặc phân biệt phát ban do thuốc. Đoạn 3 mô tả các ca mụn trứng cá thông thường và điều trị tại bệnh viện, không trả lời nguyên nhân phát ban khi dùng sorafenib. Đoạn 4 đề cập các yếu tố gây mụn, chăm sóc da và tác hại của corticoid, nhưng không nói về sorafenib hay phát ban đỏ do thuốc. Đoạn 5 chỉ là danh mục tài liệu tham khảo về bệnh da, viêm da tiếp xúc và phản ứng thuốc nặng; không cung cấp nội dung cụ thể để xác định phát ban do sorafenib, tính tự giới hạn hoặc cách chăm sóc da. Nhìn chung, tài liệu không đề cập các ý chính cần biết và không đủ để tư vấn câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0077",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0078",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0079",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Medlatec",
+        "Medlatec",
+        "HelloBacsi",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9925,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          2.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về hormone, dầu thừa kết hợp tế bào chết làm bít lỗ chân lông và hình thành mụn; khớp trực tiếp với câu hỏi, đồng thời có nhắc đến vi khuẩn nhưng giải thích chưa thật rõ cơ chế viêm. Đoạn 2 nói về vùng da dầu, các yếu tố gây da dầu và dầu thừa cùng da chết, bụi bẩn tích tụ trong lỗ chân lông gây nhiều loại mụn; khớp khá rõ với câu hỏi nhưng chưa nêu vai trò vi khuẩn và viêm. Đoạn 3 chủ yếu giải thích nguyên nhân da tiết dầu theo tuổi, di truyền và môi trường; chỉ liên quan gián tiếp, không giải thích đầy đủ vì sao da dầu dễ bị mụn. Đoạn 4 nói về chăm sóc da dầu, hormone, căng thẳng, chế độ ăn và rửa mặt quá mức; có liên quan đến tăng dầu và mụn nhưng không trình bày đầy đủ chuỗi bít tắc–vi khuẩn–viêm. Đoạn 5 nói về cơ chế bệnh sinh của viêm da dầu, gồm tăng tiết bã nhờn, nấm Malassezia và vi khuẩn; không tập trung vào mụn trứng cá và dễ gây nhầm lẫn giữa viêm da dầu với mụn."
+      }
+    },
+    {
+      "sample_id": "q-0080",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "Vinmec",
+        "Medlatec",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9261,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          2.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về các mẹo trị mụn đầu đen bằng bã trà, hỗn hợp đường–chanh và tinh dầu tràm. Có khớp một phần với câu hỏi vì đề cập đến chanh và tinh dầu tràm, nhưng lại khuyến khích đường chanh như chất tẩy tế bào chết và khẳng định tinh dầu tràm hiệu quả mà không nêu cảnh báo kích ứng hay yêu cầu pha loãng; không đề cập mật ong. Đoạn 2 tập trung vào tác dụng được cho là của nước cốt chanh đối với mụn và thừa nhận bằng chứng nghiên cứu còn hạn chế. Có liên quan trực tiếp, nhưng chưa nêu rõ đầy đủ nguy cơ kích ứng và chưa bàn về mật ong hay tinh dầu tràm. Đoạn 3 đề xuất mặt nạ chanh, yến mạch, sữa chua và baking soda để trị mụn đầu đen, đồng thời cảnh báo chanh làm da dễ bắt nắng. Có liên quan nhưng vẫn cổ súy công thức dân gian, không cung cấp bằng chứng khoa học rõ ràng và không đề cập mật ong hoặc nguy cơ kích ứng toàn diện. Đoạn 4 nói về mặt nạ mật ong–nghệ và dầu cây trà, nêu khả năng kháng khuẩn, giảm viêm và kết quả của gel dầu cây trà 5%. Có liên quan đến mật ong và tinh dầu tràm, nhưng thiếu cảnh báo quan trọng rằng tinh dầu dễ kích ứng và cần pha loãng; phần mật ong chỉ nói lành tính mà không giải thích tác dụng kháng khuẩn, chống viêm. Đoạn 5 nói về chăm sóc da mụn nhẹ nhàng, tránh chà xát và dùng sữa rửa mặt không gây bít tắc. Chỉ liên quan gián tiếp, không trả lời tác dụng và độ an toàn của chanh, mật ong hay tinh dầu tràm."
+      }
+    },
+    {
+      "sample_id": "q-0081",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0082",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về liều lượng, tần suất, cách dùng dạng gel và sữa rửa mặt BP 5%, cùng việc chống nắng; khá khớp với câu hỏi về cách dùng cho da nhạy cảm, nhưng chưa nêu rõ cách giảm kích ứng ban đầu và có một số hướng dẫn chưa tối ưu. Đoạn 2 nói BP phù hợp với mụn viêm, nồng độ sản phẩm, tần suất tăng dần và tác dụng phụ kích ứng; khớp trực tiếp với tình trạng mụn sưng đỏ và lo ngại kích ứng, nhưng khuyến nghị BP 10% là quá mạnh và chưa đề cập đầy đủ các ý người dùng cần biết. Đoạn 3 nói về thời gian phát huy tác dụng, không nên thử nhiều thuốc cùng lúc, cách bắt đầu BP 2% và tăng tần suất; liên quan và dùng được một phần, nhưng tập trung thêm vào mụn cám ở mũi và không giải thích đầy đủ cơ chế, độ an toàn hay xử trí kích ứng. Đoạn 4 nói về chọn nồng độ, thời điểm và cách bôi BP; khớp với câu hỏi, nhưng khuyên chỉ chấm lên nốt mụn và tránh vùng xung quanh, trong khi BP thường nên bôi lớp mỏng trên toàn vùng dễ bị mụn để phòng tổn thương mới. Đoạn 5 chủ yếu nói về thay sản phẩm, bảo quản, lựa chọn hoạt chất thay thế và tài liệu tham khảo; chỉ liên quan rất ít đến câu hỏi, không cung cấp hướng dẫn sử dụng thực tế hay các ý chính về hiệu quả và kháng thuốc."
+      }
+    },
+    {
+      "sample_id": "q-0083",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0084",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.8,
+      "context_precision": 0.6,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.8739,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          3.0,
+          3.0,
+          4.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về thời gian tự lành, nặn mụn và chăm sóc da; có nhắc rửa mặt dịu nhẹ nhưng không giải thích rõ mụn không phải do da bẩn, nguyên nhân sinh mụn hay ảnh hưởng của sô-cô-la và đồ dầu mỡ. Đoạn 2 tập trung vào việc rửa mặt quá nhiều có thể gây kích ứng và làm mụn nặng hơn, phù hợp một phần với câu hỏi nhưng không nêu nguyên nhân chính của mụn hoặc vấn đề ăn uống. Đoạn 3 nói về chế độ ăn, rửa mặt, mỹ phẩm và chăm sóc mụn; có thông tin liên quan nhưng khẳng định khá rộng rằng sữa, đường và chất béo gây mụn, đồng thời không giải thích đầy đủ cơ chế mụn và không trả lời trực tiếp về sô-cô-la. Đoạn 4 giải thích rằng thiếu vệ sinh không phải nguyên nhân hoàn toàn đúng, nêu bít tắc nang lông do dầu và tế bào chết, cảnh báo rửa mặt quá nhiều, đồng thời đề cập quan niệm sô-cô-la và đồ dầu mỡ gây mụn nhưng phần này chưa nói rõ mức độ ảnh hưởng. Đoạn 5 nói về sản phẩm chăm sóc tóc, mỹ phẩm gây bít tắc lỗ chân lông và khuyên dùng sản phẩm không gây bít tắc; có liên quan đến mụn nhưng không trả lời các ý chính về da bẩn, rửa mặt quá nhiều, chế độ ăn và đầy đủ nguyên nhân mụn."
+      }
+    },
+    {
+      "sample_id": "q-0085",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "Medlatec",
+        "HelloBacsi",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.4,
+      "context_precision": 0.8,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9852,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          3.0,
+          2.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về thuốc bôi và tiêm cortisone trực tiếp vào mụn bọc; khớp rõ với nhu cầu làm mụn sưng đau nhanh xẹp và có đề cập tiêm steroid, nhưng cảnh báo sẹo có vẻ khái quát và không nói về laser hay công cụ làm sạch. Đoạn 2 nói về các can thiệp tại cơ sở y tế, gồm nặn mụn chuyên nghiệp, tiêm corticosteroid giúp giảm viêm nhanh, ánh sáng xanh và nhiều loại laser; khớp trực tiếp với cả hai ý cần biết, dù phần laser chủ yếu nêu tác dụng diệt khuẩn, giảm viêm và dầu chứ chưa mô tả rõ loại bỏ nhân và bã nhờn. Đoạn 3 nói về thuốc bôi, thuốc uống và tiêm cortisone cho mụn bọc nặng; khớp với tiêm steroid và việc cần bác sĩ chỉ định, nhưng thiếu laser và công cụ làm sạch. Đoạn 4 chủ yếu nói về điều trị mụn do hormone, kháng sinh, trị sẹo bằng laser và một mô tả mơ hồ về liệu pháp tiêm; chỉ khớp một phần, vì laser được nói chủ yếu để trị sẹo chứ không phải làm mụn bọc nhanh xẹp, và không giải thích tiêm steroid trực tiếp vào tổn thương. Đoạn 5 nói trực tiếp về tiêm corticosteroid vào nang hoặc nốt mụn đau để nhanh giảm kích thước và đau, đồng thời nêu rạch dẫn lưu tại cơ sở y tế và cảnh báo không tự nặn; khớp rất rõ với câu hỏi về tiêm, nhưng không đề cập laser hay công cụ làm sạch đặc biệt. Gộp lại, tài liệu giải thích khá đầy đủ vai trò của tiêm steroid và có thông tin về laser, ánh sáng xanh, lấy nhân chuyên nghiệp, nhưng chưa trình bày đầy đủ rằng tiêm có thể gây mỏng da cục bộ và chưa làm rõ laser/công cụ làm sạch có thể loại bỏ nhân mụn, bã nhờn; vì vậy gần đủ nhưng vẫn thiếu một số chi tiết quan trọng."
+      }
+    },
+    {
+      "sample_id": "q-0086",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "Medlatec",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9817,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          3.0,
+          2.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về một số lựa chọn điều trị mụn bọc, có nhắc benzoyl peroxide có thể được bác sĩ kê khi mang thai và hướng dẫn rửa mặt, nên khớp một phần với câu hỏi. Tuy nhiên, đoạn lại đề cập nặn mụn, lột da, laser và ánh sáng xanh mà không nêu rõ tính an toàn trong thai kỳ, đồng thời chưa cảnh báo isotretinoin tuyệt đối chống chỉ định. Đoạn 2 giải thích nguyên nhân, biểu hiện và nguy cơ nặn mụn bọc; có liên quan đến tình trạng người hỏi và hỗ trợ khuyến cáo không nặn, nhưng không cung cấp hướng xử trí an toàn khi mang thai hay khuyến cáo hỏi bác sĩ. Đoạn 3 khuyên tránh nặn/chích mụn, giữ da sạch, hạn chế chạm tay và khám sớm; phù hợp trực tiếp với việc chăm sóc và cần khám bác sĩ, nhưng thiếu hướng dẫn về sản phẩm cần tránh, isotretinoin và sữa rửa mặt dịu nhẹ. Đoạn 4 khuyên chăm sóc da, giữ sạch, dưỡng ẩm và dùng thuốc theo hướng dẫn chuyên gia; liên quan một phần, nhưng phần lớn tập trung vào chống nắng, khẩu trang và lối sống, không giải đáp các vấn đề trọng tâm về thuốc trị mụn trong thai kỳ. Đoạn 5 liệt kê thuốc bôi kháng sinh và vitamin C liều cao, nhưng không nêu tính an toàn khi mang thai, không khuyến cáo rõ phải hỏi bác sĩ trước khi dùng và vitamin C liều cao không phải hướng dẫn phù hợp để tự áp dụng. Toàn bộ tài liệu có một số hướng dẫn chăm sóc và khuyến cáo khám, nhưng thiếu cảnh báo bắt buộc về isotretinoin, thiếu hướng dẫn đầy đủ về vệ sinh nhẹ nhàng và tránh sản phẩm gây bít tắc, đồng thời có nội dung điều trị cần thận trọng trong thai kỳ."
+      }
+    },
+    {
+      "sample_id": "q-0087",
+      "n_chunks": 5,
+      "sources": [
+        "NHS-Acne",
+        "Healthline-Acne",
+        "Medlatec",
+        "PubMed",
+        "AAD"
+      ],
+      "source_types": [
+        "unknown",
+        "en_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.6,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          5.0,
+          3.0,
+          3.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nêu trực tiếp các tác dụng phụ thường gặp của benzoyl peroxide như khô, rát, đỏ và bong tróc; giải thích thường nhẹ và tự hết, đề cập liệu trình khoảng 6 tuần, có thể giảm tần suất duy trì, đồng thời khuyên tránh nắng/UV hoặc dùng kem chống nắng. Đoạn này khớp đầy đủ với câu hỏi. Đoạn 2 đề cập cách dùng, giảm tần suất hoặc nồng độ để hạn chế kích ứng, cùng các tác dụng phụ khô, đỏ, bong tróc, rát; có ích cho việc xử trí nhưng không trả lời thời gian để sạch mụn hay chống nắng đầy đủ. Đoạn 3 mô tả đúng các phản ứng kích ứng và một số cách xử trí như dưỡng ẩm, tạm ngưng vài ngày rồi dùng lại lớp mỏng; liên quan nhưng không nói thời gian cải thiện mụn hoặc tránh nắng. Đoạn 4 nói về tác dụng phụ của phối hợp adapalene/benzoyl peroxide trong thử nghiệm, gồm đỏ, bong vảy, khô và rát, thường nhẹ, xuất hiện sớm và tự hết; chỉ hỗ trợ một phần vì không nói liệu trình 6 tuần hay chống nắng, và không hoàn toàn là benzoyl peroxide đơn trị. Đoạn 5 chủ yếu nói bảo quản, thay sản phẩm và lựa chọn hoạt chất thay thế; không trả lời đáng kể các vấn đề người dùng hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0088",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0089",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "SYT-BacNinh",
+        "PubMed",
+        "PubMed",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "pubmed_review",
+        "pubmed_review",
+        "pubmed_review",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.4,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.8036,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          4.0,
+          3.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 chủ yếu là lời khuyên chung về việc chọn cơ sở uy tín và danh sách liên kết, nhưng không cung cấp bằng chứng cụ thể về hiệu quả, độ an toàn, biến chứng hay việc laser fractional CO2 có ưu điểm hơn laser CO2 truyền thống; chỉ khớp rất ít với câu hỏi. Đoạn 2 mô tả các phương pháp điều trị sẹo lõm, nêu laser CO2 truyền thống có thể gây sẹo xấu, rối loạn sắc tố và thời gian hồi phục dài, đồng thời cho biết laser fractional CO2 đã cho kết quả ban đầu khá tốt với ít tác dụng phụ và biến chứng hơn; khớp trực tiếp với ý người dùng cần biết, dù chưa nêu chi tiết mức hiệu quả hoặc nguy cơ thâm cụ thể. Đoạn 3 nói fractional CO2 có hiệu quả tốt và thời gian nghỉ dưỡng ngắn hơn trong điều trị sẹo mụn, nhưng có thể đau hơn và tăng nguy cơ tăng sắc tố sau điều trị so với laser Er:YAG, không trực tiếp so sánh với laser CO2 truyền thống; vẫn cung cấp thông tin hữu ích về an toàn và thâm. Đoạn 4 chỉ nói về fractional CO2 kết hợp châm cứu so với fractional CO2 đơn thuần, không trả lời trực tiếp câu hỏi về hiệu quả và độ an toàn của fractional CO2 so với laser cũ, nhưng có thông tin phụ về tác dụng phụ và hạn chế bằng chứng. Đoạn 5 chỉ là danh mục tài liệu tham khảo, không có nội dung đủ để trả lời câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0090",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.0,
+      "context_sufficiency": 1.0,
+      "ranking_quality": 0.8887,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về chăm sóc da và lối sống tại nhà để giảm tái phát mụn, nhưng không bàn về cách đánh giá độ tin cậy hay chất lượng của một hướng dẫn điều trị; chỉ cùng lĩnh vực da liễu và không khớp trọng tâm câu hỏi. Đoạn 2 nói rằng phác đồ cần được cá thể hóa và nên khám bác sĩ da liễu, nhưng chủ yếu là quảng bá một phòng khám, không đề cập phương pháp tìm kiếm bằng chứng, tiêu chí lựa chọn bằng chứng, đánh giá độc lập hay liên kết khuyến nghị với bằng chứng. Đoạn 3 cung cấp một số lời khuyên chăm sóc da và cảnh báo về các phương pháp tự điều trị, nhưng không hướng dẫn cách thẩm định chất lượng nguồn thông tin. Đoạn 4 khuyên chọn sản phẩm lành tính và không nghe người không chuyên, có liên quan gián tiếp đến việc tránh thông tin không đáng tin, nhưng không nêu các tiêu chí đánh giá hướng dẫn dựa trên bằng chứng. Đoạn 5 là một câu tiếng Anh về điều trị mụn theo đơn và danh mục tài liệu tham khảo, trong đó có một hướng dẫn của AAD, nhưng không giải thích cách đánh giá chất lượng hướng dẫn, không nêu việc tìm kiếm bằng chứng có hệ thống, xem xét bởi chuyên gia bên ngoài hoặc liên kết rõ giữa khuyến nghị và bằng chứng."
+      }
+    },
+    {
+      "sample_id": "q-0091",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0092",
+      "n_chunks": 5,
+      "sources": [
+        "TapChiDaLieuVN",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "TapChiYHue",
+        "AAD"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "vi_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.2,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9942,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          2.0,
+          2.0,
+          1.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói trực tiếp về việc phối hợp isotretinoin với azithromycin hoặc clarithromycin trong điều trị mụn nặng, xác nhận cả hai giúp cải thiện tổn thương viêm và không viêm, đồng thời đưa ra lựa chọn azithromycin trước clarithromycin. Tuy nhiên, đoạn này không nêu rõ hai thuốc có hiệu quả tương đương hay sự khác biệt có ý nghĩa thống kê hay không, và thứ tự ưu tiên được nêu ra không được giải thích bằng dữ liệu so sánh. Đoạn 2 chủ yếu nói về cơ chế, lịch sử, chỉ định và nguy cơ của isotretinoin; phù hợp một phần với bối cảnh người dùng nhưng không so sánh azithromycin với clarithromycin khi phối hợp isotretinoin. Đoạn 3 nói chung về thuốc trị mụn, isotretinoin và chăm sóc da; có liên quan đến mức độ nặng nhưng không cung cấp thông tin về hai kháng sinh được hỏi. Đoạn 4 nói về azithromycin phối hợp với adapalene, không phải isotretinoin, và không so sánh với clarithromycin; chỉ liên quan rất hạn chế. Đoạn 5 là thông tin tổng quan về isotretinoin trong mụn nặng, thời gian điều trị và an toàn, nhưng không đề cập hai kháng sinh hoặc hiệu quả so sánh."
+      }
+    },
+    {
+      "sample_id": "q-0093",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "Vinmec",
+        "TapChiYCanTho",
+        "TapChiDaLieuVN",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "pubmed_review",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9213,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          4.0,
+          3.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về các tác dụng phụ của isotretinoin, gồm khô môi và mụn có thể nặng hơn trong giai đoạn đầu, nên khớp một phần với câu hỏi nhưng không nêu rõ mức độ thường gặp, tính tạm thời hay cách xử trí. Đoạn 2 chủ yếu nói về chăm sóc da sau khi ngừng thuốc, tránh nắng, tránh rượu và tái khám; chỉ liên quan gián tiếp, không giải thích đầy đủ khô môi hoặc bùng phát mụn sau 4 tuần. Đoạn 3 nói trực tiếp về khô môi, cho biết xảy ra ở gần như tất cả bệnh nhân và đưa ra biện pháp dưỡng ẩm; tuy nhiên không đề cập bùng phát mụn hay sự phụ thuộc liều. Đoạn 4 nói về các tác dụng phụ thường gặp và việc chúng thường giảm trong 1–2 tháng đầu, đồng thời đề cập các biện pháp hỗ trợ; phù hợp với khô môi nhưng không nói rõ bùng phát mụn. Đoạn 5 hướng dẫn giảm khô da và khô môi bằng kem dưỡng, sản phẩm không gây bít tắc và vaseline; hữu ích cho một triệu chứng nhưng không đề cập mụn tăng thêm, tỷ lệ hoặc vai trò của liều thuốc. Nhìn chung tài liệu giải thích khá tốt khô môi và cách giảm khó chịu, có nhắc mụn nặng hơn lúc đầu nhưng thiếu thông tin về tỷ lệ, tính tạm thời của bùng phát mụn và việc tác dụng phụ có thể cải thiện khi giảm liều hoặc ngừng thuốc theo chỉ định bác sĩ."
+      }
+    },
+    {
+      "sample_id": "q-0094",
+      "n_chunks": 3,
+      "sources": [
+        "TapChiYCanTho",
+        "PubMed",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "pubmed_review",
+        "pubmed_review",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.3333,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9502,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          0.0,
+          2.0
+        ],
+        "n_chunks": 3,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về tác dụng phụ của isotretinoin và kết quả phân tích tổng hợp về xét nghiệm cận lâm sàng. Nội dung khớp khá rõ với câu hỏi: cho biết lipid máu thường tăng mức trung bình, HDL giảm, còn men gan phần lớn không đổi nhưng đôi khi tăng nhẹ và thoáng qua; tuy nhiên không nêu cụ thể SGOT, SGPT, cholesterol toàn phần, LDL-C hay triglyceride thay đổi sau 4 và 16 tuần, cũng không đề cập ý nghĩa thống kê. Đoạn 2 nói về hiệu quả của mesotherapy trong điều trị da, không cung cấp thông tin về isotretinoin, men gan hoặc lipid máu nên không khớp câu hỏi. Đoạn 3 nói về liều isotretinoin, nguy cơ quái thai và việc theo dõi tăng men gan, tăng cholesterol. Nội dung có liên quan nhưng chỉ khẳng định chung, không mô tả mức thay đổi, thời điểm xét nghiệm hay ý nghĩa của các thay đổi."
+      }
+    },
+    {
+      "sample_id": "q-0095",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Medlatec",
+        "VnExpress-SucKhoe",
+        "SYT-BacNinh",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "pubmed_review",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.6,
+      "context_precision": 1.0,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9714,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          3.0,
+          4.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 5,
+        "reason": "Đoạn 1 nói về độ phổ biến, tuổi dậy thì, tỷ lệ nữ cao hơn và các vị trí thường bị như mặt, ngực, lưng; khớp khá rõ với câu hỏi về tuổi và vị trí nhưng không nêu cụ thể mặt, má hay triệu chứng ngứa đau. Đoạn 2 nói mụn gặp nhiều ở thanh thiếu niên và khoảng 12–30 tuổi; khớp một phần với câu hỏi về độ tuổi nhưng không đề cập vị trí trên mặt hoặc ngứa, đau. Đoạn 3 mô tả cơ chế bệnh, độ tuổi dậy thì và các vị trí thường gặp gồm mặt, trán, ngực, lưng, vai; khớp với tuổi và vị trí nhưng không cung cấp thông tin về triệu chứng cơ năng. Đoạn 4 trình bày khá chi tiết độ tuổi khởi phát và diễn tiến, đặc biệt 90% bệnh nhân ở tuổi 13–19 và thường giảm ở tuổi 20; khớp tốt với câu hỏi về lứa tuổi nhưng không nói về vị trí hay ngứa, đau. Đoạn 5 nêu mụn bắt đầu từ tuổi dậy thì và các vị trí thường gặp gồm mặt, trán, cằm, má, lưng trên, ngực; khớp tốt với tuổi và vị trí, nhưng không đề cập ngứa hoặc đau."
+      }
+    },
+    {
+      "sample_id": "q-0096",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-0097",
+      "n_chunks": 2,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Wiley"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.5,
+      "context_precision": 0.0,
+      "context_sufficiency": 1.0,
+      "ranking_quality": 0.8597,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          2.0
+        ],
+        "n_chunks": 2,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 chủ yếu nói về tâm lý tự ti, căng thẳng do mụn và lời động viên, chỉ khớp rất ít với câu hỏi; không cung cấp thông tin về liệu trình Derma Acne Care, cấy tinh chất meso, tác dụng kháng viêm, chữa lành mụn, kiểm soát dầu hay mức độ phù hợp với da dầu. Đoạn 2 nói về một thử nghiệm thuốc bôi phối hợp clindamycin và benzoyl peroxide, có hiệu quả giảm tổn thương mụn và đề cập tác dụng phụ, nên liên quan gián tiếp đến điều trị mụn nhưng không trả lời liệu trình Derma Acne Care hay tính phù hợp với da dầu. Toàn bộ tài liệu chỉ cung cấp một phần thông tin chung về điều trị mụn, không đủ để đánh giá liệu trình được hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0098",
+      "n_chunks": 5,
+      "sources": [
+        "SucKhoeDoiSong",
+        "HelloBacsi",
+        "Medlatec",
+        "HelloBacsi",
+        "EuroGuiDerm"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về các thuốc trị mụn dùng trong thai kỳ và liệt kê azelaic acid là hoạt chất bôi có thể dùng, đồng thời khuyên không tự ý sử dụng và nên có chỉ định bác sĩ. Đoạn này khớp trực tiếp với câu hỏi, nhưng không nêu rằng dữ liệu trên phụ nữ mang thai còn hạn chế/chưa rõ và không giải thích mức hấp thu thấp. Đoạn 2 mô tả công dụng của azelaic acid, nhưng lại khẳng định không nên dùng trong tam cá nguyệt đầu tiên; thông tin này liên quan trực tiếp nhưng mâu thuẫn với ý cần đánh giá về độ an toàn và không cung cấp căn cứ về nghiên cứu hoặc hấp thu. Đoạn 3 khuyên thử trên vùng da nhỏ và tham khảo bác sĩ da liễu; phù hợp với nhu cầu tư vấn an toàn khi mang thai, nhưng không trả lời trực tiếp azelaic acid có dùng được hay không và không đề cập dữ liệu an toàn cụ thể. Đoạn 4 nói về cách bắt đầu azelaic acid, kích ứng có thể gặp và một số điều trị mụn khác; chỉ phần đầu liên quan, còn thông tin kháng sinh không trả lời trọng tâm và có nguy cơ gây nhiễu. Đoạn 5 nói về điều trị toàn thân bằng kẽm và azithromycin trong thai kỳ, không đề cập azelaic acid nên hầu như không giúp trả lời câu hỏi."
+      }
+    },
+    {
+      "sample_id": "q-0099",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "Vinmec",
+        "HelloBacsi",
+        "Vinmec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.8254,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          4.0,
+          1.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói isotretinoin là thuốc trị mụn trứng cá nặng và nhấn mạnh các tác hại khi dùng tùy tiện, nhưng chủ yếu kể một trường hợp biến cố tâm lý nghiêm trọng; phù hợp một phần với câu hỏi nhưng không nêu tác dụng giảm tiết bã nhờn hay kháng viêm. Đoạn 2 nói về các tác dụng không mong muốn thường gặp của isotretinoin như khô môi, khô da, mụn nặng hơn lúc đầu và một số tác dụng phụ khác; có liên quan đến thuốc nhưng không giải thích thuốc là gì, chỉ định điều trị hoặc cơ chế giảm bã nhờn, kháng viêm. Đoạn 3 mô tả isotretinoin là retinoid mạnh dạng uống, dùng cho mụn trứng cá nặng khi phương pháp khác không hiệu quả, đồng thời nêu một số nguy cơ và lưu ý; khớp trực tiếp với phần lớn câu hỏi nhưng không nêu tác dụng giảm tiết bã nhờn và kháng viêm. Đoạn 4 tập trung vào tương tác với thuốc tránh thai khẩn cấp và nguy cơ gây dị tật thai nhi; chỉ liên quan gián tiếp, không trả lời thuốc là gì hoặc tác dụng điều trị. Đoạn 5 giải thích isotretinoin là thuốc kê đơn điều trị mụn nặng, đặc biệt khi các phương pháp khác thất bại, và mô tả thời gian điều trị, hiệu quả cùng nguy cơ; trả lời trực tiếp phần chính của câu hỏi nhưng không đề cập tác dụng giảm tiết bã nhờn và kháng viêm."
+      }
+    },
+    {
+      "sample_id": "q-0100",
+      "n_chunks": 3,
+      "sources": [
+        "Vinmec",
+        "AAD",
+        "TapChiYCanTho"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "aad_guideline",
+        "pubmed_review"
+      ],
+      "context_relevance": 4.0,
+      "context_precision": 1.0,
+      "context_sufficiency": 4.0,
+      "ranking_quality": 0.9591,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          5.0,
+          3.0
+        ],
+        "n_chunks": 3,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về chăm sóc da khô, nhạy cảm khi điều trị isotretinoin, gồm sữa rửa mặt dịu nhẹ, kem dưỡng ẩm, kem dưỡng môi, kem chống nắng và tránh retinol, toner, tẩy tế bào chết. Nội dung khớp khá rõ với câu hỏi, nhưng không nêu cụ thể tiêu chí không dầu/không gây bít tắc, thoa dưỡng khi da còn ẩm, SPF tối thiểu 30 hay dùng petroleum jelly trong nhà và trước khi ngủ. Đoạn 2 trình bày trực tiếp kế hoạch skincare khi dùng isotretinoin: rửa mặt dịu nhẹ, giới hạn tần suất, thoa kem dưỡng không gây bít tắc hoặc không dầu khi da còn ẩm, và chống nắng SPF 30 trở lên. Đây là đoạn khớp nhất với câu hỏi, nhưng chưa hướng dẫn cụ thể việc dùng petroleum jelly cho môi trong nhà và trước khi ngủ, cũng chưa nói rõ son dưỡng môi có SPF 30 trở lên. Đoạn 3 nói về các tác dụng phụ khô môi, da, mắt và các biện pháp làm dịu, đặc biệt là dùng sáp dầu khoáng hoặc chất làm mềm thường xuyên cho môi và da. Nội dung liên quan đến chăm sóc môi và da khi dùng isotretinoin, nhưng thiếu hướng dẫn về kem dưỡng không dầu/không gây bít tắc, thoa khi da còn ẩm, cũng như SPF cho môi khi ra ngoài."
+      }
+    },
+    {
+      "sample_id": "q-g001",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "VitaClinic",
+        "HelloBacsi",
+        "DaLieuHaNoi",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "blog",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          4.0,
+          3.0,
+          3.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về thời gian thâm mụn mờ dần, nêu khoảng 3–6 tháng và các yếu tố ảnh hưởng như cơ địa, mức độ thâm, môi trường, chăm sóc; khớp trực tiếp với câu hỏi nhưng chưa hướng dẫn chống nắng hay hoạt chất làm sáng. Đoạn 2 nói về nguyên nhân thâm mụn, thời gian mờ khoảng 3–6 tháng và khả năng tự hết tùy mức độ; khớp khá rõ với câu hỏi nhưng thiếu hướng dẫn chống nắng và sản phẩm hỗ trợ. Đoạn 3 trả lời thời gian thâm mụn mờ dần khoảng 3–6 tháng và nêu các yếu tố ảnh hưởng; khớp trực tiếp nhưng không cung cấp các hoạt chất hoặc cách chăm sóc cụ thể dù phần dẫn có đề cập câu hỏi về hoạt chất. Đoạn 4 nói thâm mụn mờ trong khoảng 4–8 tháng, phụ thuộc cơ địa, môi trường và tình trạng thâm, đồng thời đề cập cần chăm sóc đúng cách; khớp với phần hỏi thời gian nhưng không nêu rõ chống nắng hay vitamin C, niacinamide. Đoạn 5 chủ yếu nói sản phẩm trị mụn nên không gây bít tắc và cần 6–8 tuần để thấy cải thiện mụn; chỉ liên quan gián tiếp, không trả lời thời gian mờ thâm sau mụn, chống nắng hoặc hoạt chất làm sáng."
+      }
+    },
+    {
+      "sample_id": "q-g002",
+      "n_chunks": 5,
+      "sources": [
+        "Vinmec",
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "VnExpress-SucKhoe",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9408,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          1.0,
+          2.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về các thuốc bôi và thuốc uống trị mụn, sữa rửa mặt, đồng thời khuyên đưa trẻ đi khám da liễu để tránh sẹo; khớp một phần với câu hỏi nhưng chưa nhấn mạnh trẻ 9 tuổi cần được bác sĩ đánh giá trước khi dùng thuốc và chưa hướng dẫn rõ việc không nặn mụn hay chăm sóc dịu nhẹ. Đoạn 2 nói về dùng sản phẩm không gây bít tắc, không bóp nặn mụn để tránh viêm và sẹo, và đưa trẻ đi khám; khớp khá rõ với các ý cần biết, nhưng thiếu trấn an về mụn ở tuổi này, thiếu hướng dẫn sữa rửa mặt dịu nhẹ và cảnh báo cụ thể không tự dùng thuốc hoặc mỹ phẩm người lớn. Đoạn 3 là tập hợp nhiều thông tin và câu chuyện không liên quan, chỉ có vài ý chung rằng mụn có thể điều trị bằng thuốc bôi hoặc uống và cần kiên trì; hầu như không trả lời trường hợp trẻ 9 tuổi. Đoạn 4 nói về biến chứng do lăn kim và thủ thuật trị sẹo tại spa, cảnh báo nguy cơ viêm, mụn và sẹo khi can thiệp xâm lấn; liên quan gián tiếp đến việc không nên tìm cách trị nhanh, nhưng không hướng dẫn chăm sóc hay khám cho trẻ. Đoạn 5 liệt kê phác đồ và hoạt chất điều trị mụn theo mức độ; có thông tin điều trị liên quan nhưng không phù hợp để tự áp dụng cho trẻ 9 tuổi, thiếu đánh giá của bác sĩ và các biện pháp phòng sẹo, đồng thời nội dung bị lỗi định dạng và chưa đầy đủ."
+      }
+    },
+    {
+      "sample_id": "q-g003",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g004",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "Vinmec",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.6,
+      "context_precision": 0.4,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9197,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          4.0,
+          0.0,
+          4.0,
+          0.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về mụn sữa ở trẻ nhỏ, nhấn mạnh tình trạng thường tự hết và không tự ý dùng thuốc; khớp khá tốt với câu hỏi, dù chưa hướng dẫn cụ thể cách rửa mặt dịu nhẹ và chưa giải thích nguyên nhân liên quan đến thức ăn của mẹ hay sữa tắm. Đoạn 2 nói về điều trị mụn trứng cá tuổi dậy thì bằng benzoyl peroxide và axit salicylic; không khớp với trẻ sơ sinh 3 tuần tuổi, thậm chí có thể gây hại nếu áp dụng. Đoạn 3 hướng dẫn rửa bằng nước ấm, hạn chế xà phòng và sản phẩm người lớn, không tự bôi thuốc, đồng thời khuyên đi khám khi kéo dài hoặc có dấu hiệu nhiễm trùng; khớp phần lớn câu hỏi, nhưng khuyến cáo chấm sữa mẹ là không có cơ sở và không nên làm. Đoạn 4 nói về thuốc bôi trị mụn và mụn tuổi dậy thì; không phù hợp với trẻ sơ sinh, có nguy cơ khiến người đọc tự dùng kháng sinh hoặc retinoid. Đoạn 5 là phác đồ thuốc trị mụn trứng cá từ nhẹ đến nặng, chủ yếu dành cho đối tượng lớn hơn; hoàn toàn không phù hợp để hướng dẫn trẻ 3 tuần tuổi."
+      }
+    },
+    {
+      "sample_id": "q-g007",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g008",
+      "n_chunks": 5,
+      "sources": [
+        "VitaClinic",
+        "Medlatec",
+        "TuoiTre-SucKhoe",
+        "HelloBacsi",
+        "AAD"
+      ],
+      "source_types": [
+        "blog",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.4,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9676,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          2.0,
+          2.0,
+          2.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 2,
+        "reason": "Đoạn 1 nói về loại bỏ các yếu tố gây dị ứng, trong đó có khuyến cáo ngừng mỹ phẩm chứa hương liệu và hạn chế mỹ phẩm khi da đang dị ứng; khớp một phần với câu hỏi nhưng không hướng dẫn rõ sữa rửa mặt dịu nhẹ, dưỡng ẩm phục hồi hay đi khám khi mụn viêm nhiều. Đoạn 2 nói về cách dùng kem dưỡng, xử trí khi sản phẩm gây ngứa rát hoặc nổi mẩn và một số thói quen sinh hoạt; có liên quan, nhưng không nêu rõ lựa chọn sản phẩm không hương liệu và không khuyên khám da liễu khi mụn viêm sưng nhiều. Đoạn 3 mô tả phản ứng dị ứng nặng và một trường hợp mụn mủ sau nặn mụn phải điều trị tại bệnh viện; chỉ liên quan gián tiếp, nhưng cho thấy tình trạng nặng cần được bác sĩ khám. Đoạn 4 nói về diễn tiến kích ứng khi dùng sản phẩm trị mụn, cách bắt đầu dùng chấm mụn và dưỡng ẩm với B5, hyaluronic acid; có một phần thông tin chăm sóc da nhưng không phù hợp để hướng dẫn ngay khi đang dị ứng do kem dưỡng trắng và không đề cập tránh hương liệu hay khám bác sĩ. Đoạn 5 nói về mụn do sản phẩm tiếp xúc, khuyên ngừng sản phẩm gây ra và đi khám da liễu nếu không cải thiện sau 6 tuần; khớp một phần, nhưng không hướng dẫn sữa rửa mặt dịu nhẹ, dưỡng ẩm cơ bản hoặc xử trí mụn viêm sưng cấp tính."
+      }
+    },
+    {
+      "sample_id": "q-g009",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.8,
+      "context_precision": 0.0,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.992,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          2.0,
+          1.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về việc nặn mụn gây biến chứng nhiễm trùng nặng và khái quát điều trị mụn theo mức độ; có liên quan đến mụn ở trẻ nhưng không trả lời việc trẻ 11 tuổi có nên dùng sữa rửa mặt BHA của người lớn hay cần chăm sóc thế nào. Đoạn 2 nói về dùng sữa rửa mặt benzoyl peroxide 2% và sản phẩm chấm BHA 2% cho trẻ tuổi dậy thì; có chạm đúng câu hỏi nhưng lại khuyến nghị hoạt chất mạnh mà không cảnh báo da trẻ nhạy cảm, không khuyên khám bác sĩ, và không hướng dẫn chăm sóc dịu nhẹ phù hợp. Đoạn 3 tiếp tục khuyến nghị BHA 2% cho mụn bọc, đồng thời đề cập dưỡng ẩm không gây bít tắc; có một phần thông tin chăm sóc hữu ích nhưng vẫn không giải quyết an toàn việc dùng sản phẩm BHA của người lớn cho trẻ 11 tuổi và thiếu khuyến cáo khám chuyên khoa. Đoạn 4 nói về sinh hoạt, ăn uống và vệ sinh da trong phòng ngừa mụn, chủ yếu ở trẻ 13 tuổi; chỉ liên quan gián tiếp, không đề cập BHA, da nhạy cảm dưới 12 tuổi hay khám da liễu nhi. Đoạn 5 khuyên không chạm tay lên mặt và nên gặp bác sĩ da liễu khi lo ngại về mụn; có ích một phần nhưng không nói về BHA, độ an toàn ở trẻ 11 tuổi, làm sạch dịu nhẹ hay tránh tự dùng thuốc."
+      }
+    },
+    {
+      "sample_id": "q-g015",
+      "n_chunks": 5,
+      "sources": [
+        "VnExpress-SucKhoe",
+        "SucKhoeDoiSong",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9232,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          2.0,
+          3.0,
+          4.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về điều trị duy trì để hạn chế tái phát và khuyên khám chuyên khoa, đồng thời đề cập sẹo rỗ; phù hợp một phần với lo lắng về tái phát và sẹo nhưng không trả lời việc có chắc chắn khỏi hay không, cũng không hướng dẫn chăm sóc cụ thể. Đoạn 2 nói về vệ sinh da, hạn chế trang điểm, không sờ hoặc nặn mụn, dưỡng ẩm và chống nắng; phù hợp với chăm sóc mụn và giảm nguy cơ thâm sẹo, nhưng có chi tiết chỉ lấy nhân khi mụn khô có thể không phù hợp với mụn bọc viêm và không đề cập tái khám hay tính không chắc chắn của kết quả. Đoạn 3 mô tả một trường hợp mụn bọc nặng có sẹo và nhận định đây là tình trạng nặng; liên quan đến mức độ bệnh và nguy cơ sẹo nhưng hầu như không đưa ra lời khuyên trả lời câu hỏi. Đoạn 4 đề cập mụn sưng đỏ nặng, nguy cơ sẹo và cần điều trị theo tình trạng tại cơ sở uy tín; phù hợp một phần, nhưng thiên về các phương pháp thẩm mỹ, không khẳng định rõ rằng không thể đảm bảo khỏi hẳn và không hướng dẫn chăm sóc cơ bản. Đoạn 5 nói về clindamycin, nguy cơ kháng kháng sinh và khuyến cáo phối hợp benzoyl peroxide thay vì đơn trị liệu; rất liên quan đến việc dùng clindamycin một tháng không cải thiện, nhưng không hướng dẫn tái khám cụ thể, chăm sóc da hay giải thích khả năng khỏi không tuyệt đối."
+      }
+    },
+    {
+      "sample_id": "q-g016",
+      "n_chunks": 5,
+      "sources": [
+        "Youmed",
+        "Medlatec",
+        "HelloBacsi",
+        "Youmed",
+        "BYT-QuyetDinh"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.9278,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          3.0,
+          4.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về thời điểm nặn mụn và cảnh báo nên đến cơ sở y tế nếu không biết cách; khớp một phần với câu hỏi vì đề cập nguy cơ và nơi thực hiện, nhưng vẫn hướng dẫn tự nặn. Đoạn 2 nói về dụng cụ, vệ sinh da và các bước chuẩn bị trước khi nặn; liên quan trực tiếp đến cách nặn và dụng cụ, nhưng không khuyến khích đủ mạnh việc tránh tự nặn, cũng không hướng dẫn đầy đủ về chăm sóc sau nặn. Đoạn 3 cảnh báo tự nặn có thể gây thâm, sẹo, nhiễm trùng và làm lan vi khuẩn, đồng thời khuyên chờ mụn tự biến mất; khớp tốt với nguy cơ nhưng không đề cập nơi mua bộ nặn, phòng khám hoặc các lựa chọn chăm sóc tại nhà như miếng dán mụn. Đoạn 4 nêu hậu quả của nặn sai cách và khuyên người bị mụn nặng đến bác sĩ da liễu; khớp trực tiếp với nguy cơ và khuyến nghị chuyên môn, nhưng thiếu hướng dẫn chăm sóc tại nhà và thông tin về dụng cụ. Đoạn 5 chủ yếu nói về thuốc trị mụn như acid azelaic, thuốc phối hợp và dapsone; chỉ liên quan gián tiếp đến điều trị mụn, không trả lời yêu cầu về tự nặn, nơi mua dụng cụ hay chăm sóc an toàn tại nhà."
+      }
+    },
+    {
+      "sample_id": "q-g017",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g018",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "Vinmec",
+        "Medlatec",
+        "SucKhoeDoiSong",
+        "BYT-KCB"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 3.0,
+      "context_precision": 0.8,
+      "context_sufficiency": 3.0,
+      "ranking_quality": 0.961,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          3.0,
+          4.0,
+          3.0,
+          3.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 4,
+        "reason": "Đoạn 1 nói về chế độ ăn, chăm sóc da và liệt kê benzoyl peroxide, axit salicylic cùng kháng sinh bôi là các lựa chọn thường được cân nhắc khi cho con bú; có khớp một phần với câu hỏi nhưng chưa nêu rõ cần bác sĩ chỉ định và cảnh báo cụ thể về retinoid hay kháng sinh nhóm cycline. Đoạn 2 nói về retinoid bôi và isotretinoin, nêu không khuyến nghị cho phụ nữ mang thai hoặc cho con bú và các nguy cơ của isotretinoin; khớp trực tiếp với lo ngại về retinoid, nhưng chủ yếu tập trung vào thai kỳ, chưa giải thích đầy đủ nguy cơ qua sữa mẹ hay hướng xử trí. Đoạn 3 hướng dẫn sử dụng retinol và cảnh báo không dùng khi mang thai, cho con bú; khớp với câu hỏi ở phần cảnh báo retinoid, nhưng có thông tin không chính xác hoặc gây nhầm lẫn khi gộp nguy cơ thai kỳ với cho con bú và không đưa ra lựa chọn điều trị an toàn thay thế. Đoạn 4 hướng dẫn dùng tretinoin, retinoid và kháng sinh bôi, nhưng khẳng định chung rằng thuốc bôi không nên dùng ở phụ nữ mang thai và cho con bú; khớp với cảnh báo tránh retinoid, song mâu thuẫn với phần nêu benzoyl peroxide phối hợp và không đề cập kháng sinh nhóm cycline hay việc cần khám bác sĩ. Đoạn 5 mô tả retinoid, benzoyl peroxide và kháng sinh bôi, gồm công dụng và tác dụng phụ; có liên quan đến thuốc trị mụn nhưng không đánh giá an toàn khi cho con bú, không cảnh báo tránh retinoid và không hướng dẫn khám bác sĩ. Nhìn chung tài liệu có một số mảnh thông tin hữu ích về tránh retinoid và các thuốc bôi có thể được cân nhắc, nhưng thiếu khuyến cáo rõ ràng phải khám và dùng theo đơn, thiếu cảnh báo kháng sinh nhóm cycline, đồng thời có các khẳng định quá rộng hoặc mâu thuẫn về thuốc bôi khi cho con bú."
+      }
+    },
+    {
+      "sample_id": "q-g022",
+      "n_chunks": 5,
+      "sources": [
+        "Medlatec",
+        "VnExpress-SucKhoe",
+        "Vinmec",
+        "VnExpress-SucKhoe",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9366,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          3.0,
+          2.0,
+          1.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 chủ yếu nói về bảo quản và công dụng của adapalene, có nhắc hạn chế nắng và tuân thủ bác sĩ nhưng không hướng dẫn ngừng hẳn, thay thế bằng hoạt chất không kê đơn hay chăm sóc da sau kích ứng; chỉ liên quan một phần nhỏ. Đoạn 2 khuyến khích khám bác sĩ da liễu, dùng sản phẩm dịu nhẹ, dưỡng ẩm và thuốc bôi khác, phù hợp với việc tái khám nhưng không nêu rõ không dùng lại adapalene, không gợi ý benzoyl peroxide, salicylic acid hoặc azelaic acid, cũng thiếu hướng dẫn thử trên vùng nhỏ và chống nắng. Đoạn 3 mô tả chỉ định, cách dùng và tác dụng phụ của adapalene, có đề cập dị ứng và kích ứng nhưng không đưa ra lựa chọn thay thế hay hướng dẫn xử trí cụ thể theo câu hỏi. Đoạn 4 là một trường hợp tư vấn mụn ở người trưởng thành da dầu, nhưng chỉ nêu hoàn cảnh và triệu chứng, không có lời khuyên điều trị. Đoạn 5 là tổng quan mụn và nhấn mạnh adapalene giúp thông thoáng lỗ chân lông, cùng việc cần bác sĩ với mụn sâu; không giải quyết phản ứng với adapalene, không nêu thuốc thay thế, thử phản ứng, dưỡng ẩm hay chống nắng. Nhìn chung tài liệu chỉ hỗ trợ việc tái khám và chăm sóc chung, thiếu hầu hết các ý cần biết."
+      }
+    },
+    {
+      "sample_id": "q-g023",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g024",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "Vinmec",
+        "DaLieuHaNoi",
+        "Medlatec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.4,
+      "context_precision": 0.6,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8452,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          1.0,
+          3.0,
+          3.0,
+          3.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 3,
+        "reason": "Đoạn 1 nói về vệ sinh da, giảm căng thẳng và chế độ ăn để quản lý mụn nói chung; chỉ khớp rất ít với tình huống cần làm xẹp nhanh và không đề cập việc từ chối chích, biện pháp tạm thời hay tiêm corticosteroid. Đoạn 2 nói rõ không nên nặn mụn và khuyên chăm sóc da, phù hợp trực tiếp với việc từ chối tự chích nhưng không hướng dẫn cách làm xẹp nhanh hoặc đi tiêm corticosteroid. Đoạn 3 giải thích nặn mụn gây tổn thương, làm nặng hơn và tăng nguy cơ sẹo, đồng thời khuyên điều trị an toàn; phù hợp với việc không tự chích nhưng vẫn thiếu các biện pháp xử trí cấp tốc và tiêm corticosteroid. Đoạn 4 khuyên không tự nặn và đi khám khi viêm nặng, có đề cập điều trị y tế; tuy nhiên các mặt nạ thiên nhiên không phải lựa chọn được yêu cầu và đoạn không nêu tiêm corticosteroid, chườm hoặc hoạt chất trị mụn. Đoạn 5 khuyên không chạm mặt và tìm bác sĩ da liễu khi có mụn; chỉ liên quan gián tiếp, không trả lời nhu cầu làm xẹp nhanh hay nguy cơ tự chích."
+      }
+    },
+    {
+      "sample_id": "q-g027",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g028",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "HelloBacsi",
+        "Vinmec",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 2.2,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.9175,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          2.0,
+          3.0,
+          2.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 chủ yếu nói mụn lưng có thể cải thiện bằng điều trị tại nhà và khuyên khám da liễu khi nặng hơn; có liên quan nhưng không giải thích thời gian khỏi, khả năng tái phát hay các thói quen hỗ trợ. Đoạn 2 khuyên khám bác sĩ khi đã thử nhiều cách hoặc có viêm mủ, đề cập các lựa chọn điều trị; phù hợp một phần nhưng không trả lời thời gian điều trị và không nêu rõ cần tái khám, kiên trì hay thay đổi thói quen. Đoạn 3 phân biệt mụn nhẹ-trung bình với mụn nang nặng và khuyên khám da liễu; liên quan đến hướng xử trí nhưng thiếu thông tin về thời gian khỏi và chăm sóc vùng lưng-ngực. Đoạn 4 cho biết mụn lưng không điều trị có thể kéo dài vài năm và khuyên không nặn, đi khám khi có tổn thương sâu; trả lời trực tiếp một phần về thời gian nhưng không giải thích rằng thời gian phụ thuộc nguyên nhân, loại da, chăm sóc và tuân thủ, cũng không đề cập tái khám hay thói quen như mặc áo cotton và tắm sau khi đổ mồ hôi. Đoạn 5 nói về thâm sau mụn có thể kéo dài một năm hoặc hơn, điều trị giúp nhanh mờ hơn, đồng thời đề cập ảnh hưởng tâm lý và nguy cơ trầm cảm; liên quan đến vết thâm và sự chán nản nhưng không trả lời đầy đủ thời gian hết mụn lưng-ngực hay hướng điều trị cụ thể. Nhìn chung tài liệu chỉ cung cấp một phần: có khuyến cáo khám da liễu, không nặn, và thông tin rằng mụn hoặc thâm có thể kéo dài, nhưng thiếu giải thích toàn diện về các yếu tố quyết định thời gian, sự cần thiết của việc tiếp tục/tái khám và các thay đổi thói quen phù hợp."
+      }
+    },
+    {
+      "sample_id": "q-g029",
+      "n_chunks": 0,
+      "sources": [],
+      "source_types": [],
+      "context_relevance": null,
+      "context_precision": null,
+      "context_sufficiency": null,
+      "ranking_quality": null,
+      "groundedness": null,
+      "details": {
+        "n_chunks": 0
+      }
+    },
+    {
+      "sample_id": "q-g039",
+      "n_chunks": 5,
+      "sources": [
+        "DaLieuHaNoi",
+        "Medlatec",
+        "VnExpress-SucKhoe",
+        "TuoiTre-SucKhoe",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 1.6,
+      "context_precision": 0.2,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8464,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          1.0,
+          1.0,
+          1.0,
+          3.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về định nghĩa và các loại mụn li ti thông thường như mụn cám, mụn ẩn, mụn đầu đen; có khớp một phần với biểu hiện mụn li ti nhưng không đề cập mụn nấm, chẩn đoán phân biệt hay khuyến cáo khám. Đoạn 2 nói về laser và thuốc cho mụn sưng đỏ, chủ yếu khuyên hỏi bác sĩ; không trả lời khả năng mụn nấm và còn không phù hợp rõ với mô tả mụn li ti ngứa. Đoạn 3 giải thích một trường hợp khác là mụn trứng cá viêm có mủ và nhân trắng; không khớp với mụn nhỏ đồng đều, không nhân, ngứa và nghi mụn nấm. Đoạn 4 là các ca mụn trứng cá điều trị tại bệnh viện, có nhắc ngứa và không đáp ứng điều trị trước đó nhưng không phân biệt mụn nấm, không nêu giới hạn chẩn đoán và thông tin điều trị không trực tiếp trả lời câu hỏi. Đoạn 5 mô tả viêm nang lông với sẩn hoặc mụn mủ quanh nang lông, ngứa và tái phát; có thể liên quan đến chẩn đoán phân biệt nhưng không xác định nguyên nhân nấm, không hướng dẫn soi da/xét nghiệm hay khuyên không tự dùng thuốc."
+      }
+    },
+    {
+      "sample_id": "q-g040",
+      "n_chunks": 4,
+      "sources": [
+        "HelloBacsi",
+        "HelloBacsi",
+        "Youmed",
+        "BenhVienAnGiang"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "clinical_textbook"
+      ],
+      "context_relevance": 2.0,
+      "context_precision": 0.25,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 0.8174,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          1.0,
+          4.0,
+          1.0
+        ],
+        "n_chunks": 4,
+        "n_relevant": 1,
+        "reason": "Đoạn 1 nói về sẹo, thâm đỏ sau mụn và axit salicylic; chỉ liên quan chung đến các mảng đỏ ở má nhưng không đề cập khả năng lupus, rosacea, viêm da tiết bã, cũng không khuyên khám hay nhấn mạnh không thể chẩn đoán qua mô tả. Đoạn 2 tiếp tục nói về thâm đỏ sau mụn và công dụng của axit salicylic; không khớp với tình trạng mảng đỏ dạng cánh bướm không ngứa không đau và không cung cấp hướng xử trí phù hợp. Đoạn 3 nêu các khả năng rosacea, lupus và viêm da tiết bã, trong đó mô tả mảng đỏ ở má và một số triệu chứng kèm theo của lupus; khớp đáng kể với câu hỏi nhưng không trấn an, không nói rõ không thể chẩn đoán qua mô tả và không khuyên đi khám sớm, tránh tự điều trị. Đoạn 4 nói về viêm nang lông với sẩn, mụn mủ quanh nang lông, ngứa và tái phát; không phù hợp với mảng đỏ dạng cánh bướm không ngứa không đau và không hỗ trợ các ý người dùng cần biết."
+      }
+    },
+    {
+      "sample_id": "q-g042",
+      "n_chunks": 5,
+      "sources": [
+        "HelloBacsi",
+        "VnExpress-SucKhoe",
+        "HelloBacsi",
+        "SucKhoeDoiSong",
+        "AAD"
+      ],
+      "source_types": [
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "vi_medical_site",
+        "aad_guideline"
+      ],
+      "context_relevance": 1.6,
+      "context_precision": 0.0,
+      "context_sufficiency": 2.0,
+      "ranking_quality": 1.0,
+      "groundedness": null,
+      "details": {
+        "grades": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          0.0
+        ],
+        "n_chunks": 5,
+        "n_relevant": 0,
+        "reason": "Đoạn 1 nói về nguy cơ dùng quá nhiều sản phẩm trị mụn đầu đen, khuyên hạn chế sản phẩm và dưỡng ẩm; có liên quan một phần đến việc xử lý mụn đầu đen và chăm sóc da, nhưng không xác nhận phản ứng dị ứng, không khuyên ngừng salicylic acid ngay, cũng không nêu lựa chọn thay thế dịu nhẹ hay chống nắng. Đoạn 2 chủ yếu hướng dẫn dùng salicylic acid và các chất tẩy rửa để trị mụn đầu đen, đồng thời khuyên gặp bác sĩ khi dai dẳng; khớp một phần với vấn đề mụn đầu đen nhưng không phù hợp với tình huống da đang đỏ rát sau salicylic acid và còn tiếp tục khuyến khích hoạt chất này. Đoạn 3 giải thích tác dụng của salicylic acid, cảnh báo người dị ứng aspirin, đề cập retinol và kem chống nắng; có liên quan đến mụn đầu đen và chống nắng nhưng không hướng dẫn xử trí kích ứng hiện tại, không khuyên ngừng sản phẩm, và retinol không phải lựa chọn thay thế dịu nhẹ ngay lúc da đang rát. Đoạn 4 giải thích cơ chế và vị trí thường gặp của mụn đầu đen, có nhắc sữa rửa mặt chứa salicylic acid; chỉ cung cấp kiến thức nền, không giải quyết phản ứng đỏ rát hay đưa ra kế hoạch thay thế an toàn. Đoạn 5 nói về việc giặt các vật dụng tiếp xúc với đầu và thời điểm đi khám trong một dạng mụn liên quan sản phẩm; hầu như không trả lời câu hỏi về kích ứng do salicylic acid và cách xử lý mụn đầu đen ở mũi. Toàn bộ tài liệu có một số thông tin về mụn đầu đen, dưỡng ẩm, chống nắng và đi khám, nhưng thiếu các ý cốt lõi: xác nhận hoặc phân biệt dị ứng với kích ứng, ngừng ngay sản phẩm, chăm sóc phục hồi, lựa chọn thay thế dịu nhẹ sau khi da ổn định, và hướng dẫn rõ ràng khi kích ứng kéo dài."
+      }
+    }
+  ]
+}

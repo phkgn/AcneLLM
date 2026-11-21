@@ -1,4 +1,8 @@
-# AcneLLM - run all services on Windows PowerShell
+# AcneLLM - chay toan bo he thong tai may, tren Windows PowerShell.
+#
+#   Ollama LOCAL (:11434) + Backend (:8000) + Frontend (:3000)
+#
+# Muon chay model tren RunPod thay vi may minh: dung `scripts\runpod.ps1`.
 param(
     [switch]$Log
 )
@@ -60,20 +64,67 @@ function Wait-ForHttpOk {
     return $false
 }
 
+function Assert-OllamaModelsAvailable {
+    try {
+        $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 15 -ErrorAction Stop
+    } catch {
+        throw "Ollama is not responding on http://localhost:11434: $($_.Exception.Message)"
+    }
+
+    $availableModels = @($tags.models | ForEach-Object { $_.name -replace ":latest$", "" })
+    $requiredModels = @("acne-generator", "acne-intaker")
+    $missingModels = @($requiredModels | Where-Object { $_ -notin $availableModels })
+    if ($missingModels.Count -gt 0) {
+        throw "Ollama on :11434 is missing required model(s): $($missingModels -join ', ')."
+    }
+}
+
+function Ensure-LocalOllamaReady {
+    $listening = Get-NetTCPConnection -LocalPort 11434 -State Listen -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if ($listening) {
+        # Cong da co nguoi giu. Neu do la SSH tunnel cua runpod.ps1 thi dung lai
+        # va noi ro -- script nay chay Ollama TAI MAY, khong tu y giet tunnel cua
+        # ban de gianh cong.
+        $owner = Get-Process -Id $listening.OwningProcess -ErrorAction SilentlyContinue
+        if ($owner -and $owner.ProcessName -eq "ssh") {
+            throw "Port 11434 dang bi SSH tunnel giu (PID $($owner.Id)). Chay '.\scripts\runpod.ps1 -Stop' neu muon dung Ollama tai may, hoac dung tunnel do va bo qua canh bao nay."
+        }
+        Write-Host "Ollama da chay san (PID $($owner.Id)) - khong mo cua so moi." -ForegroundColor Yellow
+    } else {
+        if (-not (Get-Command "ollama.exe" -ErrorAction SilentlyContinue)) {
+            throw "Ollama chua chay va khong tim thay ollama.exe trong PATH."
+        }
+
+        # Cua so RIENG, khong an: log cua Ollama (model nao duoc load, VRAM,
+        # loi runner) la thu can nhin khi tra loi cham hoac model bi offload.
+        Write-Host "Starting local Ollama on http://localhost:11434..." -ForegroundColor Green
+        Start-Process powershell -ArgumentList "-NoExit", "-Command", "ollama serve"
+
+        if (-not (Wait-ForHttpOk -Uri "http://localhost:11434/api/tags" -TimeoutSeconds 30)) {
+            throw "Local Ollama did not respond on http://localhost:11434 within 30 seconds."
+        }
+    }
+
+    Assert-OllamaModelsAvailable
+    Write-Host "Local Ollama ready (acne-generator + acne-intaker)." -ForegroundColor Green
+}
+
 Write-Host ""
-Write-Host "=== AcneLLM - Running All Services ===" -ForegroundColor Cyan
+Write-Host "=== AcneLLM - Running All Services (local) ===" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "This script will open 3 windows:" -ForegroundColor Yellow
-Write-Host "  1. Ollama Server  (http://localhost:11434)"
-Write-Host "  2. Backend API    (http://localhost:8000)"
-Write-Host "  3. Frontend UI    (http://localhost:3000)"
+Write-Host "Mo 3 cua so:" -ForegroundColor Yellow
+Write-Host "  1. Ollama serve         (http://localhost:11434)"
+Write-Host "  2. Backend API          (http://localhost:8000)"
+Write-Host "  3. Frontend UI          (http://localhost:3000)"
+Write-Host ""
+Write-Host "Chay model tren RunPod thi dung scripts\runpod.ps1." -ForegroundColor Yellow
 Write-Host ""
 Read-Host "Press Enter to continue"
 
-Write-Host "Starting Ollama server..." -ForegroundColor Green
-Stop-PortProcess -Port 11434
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "ollama serve"
-Start-Sleep -Seconds 2
+Write-Host "Checking local Ollama..." -ForegroundColor Cyan
+Ensure-LocalOllamaReady
 
 Write-Host "Starting Backend API..." -ForegroundColor Green
 Stop-PortProcess -Port 8000
@@ -116,4 +167,4 @@ Write-Host "Opening http://localhost:3000 now..." -ForegroundColor Cyan
 Start-Process "http://localhost:3000"
 
 Write-Host ""
-Write-Host "Services started. Close any service window to stop it." -ForegroundColor Green
+Write-Host "Services started. Close the backend/frontend windows to stop them." -ForegroundColor Green

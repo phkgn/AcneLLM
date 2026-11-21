@@ -1,0 +1,228 @@
+"""Intent routing: chon intent + gan route_flags."""
+from acne_llm.schemas import UserInput, UserContext, AcneClinicalInput
+from acne_llm.chat.routing.intent_router import is_repeated_question, route_intent
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
+from acne_llm.chat.session import ConversationTurn
+from tests.helpers import SessionStore
+from acne_llm.chat.intake import run_intake
+from acne_llm.chat.routing.intent_router import RouteDecision
+from types import SimpleNamespace
+
+
+def _user(description="", clinical=None):
+    return UserInput(
+        description=description,
+        mode="hybrid",
+        context=UserContext(),
+        clinical=clinical,
+    )
+
+
+def _history(*messages):
+    return [ConversationTurn(role="user", content=m) for m in messages]
+
+
+# ── Knowledge routing ─────────────────────────────────────────────────────────
+
+def test_product_query_routes_knowledge():
+    r = route_intent("top 5 kem chong nang cho da dau", _user("top 5 kem chong nang"), [])
+    assert r.primary_intent == "knowledge"
+
+
+def test_mechanism_query_routes_knowledge():
+    r = route_intent("retinol la gi va hoat dong nhu the nao", _user("retinol la gi"), [])
+    assert r.primary_intent == "knowledge"
+
+
+def test_food_query_routes_knowledge():
+    r = route_intent("an mi cay co bi mun khong", _user("an mi cay"), [])
+    assert r.primary_intent == "knowledge"
+
+
+# ── Advise routing ────────────────────────────────────────────────────────────
+
+def test_personal_case_routes_advise():
+    r = route_intent("toi bi mun boc o cam da lau roi", _user("mun boc o cam"), [])
+    assert r.primary_intent == "advise"
+
+
+def test_other_person_case_still_routes_advise():
+    r = route_intent("ban toi bi mun o cam nen lam gi", _user("ban toi bi mun"), [])
+    assert r.primary_intent == "advise"
+
+
+def test_child_case_routes_advise():
+    r = route_intent(
+        "con em 2 tuổi bị nổi mụn sữa ở má phải làm sao",
+        _user("con em bị nổi mụn sữa"),
+        [],
+    )
+    assert r.primary_intent == "advise"
+
+
+def test_general_question_routes_knowledge_without_personal_signal():
+    r = route_intent("tai sao bi mun boc", _user("tai sao bi mun boc"), [])
+    assert r.primary_intent == "knowledge"
+
+
+def test_acne_type_comparison_routes_knowledge_despite_extracted_lesions():
+    clinical = AcneClinicalInput(lesion_types=["blackhead", "nodule"], inflammation_level="severe")
+    r = route_intent(
+        "mụn đầu đen trị khác với mụn bọc ntn",
+        _user("mụn đầu đen trị khác với mụn bọc ntn", clinical=clinical),
+        [],
+        current_clinical=clinical,
+    )
+
+    assert r.primary_intent == "knowledge"
+    assert r.reason_code == "general_comparison_question"
+
+
+def test_blackhead_whitehead_comparison_routes_knowledge():
+    user = normalize_chat_message("Mụn đầu đen khác mụn đầu trắng như thế nào?")
+    result = route_intent(
+        user.description,
+        user,
+        [],
+        current_clinical=user.clinical,
+    )
+    assert result.primary_intent == "knowledge"
+
+
+def test_clinical_signal_routes_advise():
+    clinical = AcneClinicalInput(lesion_types=["nodule"], lesion_distribution=["chin"])
+    r = route_intent("mun boc cung", _user("mun boc", clinical=clinical), [])
+    assert r.primary_intent == "advise"
+
+
+# ── Flags ─────────────────────────────────────────────────────────────────────
+
+def test_emotional_distress_flag():
+    r = route_intent("toi rat buon vi bi mun mat tu tin qua", _user("buon vi mun"), [])
+    assert "emotional_distress" in r.route_flags
+
+
+def test_crisis_signal_flag():
+    r = route_intent("toi khong muon song nua vi mun", _user("crisis"), [])
+    assert "crisis_signal" in r.route_flags
+
+
+def test_crisis_routes_safety_clarify():
+    r = route_intent("toi khong muon song nua vi mun", _user("crisis"), [])
+    assert r.turn_type == "safety_clarify"
+
+
+def test_urgency_red_flag():
+    r = route_intent("mun co mau ri dich lan rong mat", _user("mun ri dich"), [])
+    assert "urgency_red_flag" in r.route_flags
+
+
+def test_answer_metadata_keeps_turn_type_distinct_from_intent():
+    decision = RouteDecision(primary_intent="advise", confidence=0.9)
+
+    assert decision.metadata()["primary_intent"] == "advise"
+    assert decision.metadata()["turn_type"] == "answer"
+
+
+def test_multi_condition_flag():
+    r = route_intent("toi bi mun va rosacea cung luc", _user("mun rosacea"), [])
+    assert "multi_condition" in r.route_flags
+
+
+def test_progress_followup_flag():
+    r = route_intent("mun van khong het sau 2 tuan roi", _user("mun van len"), [])
+    assert "progress_followup" in r.route_flags
+
+
+def test_english_input_routes_correctly():
+    # language_switch flag đã bị xóa (bilingual query xử lý trong LESION_BILINGUAL inline)
+    # Kiểm tra thay thế: EN input vẫn route đúng intent
+    history = [ConversationTurn(role="user", content="tôi bị mụn viêm", metadata={"detected_language": "vi"})]
+    r = route_intent("my acne is getting worse", _user("acne worse"), history)
+    assert r.primary_intent in ("advise", "knowledge")
+    assert "language_switch" not in r.route_flags
+
+
+# ── Repeated question detection ───────────────────────────────────────────────
+
+def test_repeated_question_detected():
+    history = _history("mun o cam phai dung gi", "co the tri bang benzoyl peroxide")
+    assert is_repeated_question("mun o cam phai dung gi", history) is True
+
+
+def test_different_question_not_repeated():
+    history = _history("mun o cam phai dung gi")
+    assert is_repeated_question("mun o lung co khac khong", history) is False
+
+
+def test_repeated_question_flag_in_route():
+    history = [ConversationTurn(role="user", content="mun o cam phai dung gi")]
+    r = route_intent("mun o cam phai dung gi", _user("mun o cam"), history)
+    assert "repeated_question" in r.route_flags
+
+
+def test_not_repeated_with_empty_history():
+    assert is_repeated_question("mun o cam phai dung gi", []) is False
+
+
+# ── Confidence and source ─────────────────────────────────────────────────────
+
+def test_knowledge_confidence_reasonable():
+    r = route_intent("top 5 kem chong nang", _user("kem chong nang"), [])
+    assert r.confidence >= 0.7
+
+
+def test_advise_with_case_signal_high_confidence():
+    clinical = AcneClinicalInput(lesion_types=["pustule"], lesion_distribution=["cheeks"])
+    r = route_intent("mun mu o ma phai lam sao", _user("mun mu", clinical=clinical), [])
+    assert r.confidence >= 0.8
+
+
+def test_rule_source_when_classifier_disabled():
+    r = route_intent("mun viem o cam", _user("mun viem"), [])
+    assert r.source == "rule"
+
+
+# ── Co urgency phai thay red_flag lam sang, khong chi thay tu khoa ───────────
+# (truoc goi la 'Bug 2' trong test_phase6_bugfixes.py -- ten do khong noi len
+#  hanh vi nao dang duoc bao ve, nen da gop vao day o Phase 7.)
+
+class _StubRouter:
+    """Gia lap UnifiedIntake.classify: tra intent nhung route_flags RONG.
+
+    Đây chính là cấu hình production với Unified Intaker. Đường rule fallback
+    khong dinh bug vi `route_intent` co truyen `user` vao compute_route_flags;
+    duong unified/semantic thi khong, nen co clinical bi mat im lang.
+    """
+
+    def classify(self, clean_text, history):
+        return RouteDecision(
+            primary_intent="advise",
+            confidence=0.95,
+            source="llm",
+            reason_code="unified_intake",
+        )
+
+
+def test_red_flag_lam_sang_bat_duoc_co_urgency():
+    """compute_route_flags chay TRUOC extract nen khong thay clinical.
+
+    Ban cu: tren duong unified, `has_red_flags` luon False -> moi red flag
+    intaker trich duoc deu khong bat canh bao khan o _safety.
+    """
+    c = SimpleNamespace(
+        rag_ready=False,
+        session_store=SessionStore(),
+        guardrails=SimpleNamespace(pre_check=lambda user: None),
+        llm_router=_StubRouter(),
+        semantic_router=None,
+        settings=SimpleNamespace(),
+    )
+    # "mụn bọc có mủ" KHONG khop tu nao trong _URGENCY_TERMS (bang do co
+    # "mụn mủ" chu khong phai "có mủ"), nen co urgency CHI co the den tu
+    # red_flags_input ma extractor sinh ra sau buoc extract.
+    result = run_intake(c, "mụn bọc có mủ")
+
+    assert result.user.clinical is not None
+    assert result.user.clinical.red_flags_input  # extractor co bat duoc
+    assert "urgency_red_flag" in result.route_decision.route_flags

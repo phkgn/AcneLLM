@@ -1,19 +1,11 @@
 """Cross-encoder reranker (bge-reranker-v2-m3) voi score threshold va normalization."""
 from __future__ import annotations
-import math
 from collections import OrderedDict
 
 from loguru import logger
 from ..schemas import RetrievedChunk, RetrievalOutput
 
 _RERANK_MIN_SIGMOID: float = 0.30
-
-
-def _sigmoid(x: float) -> float:
-    if x >= 0:
-        return 1.0 / (1.0 + math.exp(-x))
-    e = math.exp(x)
-    return e / (1.0 + e)
 
 
 class Reranker:
@@ -89,16 +81,25 @@ class Reranker:
                 scores_by_id[chunk.chunk_id] = value
                 self._cache_put((query, chunk.chunk_id), value)
 
-        sigmoid_scores = {
-            cid: _sigmoid(logit) for cid, logit in scores_by_id.items()
-        }
+        # KHONG sigmoid lai. CrossEncoder.predict() cua sentence-transformers DA
+        # ap nn.Sigmoid() san khi num_labels=1 (xem cross_encoder/model.py:110)
+        # -- bge-reranker-v2-m3 dung num_labels=1. Gia tri tra ve la XAC SUAT [0,1].
+        #
+        # Bug cu: ap sigmoid lan hai -> moi diem bi nen vao [0.500, 0.731] vi
+        # sigmoid([0,1]) = [0.5, 0.731]. Quan sat thuc te: 20 chunk deu nam trong
+        # 0.718-0.731, bien do 0.003 -> reranker MAT HET kha nang phan biet, thu tu
+        # cuoi cung do nhieu quyet dinh. Xac suat that la 0.974 vs 0.999.
+        # Cac nguong 0.30/0.45/0.58 truoc day deu duoc chinh theo dai bi nen nay.
+        sigmoid_scores = dict(scores_by_id)
 
-        # Log raw logits để calibrate threshold khi đổi model
-        _logit_summary = sorted(scores_by_id.values(), reverse=True)
+        # Log xac suat + BIEN DO. Bien do la thu can theo doi: gan 0 nghia la
+        # reranker khong phan biet duoc gi va thu tu cuoi cung chi la nhieu.
+        _summary = sorted(scores_by_id.values(), reverse=True)
+        _spread = (_summary[0] - _summary[-1]) if len(_summary) > 1 else 0.0
         logger.debug(
-            "[reranker] raw logits (top5): {} | sigmoid(top5): {}",
-            [round(x, 3) for x in _logit_summary[:5]],
-            [round(_sigmoid(x), 3) for x in _logit_summary[:5]],
+            "[reranker] prob(top5): {} | min={:.4f} max={:.4f} spread={:.4f}",
+            [round(x, 4) for x in _summary[:5]],
+            _summary[-1], _summary[0], _spread,
         )
 
         all_pairs = sorted(
@@ -136,6 +137,20 @@ class Reranker:
                 for c in new_chunks
             ]
             logger.debug("[reranker] top chunks: {}", _chunk_summary)
+        # Log CA POOL kem source_type: can biet chunk guideline roi o dau moi quyet
+        # dinh duoc cach ap boost tham quyen (pha hoa hay nhan he so).
+        # Chi top-5 thi khong thay guideline vi chung nam duoi -- dung cho mu.
+        logger.debug(
+            "[reranker] ca pool: {}",
+            [
+                (
+                    (c.metadata or {}).get("source_type", "?"),
+                    (c.metadata or {}).get("source", c.source or "?")[:22],
+                    round(s, 3),
+                )
+                for c, s in all_pairs
+            ],
+        )
         return RetrievalOutput(
             query=retrieval.query,
             chunks=new_chunks,

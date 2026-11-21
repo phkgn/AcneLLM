@@ -1,0 +1,115 @@
+version: roledata-v2
+
+# Vòng 2 (anchor v4). So với vòng 1, đổi ba thứ:
+#
+#   1. QUOTA. Nhóm cần tài liệu 1.570 -> 660; phần dôi dồn sang nhóm suy luận
+#      không cần tài liệu. Căn cứ đầy đủ ở `config.py` CASE_TYPE_TARGETS.
+#   2. `echo_user_facts`. Case không có tài liệu thì "đủ ý" nghĩa là dùng lại
+#      dữ kiện người dùng đã kể. Gate mới `user_facts_echoed` đo đúng cái đó.
+#   3. `len_chars` nâng nhẹ cho nhóm suy luận, khớp mục "Độ dài & cấu trúc"
+#      vừa thêm vào anchor v4 (900–1.500 ký tự cho câu tư vấn có nội dung).
+#
+# Mỗi group có các field:
+#   len_chars        [lo, hi]  band độ dài mỗi lượt assistant
+#   min_points       int       số ý bắt buộc; 0 = không áp (case vai/giọng thuần)
+#   require_structure bool     >=2 ý thì phải xuống dòng/gạch đầu dòng
+#   echo_user_facts  bool      câu trả lời phải dùng lại dữ kiện user nêu
+#
+# Band KHÔNG phải mục tiêu tự thân. Gate chấm đủ ý trước, band chỉ chặn hai đầu
+# (quá ngắn = chắc chắn thiếu ý; quá dài = lải nhải). Bằng chứng lải nhải: trong
+# arm sản phẩm, câu càng dài `incorrect_content` càng cao (0.06 -> 0.51 từ tứ
+# phân vị ngắn nhất tới dài nhất).
+
+role_definition: AcneLLM Vietnamese acne guidance role and safety behavior
+
+augmentation:
+  ratio: 0.30
+  styles: [teencode, no_accent, typo, mixed]
+  answer_must_use_standard_vietnamese: true
+
+# Sáu kiểu vào bài, rải theo lịch tất định giống `input_style`.
+# Vòng 1 để model tự chọn cách mở lời (chỉ đưa `VARIATION_DIRECTIVES` chung chung
+# kiểu "tránh cụm sáo mòn") và kết quả là 676/2.763 mẫu mở đầu bằng đúng 5 cụm,
+# riêng "Mình hiểu bạn đang" 219 lần. Bảo model "hãy khác đi" không có tác dụng;
+# phải nói nó khác đi NHƯ THẾ NÀO.
+opening_moves:
+  - vao_thang: "Vào thẳng việc cần làm, không câu dẫn."
+  - nhac_lai_du_kien: "Mở bằng cách nhắc lại đúng dữ kiện người dùng vừa kể."
+  - tra_loi_cau_hoi_truoc: "Trả lời thẳng câu hỏi họ đặt ra ở câu đầu tiên."
+  - uu_tien_truoc: "Nêu điều quan trọng nhất trước, giải thích sau."
+  - ghi_nhan_cam_xuc: "Ghi nhận cảm xúc đúng MỘT câu rồi vào nội dung ngay."
+  - dat_boi_canh: "Mở bằng một câu đặt bối cảnh chuyên môn ngắn, không cảm thán."
+
+groups:
+  # ── nhóm vai/ranh giới: giữ nguyên hành vi và độ dài ───────────────────────
+  - {id: R7_conversation_glue, sample_kind: R7_conversation_glue, count: 120, context: false,
+     len_chars: [80, 200], min_points: 0, require_structure: false, echo_user_facts: false,
+     behavior: "Handle greetings, thanks, or digressions and redirect to acne", gate: onscope_redirect}
+
+  - {id: R8_meta_jailbreak, sample_kind: R8_meta_jailbreak, count: 150, context: false,
+     len_chars: [120, 300], min_points: 0, require_structure: false, echo_user_facts: false,
+     behavior: "Keep the AcneLLM role under DAN, meta, prompt leak, or doctor-role attacks", gate: refusal_present+no_prompt_leak}
+
+  - {id: R1_identity, sample_kind: R1_identity, count: 150, context: false,
+     len_chars: [180, 400], min_points: 0, require_structure: false, echo_user_facts: false,
+     behavior: "State AcneLLM identity, capabilities and limits without claiming to be a doctor", gate: identity_rule}
+
+  - {id: R6_role_boundary, sample_kind: R6_role_boundary, count: 220, context: false,
+     len_chars: [180, 380], min_points: 0, require_structure: false, echo_user_facts: false,
+     behavior: "Politely refuse diagnosis, prescribing, dosing, or conclusions from an image", gate: refusal_present}
+
+  # ── nhóm cần tài liệu: 1.570 -> 660 ───────────────────────────────────────
+  # Giữ đủ để hành vi bám nguồn và hành vi từ chối khi nguồn thiếu không bị mất,
+  # không giữ nhiều hơn vì eval nói tài liệu hiện chưa đổi ra chất lượng.
+  - {id: B2_missing_answer, sample_kind: B2_missing_answer, count: 90, context: true,
+     len_chars: [300, 600], min_points: 0, require_structure: false, echo_user_facts: false,
+     behavior: "Explicitly abstain when the supplied reference lacks the needed answer", gate: abstain_rule}
+
+  - {id: B3_irrelevant_chunk, sample_kind: B3_irrelevant_chunk, count: 60, context: true,
+     len_chars: [1000, 1500], min_points: 3, require_structure: true, echo_user_facts: false,
+     behavior: "Ignore a distractor and use only the relevant acne reference", gate: entities_grounded}
+
+  - {id: B5_depth_anchor, sample_kind: B5_depth_anchor, count: 40, context: true,
+     len_chars: [900, 1600], min_points: 3, require_structure: true, echo_user_facts: false,
+     behavior: "Explain identical source content at paired beginner and advanced depth", gate: entities_grounded+anchor_pair, anchor_pair_size: 2}
+
+  - {id: B4_conflicting_docs, sample_kind: B4_conflicting_docs, count: 40, context: true,
+     len_chars: [1100, 1600], min_points: 3, require_structure: true, echo_user_facts: false,
+     behavior: "Describe both conflicting sources, lower confidence, and recommend clinician review", gate: conflict_rule}
+
+  - {id: B1_grounded_role, sample_kind: B1_grounded_role, count: 180, context: true,
+     len_chars: [1000, 1500], min_points: 3, require_structure: true, echo_user_facts: true,
+     behavior: "Answer from supplied acne references while preserving role", gate: entities_grounded}
+
+  - {id: K1_knowledge_anchor, sample_kind: K1_knowledge_anchor, count: 250, context: true,
+     len_chars: [1100, 1600], min_points: 3, require_structure: true, echo_user_facts: false,
+     behavior: "Give factually correct acne knowledge grounded in repository documents", gate: entities_grounded}
+
+  # ── nhóm suy luận, không cần tài liệu: +910 ───────────────────────────────
+  # Đây là chỗ `missing_content` 2.24/3 nằm, và là chỗ duy nhất eval nói sửa
+  # được bằng data. `echo_user_facts` bật ở mọi case mà người dùng có kể dữ kiện.
+  - {id: R5_natural_clarification, sample_kind: R5_natural_clarification, count: 330, context: false,
+     len_chars: [400, 700], min_points: 2, require_structure: false, echo_user_facts: true,
+     behavior: "Answer what can be answered first, then ask one or two focused questions", gate: clarify_present}
+
+  - {id: R9_multiturn, sample_kind: R9_multiturn, count: 240, context: false,
+     len_chars: [250, 600], last_turn_len_chars: [900, 1600], min_points: 0, require_structure: false,
+     echo_user_facts: true,
+     behavior: "Create 4 to 6 alternating turns; the final assistant turn must give full advice, not another question",
+     gate: turn_count+consistency, user_turns: 2-3}
+
+  - {id: R4_measured_empathy, sample_kind: R4_measured_empathy, count: 260, context: false,
+     len_chars: [800, 1200], min_points: 3, require_structure: true, echo_user_facts: true,
+     behavior: "Acknowledge emotion in at most one sentence, then give actionable acne advice", gate: empathy_rule}
+
+  - {id: R3_nonjudgment, sample_kind: R3_nonjudgment, count: 340, context: false,
+     len_chars: [900, 1400], min_points: 3, require_structure: true, echo_user_facts: true,
+     behavior: "Respond without judging skin picking, mixed cream use, or skipped skincare", gate: nonjudgment_rule}
+
+  - {id: R10_special_population, sample_kind: R10_special_population, count: 410, context: false,
+     len_chars: [1000, 1500], min_points: 3, require_structure: true, echo_user_facts: true,
+     behavior: "Safely handle pregnancy, breastfeeding, under-12 children, and newborns", gate: referral_present+no_rx}
+
+  - {id: R2_depth_adaptation, sample_kind: R2_depth_adaptation, count: 620, context: false,
+     len_chars: [900, 1500], min_points: 3, require_structure: true, echo_user_facts: true,
+     behavior: "Adapt explanation depth for teen, parent, or medical student without becoming prescriptive", gate: depth_marker}

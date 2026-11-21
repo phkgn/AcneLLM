@@ -4,22 +4,12 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from acne_llm.schemas import AdviseOutput, Recommendation
-
-
 def _build_mock_app():
     from fastapi import FastAPI
     from acne_llm.api.routes import chat, kb, health
 
     app = FastAPI()
 
-    out = AdviseOutput(
-        severity="mild", acne_type_primary="comedone",
-        recommendations=[Recommendation(step=1, action="rửa mặt", category="skincare")],
-        confidence=0.5, mode="hybrid", model_name="mock",
-    )
-    hybrid_mock = MagicMock()
-    hybrid_mock.run.return_value = out
     llm_mock = MagicMock()
     llm_mock.model = "mock"
     llm_mock.health.return_value = True
@@ -28,15 +18,25 @@ def _build_mock_app():
     store_mock.count.return_value = 42
 
     class C:
-        hybrid = hybrid_mock
-        llm_only = hybrid_mock
         llm = llm_mock
         store = store_mock
         bm25 = None
         embedder = MagicMock(model_name="emb")
         reranker = MagicMock(model_name="rr")
         retriever = MagicMock()
-        rag_ready = True
+        rag_ready = False
+        settings = MagicMock(
+            chat_max_context_chars=4500,
+            chat_retrieve_top_k=8,
+            chat_rerank_top_k=3,
+            extract_min_field_conf=0.60,
+        )
+        from acne_llm.llm.prompt_builder import PromptBuilder
+        prompt = PromptBuilder(str(Path(__file__).resolve().parents[1] / "config" / "prompts"))
+        guardrails = MagicMock()
+        guardrails.pre_check.return_value = None
+        clinical_planner = None
+        session_store = None
 
     app.state.container = C()
     app.include_router(health.router, prefix="/api/v1")
@@ -54,13 +54,10 @@ def test_health_endpoint():
     assert data["kb_chunks"] == 42
 
 
-def test_chat_endpoint():
+def test_sync_json_chat_endpoint_is_removed():
     c = TestClient(_build_mock_app())
     r = c.post("/api/v1/chat", json={"description": "Em bị mụn"})
-    assert r.status_code == 200
-    data = r.json()
-    assert data["severity"] == "mild"
-    assert data["recommendations"][0]["action"] == "rửa mặt"
+    assert r.status_code in {404, 405}
 
 
 def test_kb_stats():

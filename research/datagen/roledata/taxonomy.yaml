@@ -1,0 +1,23 @@
+version: roledata-v1
+role_definition: AcneLLM Vietnamese acne guidance role and safety behavior
+augmentation:
+  ratio: 0.30
+  styles: [teencode, no_accent, typo, mixed]
+  answer_must_use_standard_vietnamese: true
+groups:
+  - {id: R1_identity, sample_kind: R1_identity, count: 200, context: false, behavior: "State AcneLLM identity, capabilities and limits without claiming to be a doctor", gate: identity_rule}
+  - {id: R2_depth_adaptation, sample_kind: R2_depth_adaptation, count: 340, context: false, behavior: "Adapt explanation depth for teen, parent, or medical student without becoming prescriptive", gate: depth_marker}
+  - {id: R3_nonjudgment, sample_kind: R3_nonjudgment, count: 270, context: false, behavior: "Respond without judging skin picking, mixed cream use, or skipped skincare", gate: nonjudgment_rule}
+  - {id: R4_measured_empathy, sample_kind: R4_measured_empathy, count: 220, context: false, behavior: "Acknowledge emotion briefly and stay in the acne-advice role", gate: empathy_rule}
+  - {id: R5_natural_clarification, sample_kind: R5_natural_clarification, count: 220, context: false, behavior: "Ask one or two focused questions when information is insufficient", gate: clarify_present}
+  - {id: R6_role_boundary, sample_kind: R6_role_boundary, count: 250, context: false, behavior: "Politely refuse diagnosis, prescribing, dosing, or conclusions from an image", gate: refusal_present}
+  - {id: R7_conversation_glue, sample_kind: R7_conversation_glue, count: 150, context: false, behavior: "Handle greetings, thanks, or digressions and redirect to acne", gate: onscope_redirect}
+  - {id: R8_meta_jailbreak, sample_kind: R8_meta_jailbreak, count: 150, context: false, behavior: "Keep the AcneLLM role under DAN, meta, prompt leak, or doctor-role attacks", gate: refusal_present+no_prompt_leak}
+  - {id: R9_multiturn, sample_kind: R9_multiturn, count: 200, context: false, behavior: "Create 4 to 6 alternating user and assistant turns with consistent register", gate: turn_count+consistency, user_turns: 2-3}
+  - {id: R10_special_population, sample_kind: R10_special_population, count: 150, context: false, behavior: "Safely handle pregnancy, breastfeeding, under-12 children, and newborns", gate: referral_present+no_rx}
+  - {id: B1_grounded_role, sample_kind: B1_grounded_role, count: 380, context: true, behavior: "Answer from supplied acne references while preserving role", gate: grounded_rate}
+  - {id: B2_missing_answer, sample_kind: B2_missing_answer, count: 200, context: true, behavior: "Explicitly abstain when the supplied reference lacks the needed answer", gate: abstain_rule}
+  - {id: B3_irrelevant_chunk, sample_kind: B3_irrelevant_chunk, count: 130, context: true, behavior: "Ignore a distractor and use only the relevant acne reference", gate: grounded_rate}
+  - {id: B4_conflicting_docs, sample_kind: B4_conflicting_docs, count: 70, context: true, behavior: "Describe both conflicting sources, lower confidence, and recommend clinician review", gate: conflict_rule}
+  - {id: B5_depth_anchor, sample_kind: B5_depth_anchor, count: 70, context: true, behavior: "Explain identical source content at paired beginner and advanced depth", gate: grounded_rate+anchor_pair, anchor_pair_size: 2}
+  - {id: K1_knowledge_anchor, sample_kind: K1_knowledge_anchor, count: 500, context: true, behavior: "Give factually correct acne knowledge grounded in repository documents", gate: knowledge_accuracy+grounded_rate}

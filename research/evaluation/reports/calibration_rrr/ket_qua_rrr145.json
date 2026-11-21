@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "arm": "RRR",
+  "source": "sheet_rrr145_khang.jsonl",
+  "n_graded": 145,
+  "n_skipped_incomplete": 0,
+  "axes": {
+    "answer_quality": {
+      "n": 145,
+      "scale": "1-5",
+      "lower_is_better": false,
+      "percent_agreement": 0.6069,
+      "percent_agreement_within_1": 0.8897,
+      "gwet_ac1": 0.5215,
+      "gwet_ac1_interpretation": "vua phai",
+      "cohen_kappa": 0.4653,
+      "cohen_kappa_quadratic": 0.5338,
+      "spearman": 0.5621,
+      "mean_human_minus_judge": 0.2966,
+      "human_distribution": {
+        "1": 12,
+        "2": 32,
+        "3": 46,
+        "4": 43,
+        "5": 12
+      },
+      "judge_distribution": {
+        "1": 12,
+        "2": 34,
+        "3": 78,
+        "4": 16,
+        "5": 5
+      }
+    },
+    "role_tone": {
+      "n": 145,
+      "scale": "1-5",
+      "lower_is_better": false,
+      "percent_agreement": 0.6414,
+      "percent_agreement_within_1": 0.931,
+      "gwet_ac1": 0.5993,
+      "gwet_ac1_interpretation": "vua phai",
+      "cohen_kappa": 0.1829,
+      "cohen_kappa_quadratic": 0.3188,
+      "spearman": 0.3624,
+      "mean_human_minus_judge": -0.2276,
+      "human_distribution": {
+        "1": 10,
+        "2": 1,
+        "3": 27,
+        "4": 91,
+        "5": 16
+      },
+      "judge_distribution": {
+        "1": 0,
+        "2": 2,
+        "3": 12,
+        "4": 125,
+        "5": 6
+      }
+    },
+    "incorrect_content": {
+      "n": 145,
+      "scale": "0-3",
+      "lower_is_better": true,
+      "percent_agreement": 0.6,
+      "percent_agreement_within_1": 0.8828,
+      "gwet_ac1": 0.4868,
+      "gwet_ac1_interpretation": "vua phai",
+      "cohen_kappa": 0.4049,
+      "cohen_kappa_quadratic": 0.5663,
+      "spearman": 0.5464,
+      "mean_human_minus_judge": -0.2345,
+      "human_distribution": {
+        "0": 82,
+        "1": 30,
+        "2": 22,
+        "3": 11
+      },
+      "judge_distribution": {
+        "0": 58,
+        "1": 47,
+        "2": 26,
+        "3": 14
+      }
+    },
+    "missing_content": {
+      "n": 145,
+      "scale": "0-3",
+      "lower_is_better": true,
+      "percent_agreement": 0.4345,
+      "percent_agreement_within_1": 0.9034,
+      "gwet_ac1": 0.2756,
+      "gwet_ac1_interpretation": "yeu",
+      "cohen_kappa": 0.2126,
+      "cohen_kappa_quadratic": 0.4099,
+      "spearman": 0.4736,
+      "mean_human_minus_judge": -0.4483,
+      "human_distribution": {
+        "0": 25,
+        "1": 58,
+        "2": 41,
+        "3": 21
+      },
+      "judge_distribution": {
+        "0": 7,
+        "1": 23,
+        "2": 100,
+        "3": 15
+      }
+    }
+  },
+  "forbidden_violated": {
+    "n": 145,
+    "judge_true": 19,
+    "human_true": 10,
+    "tp": 8,
+    "fp": 11,
+    "fn": 2,
+    "tn": 124,
+    "agreement": 0.9103,
+    "cohen_kappa": 0.5072,
+    "judge_precision": 0.4211,
+    "judge_recall": 0.8
+  },
+  "safety_gate_harmful_incorrect": {
+    "threshold": 3,
+    "n": 145,
+    "judge_flagged": 14,
+    "human_flagged": 11,
+    "tp": 7,
+    "fp": 7,
+    "fn": 4,
+    "tn": 127,
+    "judge_precision": 0.5,
+    "judge_recall": 0.6364
+  },
+  "ghi_chu": "RRR-only co marginal lech nang nen Cohen's kappa bi phat theo kappa paradox. Trich dan Gwet AC1 va percent agreement +-1 bac ben canh kappa, khong trich rieng kappa."
+}

@@ -1,9 +1,17 @@
 """Admin endpoints -- audit log, session stats, feedback stats."""
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-router = APIRouter(tags=["admin"], prefix="/api/v1/admin")
+from ..deps import require_admin
+
+# require_admin gan o cap router: moi endpoint them vao sau nay tu dong duoc bao
+# ve, khong phu thuoc vao viec nguoi viet nho gan decorator.
+router = APIRouter(
+    tags=["admin"],
+    prefix="/api/v1/admin",
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/audit")

@@ -3,6 +3,22 @@ import unicodedata
 
 # ── RAG cleaning (light) ──────────────────────────────────────────────────────
 
+# PDF tiếng Việt đời cũ (font VN-Times, TCVN3) map ƣ/Ƣ = U+01A3/U+01A2 — chữ "OI"
+# của ngôn ngữ châu Phi — thay cho ư/Ư, và dùng vùng Private Use cho bullet.
+# NFC KHÔNG sửa được: đây là các chữ cái khác nhau, không tương đương chuẩn tắc.
+# Không sửa thì "người" thành "ngƣời" → BM25 không khớp, embedder mã hoá như từ lạ.
+PDF_ARTIFACTS = str.maketrans({
+    "\u01a3": "\u01b0", "\u01a2": "\u01af",   # LATIN LETTER OI → U WITH HORN
+    "\u0131": "i",                          # i không chấm
+    # Vùng Private Use = mã 0x20–0xFF của font Symbol/Wingdings. Chữ Latin thường
+    # trong Symbol ánh xạ sang Hy Lạp: a→α, b→β, k→κ (TNF-α, IL-1β, NF-κB).
+    "\uf020": " ", "\uf02d": "-", "\uf0b7": "•",   # space · gạch · bullet
+    "\uf076": "•", "\uf0d8": "•", "\uf0e0": "→",   # bullet · bullet · mũi tên
+    "\uf061": "α", "\uf062": "β", "\uf06b": "κ",   # Symbol a/b/k → Hy Lạp
+    "\u00a0": " ", "\u2009": " ", "\u2005": " ",  # nbsp / thin / four-per-em space
+    "\u00ad": "",                           # soft hyphen — cắt từ vô hình
+})
+
 BOILERPLATE_PATTERNS = [
     r"(?i)đọc thêm[:\s].+?(\n|$)",
     r"(?i)xem thêm[:\s].+?(\n|$)",
@@ -17,6 +33,7 @@ def clean_vi_text(text: str) -> str:
     if not text:
         return ""
     text = unicodedata.normalize("NFC", text)
+    text = text.translate(PDF_ARTIFACTS)
     text = re.sub(r"[\u200b-\u200f\ufeff]", "", text)
     for pat in BOILERPLATE_PATTERNS:
         text = re.sub(pat, " ", text)
@@ -70,6 +87,7 @@ def clean_for_finetuning(text: str) -> str:
     if not text:
         return ""
     text = unicodedata.normalize("NFC", text)
+    text = text.translate(PDF_ARTIFACTS)
     text = re.sub(r"[\u200b-\u200f\ufeff\xa0]", " ", text)
 
     for pattern, repl in _FT_COMPILED:

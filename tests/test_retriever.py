@@ -1,7 +1,6 @@
 from acne_llm.rag.retriever import _MIN_FUSION_SCORE, rrf_fusion
 from acne_llm.rag.retriever import HybridRetriever
 from acne_llm.rag.sparse import BM25Index, tokenize_vi
-from acne_llm.eval.metrics import recall_at_k, mrr_at_k, ndcg_at_k
 from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 
 
@@ -30,55 +29,14 @@ def test_bm25_roundtrip(tmp_path):
     assert loaded.chunk_ids == ids
 
 
-def test_metrics():
-    retrieved = ["a", "b", "c", "d"]
-    rel = {"b", "d"}
-    assert recall_at_k(retrieved, rel, 4) == 1.0
-    assert recall_at_k(retrieved, rel, 1) == 0.0
-    assert mrr_at_k(retrieved, rel, 4) == 0.5  # b at rank 2
-    assert 0 < ndcg_at_k(retrieved, rel, 4) <= 1.0
-
-
 def test_tokenize_fallback():
     # even if underthesea fails, tokenize_vi returns a list
     toks = tokenize_vi("Mụn viêm ở cằm")
     assert len(toks) >= 3
 
 
-def test_expand_context_fetches_neighbors_in_one_batch():
-    class Store:
-        def __init__(self):
-            self.calls = []
-
-        def get_by_ids(self, chunk_ids):
-            self.calls.append(list(chunk_ids))
-            return {
-                "ids": ["prev-1", "next-1"],
-                "documents": ["previous text", "next text"],
-                "metadatas": [{"source": "A"}, {"source": "B"}],
-            }
-
-    store = Store()
-    retriever = HybridRetriever(store=store, embedder=None, bm25=None)
-    retrieval = RetrievalOutput(
-        query="mụn",
-        chunks=[
-            RetrievedChunk(
-                chunk_id="c1",
-                source="src",
-                text="center",
-                score=0.8,
-                metadata={"prev_chunk_id": "prev-1", "next_chunk_id": "next-1"},
-            )
-        ],
-    )
-
-    expanded = retriever.expand_context(retrieval)
-
-    assert store.calls == [["prev-1", "next-1"]]
-    assert [chunk.chunk_id for chunk in expanded.chunks] == ["c1", "prev-1", "next-1"]
-    assert expanded.chunks[1].score == 0.4
-
+# test_expand_context_* da bi xoa cung voi HybridRetriever.expand_context
+# (Phase 1) -- 0 caller trong production.
 
 def test_retrieve_safety_pass_uses_embed_query_and_guideline_filter():
     class Embedder:

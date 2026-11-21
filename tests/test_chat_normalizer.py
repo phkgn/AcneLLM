@@ -1,4 +1,4 @@
-from acne_llm.chat.normalizer import normalize_chat_message
+from acne_llm.chat.routing.rule_normalizer import normalize_chat_message
 from acne_llm.chat.preprocess import prepare_user_text, preprocess_user_text
 
 
@@ -6,20 +6,21 @@ def test_preprocess_user_text_light_cleanup():
     assert preprocess_user_text("  tôi    là   nam  ") == "tôi là nam"
     assert preprocess_user_text("mụ\u200bn lưng") == "mụn lưng"
     assert preprocess_user_text("mụn_lưng") == "mụn lưng"
-    assert preprocess_user_text("mụn-lưng") == "mụn lưng"
+    # gạch nối được giữ: "BT-Cortin", "benzoyl-peroxide" là tên thật
+    assert preprocess_user_text("mụn-lưng") == "mụn-lưng"
     assert preprocess_user_text("mụn!!!!! sao????") == "mụn!! sao??"
     assert preprocess_user_text("benzoyl peroxide 5% + BHA/AHA") == "benzoyl peroxide 5% + BHA/AHA"
     assert preprocess_user_text("mụn 😭") == "mụn 😭"
 
 
-def test_prepare_user_text_expands_teencode_and_tracks_tokens():
-    # "k" (→ không) và "ng" (→ người) đã bị bỏ khỏi teencode map vì gây nhiễu
-    # ("k" trùng tên thành phần, "ng" trùng nhiều từ thông thường).
-    prepared = prepare_user_text("BHA 2% ko dc dùng vs sp này sáng tối")
+def test_prepare_user_text_leaves_teencode_for_the_model():
+    """Model doc nguyen van. Bang mo rong teencode da bi xoa o Phase 1 -- caller
+    cuoi cung (build_retrieval_query_from_user) khong con."""
+    raw = "BHA 2% ko dc dùng vs sp này sáng tối"
+    prepared = prepare_user_text(raw)
 
-    assert prepared.clean_text == "BHA 2% không được dùng với sản phẩm này sáng tối"
-    assert prepared.clean_text_no_accent == "BHA 2% khong duoc dung voi san pham nay sang toi"
-    assert prepared.teencode_replaced == ["ko", "dc", "vs", "sp"]
+    assert prepared.clean_text == raw
+    assert prepared.teencode_replaced == []
 
 
 def test_normalizer_preserves_raw_description_but_extracts_from_clean_text():
@@ -40,7 +41,7 @@ def test_normalizer_extracts_core_context_from_free_text():
     assert user.context.skin_type == "oily"
     assert user.context.duration_weeks == 4
     assert user.context.is_pregnant is False
-    assert "bha" in user.context.current_products
+    assert "BHA" in user.context.current_products
     assert user.clinical is not None
     assert "papule" in user.clinical.lesion_types
     assert "chin" in user.clinical.lesion_distribution
@@ -62,8 +63,7 @@ def test_normalizer_va_alias_is_conservative():
     lower = normalize_chat_message("retinol va niacinamide dùng chung được không")
     upper = normalize_chat_message("Em đang bôi VA buổi tối")
 
-    assert lower.clinical is not None
-    assert "tretinoin" not in lower.clinical.canonical_ingredients
+    assert lower.clinical is None
     assert upper.clinical is not None
     assert "tretinoin" in upper.clinical.canonical_ingredients
 
@@ -197,6 +197,16 @@ def test_normalizer_handles_topical_irritation_from_audit():
         "Em có nên ngưng thuốc không?"
     )
 
-    assert "differin" in user.context.current_products
+    assert "adapalene" in user.context.current_products
     assert user.clinical is not None
     assert "skin_irritation" in user.clinical.red_flags_input
+
+
+def test_normalizer_extracts_informal_ada_alias_without_false_red_flag():
+    user = normalize_chat_message("toi dung ada 0.1% dc 3 tuan ma da rat")
+    assert "adapalene" in user.context.medications
+
+    source_question = normalize_chat_message(
+        "Vì sao đầu đen có màu đen, và nguồn nào nói điều đó?"
+    )
+    assert "purulent_lesions" not in (source_question.clinical.red_flags_input if source_question.clinical else [])

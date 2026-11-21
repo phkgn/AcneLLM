@@ -1,6 +1,10 @@
-"""Hybrid retriever: dense (Chroma) + sparse (BM25) with RRF fusion."""
+"""Hybrid retriever: dense (Chroma) + sparse (BM25) with RRF fusion.
+
+Ba bảng boost chỉ có nguồn sự thật tại module này. Riêng dense_max_distance
+thuộc config vì production DI luôn truyền Settings; hằng số dưới đây chỉ là
+default đồng bộ cho caller trực tiếp và test.
+"""
 from __future__ import annotations
-import numpy as np
 from loguru import logger
 from ..schemas import RetrievedChunk, RetrievalOutput
 from ..schemas.kb import infer_source_type
@@ -8,24 +12,32 @@ from .vectorstore import ChromaStore
 from .embedder import Embedder
 from .sparse import BM25Index
 
+# Nguồn sự thật duy nhất cho boost theo source type.
 # Source-type specific boost — granular hơn trust_level 3-tier.
 # Áp dụng sau RRF fusion để guideline sources nổi lên mà không cần
 # nhúng từ "guideline" vào query text.
+# TRAN CUNG ~1.67: boost nhan vao score TRUOC khi tinh nguong prune
+# (relative_threshold = max_score * _MIN_FUSION_SCORE_RELATIVE). Vuot 1.67 thi
+# moi chunk chi co mat o MOT trong hai list (dense hoac bm25) bi cat sach,
+# tuc vo hieu hoa hybrid retrieval. Muon vuot phai ha _MIN_FUSION_SCORE_RELATIVE.
 _SOURCE_TYPE_BOOST: dict[str, float] = {
-    "nice_guideline":    1.50,
-    "aad_guideline":     1.50,
+    "nice_guideline":    1.60,
+    "aad_guideline":     1.60,
     "jid_paper":         1.30,
     "pubmed_review":     1.20,
-    "clinical_textbook": 1.20,
+    "clinical_textbook": 1.50,  # EuroGuiDerm, BYT, JDA, CMAJ — tham quyen ngang NICE
     "vi_medical_site":   1.00,
     "forum_post":        0.80,
     "blog":              0.70,
     "unknown":           1.00,
 }
+# Nguồn sự thật duy nhất cho boost theo trust level.
 # Fallback cho chunks cũ chưa có source_type (chỉ có trust_level generic)
 _TRUST_LEVEL_BOOST: dict[str, float] = {"high": 1.4, "medium": 1.0, "low": 0.7}
+# Nguồn sự thật duy nhất cho boost theo authority tag.
 _AUTHORITY_TAG_BOOST = 1.15
-_DENSE_MAX_DISTANCE: float = 0.48  # tightened: loại chunk xa centroid (was 0.60)
+# Default cho caller trực tiếp/test. Production: di.py truyền settings đè lên.
+_DENSE_MAX_DISTANCE: float = 0.60
 _MIN_FUSION_SCORE: float = 0.005   # absolute floor (fallback)
 _MIN_FUSION_SCORE_RELATIVE: float = 0.30  # giữ chunk có score >= 30% của max_score
 
@@ -67,46 +79,6 @@ def rrf_fusion(rank_lists: list[list[str]], k: int = 60) -> dict[str, float]:
         for i, cid in enumerate(ranks):
             scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + i + 1)
     return scores
-
-
-def mmr_select(
-    chunks: list[RetrievedChunk],
-    embedder: Embedder | None,
-    top_k: int,
-    lambda_mult: float = 0.6,
-) -> list[RetrievedChunk]:
-    """Maximal Marginal Relevance — giảm chunk lặp nội dung."""
-    if embedder is None or len(chunks) <= top_k:
-        return chunks[:top_k]
-    texts = [c.text for c in chunks]
-    try:
-        embs = embedder.embed_passages(texts)
-    except Exception as e:
-        logger.debug(f"[MMR] embed failed, skip MMR: {e}")
-        return chunks[:top_k]
-    raw_scores = np.array([c.score for c in chunks], dtype=float)
-    s_min, s_max = raw_scores.min(), raw_scores.max()
-    norm_scores = (raw_scores - s_min) / (s_max - s_min) if s_max > s_min else np.ones_like(raw_scores)
-    selected_idx: list[int] = []
-    remaining = list(range(len(chunks)))
-    for _ in range(top_k):
-        if not remaining:
-            break
-        if not selected_idx:
-            best = max(remaining, key=lambda i: norm_scores[i])
-        else:
-            sel_embs = embs[selected_idx]
-            best, best_mmr = -1, -float("inf")
-            for i in remaining:
-                rel = float(norm_scores[i])
-                sim = float(np.max(embs[i] @ sel_embs.T))
-                mmr = lambda_mult * rel - (1 - lambda_mult) * sim
-                if mmr > best_mmr:
-                    best_mmr = mmr
-                    best = i
-        selected_idx.append(best)
-        remaining.remove(best)
-    return [chunks[i] for i in selected_idx]
 
 
 class HybridRetriever:
@@ -260,111 +232,49 @@ class HybridRetriever:
             num_chunks=len(chunks), avg_score=avg,
         )
 
-    def retrieve_with_mmr(self, query: str, top_k: int = 15, rerank_top_k: int = 10,
-                          mode: str = "hybrid", domain_filter: dict | None = None,
-                          mmr_lambda: float = 0.6) -> RetrievalOutput:
-        """Retrieve rồi áp MMR diversity filter để giảm chunk lặp nội dung."""
-        raw = self.retrieve(query, top_k=top_k, mode=mode, domain_filter=domain_filter)
-        if not raw.chunks:
-            return raw
-        diverse = mmr_select(raw.chunks, self.embedder, top_k=rerank_top_k, lambda_mult=mmr_lambda)
-        avg = sum(c.score for c in diverse) / len(diverse) if diverse else 0.0
-        return RetrievalOutput(
-            query=raw.query, chunks=diverse,
-            retrieval_mode=raw.retrieval_mode,
-            num_chunks=len(diverse), avg_score=avg,
-        )
-
-    def expand_context(self, retrieval: RetrievalOutput) -> RetrievalOutput:
-        """Fetch prev/next chunk liền kề sau rerank để mở rộng ngữ cảnh."""
-        if not retrieval.chunks:
-            return retrieval
-
-        existing_ids = {c.chunk_id for c in retrieval.chunks}
-        id_to_score = {c.chunk_id: c.score for c in retrieval.chunks}
-        neighbor_parent: dict[str, str] = {}
-        neighbor_ids: list[str] = []
-
-        for chunk in retrieval.chunks:
-            for nk in ("prev_chunk_id", "next_chunk_id"):
-                nid = chunk.metadata.get(nk, "")
-                if not nid or nid in existing_ids or nid in neighbor_parent:
-                    continue
-                neighbor_parent[nid] = chunk.chunk_id
-                neighbor_ids.append(nid)
-
-        if not neighbor_ids:
-            return retrieval
-
-        try:
-            got = self.store.get_by_ids(neighbor_ids)
-        except Exception as e:
-            logger.debug(f"[expand_context] Không lấy được neighbor chunks: {e}")
-            return retrieval
-
-        ids = got.get("ids") or []
-        docs = got.get("documents") or []
-        metas = got.get("metadatas") or []
-        by_id: dict[str, tuple[str, dict]] = {}
-        for cid, text, meta in zip(ids, docs, metas):
-            by_id[cid] = (text or "", meta or {})
-
-        extras: list[RetrievedChunk] = []
-        for nid in neighbor_ids:
-            found = by_id.get(nid)
-            if found is None:
-                continue
-            text, meta = found
-            parent_score = id_to_score.get(neighbor_parent.get(nid, ""), 0.0)
-            extras.append(RetrievedChunk(
-                chunk_id=nid,
-                source=meta.get("source", ""),
-                text=text,
-                score=parent_score * 0.5,
-                metadata=meta,
-            ))
-
-        if not extras:
-            return retrieval
-
-        combined = retrieval.chunks + extras
-        combined.sort(key=lambda c: c.score, reverse=True)
-        avg = sum(c.score for c in combined) / len(combined) if combined else 0.0
-        logger.debug(f"[expand_context] +{len(extras)} neighbor chunks -> tong {len(combined)}")
-        return RetrievalOutput(
-            query=retrieval.query,
-            chunks=combined,
-            retrieval_mode=retrieval.retrieval_mode,
-            num_chunks=len(combined),
-            avg_score=avg,
-        )
+    # Tang khuyen cao CHINH THUC. Hep hon SAFETY_SOURCE_TYPES vi bo pubmed_review
+    # (4825 chunk abstract PubMed trong corpus web se ap dao) va jid_paper.
+    # Con lai 973 chunk: NICE, AAD, EuroGuiDerm, JDA, BYT, CMAJ.
+    GUIDELINE_SOURCE_TYPES = ("nice_guideline", "aad_guideline", "clinical_textbook")
+    # Rong hon cho safety pass: du lieu thai ky / tuong tac thuoc hay nam trong
+    # nghien cuu goc chu khong chi trong khuyen cao.
+    SAFETY_SOURCE_TYPES = ("nice_guideline", "aad_guideline", "jid_paper",
+                           "pubmed_review", "clinical_textbook")
 
     def retrieve_safety_pass(
         self,
         query: str,
-        safety_terms: list[str],
+        safety_terms: list[str] | None = None,
         top_k: int = 5,
+        source_types: tuple[str, ...] | None = None,
     ) -> RetrievalOutput:
-        """Second retrieve pass cho context an toan y te (thai ky, thuoc).
+        """Second retrieve pass: dense retrieve GIOI HAN theo source_type.
 
-        Filter Chroma chi lay guideline source_types, sau do dense retrieve.
-        Duoc goi tu pipeline khi safety_terms khong rong.
+        Hai che do dung chung ham nay:
+          - guideline pass  : safety_terms=None, source_types=GUIDELINE_SOURCE_TYPES
+                              -> chay cho MOI truy van, bao dam khuyen cao chinh
+                              thuc vao duoc pool rerank.
+          - safety pass     : safety_terms=[...], source_types=SAFETY_SOURCE_TYPES
+                              -> nhu cu, cho thai ky / thuoc ke don.
+
+        Truoc day ham bat buoc co safety_terms nen guideline chi lot vao pool khi
+        truy van tinh co nhac thuoc ke don; truy van thuong tra ve 100% bai pho
+        thong du KB co san NICE/EuroGuiDerm.
         """
         _EMPTY = RetrievalOutput(
             query=query, chunks=[], retrieval_mode="hybrid",
             num_chunks=0, avg_score=0.0,
         )
-        if not safety_terms or not self.embedder:
+        if not self.embedder or not query.strip():
             return _EMPTY
 
-        deduped_terms = list(dict.fromkeys(t.strip() for t in safety_terms if t and t.strip()))
-        safety_query = (query + " " + " ".join(deduped_terms[:20])).strip()
+        safety_query = query.strip()
+        if safety_terms:
+            deduped_terms = list(dict.fromkeys(t.strip() for t in safety_terms if t and t.strip()))
+            safety_query = (query + " " + " ".join(deduped_terms[:20])).strip()
         if len(safety_query) > 1200:
             safety_query = safety_query[:1200].rsplit(" ", 1)[0].strip()
-        allowed_source_types = [
-            "nice_guideline", "aad_guideline", "jid_paper",
-            "pubmed_review", "clinical_textbook",
-        ]
+        allowed_source_types = list(source_types or self.SAFETY_SOURCE_TYPES)
         domain_filter = {"source_type": {"$in": allowed_source_types}}
 
         try:

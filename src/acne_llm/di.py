@@ -9,20 +9,20 @@ from loguru import logger
 
 from .llm.ollama_backend import OllamaBackend
 from .llm.prompt_builder import PromptBuilder
-from .llm.clinical_planner import ClinicalQueryPlanner
+from .chat.routing.semantic_router import SemanticRouter
+from .chat.session import HISTORY_WINDOW_TURNS
+from .chat.unified_intake import UnifiedIntake
 from .guardrails.runner import GuardrailRunner
-from .pipeline.llm_only import LLMOnlyPipeline
-from .pipeline.hybrid import HybridPipeline
 from .rag.embedder import Embedder
 from .rag.vectorstore import ChromaStore
 from .rag.sparse import BM25Index
 from .rag.retriever import HybridRetriever
 from .rag.reranker import Reranker
-from .vision.mock import MockVision
 from .db.base import DBConnection
-from .db.jsonl_session_store import JsonlSessionStore
+from .db.session_store import SQLiteSessionStore
 from .db.audit import AuditStore
 from .cache import init_cache
+from .utils.logging import log_runtime_banner
 
 
 class Container:
@@ -33,26 +33,22 @@ class Container:
         settings: object,
         llm: OllamaBackend,
         prompt: PromptBuilder,
-        clinical_planner: ClinicalQueryPlanner,
         guardrails: GuardrailRunner,
-        llm_only: LLMOnlyPipeline,
-        vision: MockVision,
-        session_store: JsonlSessionStore,
+        session_store: SQLiteSessionStore,
         audit_store: AuditStore,
         embedder: Optional[Embedder] = None,
         store: Optional[ChromaStore] = None,
         bm25: Optional[BM25Index] = None,
         retriever: Optional[HybridRetriever] = None,
         reranker: Optional[Reranker] = None,
-        hybrid: Optional[HybridPipeline] = None,
+        llm_extractor: Optional[object] = None,
+        llm_router: Optional[object] = None,
+        semantic_router: Optional[SemanticRouter] = None,
     ) -> None:
         self.settings         = settings
         self.llm              = llm
         self.prompt           = prompt
-        self.clinical_planner = clinical_planner
         self.guardrails       = guardrails
-        self.llm_only         = llm_only
-        self.vision           = vision
         self.session_store    = session_store
         self.audit_store      = audit_store
         self.embedder         = embedder
@@ -60,7 +56,9 @@ class Container:
         self.bm25             = bm25
         self.retriever        = retriever
         self.reranker         = reranker
-        self.hybrid           = hybrid
+        self.llm_extractor    = llm_extractor
+        self.llm_router       = llm_router
+        self.semantic_router  = semantic_router
 
     @property
     def rag_ready(self) -> bool:
@@ -72,20 +70,28 @@ class Container:
         except Exception:
             pass
         try:
+            if self.llm_extractor is not None:
+                self.llm_extractor.close()
+        except Exception:
+            pass
+        try:
+            if self.llm_router is not None:
+                self.llm_router.close()
+        except Exception:
+            pass
+        try:
             self.session_store.close()
         except Exception:
             pass
 
 
 def build_container(settings) -> Container:
-    logger.info("Building DI container...")
-
     # -- Database ----------------------------------------------------------------
     db_ttl = getattr(settings, "session_ttl", 1800.0)
-    db_max_turns = getattr(settings, "session_max_history_turns", 10)
-    # Sessions: JSONL (một file per session, dễ đọc/debug)
-    sessions_dir  = getattr(settings, "sessions_dir", "./data/sessions")
-    session_store = JsonlSessionStore(sessions_dir, ttl=db_ttl, max_turns=db_max_turns)
+    db_max_turns = HISTORY_WINDOW_TURNS
+    # Sessions: SQLite (một file sessions.db thay cho nhiều file JSONL)
+    session_db_path = getattr(settings, "session_db_path", "./data/sessions.db")
+    session_store = SQLiteSessionStore(session_db_path, ttl=db_ttl, max_turns=db_max_turns)
     # Audit log: vẫn dùng SQLite (cần ORDER BY timestamp, COUNT, etc.)
     audit_db_path = getattr(settings, "audit_db_path", "./data/audit.db")
     try:
@@ -100,8 +106,6 @@ def build_container(settings) -> Container:
         )
         _db_conn = DBConnection(fallback_audit_db)
     audit_store   = AuditStore(_db_conn)
-    logger.info(f"Sessions JSONL: {sessions_dir} | Audit SQLite: {audit_db_path}")
-
     # -- Cache (DiskCache) --------------------------------------------------------
     cache_dir    = getattr(settings, "cache_dir", "./data/cache")
     cache_size   = getattr(settings, "cache_size_gb", 2.0)
@@ -126,49 +130,38 @@ def build_container(settings) -> Container:
         use_modelfile_system=getattr(settings, "llm_use_modelfile_system", False),
     )
 
-    # Log effective LLM config — phát hiện sớm config drift giữa .env / config.py / Modelfile.
-    logger.info(
-        "LLM effective: model={} ctx={} predict={} temp={} top_p={} top_k={} "
-        "keep_alive={} use_modelfile_system={}",
-        settings.llm_model,
-        settings.llm_num_ctx,
-        settings.llm_num_predict,
-        getattr(settings, "llm_temperature", 0.35),
-        getattr(settings, "llm_top_p", 0.85),
-        getattr(settings, "llm_top_k", 40),
-        getattr(settings, "llm_keep_alive", "-1"),
-        getattr(settings, "llm_use_modelfile_system", False),
+    intake_model = getattr(settings, "intake_model", "acne-intaker")
+    intake_timeout = float(getattr(settings, "intake_timeout", 60.0))
+    intake_backend = OllamaBackend(
+        base_url=settings.ollama_url,
+        model=intake_model,
+        fallback_model=None,
+        num_ctx=min(int(getattr(settings, "llm_num_ctx", 4096)), 4096),
+        num_predict=768,
+        temperature=0.0,
+        top_p=1.0,
+        top_k=20,
+        repeat_penalty=1.0,
+        repeat_last_n=64,
+        keep_alive=getattr(settings, "llm_keep_alive", -1),
+        timeout=intake_timeout,
+        health_timeout=getattr(settings, "ollama_health_timeout", 5.0),
+        use_modelfile_system=True,
     )
-    # Đọc params Ollama THỰC SỰ áp dụng (Modelfile) — verify không có param
-    # nướng sẵn override Python config.
-    try:
-        modelfile_info = llm.show_params()
-        if modelfile_info.get("parameters"):
-            logger.info(
-                "Modelfile PARAMETER (Ollama-side):\n{}", modelfile_info["parameters"]
-            )
-        else:
-            logger.info("Modelfile không có PARAMETER override (tốt — Python full control)")
-    except Exception as e:
-        logger.warning(f"Không đọc được Modelfile params: {e}")
+    unified = UnifiedIntake(
+        intake_backend,
+        model=intake_model,
+        timeout=intake_timeout,
+    )
+    # Keep both interface names while callers migrate; both are the same object
+    # and therefore share one inference for route plus extraction.
+    llm_router = unified
+    llm_extractor = unified
 
     prompt = PromptBuilder(settings.prompts_dir)
-    clinical_planner = ClinicalQueryPlanner()
-    guardrails = GuardrailRunner(
-        settings.guardrails_yaml,
-        embedder=None,
-        enable_ood=getattr(settings, "guardrails_enable_ood", True),
-        ood_threshold=getattr(settings, "guardrails_ood_threshold", 0.25),
-        scope_mode=getattr(settings, "guardrails_scope_mode", "soft"),
-    )
-    llm_only = LLMOnlyPipeline(
-        llm,
-        prompt,
-        guardrails,
-        clinical_planner=clinical_planner,
-    )
-    logger.info(f"LLM: {settings.llm_model} @ {settings.ollama_url}")
-
+    # Soft OOS thuoc ve SemanticRouter/intaker. GuardrailRunner chi con giu cac
+    # cong tat dinh (injection, genital, thuoc) nen khong con tham so nao.
+    guardrails = GuardrailRunner(settings.guardrails_yaml)
     # -- RAG (chi load neu KB da build) ---------------------------------------
     chroma_dir = Path(settings.chroma_dir)
     bm25_path  = Path(settings.bm25_path)
@@ -176,10 +169,62 @@ def build_container(settings) -> Container:
     chroma_ready = chroma_dir.exists() and any(chroma_dir.iterdir())
     bm25_ready   = bm25_path.exists()
 
-    embedder = store = bm25 = retriever = reranker = hybrid = None
+    embedder = store = bm25 = retriever = reranker = None
+    semantic_router = None
+    semantic_train_path = Path(
+        getattr(
+            settings,
+            "semantic_router_train_path",
+            "./data/intent_classify.train.jsonl",
+        )
+    )
+    needs_embedder = semantic_train_path.exists() or (chroma_ready and bm25_ready)
+    if needs_embedder:
+        try:
+            embedder = Embedder(
+                model_name=settings.embedding_model,
+                device=settings.device,
+            )
+        except Exception as e:
+            logger.warning(
+                f"Embedder load failed; semantic router/RAG dense path disabled: {e}"
+            )
+            embedder = None
+
+    if semantic_train_path.exists() and embedder is not None:
+        try:
+            semantic_router = SemanticRouter(
+                embedder=embedder,
+                train_path=semantic_train_path,
+                cache_path=getattr(
+                    settings,
+                    "semantic_router_cache_path",
+                    "./data/intent_router_index.npz",
+                ),
+                k=int(getattr(settings, "semantic_router_k", 9)),
+                oos_distance_threshold=float(
+                    getattr(
+                        settings,
+                        "semantic_router_oos_distance_threshold",
+                        0.483609,
+                    )
+                ),
+                ambiguity_margin=float(
+                    getattr(settings, "semantic_router_ambiguity_margin", 0.08)
+                ),
+            )
+        except Exception as e:
+            logger.warning(
+                f"Semantic router init failed; legacy rule fallback active: {e}"
+            )
+            semantic_router = None
+    elif not semantic_train_path.exists():
+        logger.warning(
+            "Semantic router train split missing ({}); legacy rule fallback active",
+            semantic_train_path,
+        )
 
     if chroma_ready and bm25_ready:
-        logger.info("KB detected -- loading RAG components...")
         try:
             store = ChromaStore(persist_dir=str(chroma_dir))
             bm25 = BM25Index.load(str(bm25_path))
@@ -187,37 +232,12 @@ def build_container(settings) -> Container:
             logger.warning(f"Chroma/BM25 load failed: {e} -- falling back to llm_only")
             store = bm25 = None
         else:
-            logger.info(
-                f"ChromaDB: {store.count()} vectors | BM25: {len(bm25.chunk_ids)} chunks"
-            )
-            try:
-                emb_model = (
-                    getattr(settings, "embedding_model_multilingual", "")
-                    or settings.embedding_model
-                )
-                embedder = Embedder(model_name=emb_model, device=settings.device)
-            except Exception as e:
-                logger.warning(f"Embedder load failed, sparse-only retrieval: {e}")
-                embedder = None
-
             retriever = HybridRetriever(
                 store=store,
                 embedder=embedder,
                 bm25=bm25,
                 dense_max_distance=getattr(settings, "dense_max_distance", 0.60),
             )
-
-            if embedder is not None and guardrails.enable_ood:
-                _centroid_path = str(
-                    Path(settings.guardrails_yaml).parent / "ood_centroid.json"
-                )
-                from .guardrails.ood_detector import OodDetector as _OodDetector
-                guardrails._ood = _OodDetector(
-                    embedder=embedder,
-                    centroid_path=_centroid_path,
-                    ood_threshold=getattr(settings, "guardrails_ood_threshold", 0.25),
-                )
-                logger.info("[guardrails] OOD detector attached with embedder")
 
             try:
                 reranker = Reranker(
@@ -231,20 +251,6 @@ def build_container(settings) -> Container:
                 logger.warning(f"Reranker load failed, using raw retrieval: {e}")
                 reranker = None
 
-            hybrid = HybridPipeline(
-                retriever=retriever,
-                reranker=reranker,
-                llm=llm,
-                prompt=prompt,
-                guardrails=guardrails,
-                retrieve_top_k=settings.retrieve_top_k,
-                rerank_top_k=settings.rerank_top_k,
-                english_input_notice=settings.english_input_notice,
-                clinical_planner=clinical_planner,
-                use_mmr_prefilter=getattr(settings, "use_mmr_prefilter", True),
-                mmr_lambda=getattr(settings, "mmr_lambda", 0.6),
-            )
-            logger.success("RAG ready -- hybrid pipeline enabled")
     else:
         missing = []
         if not chroma_ready:
@@ -257,14 +263,11 @@ def build_container(settings) -> Container:
             f"Run: python scripts/build_kb.py --step embed"
         )
 
-    return Container(
+    container = Container(
         settings=settings,
         llm=llm,
         prompt=prompt,
-        clinical_planner=clinical_planner,
         guardrails=guardrails,
-        llm_only=llm_only,
-        vision=MockVision(),
         session_store=session_store,
         audit_store=audit_store,
         embedder=embedder,
@@ -272,5 +275,9 @@ def build_container(settings) -> Container:
         bm25=bm25,
         retriever=retriever,
         reranker=reranker,
-        hybrid=hybrid,
+        llm_extractor=llm_extractor,
+        llm_router=llm_router,
+        semantic_router=semantic_router,
     )
+    log_runtime_banner(container)
+    return container

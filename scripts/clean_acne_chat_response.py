@@ -189,7 +189,7 @@ def _drop_reasons(record: dict[str, Any], seen_ids: set[str], seen_payloads: set
     if CODE_LEAK_RX.search(assistant):
         reasons.append("code_leak")
     if CHUNK_STYLE_RX.search(assistant):
-        reasons.append("chunk_citation_style")
+        reasons.append("chunk_reference_style")
     if CONFIDENT_DIAGNOSIS_RX.search(assistant):
         reasons.append("confident_diagnosis")
     if RX_DOSE_RX.search(assistant) and not SAFETY_CONTEXT_RX.search(assistant):
@@ -308,7 +308,7 @@ def _build_markdown_report(report: dict[str, Any]) -> str:
         "low_confidence": "Generator marked the sample as low quality or uncertain.",
         "confident_diagnosis": "Medical safety policy avoids definitive diagnosis.",
         "code_leak": "Dataset should not teach coding behavior.",
-        "chunk_citation_style": "This dataset is final chatbot response, not chunk QA.",
+        "chunk_reference_style": "This dataset is final chatbot response, not chunk QA.",
         "rx_dose_without_safety_context": "Avoid learning prescription dose guidance without clinical supervision.",
         "offtopic_scope": "Source/title and content are outside acne scope.",
         "boilerplate_leak": "Website boilerplate leaked into trainable text.",

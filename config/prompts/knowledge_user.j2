@@ -1,29 +1,12 @@
-[CÂU HỎI KIẾN THỨC CỦA NGƯỜI DÙNG]
-{{ description }}
-
-{% if query_subject == "other" %}
-- Lưu ý đối tượng: Người dùng đang hỏi hộ cho người khác.
-{% endif %}
-
-{% if history_block %}
-[LỊCH SỬ TRÒ CHUYỆN]
-{{ history_block }}
-(Lưu ý: Lịch sử trò chuyện chỉ để hiểu ngữ cảnh và đại từ xưng hô. Hãy tập trung trả lời đúng câu hỏi hiện tại ở trên. Nếu câu hỏi đã chuyển sang chủ đề khác, không lặp lại nội dung cũ).
-{% endif %}
-
-{% if has_retrieved_context %}
-[TÀI LIỆU Y KHOA THAM KHẢO]
+{# Câu hỏi kiến thức chung: không có hồ sơ cá nhân, không dữ kiện an toàn.
+   Nhãn khối và thứ tự theo knowledge_user.legacy.j2 -> xem stream_user.j2. #}
+{% if has_retrieved_context %}Tài liệu tham khảo:
 {{ retrieved_context }}
-{% endif %}
 
-[YÊU CẦU TRẢ LỜI]
-- Trả lời câu hỏi kiến thức về da mụn bằng tiếng Việt tự nhiên, chính xác và rõ ràng.
-- Chỉ trả lời trong phạm vi chăm sóc da mụn, điều trị mụn. Từ chối lịch sự nếu ngoài phạm vi.
-- Không hỏi lại thông tin cá nhân của người dùng vì đây là câu hỏi tìm hiểu kiến thức chung.
-{% if has_retrieved_context %}- Sử dụng thông tin trong phần [TÀI LIỆU Y KHOA THAM KHẢO] để trả lời. Đặt trích dẫn nguồn dạng [N] (ví dụ: [1]) ngay sau mỗi câu hoặc ý phát biểu sử dụng thông tin từ nguồn đó.
-{% else %}- Chưa có nguồn KB phù hợp trong lượt này. Hãy trả lời ở mức kiến thức khoa học chung và thận trọng, nêu rõ nếu chưa có đủ dữ liệu chắc chắn thay vì tự suy đoán.
-{% endif %}- Tuyệt đối không bịa đặt nguồn hoặc số liệu nghiên cứu không có trong phần [TÀI LIỆU Y KHOA THAM KHẢO].
-- Chỉ thêm disclaimer y khoa ("Thông tin trên chỉ mang tính chất tham khảo...") tối đa một lần ở cuối câu trả lời nếu thực sự cần thiết (bỏ qua nếu cuộc trò chuyện trước đó đã có disclaimer).
-{% if extended_rules %}
-- Hướng dẫn bổ sung: {{ extended_rules }}
 {% endif %}
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
+{{ history_block }}
+
+{% endif %}
+Tin nhắn hiện tại:
+{{ description }}

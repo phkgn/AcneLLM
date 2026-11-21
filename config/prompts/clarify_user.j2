@@ -1,13 +1,11 @@
-<user_data>
-<message>{{ description }}</message>
-
-{% if history_block %}
-<conversation_history>
+{# Hợp đồng endpoint clarify: đúng 1 câu hỏi. Không RAG.
+   Bản XML-tag cũ giữ ở clarify_user.legacy.j2. #}
+{% if history_block %}Ngữ cảnh gần nhất (chỉ để hiểu follow-up):
 {{ history_block }}
-</conversation_history>
-{% endif %}
-</user_data>
 
-<task>
-Trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Hỏi lại đúng 1 câu làm rõ cần thiết nhất trước khi tư vấn. Không đưa routine, không suy diễn dữ kiện lâm sàng, không dùng ngữ cảnh RAG.
-</task>
+{% endif %}
+Tin nhắn hiện tại:
+{{ description }}
+
+(Hỏi lại đúng một câu cần nhất trước khi tư vấn, đúng một dấu hỏi. Không câu dẫn,
+không câu hỏi thứ hai, chưa đưa routine.)

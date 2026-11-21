@@ -1,0 +1,45 @@
+{
+  "run_id": "v2_full",
+  "out_dir": "research/evaluation/reports/v2_full",
+  "started_at": "2026-08-21T20:14:49.833243+00:00",
+  "finished_at": "2026-08-22T09:56:47.511921+00:00",
+  "current_step": null,
+  "steps": [
+    {
+      "id": "preflight",
+      "label": "Kiểm tra môi trường",
+      "status": "ok",
+      "started_at": "2026-08-21T20:14:49.835243+00:00",
+      "finished_at": "2026-08-21T20:14:49.929157+00:00",
+      "duration_s": 0.1,
+      "detail": "⚠ Cache judge đang chứa điểm của ['deepseek-chat', 'deepseek-v4-flash', 'deepseek-v4-pro', 'gpt-5.4-mini-2026-03-17', 'gpt-5.4-nano'] nhưng lần này chấm bằng 'gpt-5.6-luna'. Cache sẽ miss toàn bộ (không sai), NHƯNG đừng gộp kết quả mới với artifact cũ — khác judge là khác thang. Dùng --out thư mục mới."
+    },
+    {
+      "id": "intake",
+      "label": "Khâu 1 — Intaker",
+      "status": "ok",
+      "started_at": "2026-08-21T20:14:49.931156+00:00",
+      "finished_at": "2026-08-21T21:04:05.802786+00:00",
+      "duration_s": 2955.9,
+      "detail": ""
+    },
+    {
+      "id": "retrieval",
+      "label": "Khâu 2 — Tài liệu RAG (judge chấm)",
+      "status": "ok",
+      "started_at": "2026-08-21T21:04:05.806538+00:00",
+      "finished_at": "2026-08-21T21:48:39.263109+00:00",
+      "duration_s": 2673.4,
+      "detail": ""
+    },
+    {
+      "id": "ablation",
+      "label": "Khâu 3 — Ablation oracle",
+      "status": "ok",
+      "started_at": "2026-08-21T21:48:39.268585+00:00",
+      "finished_at": "2026-08-22T09:56:47.499340+00:00",
+      "duration_s": 43688.2,
+      "detail": ""
+    }
+  ]
+}

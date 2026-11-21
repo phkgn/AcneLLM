@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import secrets
 from typing import TYPE_CHECKING
 
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
+
+from ..config import settings
 
 if TYPE_CHECKING:
     from ..di import Container
@@ -12,28 +15,20 @@ def get_container(request: Request) -> Container:
     return request.app.state.container
 
 
-def get_hybrid_pipeline(request: Request):
-    c: Container = request.app.state.container
-    if c.hybrid is None:
-        raise HTTPException(
-            status_code=503,
-            detail="RAG not ready. Run: python scripts/build_kb.py --step embed",
-        )
-    return c.hybrid
+def require_admin(request: Request) -> None:
+    """Cong rieng cho endpoint lo du lieu nguoi dung (audit log, debug trace).
 
+    Fail CLOSED: khong cau hinh ADMIN_API_KEY thi tu choi, khong phai cho qua.
+    Day la khac biet duy nhat so voi APIKeyMiddleware toan cuc -- middleware do
+    coi key rong la "tat xac thuc", nen /admin/audit tung mo toang khi .env de
+    API_KEY trong.
 
-def get_pipeline_for(mode: str, request: Request):
-    c: Container = request.app.state.container
-    if mode == "hybrid" and not c.rag_ready:
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                f"Pipeline '{mode}' requires RAG index. "
-                f"Run: python scripts/build_kb.py --step embed"
-            ),
-        )
-    pipeline_map = {
-        "llm_only": c.llm_only,
-        "hybrid": c.hybrid,
-    }
-    return pipeline_map.get(mode, c.llm_only)
+    Khong dung API_KEY chung: EventSource cua trinh duyet khong gui duoc header
+    tuy chinh, nen bat key toan cuc se lam hong /chat/stream.
+    """
+    expected = getattr(settings, "admin_api_key", "") or ""
+    if not expected:
+        raise HTTPException(status_code=403, detail="Admin API chua duoc cau hinh")
+    supplied = request.headers.get("x-admin-key") or ""
+    if not secrets.compare_digest(supplied, expected):
+        raise HTTPException(status_code=401, detail="Unauthorized")

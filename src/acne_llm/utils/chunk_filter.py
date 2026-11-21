@@ -1,4 +1,4 @@
-"""Shared chunk-quality filters used by both pipeline/hybrid.py and chat/runtime.py.
+"""Shared chunk-quality filters used by chat/_retrieval.py and evaluation adapters.
 
 Centralising here ensures both code paths apply identical noise-removal and
 score-pruning logic without duplication.
@@ -47,41 +47,6 @@ def _query_terms(query: str) -> set[str]:
 def _has_concrete_query_marker(query: str) -> bool:
     lowered = query.lower()
     return any(marker in lowered for marker in _CONCRETE_QUERY_MARKERS)
-
-
-# Marker "on-topic acne" — rộng hơn _CONCRETE_QUERY_MARKERS (vốn chỉ là tên sản phẩm).
-# Dùng riêng cho vague-detection: một câu hỏi kiến thức rõ ràng về mụn (nhắc tới
-# mụn / vị trí / cơ chế / nguyên nhân) KHÔNG nên bị coi là "vague" chỉ vì không
-# nhắc tên sản phẩm cụ thể.
-_ACNE_TOPIC_MARKERS = (
-    # tổn thương / từ khoá mụn
-    "mụn", "mun", "trứng cá", "trung ca", "acne", "comedone", "comedo",
-    "sẩn", "san", "nang", "viêm", "viem", "thâm", "tham", "sẹo", "seo",
-    "đầu đen", "dau den", "đầu trắng", "dau trang", "nhân mụn", "nhan mun",
-    "papule", "pustule", "nodule", "cyst", "blackhead", "whitehead",
-    "lỗ chân lông", "lo chan long", "bã nhờn", "ba nhon", "tuyến bã", "tuyen ba",
-    # vị trí cơ thể
-    "mặt", "mat", "trán", "tran", "má", "cằm", "cam", "mũi", "mui",
-    "lưng", "lung", "ngực", "nguc", "vai", "cổ", "hàm", "ham",
-    # khái niệm / nguyên nhân / cơ chế (câu hỏi knowledge)
-    "nguyên nhân", "nguyen nhan", "cơ chế", "co che", "vì sao", "vi sao",
-    "tại sao", "tai sao", "nội tiết", "noi tiet", "hormone", "hormonal",
-    "vi khuẩn", "vi khuan", "dầu", "dau", "khác biệt", "khac biet",
-    "so sánh", "so sanh", "phân biệt", "phan biet", "loại mụn", "loai mun",
-    "điều trị", "dieu tri", "trị mụn", "tri mun", "phòng ngừa", "phong ngua",
-)
-
-
-def _is_acne_concrete_query(query: str) -> bool:
-    """True khi query là câu hỏi/mô tả on-topic về mụn (không mơ hồ).
-
-    Rộng hơn _has_concrete_query_marker: chấp nhận cả thuật ngữ mụn, vị trí cơ thể,
-    và từ khái niệm/nguyên nhân — để câu hỏi knowledge rõ ràng không bị gắn "vague".
-    """
-    lowered = query.lower()
-    if _has_concrete_query_marker(query):
-        return True
-    return any(marker in lowered for marker in _ACNE_TOPIC_MARKERS)
 
 
 def is_noisy_chunk(chunk: RetrievedChunk) -> bool:
@@ -173,3 +138,45 @@ def drop_query_mismatched_chunks(
         num_chunks=len(kept),
         avg_score=avg,
     )
+
+
+# ponytail: _FACE_REGION_TERMS / _NON_FACE_REGION_TERMS +
+# drop_body_region_mismatched_chunks da bi xoa o Phase 7.
+#
+# No vut chunk noi "lung"/"nguc" khi query co "mat" -- nhung phac do mun
+# lung va mun mat trung nhau phan lon, nen bang chung bi mat im lang, khong
+# log, model khong biet minh vua bi lay di cai gi. Comment ngay tren call site
+# o _retrieval.py da tu noi: "KHONG dung keyword mismatch filter vi
+# cross-encoder da score relevance roi -- mismatch filter se drop nham".
+#
+# drop_acne_boils_mismatched_chunks ben duoi thi GIU: no chi bat khi query noi
+# ro "mun boc" va khong noi "mun nhot", term deu 2+ tu, va phan biet
+# acne nodule / furuncle la phan biet lam sang that.
+
+def drop_acne_boils_mismatched_chunks(
+    retrieval: RetrievalOutput | None,
+    query: str,
+) -> RetrievalOutput | None:
+    """Do not use boil/furuncle-only documents as evidence for acne nodules."""
+    if retrieval is None or not retrieval.chunks:
+        return retrieval
+    lowered_query = query.lower()
+    asks_acne_nodule = any(term in lowered_query for term in ("mụn bọc", "mun boc"))
+    explicitly_asks_boil = any(term in lowered_query for term in ("mụn nhọt", "mun nhot", "boil", "furuncle"))
+    if not asks_acne_nodule or explicitly_asks_boil:
+        return retrieval
+    acne_nodule_terms = ("mụn bọc", "mun boc", "nodular acne", "cystic acne", "acne nodule")
+    boil_terms = ("mụn nhọt", "mun nhot", "boil", "furuncle", "furunculosis", "skin abscess")
+    kept: list[RetrievedChunk] = []
+    for chunk in retrieval.chunks:
+        meta = chunk.metadata or {}
+        haystack = " ".join((str(meta.get("title") or ""), chunk.text)).lower()
+        boil_only = any(term in haystack for term in boil_terms) and not any(
+            term in haystack for term in acne_nodule_terms
+        )
+        if not boil_only:
+            kept.append(chunk)
+    if len(kept) == len(retrieval.chunks):
+        return retrieval
+    avg = sum(chunk.score for chunk in kept) / len(kept) if kept else 0.0
+    return retrieval.model_copy(update={"chunks": kept, "num_chunks": len(kept), "avg_score": avg})

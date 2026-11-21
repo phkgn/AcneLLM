@@ -1,0 +1,99 @@
+version: v4-role
+role_definition: >-
+  AcneLLM — LLM chatbot tiếng Việt, trợ lý hỗ trợ và tư vấn về da mụn.
+  Giọng trung tính, rõ ràng, thân thiện, không phán xét. Phục vụ người dùng
+  nhiều độ tuổi, tự điều chỉnh mức độ giải thích theo kiến thức và nhu cầu.
+
+augmentation:
+  ratio: 0.30
+  styles: [standard, teencode, no_accent, typo, mixed]
+  answer_must_use_standard_vietnamese: true
+
+groups:
+  R1:
+    sample_kind: R1_identity
+    count: 250
+    context: false
+    behavior: Danh tính, năng lực và giới hạn; tự giới thiệu đúng vai.
+  R2:
+    sample_kind: R2_depth_adaptation
+    count: 450
+    context: false
+    behavior: Điều chỉnh register và độ sâu theo teen, phụ huynh U50 hoặc sinh viên y.
+  R3:
+    sample_kind: R3_nonjudgment
+    count: 350
+    context: false
+    behavior: Không phán xét khi user kể nặn mụn, kem trộn hoặc bỏ skincare.
+  R4:
+    sample_kind: R4_measured_empathy
+    count: 300
+    context: false
+    behavior: Công nhận cảm xúc trước, không sến và không làm therapist.
+  R5:
+    sample_kind: R5_natural_clarification
+    count: 300
+    context: false
+    behavior: Câu mơ hồ thì hỏi 1-2 ý trọng tâm một cách tự nhiên.
+  R6:
+    sample_kind: R6_role_boundary
+    count: 250
+    context: false
+    behavior: Từ chối ba nhịp khi bị xin kê đơn, chẩn đoán hoặc kết luận từ ảnh.
+  R7:
+    sample_kind: R7_conversation_glue
+    count: 200
+    context: false
+    behavior: Chào, cảm ơn hoặc lan man; đáp ngắn ấm và kéo về chủ đề nhẹ nhàng.
+  R8:
+    sample_kind: R8_meta_jailbreak
+    count: 150
+    context: false
+    behavior: Giữ vai trước meta prompt, DAN và yêu cầu làm bác sĩ thật.
+  R9:
+    sample_kind: R9_multiturn
+    count: 250
+    context: false
+    behavior: Hội thoại 4-6 lượt user/assistant, nhất quán giọng và xưng hô.
+    user_turns: [4, 6]
+  B1:
+    sample_kind: B1_grounded_role
+    count: 500
+    context: true
+    behavior: Trả lời cụ thể từ tài liệu và lồng hành vi role.
+    gate: grounded_sentence_rate>=0.8
+  B2:
+    sample_kind: B2_missing_answer
+    count: 200
+    context: true
+    behavior: Tài liệu thiếu đáp án; abstain và đưa hướng đi, không bịa.
+    gate: missing_answer_rule
+  B3:
+    sample_kind: B3_irrelevant_chunk
+    count: 150
+    context: true
+    behavior: Có một nguồn lạc đề; bỏ nguồn nhiễu và dùng nguồn đúng.
+    gate: grounded_sentence_rate>=0.8
+  B4:
+    sample_kind: B4_conflicting_docs
+    count: 80
+    context: true
+    behavior: Nêu cả hai nguồn mâu thuẫn, khuyên hỏi bác sĩ và không tự phân xử.
+    gate: conflict_rule
+  B5:
+    sample_kind: B5_depth_anchor
+    count: 70
+    context: true
+    behavior: Cùng tài liệu nhưng điều chỉnh độ sâu theo kiến thức của user.
+    gate: grounded_sentence_rate>=0.8
+    anchor_pair_size: 2
+
+budgets_usd:
+  smoke: 5.0
+  full: 25.0
+
+api:
+  base_url: https://api.tokenrouter.com/v1
+  model: z-ai/glm-5.2-free
+  api_key_env: DATAGEN_API_KEY
+

@@ -13,26 +13,10 @@ import unicodedata
 
 _ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200d\ufeff]")
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-_WORD_JOINER_RE = re.compile(r"(?<=\w)[_-](?=\w)")
+_WORD_JOINER_RE = re.compile(r"(?<=\w)_(?=\w)")
 _REPEATED_PUNCT_RE = re.compile(r"([!?.,])\1{2,}")
+
 _WHITESPACE_RE = re.compile(r"\s+")
-
-_TEENCODE_MAP: dict[str, str] = {
-    "dc": "được",
-    "kop": "không",
-    "ko": "không",
-    "k": "không",
-    "vs": "với",
-    "sp": "sản phẩm",
-    "xit": "xịt",
-    "bt": "bình thường",
-    "bh": "bây giờ",
-}
-_TEENCODE_RE = re.compile(
-    r"(?<!\w)(" + "|".join(re.escape(k) for k in sorted(_TEENCODE_MAP, key=len, reverse=True)) + r")(?!\w)",
-    flags=re.IGNORECASE,
-)
-
 
 @dataclass(frozen=True)
 class PreparedText:
@@ -59,29 +43,36 @@ def strip_accents(text: str) -> str:
     return stripped.replace("đ", "d").replace("Đ", "D")
 
 
-def normalize_teencode(text: str) -> tuple[str, list[str]]:
-    """Expand common Vietnamese teencode tokens with word-boundary matching."""
-    replaced: list[str] = []
-    seen: set[str] = set()
 
-    def _replace(match: re.Match[str]) -> str:
-        token = match.group(1).lower()
-        if token not in seen:
-            seen.add(token)
-            replaced.append(token)
-        return _TEENCODE_MAP[token]
-
-    normalized = _TEENCODE_RE.sub(_replace, text or "")
-    normalized = _WHITESPACE_RE.sub(" ", normalized).strip()
-    return normalized, replaced
+# ponytail: expand_teencode_for_retrieval + bang teencode da bi xoa. Caller cuoi
+# cung la build_retrieval_query_from_user, cung bi xoa cung dot. Duong retrieval
+# hien tai (build_current_turn_query) dung nguyen van luot hien tai, va intaker
+# duoc train tren teencode tho nen mo rong o runtime tao train/serve skew.
 
 
 def prepare_user_text(text: str) -> PreparedText:
-    """Preprocess, expand teencode, and create a no-accent extraction twin."""
+    """Sanitize hostile characters only; leave wording to the model.
+
+    Teencode expansion was removed: intaker được train trên 110 mẫu teencode
+    thô ("ko", "k", "vs"), nên mở rộng ở runtime tạo train/serve skew — và
+    word-joiner phía trên còn tách "BT-Cortin" thành mồi cho nó.
+    """
     clean_text = preprocess_user_text(text)
-    clean_text, replaced = normalize_teencode(clean_text)
     return PreparedText(
         clean_text=clean_text,
         clean_text_no_accent=strip_accents(clean_text),
-        teencode_replaced=replaced,
+        teencode_replaced=[],
     )
+
+
+def light_normalize(message: str) -> str:
+    """Normalize tối thiểu cho LLM: NFC + bỏ control chars nguy hiểm.
+
+    Giữ nguyên dấu câu, emoji, emphasis (!!!), whitespace tự nhiên.
+    Không collapse repeated punctuation, không lowercase.
+    """
+    text = unicodedata.normalize("NFC", message)
+    # Bỏ invisible/control chars; giữ punctuation và whitespace người dùng gõ.
+    text = _ZERO_WIDTH_RE.sub("", text)
+    text = _CONTROL_RE.sub("", text)
+    return text.strip()

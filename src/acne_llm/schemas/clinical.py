@@ -72,22 +72,4 @@ class NormalizedAcneCase(BaseModel):
     missing_info: list[str] = Field(default_factory=list)
 
 
-class ClinicalRagQueries(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    query_vi: str = ""
-    # Query dạng câu tiếng Việt tự nhiên — dùng cho cross-encoder reranker.
-    # Khác query_vi (structured key-value) để reranker so sánh ngôn ngữ tự nhiên
-    # với chunk text tự nhiên, tránh logit thấp do mismatch format.
-    rerank_query: str = ""
-
-
-class ClinicalQueryPlan(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    detected_language: Literal["vi", "en", "mixed", "unknown"] = "unknown"
-    normalized_case: NormalizedAcneCase = Field(default_factory=NormalizedAcneCase)
-    rag_queries: ClinicalRagQueries = Field(default_factory=ClinicalRagQueries)
-    missing_info: list[str] = Field(default_factory=list)
-    safety_terms: list[str] = Field(default_factory=list)
-    planner_confidence: float = Field(default=0.5, ge=0, le=1)
+# ClinicalRagQueries + ClinicalQueryPlan đã gỡ (planner retired, xem clinical_planner.py).

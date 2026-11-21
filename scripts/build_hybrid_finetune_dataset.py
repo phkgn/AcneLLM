@@ -33,30 +33,21 @@ def _context_block(chunks, max_chars: int = 4000) -> str:
             break
         if len(text) > remaining:
             text = text[:remaining].rsplit(" ", 1)[0].strip() + "..."
-        blocks.append(f"[{i}] {title} | Nguồn: {source} | chunk_id={chunk.chunk_id}\n{text}")
+        blocks.append(f"Nguồn {i} — {title} | {source}\n{text}")
         used += len(text)
     return "\n\n---\n\n".join(blocks)
 
 
-def _attach_citations(target: dict, chunk_ids: list[str]) -> dict:
+def _attach_retrieval_metadata(target: dict, chunk_ids: list[str]) -> dict:
     target = dict(target)
     target["mode"] = "hybrid"
     target["used_chunks"] = chunk_ids
-    if not chunk_ids:
-        return target
-    recommendations = []
-    for i, rec in enumerate(target.get("recommendations", [])):
-        rec = dict(rec)
-        if not rec.get("source_chunk_id"):
-            rec["source_chunk_id"] = chunk_ids[min(i, len(chunk_ids) - 1)]
-        recommendations.append(rec)
-    target["recommendations"] = recommendations
     return target
 
 
 @app.command()
 def main(
-    input: str = typer.Option("LLMData/acne_dataset.jsonl", "--input"),
+    input: str = typer.Option("research/LLMData/acne_dataset.jsonl", "--input"),
     output: str = typer.Option("data/finetune/hybrid_chatml.jsonl", "--output"),
     top_k: int = typer.Option(5, "--top-k"),
     limit: int | None = typer.Option(None, "--limit"),
@@ -83,7 +74,7 @@ def main(
                 retrieval = container.retriever.retrieve(description, top_k=top_k, mode="hybrid")
                 chunks = retrieval.chunks[:top_k]
                 chunk_ids = [chunk.chunk_id for chunk in chunks]
-                target = _attach_citations(_target_advise(row), chunk_ids)
+                target = _attach_retrieval_metadata(_target_advise(row), chunk_ids)
                 user_content = (
                     f"<raw_user_message>{description}</raw_user_message>\n"
                     f"<rag_context>\n{_context_block(chunks)}\n</rag_context>"

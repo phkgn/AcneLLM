@@ -1,7 +1,7 @@
 """Streaming chat runtime -- orchestrator chinh cho /chat/stream va /ws/chat.
 
 Flow:
-    message -> intake (guardrails + completeness) -> retrieve -> build_prompt
+    message -> intake (guardrails + route) -> retrieve -> build_prompt
     -> llm.stream_text -> safety suffix -> SSE events -> persist session -> audit
 """
 from __future__ import annotations
@@ -10,16 +10,18 @@ from collections.abc import Iterator
 import inspect
 import json
 import time
+import re
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from .intake import run_intake
-from .session import ConversationTurn, get_session_store
-from ._retrieval import retrieve_for_chat, citation_data, compute_evidence_quality
+from .session import ConversationTurn
+from ._retrieval import compute_evidence_quality, source_data
+from .orchestrator import prepare_chat_turn
 from ._safety import get_safety_suffix
 from ..db.audit import AuditEntry
-from ..guardrails.ood_detector import mask_pii
+from ..guardrails.pii import mask_pii
+from ..utils.logging import log_pipeline_stage
 
 if TYPE_CHECKING:
     from ..di import Container
@@ -35,7 +37,7 @@ def _event(event: str, data) -> str:
 
 def _snapshot_for_persistence(intake: "IntakeResult"):
     route = intake.route_decision
-    if route is None or route.query_subject != "self":
+    if route is None or route.primary_intent != "advise":
         return None
     return intake.turn_snapshot
 
@@ -62,20 +64,27 @@ def stream_chat_sse(
 ) -> Iterator[str]:
     """Yield SSE-formatted strings cho chat UI (Next.js EventSource)."""
     started = time.perf_counter()
+    sid_short = (session_id or "no-session")[:8]
+    prepared = None  # except doc lai de tra ban cung cua refusal khi generator chet
     try:
-        intake = run_intake(c, message, session_id=session_id, mode_request=requested_mode)
+        prepared = prepare_chat_turn(
+            c,
+            message,
+            requested_mode=requested_mode,
+            session_id=session_id,
+        )
+        intake = prepared.intake
         clean_message = intake.clean_text
         history = intake.history
         user = intake.user
-        mode = "hybrid" if intake.effective_mode == "hybrid" else "llm_only"
+        mode = prepared.mode
         display_mode = "clarify" if intake.effective_mode == "clarify" else mode
-        route_metadata = intake.route_decision.metadata() if intake.route_decision else {}
+        route_metadata = prepared.route_metadata
         persist_snapshot = _snapshot_for_persistence(intake)
         _primary_intent = (
             intake.route_decision.primary_intent if intake.route_decision else "advise"
         )
-        # Dung container session store (JSONL in production; in-memory fallback for tests).
-        sess = getattr(c, "session_store", None) or get_session_store()
+        sess = c.session_store
 
         # M5: Progress/follow-up intent — annotate route_metadata so prompt builder
         # and session store know this is a treatment check-in turn.
@@ -86,162 +95,46 @@ def stream_chat_sse(
             if session_id and hasattr(sess, "increment_followup_count"):
                 sess.increment_followup_count(session_id, 1.0)
 
-        # -- 1. Scope refusal -------------------------------------------------
+        # Refusal không còn short-circuit: guardrail quyết nội dung, generator
+        # viết câu chữ, get_safety_suffix nối lại bản cứng ở cuối.
         if intake.scope_refusal is not None:
-            # Bug #5 fix: track guardrail trigger count
             _gr = getattr(c, "guardrails", None)
             if _gr is not None:
                 _gr.trigger_count = getattr(_gr, "trigger_count", 0) + 1
-            assistant_text = (
-                intake.scope_refusal.disclaimer
-                or "\n".join(intake.scope_refusal.causes)
-            )
-            if session_id:
-                sess.append_turn(
-                    session_id,
-                    ConversationTurn(
-                        role="user",
-                        # F10: lưu nguyên văn user gõ, không phải bản đã preprocess.
-                        # Fold/normalize sẽ re-run trên history nếu cần.
-                        content=intake.raw_message,
-                        mode=mode,
-                        normalized_snapshot=persist_snapshot,
-                        metadata=route_metadata,
-                    ),
-                )
-                sess.append_turn(
-                    session_id,
-                    ConversationTurn(role="assistant", content=assistant_text, mode="llm_only"),
-                )
-            yield _event("token", assistant_text)
-            yield _event("done", {
-                "mode": "refuse",
-                "latency_ms": int((time.perf_counter() - started) * 1000),
-                "used_chunks": [],
-                "session_id": session_id,
-            })
-            return
-
-        # -- 2. Completeness hint (soft) --------------------------------------
-        # Thay vì block LLM với hardcoded string, chuyển completeness thành
-        # instruction inject vào prompt để model tự hỏi một cách tự nhiên.
-        completeness = intake.completeness
-        completeness_hint: str | None = None
-        if completeness is not None and completeness.followup_question:
-            if completeness.kind == "too_short":
-                completeness_hint = (
-                    "Tin nhắn rất ngắn, chưa rõ tình trạng mụn. "
-                    "Hãy trả lời thân thiện và hỏi thêm: loại mụn gì, ở đâu, bị bao lâu."
-                )
-            elif completeness.kind == "missing_core":
-                missing = ", ".join(completeness.missing_fields)
-                completeness_hint = (
-                    f"Chưa có thông tin: {missing}. "
-                    "Có thể tư vấn sơ bộ nếu có đủ dữ liệu khác, "
-                    "rồi hỏi tự nhiên 1 câu để làm rõ thêm ở cuối."
-                )
-            elif completeness.kind == "partial" and completeness.partial_advise:
-                missing = ", ".join(completeness.missing_fields)
-                completeness_hint = (
-                    f"Thông tin còn thiếu: {missing}. "
-                    "Tư vấn dựa trên thông tin hiện có, "
-                    "rồi hỏi tự nhiên 1 câu bổ sung ở cuối nếu cần."
-                )
-
-        # -- 2b. Confidence hedging (BẰNG LỜI, không số) ----------------------
-        # Extract không bao giờ đúng 100% → nối hedging vào completeness_hint để
-        # model thận trọng đúng chỗ field conf thấp. Chỉ áp cho nhánh tư vấn
-        # (advise); knowledge/clarify/reject không cần.
-        _ec = getattr(intake, "extraction_confidence", None)
-        if _ec is not None and _primary_intent == "advise":
-            try:
-                from .extraction_confidence import build_confidence_hint
-                _min_conf = getattr(c.settings, "extract_min_field_conf", 0.60)
-                _conf_hint = build_confidence_hint(_ec, field_threshold=_min_conf)
-                if _conf_hint:
-                    completeness_hint = (
-                        f"{completeness_hint} {_conf_hint}".strip()
-                        if completeness_hint else _conf_hint
-                    )
-            except Exception:
-                pass  # hedging là tăng cường, không được làm vỡ luồng chính
-
-        # -- 3. Retrieve ------------------------------------------------------
-        clinical_plan = intake.clinical_plan
-        rag_signal = intake.is_acne_signal or clinical_plan is not None or bool(intake.safety_terms)
-        t_rag = time.perf_counter()
-        _route_flags_for_rag = intake.route_decision.route_flags if intake.route_decision else []
-        retrieval = (
-            retrieve_for_chat(
-                c,
-                user,
-                clinical_plan,
-                route_flags=_route_flags_for_rag,
-                normalized_query=intake.normalized_query,
-                safety_terms=intake.safety_terms,
-            )
-            if mode == "hybrid" and rag_signal and _primary_intent not in {"clarify", "reject"}
-            else None
-        )
-        if retrieval is not None:
-            logger.debug(
-                "[{}] RAG: {} chunks in {:.0f}ms (scope={} plan={})",
-                (session_id or "")[:8],
-                len(retrieval.chunks),
-                (time.perf_counter() - t_rag) * 1000,
-                intake.scope_decision,
-                clinical_plan is not None,
-            )
-        else:
-            logger.debug(
-                "[{}] RAG: skipped (mode={} signal={} plan={})",
-                (session_id or "")[:8],
-                mode,
-                rag_signal,
-                clinical_plan is not None,
+            log_pipeline_stage(
+                session_id,
+                "SAFETY",
+                started,
+                level="WARNING",
+                result="refusal_to_generator",
+                reason=(intake.scope_refusal.causes or ["refusal"])[0],
             )
 
-        # -- 4. Build prompt --------------------------------------------------
-        # Chọn template theo primary_intent.
-        if _primary_intent == "clarify":
-            _template = "clarify_user.j2"
-        elif _primary_intent == "knowledge":
-            _template = "knowledge_user.j2"
-        else:
-            _template = "stream_user.j2"
-        system, user_message = c.prompt.build(
-            user=user,
-            retrieval=retrieval,
-            template=_template,
-            detected_language=(
-                clinical_plan.detected_language if clinical_plan else "unknown"
-            ),
-            query_vi=(
-                clinical_plan.rag_queries.query_vi if clinical_plan else intake.normalized_query
-            ),
-            max_context_chars=getattr(c.settings, "chat_max_context_chars", 4500),
-            clinical_plan=clinical_plan,
-            history=history,
-            route_metadata=route_metadata,
-            system_override=c.prompt.system_stream(),
-            completeness_hint=completeness_hint,
-        )
+        # Retrieval and prompt are prepared once by the shared orchestrator.
+        retrieval = prepared.retrieval
+
+        system, user_message = prepared.system_prompt, prepared.user_prompt
 
         # -- 5. LLM stream ----------------------------------------------------
-        # Knowledge queries cần temperature cao hơn để model không tự cắt sớm
-        _default_temp = getattr(c.settings, "llm_temperature", 0.3)
-        _knowledge_temp = max(_default_temp, 0.5)
+        # Keep factual generation at the configured low temperature. Raising
+        # knowledge temperature increased invented sources and unsupported claims.
+        _default_temp = getattr(c.settings, "llm_temperature", 0.35)
         effective_temperature = (
             temperature
             if temperature is not None
-            else (_knowledge_temp if _primary_intent == "knowledge" else _default_temp)
+            else _default_temp
         )
         prompt_chars = len(system) + len(user_message)
-        logger.debug(
-            "[{}] PROMPT: {:.0f} chars (~{:.0f} tokens) -> LLM",
-            (session_id or "")[:8],
-            prompt_chars,
-            prompt_chars / 3.5,
+        generation_started = time.perf_counter()
+        log_pipeline_stage(
+            session_id,
+            "GENERATE",
+            generation_started,
+            level="DEBUG",
+            status="prompt_ready",
+            prompt_chars=prompt_chars,
+            approx_tokens=int(prompt_chars / 3.5),
+            temperature=effective_temperature,
         )
         # M7 + M2: Pre-stream prefixes (repeated question / empathy)
         pre_prefix = ""
@@ -255,19 +148,14 @@ def stream_chat_sse(
                 "chuyên gia tâm lý nhé. Về phần da, "
             )
             yield _event("token", pre_prefix)
-            logger.debug("[{}] Crisis signal — empathy prefix yielded", (session_id or "")[:8])
-        elif "emotional_distress" in route_flags_pre:
-            # M2: Empathy prefix for emotional distress (không crisis)
-            pre_prefix = "Mình hiểu mụn có thể ảnh hưởng đến tâm lý nhiều lắm — "
-            yield _event("token", pre_prefix)
-            logger.debug("[{}] Emotional distress — empathy prefix yielded", (session_id or "")[:8])
-        elif "repeated_question" in route_flags_pre:
-            # M7: Repeated question acknowledgment
-            pre_prefix = "Như mình đã chia sẻ, "
-            yield _event("token", pre_prefix)
-            logger.debug("[{}] Repeated question — prefix yielded", (session_id or "")[:8])
+            log_pipeline_stage(
+                session_id,
+                "GENERATE",
+                generation_started,
+                level="DEBUG",
+                status="empathy_prefix",
+            )
 
-        t_llm = time.perf_counter()
         tokens: list[str] = []
         first_token = True
         # Knowledge queries: không hard-cap output, để model tự dừng khi xong
@@ -278,17 +166,18 @@ def stream_chat_sse(
             and _supports_keyword(c.llm.stream_text, "num_predict")
         ):
             stream_kwargs["num_predict"] = _stream_num_predict
-        import re as _re
-        _CJK_RE = _re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
+        _CJK_RE = re.compile(r"[一-鿿぀-ゟ゠-ヿ가-힯]+")
         _cjk_total = 0
 
         stream_iter = c.llm.stream_text(system, user_message, **stream_kwargs)
         for token in stream_iter:
             if first_token:
-                logger.debug(
-                    "[{}] LLM first token in {:.0f}ms",
-                    (session_id or "")[:8],
-                    (time.perf_counter() - t_llm) * 1000,
+                log_pipeline_stage(
+                    session_id,
+                    "GENERATE",
+                    generation_started,
+                    level="DEBUG",
+                    status="first_token",
                 )
                 first_token = False
             # Guard: strip CJK per-token trước khi yield ra UI
@@ -301,23 +190,35 @@ def stream_chat_sse(
                 yield _event("token", token)
 
         if _cjk_total > 0:
-            logger.warning(
-                "[{}] CJK guard: stripped {} CJK chars from LLM stream",
-                (session_id or "")[:8],
-                _cjk_total,
+            log_pipeline_stage(
+                session_id,
+                "OUTPUT",
+                generation_started,
+                level="WARNING",
+                guard="cjk_strip",
+                stripped_chars=_cjk_total,
             )
 
         full_text = pre_prefix + "".join(tokens)
-        logger.debug(
-            "[{}] LLM done: {} tokens in {:.0f}ms",
-            (session_id or "")[:8],
-            len(tokens),
-            (time.perf_counter() - t_llm) * 1000,
+        log_pipeline_stage(
+            session_id,
+            "GENERATE",
+            generation_started,
+            status="done",
+            chunks=len(tokens),
+            chars=len(full_text),
         )
 
+        used_chunks = [c.chunk_id for c in retrieval.chunks] if retrieval else []
+        if retrieval:
+            for chunk in retrieval.chunks:
+                yield _event("source", source_data(chunk))
+
         # -- 6. Safety suffix -------------------------------------------------
-        # Streaming text is not an AdviseOutput, so avoid constructing a dummy
-        # object for post_check. Keep only text-aware suffix rules here.
+        # Tang hau kiem tren text la tang hau kiem DUY NHAT. Ban cu dua tren
+        # AdviseOutput (guardrails.post_check) da bi xoa o Phase 3 vi prose
+        # streaming khong co object nao de dua vao; luat dang giu duy nhat tu do
+        # -- lieu luong cu the -- da duoc port vao get_safety_suffix.
         route_flags = intake.route_decision.route_flags if intake.route_decision else []
         is_knowledge_intent = (
             intake.route_decision is not None
@@ -326,43 +227,30 @@ def stream_chat_sse(
         safety_route_flags = route_flags
         if is_knowledge_intent and "urgent_personal_case" not in route_flags:
             safety_route_flags = [f for f in route_flags if f != "urgency_red_flag"]
-        warning_suffix = get_safety_suffix(
-            full_text,
-            user,
-            route_flags=safety_route_flags,
-            skip_generic_disclaimer=is_knowledge_intent,
-            recent_turns=history,
-            current_turn_text=message,
+        warning_suffix = (
+            ""
+            if _primary_intent == "reject"
+            else get_safety_suffix(
+                full_text,
+                user,
+                route_flags=safety_route_flags,
+                skip_generic_disclaimer=is_knowledge_intent,
+                recent_turns=history,
+                current_turn_text=message,
+            )
         )
 
         if warning_suffix:
             yield _event("token", warning_suffix)
 
-        # -- 6b. Partial advise follow-up question ----------------------------
-        # kind="partial": LLM đã trả lời sơ bộ; append câu hỏi bổ sung ở cuối
-        # để không block response nhưng vẫn thu thập thêm thông tin.
-        partial_question_suffix = ""
-        if (
-            intake.completeness is not None
-            and intake.completeness.kind == "partial"
-            and intake.completeness.partial_advise
-            and intake.completeness.followup_question
-        ):
-            partial_question_suffix = "\n\n" + intake.completeness.followup_question
-            yield _event("token", partial_question_suffix)
-            # Bug fix: mark fields as asked so completeness checker doesn't
-            # repeat the same follow-up question on subsequent turns.
-            if intake.completeness.missing_fields and session_id:
-                sess.mark_fields_asked(session_id, intake.completeness.missing_fields)
-
-        # -- 7. Citations -----------------------------------------------------
-        used_chunks = [chunk.chunk_id for chunk in retrieval.chunks] if retrieval else []
-        if retrieval:
-            for chunk in retrieval.chunks:
-                yield _event("citation", citation_data(chunk))
+        # ponytail: bo doan noi cau hoi bo sung. Generator thay lich su va thay
+        # du kien trong nen tu quyet dinh hoi hay khong -- va no van hoi bat ke
+        # prompt bao dung, nen noi them chi tao cau hoi THU HAI. Viec chan hoi
+        # lap cung khong can `asked_fields` nua: model doc duoc luot truoc no da
+        # hoi gi. Xem git history neu can khoi phuc.
 
         # -- 8. Persist session -----------------------------------------------
-        full_assistant_text = full_text + (warning_suffix or "") + partial_question_suffix
+        full_assistant_text = full_text + (warning_suffix or "")
         assistant_mode = "clarify" if intake.effective_mode == "clarify" else mode
         if session_id:
             sess.append_turn(
@@ -412,6 +300,17 @@ def stream_chat_sse(
             ))
 
         latency_ms = int((time.perf_counter() - started) * 1000)
+        output_started = time.perf_counter()
+        log_pipeline_stage(
+            session_id,
+            "OUTPUT",
+            output_started,
+            status="done",
+            mode=display_mode,
+            chars=len(full_assistant_text),
+            used_chunks=len(used_chunks),
+            total_ms=latency_ms,
+        )
         yield _event("done", {
             "mode": display_mode,
             "latency_ms": latency_ms,
@@ -419,13 +318,25 @@ def stream_chat_sse(
             "session_id": session_id,
             "evidence_quality": evidence_quality,
             "primary_intent": route_metadata.get("primary_intent"),
-            "query_subject": route_metadata.get("query_subject"),
             "route_flags": route_metadata.get("route_flags", []),
         })
 
-    except Exception as e:
-        logger.exception("Streaming chat failed")
-        yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
+    except Exception:
+        logger.exception(
+            "[{}] {:<10} status=error ({:.0f}ms)",
+            sid_short,
+            "OUTPUT",
+            (time.perf_counter() - started) * 1000,
+        )
+        # Refusal di qua generator de model viet cau chu (xem orchestrator).
+        # Nghia la khi generator chet, canh bao an toan bien mat hoan toan --
+        # dung cai luot ma ta KHONG duoc phu thuoc LLM. Ban cung cua guardrail
+        # van con trong scope_refusal.disclaimer, tra thang no.
+        _refusal = getattr(getattr(prepared, "intake", None), "scope_refusal", None)
+        if _refusal is not None and getattr(_refusal, "disclaimer", ""):
+            yield _event("token", _refusal.disclaimer)
+        else:
+            yield _event("error", "Đã xảy ra lỗi, vui lòng thử lại.")
         yield _event("done", {
             "mode": "error",
             "latency_ms": int((time.perf_counter() - started) * 1000),

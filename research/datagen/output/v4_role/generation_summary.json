@@ -1,0 +1,254 @@
+{
+  "version": "v4-role-e2e-2",
+  "status": "complete",
+  "mode": "smoke",
+  "generated_at": "2026-07-19T03:50:31.685801+00:00",
+  "output": "E:\\project\\AcneLLM\\datagen\\output\\v4_role\\v4_role.train.jsonl",
+  "rejected_audit": "E:\\project\\AcneLLM\\datagen\\output\\v4_role\\rejected.audit.jsonl",
+  "target_total": 18,
+  "existing_before": 106,
+  "new_records": 1,
+  "total_records": 106,
+  "model": "z-ai/glm-5.2-free",
+  "thinking": "disabled",
+  "budget_usd": 25.0,
+  "usage": {
+    "calls": 3,
+    "prompt_tokens": 6360,
+    "completion_tokens": 925,
+    "reasoning_tokens": 0,
+    "total_tokens": 7285,
+    "actual_cost_usd": 0.0,
+    "input_price_per_million": 0.0,
+    "output_price_per_million": 0.0,
+    "call_details": [
+      {
+        "kind": "preflight",
+        "elapsed_seconds": 0.964,
+        "usage": {
+          "prompt_tokens": 24,
+          "completion_tokens": 3,
+          "reasoning_tokens": 0,
+          "total_tokens": 27
+        }
+      },
+      {
+        "kind": "generation",
+        "elapsed_seconds": 6.981,
+        "usage": {
+          "prompt_tokens": 2948,
+          "completion_tokens": 430,
+          "reasoning_tokens": 0,
+          "total_tokens": 3378
+        }
+      },
+      {
+        "kind": "generation",
+        "elapsed_seconds": 18.046,
+        "usage": {
+          "prompt_tokens": 3388,
+          "completion_tokens": 492,
+          "reasoning_tokens": 0,
+          "total_tokens": 3880
+        }
+      }
+    ]
+  },
+  "elapsed_seconds": 100.936,
+  "estimated_full_hours": 2.262,
+  "estimated_full_cost_usd": 0.0,
+  "preflight": {
+    "checks": [
+      {
+        "name": "Cấu hình + DATAGEN_API_KEY",
+        "passed": true,
+        "detail": "đủ"
+      },
+      {
+        "name": "Model khả dụng",
+        "passed": true,
+        "detail": "z-ai/glm-5.2-free"
+      },
+      {
+        "name": "Completion ngắn",
+        "passed": true,
+        "detail": "0.96s"
+      },
+      {
+        "name": "thinking=disabled",
+        "passed": true,
+        "detail": "reasoning_tokens=0"
+      },
+      {
+        "name": "Embedding cosine",
+        "passed": true,
+        "detail": "semantic_score=0.6643"
+      },
+      {
+        "name": "Template + SYSTEM",
+        "passed": true,
+        "detail": "đọc được"
+      },
+      {
+        "name": "Index contamination",
+        "passed": true,
+        "detail": "user_texts=1016"
+      },
+      {
+        "name": "Throughput probe 3 mẫu",
+        "passed": true,
+        "detail": "2.33s/mẫu; ~0.00h; ~$0.00"
+      }
+    ],
+    "models": [
+      "z-ai/glm-5.2-free"
+    ],
+    "semantic": {
+      "passed": true,
+      "pass": true,
+      "reasons": [],
+      "semantic_score": 0.6643,
+      "model_check": "AITeamVN/Vietnamese_Embedding"
+    },
+    "contamination": {
+      "ready": true,
+      "backend": "evaluation_v1_in_memory",
+      "input_signature": {
+        "schema_version": 1,
+        "ngram_size": 8,
+        "paths": [
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl",
+            "size": 29256,
+            "mtime_ns": 1784191825153457400
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl",
+            "size": 272370,
+            "mtime_ns": 1784209146667474800
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl",
+            "size": 134355,
+            "mtime_ns": 1784209997320910300
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d4_safety.jsonl",
+            "size": 268736,
+            "mtime_ns": 1784209153381548100
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d5_multiturn.jsonl",
+            "size": 165017,
+            "mtime_ns": 1784209156918447500
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d6_ood.jsonl",
+            "size": 141669,
+            "mtime_ns": 1784209160116140200
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl",
+            "size": 206136,
+            "mtime_ns": 1784209163540282900
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl",
+            "size": 80055,
+            "mtime_ns": 1784191825131764300
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl",
+            "size": 6418,
+            "mtime_ns": 1784197360856290000
+          },
+          {
+            "path": "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl",
+            "size": 7868,
+            "mtime_ns": 1784197329935332900
+          }
+        ]
+      },
+      "train_sha256": {
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d1_dev_seed.jsonl": "9a832f4bd918a4aed64b87f9fc4b7b3aebbd08c47bbebe12c58e5ca57ef17b95",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d2_test.jsonl": "2b7e667d0dbcb3023c3831725070423c3811b21c8241d33b56fb578f482b6225",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d3_challenge.jsonl": "76f22e2d46e604713c0e4efe8927298071c27c828ae52910df8f0482d00419f9",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d4_safety.jsonl": "5028c82aa5375a83ada908d513dbfbeec2a896e65d2c246e810536e120f1b2f0",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d5_multiturn.jsonl": "d84dbdbdbec1d593391a2edf3c5b5e5256f4dfb0bbcd6aaed24f3fa750cd3406",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d6_ood.jsonl": "0c95726e87d72de1f3cda22b71b32366678343e5a65cd7d5e2db998a1b144023",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d7_adversarial.jsonl": "08c943df3318f3cfaafd11bcd395de60aaf9a47fe279a362d8523745208269a4",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\d8_qrels_seed.jsonl": "36b8c893571ae36425aa5a7216efebbb6f356486f218724fb4284eff7f31cf19",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_guardrails_seed.jsonl": "96dc95b1077b86d1d6a2c730739b82c931a176d2ccbb33c74452b2372c095ce1",
+        "E:\\project\\AcneLLM\\evaluation\\datasets\\v1\\t1_intent_seed.jsonl": "a8eb33adf9a69c7d1e557221ce6dd60c83b0208c1154e5de2842d9413817fc63"
+      },
+      "rows_seen": 872,
+      "user_texts": 1016,
+      "invalid_json_rows": 0,
+      "unique_exact_texts": 1705,
+      "unique_ngrams": 31775,
+      "source_texts": 1016,
+      "cache_db": null
+    },
+    "throughput": {
+      "skipped": false,
+      "produced_candidates": 3,
+      "elapsed_seconds": 6.981,
+      "seconds_per_sample": 2.327,
+      "estimated_hours": 0.0,
+      "estimated_cost_usd": 0.0
+    }
+  },
+  "counters": {
+    "case_type::B1": 1,
+    "input_style::standard": 1,
+    "resume_accepted": 105,
+    "resume_rejected": 1,
+    "rule_reason::answer_language_quality::awkward_answer_phrase:vi khu khuan": 1,
+    "samples_written": 1
+  },
+  "post_validate": {
+    "passed": true,
+    "records": 106,
+    "unique_ids": 106,
+    "schema_errors": [],
+    "duplicate_ids": [],
+    "phrase_frequency_violations": [],
+    "b5_pairs": {
+      "passed": true,
+      "pass": true,
+      "reasons": [],
+      "anchor_count": 1,
+      "pair_count": 1
+    },
+    "case_type_counts": {
+      "R1": 29,
+      "R2": 8,
+      "R3": 6,
+      "R4": 8,
+      "R5": 7,
+      "R6": 6,
+      "R7": 6,
+      "R8": 4,
+      "R9": 5,
+      "B1": 10,
+      "B2": 4,
+      "B3": 7,
+      "B4": 4,
+      "B5": 2
+    },
+    "input_style_counts": {
+      "mixed": 1,
+      "no_accent": 9,
+      "standard": 82,
+      "teencode": 10,
+      "typo": 4
+    },
+    "augmentation_ratio": 0.2264,
+    "quota_deficits": {},
+    "distribution_warnings": [
+      "sample_kind R1: actual=27.4%, expected=7.1%"
+    ]
+  },
+  "full_run_performed": false,
+  "limit_checkpoint": null
+}

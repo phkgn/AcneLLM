@@ -1,0 +1,25 @@
+import importlib.util
+import inspect
+from pathlib import Path
+
+from acne_llm.chat.orchestrator import prepare_chat_turn
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_prepare_chat_turn_has_one_prose_contract():
+    assert "response_format" not in inspect.signature(prepare_chat_turn).parameters
+
+
+def test_structured_prompt_templates_are_removed():
+    prompts = ROOT / "config" / "prompts"
+    assert not (prompts / "hybrid_user.j2").exists()
+    assert not (prompts / "llm_only_user.j2").exists()
+
+
+def test_legacy_json_pipeline_modules_are_removed():
+    # Phase 1 xoa luon ca package `acne_llm.pipeline` (chi con moi base.py chua
+    # mot Protocol khong ai import), nen find_spec nem ModuleNotFoundError thay
+    # vi tra None. Rang buoc manh hon rang buoc cu.
+    assert importlib.util.find_spec("acne_llm.pipeline") is None
