@@ -24,3 +24,20 @@ logs
 
 # Model weights — Ollama loads these separately, never copy into image
 model/
+
+# Non-runtime workspaces, eval datasets, audits, and report deliverables
+.audit/
+.codex_tmp/
+research/
+data/finetune/
+data/eval/
+data/eval_labels/
+data/sessions/
+docs/
+report_output/
+report_data_pack/
+*.docx
+*.pdf
+*.pptx
+*.rar
+*.zip

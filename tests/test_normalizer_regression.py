@@ -455,7 +455,7 @@ class TestEdgeCases:
         Marked xfail until negation-aware matching is implemented.
         """
         r = norm("tôi không nặn mụn bao giờ")
-        f = flags(r)
+        flags(r)
         # Known gap: pattern currently triggers on 'nặn mụn' even with 'không' prefix.
         # When negation is implemented, flip this to a real assert.
         pytest.xfail("Negation for self_treatment_risk not yet implemented")

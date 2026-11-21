@@ -225,14 +225,16 @@ Không có WebSocket; frontend dùng SSE.
 
 ## Test
 
+> Trên Windows dùng `py -3.10 -m pytest` (hoặc Python trong virtualenv đang kích hoạt `.venv`).
+
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q
+python -m pytest -q
 ```
 
 Các test pipeline trọng tâm:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest `
+python -m pytest `
   tests/test_intake.py `
   tests/test_chat_stream.py `
   tests/test_intent_routing.py `
@@ -249,8 +251,8 @@ Harness hiện hành ở `research/evaluation/` và được chạy như module
 `evaluation`. Ba lane chính là intake, retrieval và ablation:
 
 ```powershell
-.\.venv\Scripts\python.exe -m evaluation.full_evaluation --smoke
-.\.venv\Scripts\python.exe -m evaluation.full_evaluation
+python -m evaluation.full_evaluation --smoke
+python -m evaluation.full_evaluation
 ```
 
 Eval thật cần Ollama, KB và API key cho judge. Không được coi một run chỉ hoàn

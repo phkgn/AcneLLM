@@ -41,8 +41,18 @@ data/cache/
 data/audit.db
 logs/
 
-# ── Model weights ─────────────────────────────────────────────
-model/
+# ── Model weights (chi giu Modelfile/prompt chuan v2, bo toan bo GGUF & checkpoint) ──
+model/*
+!model/generator/
+model/generator/*
+!model/generator/Modelfile
+!model/generator/prompts/
+model/generator/prompts/*
+!model/generator/prompts/system_prompt.v4.a.txt
+!model/intaker/
+model/intaker/*
+!model/intaker/Modelfile
+!model/intaker/MANIFEST.json
 *.gguf
 *.pkl
 *.bin
@@ -138,3 +148,7 @@ research/evaluation/reports/judge_cache.sqlite
 research/datagen/roledatav2/_output.round1.cu/
 research/evaluation/datasets/_trash/
 research/evaluation/reports/run_full_v3_2.zip
+
+# Local internship report deliverables
+report_output/
+report_data_pack/

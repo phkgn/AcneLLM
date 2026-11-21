@@ -1,4 +1,4 @@
-# AcneLLM - SSH tunnel toi Ollama chay tren RunPod.
+﻿# AcneLLM - SSH tunnel toi Ollama chay tren RunPod.
 #
 # Lam DUNG mot viec: forward 127.0.0.1:11434 sang Ollama cua pod, roi doi API
 # tra loi. Khong dong backend, khong dong frontend -- chay `scripts\RUN.ps1`
@@ -147,7 +147,7 @@ $models = @(
     (Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 15).models |
         ForEach-Object { $_.name -replace ":latest$", "" }
 )
-$missing = @(@("acne-generator", "acne-intaker") | Where-Object { $_ -notin $models })
+$missing = @(@("acne-generator-v2", "acne-intaker") | Where-Object { $_ -notin $models })
 
 Write-Host ""
 Write-Host "Tunnel san sang tren http://localhost:11434 (PID $($tunnelProcess.Id))." -ForegroundColor Green
@@ -155,7 +155,7 @@ if ($missing.Count -gt 0) {
     Write-Host "CANH BAO: pod thieu model: $($missing -join ', ')" -ForegroundColor Yellow
     Write-Host "Model co san: $($models -join ', ')"
 } else {
-    Write-Host "Pod co du acne-generator + acne-intaker." -ForegroundColor Green
+    Write-Host "Pod co du acne-generator-v2 + acne-intaker." -ForegroundColor Green
 }
 Write-Host ""
 Write-Host "Chay tiep:  .\scripts\RUN.ps1" -ForegroundColor Cyan

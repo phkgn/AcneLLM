@@ -291,7 +291,7 @@ class PlaywrightFetcher:
     ) -> str:
         """Navigate to URL, optionally wait for a selector, return page HTML."""
         await page.goto(url, wait_until=wait_until, timeout=timeout)
-        
+
         # Auto scroll to trigger infinite load / lazy load
         try:
             await page.evaluate("""

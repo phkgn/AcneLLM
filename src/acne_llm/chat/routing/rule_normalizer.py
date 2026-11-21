@@ -14,7 +14,6 @@ Tách biệt 2 khái niệm:
 from __future__ import annotations
 
 import re
-import unicodedata
 from typing import Literal, cast
 
 from ...schemas import AcneClinicalInput, UserContext, UserInput
@@ -164,10 +163,10 @@ _PRODUCT_TERMS = [
     "acne patch", "miếng dán mụn", "mieng dan mun",
     "miếng dán", "patch mụn",
     # Common Vietnamese / local brands
-    
-    
-    
-    
+
+
+
+
     # Harmful
     "kem trộn", "kem tron",
     "kem không rõ nguồn gốc", "kem xách tay",

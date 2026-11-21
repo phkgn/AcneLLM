@@ -72,7 +72,7 @@ function Assert-OllamaModelsAvailable {
     }
 
     $availableModels = @($tags.models | ForEach-Object { $_.name -replace ":latest$", "" })
-    $requiredModels = @("acne-generator", "acne-intaker")
+    $requiredModels = @("acne-generator-v2", "acne-intaker")
     $missingModels = @($requiredModels | Where-Object { $_ -notin $availableModels })
     if ($missingModels.Count -gt 0) {
         throw "Ollama on :11434 is missing required model(s): $($missingModels -join ', ')."
@@ -108,7 +108,7 @@ function Ensure-LocalOllamaReady {
     }
 
     Assert-OllamaModelsAvailable
-    Write-Host "Local Ollama ready (acne-generator + acne-intaker)." -ForegroundColor Green
+    Write-Host "Local Ollama ready (acne-generator-v2 + acne-intaker)." -ForegroundColor Green
 }
 
 Write-Host ""

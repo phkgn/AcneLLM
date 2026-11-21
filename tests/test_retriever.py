@@ -1,7 +1,6 @@
 from acne_llm.rag.retriever import _MIN_FUSION_SCORE, rrf_fusion
 from acne_llm.rag.retriever import HybridRetriever
 from acne_llm.rag.sparse import BM25Index, tokenize_vi
-from acne_llm.schemas import RetrievedChunk, RetrievalOutput
 
 
 def test_rrf_fusion_basic():

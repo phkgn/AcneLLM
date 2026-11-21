@@ -1,7 +1,7 @@
 import pytest
 
 datasketch = pytest.importorskip("datasketch")
-from acne_llm.crawler.dedup import dedup_documents
+from acne_llm.crawler.dedup import dedup_documents  # noqa: E402
 
 
 def test_dedup_keeps_distinct():

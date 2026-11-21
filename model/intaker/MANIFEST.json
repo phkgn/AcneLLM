@@ -1,0 +1,24 @@
+{
+  "created": "2026-07-24T14:19:38",
+  "base_model": "unsloth/Qwen2.5-3B-Instruct-bnb-4bit",
+  "task": "unified_intake (extractor + intent_router, 1 model)",
+  "train_examples": 3600,
+  "val_examples": 400,
+  "epochs": 3,
+  "lr": 0.0002,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "max_seq_length": 2048,
+  "quantization": "Q4_K_M",
+  "gguf_file": "Qwen2.5-3B-Instruct.Q4_K_M.gguf",
+  "anchor_len_chars": 2132,
+  "final_train_metrics": {
+    "train_runtime": 1160.7614,
+    "train_samples_per_second": 9.304,
+    "train_steps_per_second": 0.582,
+    "total_flos": 1.6269155853002342e+17,
+    "train_loss": 0.04316321302343298,
+    "epoch": 3.0
+  }
+}

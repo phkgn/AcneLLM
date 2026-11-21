@@ -30,26 +30,26 @@ def detect_lang(text: str) -> str | None:
 # acne_keywords.py — Từ khóa lọc bài viết cho hệ thống tư vấn mụn
 # Phạm vi: Mụn đầu trắng · Mụn đầu đen · Mụn viêm · Tư vấn loại da mụn
 # =============================================================================
- 
+
 # ─── Ngưỡng theo ngôn ngữ ────────────────────────────────────────────────────
 MIN_MEDIUM_HITS_VI = 2   # VI duyệt 2 medium words để tránh nhiễu báo tổng hợp
 MIN_MEDIUM_HITS_EN = 2   # EN y khoa → giữ nguyên
 CHECK_ZONE_VI = 8000     # VI để keyword muộn trong bài → scan nhiều hơn
 CHECK_ZONE_EN = 3000     # EN front-load keyword
- 
- 
+
+
 # ─── STRONG VI — 1 từ là đủ pass ─────────────────────────────────────────────
 # Ghi chú thay đổi:
 #   ✂ XÓA "mụn cóc"   → wart (HPV), không phải acne
 STRONG_KEYWORDS_VI = [
     # --- Cốt lõi ---
     "trứng cá", "da liễu",
- 
+
     # --- Ba loại mụn trọng tâm ---
     "mụn đầu đen",          # blackhead / open comedone
     "mụn đầu trắng",        # whitehead / closed comedone
     "mụn viêm",             # inflammatory acne (papule, pustule, nodule, cyst)
- 
+
     # --- Phân loại mụn mở rộng (vẫn trong chuyên môn) ---
     "mụn trứng cá",         # acne vulgaris tổng quát
     "mụn mủ",               # pustule
@@ -62,7 +62,7 @@ STRONG_KEYWORDS_VI = [
     "mụn hormonal",         # hormonal acne (gộp với nội tiết nhưng hay xuất hiện độc lập)
     "viêm nang lông",       # folliculitis — thường nhầm / đi cùng acne
     "nang bã nhờn",         # sebaceous cyst / milia liên quan
- 
+
     # --- Triệu chứng & hậu quả mụn ---
     "sẹo mụn",
     "thâm mụn",
@@ -70,18 +70,18 @@ STRONG_KEYWORDS_VI = [
     "nhân mụn", "nặn mụn", "bấm mụn", "đẩy nhân mụn",
     "tăng sắc tố sau viêm",   # PIH tiếng Việt
     "đỏ sau mụn",             # PIE tiếng Việt
- 
+
     # --- Điều trị / can thiệp ---
     "điều trị mụn", "trị mụn", "xóa mụn",
     "kem trị mụn", "thuốc trị mụn", "gel trị mụn",
- 
+
     # --- Hoạt chất điều trị mụn (tên quốc tế dùng trong bài VI) ---
     "isotretinoin", "tretinoin", "adapalene", "tazarotene",
     "benzoyl peroxide", "salicylic acid", "azelaic acid",
     "retinoid", "retinol",
 ]
- 
- 
+
+
 # ─── STRONG EN — 1 từ là đủ pass ─────────────────────────────────────────────
 # Ghi chú thay đổi:
 #   ✂ XÓA "acne rosacea"        → rosacea là bệnh da riêng biệt, không phải acne vulgaris
@@ -91,7 +91,7 @@ STRONG_KEYWORDS_VI = [
 STRONG_KEYWORDS_EN = [
     # --- Core ---
     "acne", "acne vulgaris",
- 
+
     # --- Lesion types (ba loại trọng tâm + mở rộng) ---
     "blackhead",            # open comedone
     "whitehead",            # closed comedone
@@ -102,18 +102,18 @@ STRONG_KEYWORDS_EN = [
     "nodule",               # mụn nốt (severe inflammatory)
     "cystic acne",          # mụn bọc nang
     "acne lesion", "acneiform",
- 
+
     # --- Post-acne sequelae ---
     "post-inflammatory hyperpigmentation", "pih",
     "post-inflammatory erythema", "pie",
     "acne scar", "atrophic scar", "hypertrophic scar", "keloid scar",
     "ice pick scar", "boxcar scar", "rolling scar",
- 
+
     # --- Microbiology ---
     "cutibacterium acnes", "c. acnes",
     "propionibacterium acnes", "p. acnes",
     "sebaceous gland", "pilosebaceous",
- 
+
     # --- Treatment / procedures ---
     "isotretinoin", "tretinoin", "adapalene", "tazarotene",
     "accutane", "roaccutane",
@@ -122,12 +122,12 @@ STRONG_KEYWORDS_EN = [
     "differin", "retin-a",
     "intralesional steroid",
     "chemical peel for acne",
-    
+
     # --- Dermatology context ---
     "folliculitis",         # sát với acne, thường đi cùng
 ]
- 
- 
+
+
 # ─── MEDIUM VI — cần ≥ MIN_MEDIUM_HITS_VI ────────────────────────────────────
 # Ghi chú thay đổi:
 #   ✂ XÓA "skincare"        → English lẫn, quá rộng
@@ -137,38 +137,38 @@ MEDIUM_KEYWORDS_VI = [
     # --- Loại da liên quan mụn ---
     "da dầu", "da nhờn", "da hỗn hợp", "da nhạy cảm",
     "da mụn",               # colloquial, rất phổ biến
- 
+
     # --- Sinh lý da & lỗ chân lông ---
     "bã nhờn", "tiết bã nhờn", "tăng tiết bã nhờn",
     "tế bào chết",
     "lỗ chân lông", "bít lỗ chân lông", "tắc nghẽn lỗ chân lông",
     "nang lông",
     "vùng da", "da mặt",
- 
+
     # --- Mụn không viêm (comedonal) ---
     "mụn không viêm",
     "mụn có nhân",
     "comedone",             # dùng cả trong bài tiếng Việt chuyên sâu
     "nhân mở", "nhân đóng",
     "bít tắc", "bí da",
- 
+
     # --- Mụn viêm & triệu chứng ---
     "viêm đỏ", "sưng tấy", "tấy đỏ",
     "kích ứng",
     "mụn tái phát", "mụn theo chu kỳ", "mụn mới mọc",
     "mụn ẩn", "đẩy mụn",
- 
+
     # --- Hệ quả & bề mặt da ---
     "tróc da", "đỏ da", "da bong tróc",
     "rụng da",              # desquamation khi dùng retinoid/BHA
     "da căng bóng",
- 
+
     # --- Chăm sóc da mụn ---
     "rửa mặt", "sữa rửa mặt", "tẩy trang",
     "làm sạch da",
     "dưỡng da", "chăm sóc da",
     "se khít lỗ chân lông",
- 
+
     # --- Hoạt chất trị mụn ---
     "kháng sinh bôi", "kháng sinh uống",
     "retinoid", "retinol",
@@ -176,20 +176,20 @@ MEDIUM_KEYWORDS_VI = [
     "bha",                  # beta-hydroxy acid — salicylic acid
     "aha",                  # alpha-hydroxy acid — glycolic, lactic
     "benzoyl peroxide",     # lặp lại từ STRONG để tăng recall medium
- 
+
     # --- Chuyên môn điều trị ---
     "điều trị mụn", "nguyên nhân mụn",
     "liệu trình da liễu",
     "thói quen chăm sóc da",
-    
+
     # --- Da liễu & Kháng sinh phổ rộng ---
     "da liễu", "bác sĩ da liễu", "chuyên khoa da liễu",
     "bệnh viện da liễu", "phòng khám da liễu",
     "sẹo lồi",
     "spironolactone", "doxycycline", "minocycline", "clindamycin",
 ]
- 
- 
+
+
 # ─── MEDIUM EN — cần ≥ MIN_MEDIUM_HITS_EN ────────────────────────────────────
 # Ghi chú thay đổi:
 #   ✂ XÓA "dry skin"          → không phải skin type acne-prone điển hình
@@ -200,34 +200,34 @@ MEDIUM_KEYWORDS_VI = [
 MEDIUM_KEYWORDS_EN = [
     # --- Core colloquial ---
     "acne", "pimple", "breakout", "blemish", "spot", "zit",
- 
+
     # --- Comedone-specific (mụn đầu đen / đầu trắng) ---
     "open comedone",
     "closed comedone",
     "clogged pores", "blocked pores",
     "pore congestion",
- 
+
     # --- Inflammatory acne ---
     "inflammatory", "inflammation", "anti-inflammatory",
     "inflamed pimple", "painful pimple",
- 
+
     # --- Skin types relevant to acne ---
     "oily skin", "combination skin", "acne-prone skin",
     "sensitive skin",       # giữ: dùng khi chọn sản phẩm trị mụn
- 
+
     # --- Physiology ---
     "sebum", "excess sebum", "skin barrier",
     "hormonal", "hormones", "androgens",
- 
+
     # --- Clinical / care ---
     "dermatologist", "dermatology", "skin condition",
     "skincare routine",
     "moisturizer", "cleanser",
- 
+
     # --- Broad antibiotics / meds ---
     "spironolactone", "doxycycline", "minocycline",
     "clindamycin", "erythromycin",
- 
+
     # --- Acne-specific ingredients ---
     "glycolic acid",        # AHA cho acne
     "lactic acid",          # AHA nhẹ hơn
@@ -239,14 +239,14 @@ MEDIUM_KEYWORDS_EN = [
     "clay mask",            # hút bã nhờn
     "bha", "aha",
 ]
- 
- 
+
+
 # =============================================================================
 # Backward-compatible exports
 # =============================================================================
 STRONG_KEYWORDS = tuple(dict.fromkeys(STRONG_KEYWORDS_VI + STRONG_KEYWORDS_EN))
 MEDIUM_KEYWORDS = tuple(dict.fromkeys(MEDIUM_KEYWORDS_VI + MEDIUM_KEYWORDS_EN))
- 
+
 # Broad words removed in previous revisions (retained for audit trail)
 _REMOVED_BROAD = {
     "test", "help", "clear", "review", "routine",

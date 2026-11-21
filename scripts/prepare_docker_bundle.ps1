@@ -18,8 +18,8 @@ if (Test-Path -LiteralPath $Destination) {
 }
 
 $RequiredAssets = @(
-    "model/generator/Modelfile.full",
-    "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+    "model/generator/Modelfile",
+    "model/generator/acnellm-role-v2.Q4_K_M.gguf",
     "model/intaker/Modelfile",
     "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
     "data/chroma_db/chroma.sqlite3",
@@ -96,8 +96,8 @@ Copy-Item -LiteralPath (Join-Path $RepoRoot "docs/DOCKER_QUICKSTART.md") `
     -Destination (Join-Path $Destination "docs/DOCKER_QUICKSTART.md")
 
 $AssetPaths = @(
-    "model/generator/Modelfile.full",
-    "model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf",
+    "model/generator/Modelfile",
+    "model/generator/acnellm-role-v2.Q4_K_M.gguf",
     "model/intaker/Modelfile",
     "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
     "data/chroma_db",
@@ -124,4 +124,4 @@ Copy-Item -LiteralPath (Join-Path $Destination ".env.docker.example") `
     -Destination (Join-Path $Destination ".env.docker")
 
 Write-Host "Docker bundle created: $Destination" -ForegroundColor Green
-Write-Host "Set API_KEY in .env.docker, then: docker compose --env-file .env.docker up -d --build"
+Write-Host "Set ADMIN_API_KEY in .env.docker (leave API_KEY empty for browser SSE), then: docker compose --env-file .env.docker up -d --build"

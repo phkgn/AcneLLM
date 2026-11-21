@@ -3,14 +3,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-import re
 from typing import Any
 
 from ..schemas import AcneClinicalInput, UserContext, UserInput
 from ..schemas.extraction import FieldResult, ListFieldResult
 from ..schemas.extraction import ExtractionConfidence
 from .intake_contract import ExtractorFallback
-from .preprocess import strip_accents
 
 
 _LESION = frozenset({

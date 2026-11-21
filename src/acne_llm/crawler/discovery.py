@@ -197,7 +197,7 @@ async def discover_from_search(
             with DDGS() as ddgs:
                 # Trả về list dict [{'title': '...', 'href': '...', 'body': '...'}]
                 return list(ddgs.text(q, max_results=max_results_per_query))
-        
+
         for q in queries:
             search_q = f"site:{domain} {q}" if domain else q
             # Chạy search api đồng bộ trong thread để không block async event loop
@@ -223,7 +223,7 @@ async def discover_from_search(
         logger.warning("ddgs not installed, skipping search discovery")
     except Exception as e:
         logger.warning(f"search discover fail: {e}")
-        
+
     return urls
 
 
@@ -450,7 +450,7 @@ async def discover_from_category(
                     try:
                         if js_fetcher:
                             html = await js_fetcher.fetch(
-                                page, 
+                                page,
                                 wait_until=js_wait_until,
                                 timeout_ms=js_timeout_ms
                             )

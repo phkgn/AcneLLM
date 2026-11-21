@@ -16,14 +16,21 @@ def test_khong_co_env_key_mo_coi():
     from acne_llm.config import Settings
 
     fields = set(Settings.model_fields)
-    for line in Path(".env").read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    targets = [Path(".env.baseline")]
+    if Path(".env").exists():
+        targets.append(Path(".env"))
+
+    for env_path in targets:
+        if not env_path.exists():
             continue
-        key = line.split("=", 1)[0].strip()
-        assert key.lower() in fields or key in ALLOWLIST, (
-            f"{key} trong .env không khớp field nào và không có trong ALLOWLIST"
-        )
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key = line.split("=", 1)[0].strip()
+            assert key.lower() in fields or key in ALLOWLIST, (
+                f"{key} trong {env_path} không khớp field nào và không có trong ALLOWLIST"
+            )
 
 
 def test_settings_thang_hang_so_module():

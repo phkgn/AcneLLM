@@ -12,7 +12,7 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 | Field | Default |
 |---|---|
 | `ollama_url` | `http://localhost:11434` |
-| `llm_model` | `acne-generator` |
+| `llm_model` | `acne-generator-v2` |
 | `llm_fallback_model` | `qwen2.5:3b` |
 | `llm_num_ctx` | `8192` |
 | `llm_num_predict` | `2048` |
@@ -31,7 +31,7 @@ Reference này phản ánh `src/acne_llm/config.py` sau refactor. Giá trị tro
 | Field | Default | Vai trò |
 |---|---|---|
 | `intake_model` | `acne-intaker` | Một inference sinh route + extraction. |
-| `intake_timeout` | `60.0` | Timeout unified intake. |
+| `intake_timeout` | `120.0` | Timeout unified intake. |
 
 ## Embedding và semantic router (8)
 

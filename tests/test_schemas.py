@@ -1,5 +1,5 @@
 from acne_llm.schemas import (
-    UserInput, UserContext, AcneClinicalInput,
+    UserInput, AcneClinicalInput,
     AdviseOutput, Recommendation, RedFlag, VisionOutput,
 )
 
