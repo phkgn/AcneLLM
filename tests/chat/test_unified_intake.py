@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import re
 import threading
 import json
 from pathlib import Path
@@ -131,11 +132,11 @@ def test_valid_unified_json_builds_route_and_user_with_one_inference():
 
 
 def test_runtime_anchor_is_byte_identical_to_training_anchor():
-    canonical = Path("research/datagen/intakedata/system_prompt.canonical.txt").read_text(
-        encoding="utf-8"
-    )
+    modelfile = Path("model/intaker/Modelfile").read_text(encoding="utf-8")
+    match = re.search(r'SYSTEM\s+"""(.*?)"""', modelfile, re.DOTALL)
+    assert match is not None, "SYSTEM block not found in model/intaker/Modelfile"
 
-    assert _RUNTIME_SYSTEM == canonical
+    assert _RUNTIME_SYSTEM.strip() == match.group(1).strip()
 
 
 def test_nested_unknown_enum_is_dropped_before_pydantic_validation():

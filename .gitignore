@@ -149,6 +149,12 @@ research/datagen/roledatav2/_output.round1.cu/
 research/evaluation/datasets/_trash/
 research/evaluation/reports/run_full_v3_2.zip
 
-# Local internship report deliverables
+# Local internship report deliverables & non-runtime research/audit directories
 report_output/
 report_data_pack/
+.audit/
+research/
+data_samples/
+docs/presentations/
+docs/reports/
+frontend/tsconfig.tsbuildinfo

@@ -1,9 +1,0 @@
-{
-  "frozen_at": "2026-08-21T09:53:55.324455+00:00",
-  "files": {
-    "generator_eval.v3_2_145.jsonl": "0aacbbcb3682196f9fe4698307bd65a3e01600724ce55eab3762daf48e277c79",
-    "generator_eval.v3_2_145.smoke.jsonl": "3df2efcafd84ae84864a08b0b2cbc46e23b20449220c28715a2f595c46f57dac",
-    "intake_eval.v2_1500.audit.jsonl": "5fe96a74685a5e227992411c0ae027477bff467d58cc9a210407df3e5bcb9111",
-    "intake_eval.v2_1500.jsonl": "46fc23c168fcc2246de8f8fe587820ea91cdbc3229ad7439e1ef56a2f0b3713e"
-  }
-}

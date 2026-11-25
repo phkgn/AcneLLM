@@ -24,10 +24,9 @@ GET /api/v1/chat/stream
 ```
 
 Không còn `INTAKE_MODE`, router model hay extractor model riêng trong runtime.
-`model/legacy/` chỉ là archive nghiên cứu, không được nạp khi startup.
 
-Tài liệu kỹ thuật đầy đủ và ranh giới bằng chứng eval nằm tại
-[docs/reports/context.md](docs/reports/context.md).
+Tài liệu kiến trúc runtime hiện hành nằm tại
+[docs/ARCHITECTURE_TRUTH.md](docs/ARCHITECTURE_TRUTH.md).
 
 ## Cấu trúc repository
 
@@ -42,20 +41,12 @@ src/acne_llm/          code production
 
 frontend/              giao diện Next.js dùng SSE
 config/                prompt Jinja, guardrails và cấu hình dữ liệu thuốc
-scripts/               chạy app, build KB, crawl và đóng gói
-research/              datagen, evaluation, dashboard và tài liệu nghiên cứu
-  evaluation/          harness eval hiện hành (import là `evaluation.*`)
+scripts/               chạy app, build KB và đóng gói Docker
 data/                  KB/index/SQLite/cache sinh ra cục bộ
-data_samples/          lát cắt mẫu dữ liệu sạch (KB, Intaker, Generator, Eval)
-model/                 Modelfile và model artifact
+model/                 Modelfile và prompt chuẩn v2 (GGUF nằm trên GitHub Releases)
 tests/                 unit/integration tests; LLM và retriever được mock
-docs/                  tài liệu vận hành, cấu hình và báo cáo
+docs/                  tài liệu vận hành, cấu hình và hướng dẫn khôi phục artifact
 ```
-
-`pyproject.toml` đặt `pythonpath = ["src", "research"]`, vì vậy module eval được
-chạy bằng `python -m evaluation...` dù source nằm trong `research/evaluation/`.
-Các nội dung trong `model/legacy/` chỉ là archive nghiên cứu, không phải mô tả
-runtime hiện hành.
 
 ## Yêu cầu
 
@@ -283,38 +274,11 @@ python -m pytest `
 Không dùng số lượng test cố định trong README vì suite thay đổi theo code; kết
 quả xác nhận cho commit phải lấy từ lần chạy pytest tương ứng.
 
-## Evaluation
+## Artifact nặng & Khôi phục môi trường
 
-Harness hiện hành ở `research/evaluation/` và được chạy như module
-`evaluation`. Ba lane chính là intake, retrieval và ablation:
-
-```powershell
-python -m evaluation.full_evaluation --smoke
-python -m evaluation.full_evaluation
-```
-
-Eval thật cần Ollama, KB và API key cho judge. Không được coi một run chỉ hoàn
-thành ablation là bằng chứng rằng intake, retrieval hay SSE production đã được
-đánh giá lại. Xem [research/evaluation/README.md](research/evaluation/README.md)
-và phần “Evaluation” trong [context hiện hành](docs/reports/context.md).
-
-## Dữ liệu mẫu và Bằng chứng tái lập
-
-- **Mẫu dữ liệu sạch xem trực tiếp trên GitHub:** xem [data_samples/README.md](data_samples/README.md)
-  cùng 4 lát cắt phân tầng (`kb_chunks_sample.jsonl`, `intaker_train_sample.jsonl`,
-  `generator_role_sample.jsonl`, `eval_calibration_rrr_sample.jsonl`) và mã băm
-  `data_samples/SHA256SUMS.txt`. Để tái tạo cục bộ khi đã có dữ liệu gốc, chạy
-  `py -3.10 scripts/export_data_samples.py`.
-- **Kết quả đánh giá & hiệu chuẩn người chấm:** báo cáo chuẩn tại
-  [research/evaluation/reports/v2_full/](research/evaluation/reports/v2_full/)
-  (Intake 1.490 mẫu, Retrieval 120 case, Ablation 145 × 6 arm) và đối chiếu người
-  chấm tay 145 hàng arm `RRR` tại
-  [research/evaluation/reports/calibration_rrr/](research/evaluation/reports/calibration_rrr/).
-- **Artifact nặng & khôi phục môi trường:** GGUF, LoRA adapter, snapshot KB
-  (`24.393` chunks) và kho tri thức kiểm toán kèm SHA-256 được phát hành qua 3
-  GitHub Releases (`models-v2-2026-08-23`, `kb-v2-2026-08-23`,
-  `knowledge-2026-08-23`); xem hướng dẫn chi tiết tại
-  [docs/RELEASE_ARTIFACTS.md](docs/RELEASE_ARTIFACTS.md).
+GGUF, LoRA adapter và snapshot KB (`24.393` chunks) kèm SHA-256 được phát hành qua
+GitHub Releases (`models-v2-2026-08-23`, `kb-v2-2026-08-23`); xem hướng dẫn chi tiết tại
+[docs/RELEASE_ARTIFACTS.md](docs/RELEASE_ARTIFACTS.md).
 
 ## Lệnh tiện ích
 
@@ -325,7 +289,6 @@ Trên bash/WSL dùng `./tasks.sh help`; trên Windows ưu tiên các script `.ps
 | Chạy app | `./tasks.sh run-all` hoặc `scripts/RUN.ps1` |
 | Build KB | `./tasks.sh build-kb` hoặc `scripts/KB.ps1` |
 | Test | `./tasks.sh test` hoặc `python -m pytest` |
-| Eval | `./tasks.sh eval` hoặc `python -m evaluation.full_evaluation` |
 | Docker | `./tasks.sh docker-up`, `docker-logs`, `docker-down` |
 
 ## Ranh giới an toàn và dữ liệu
