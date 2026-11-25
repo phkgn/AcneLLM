@@ -5,7 +5,7 @@ copy nó; `docker-compose` không mount nó.
 
 | Thư mục | Là gì |
 |---|---|
-| `dashboards/` | Dashboard HTML + sơ đồ kiến trúc (trước đây là `visualization/`) |
+| `dashboards/` | Script sinh dashboard và sơ đồ kiến trúc (trước đây là `visualization/`); ảnh/HTML đầu ra không được track để giữ repo gọn |
 | `dataset_viz/` | Biểu đồ phân bố dataset (trước đây là `visualize/`) |
 | `notebooks/` | Notebook thăm dò |
 

@@ -24,7 +24,8 @@ Mã băm kiểm toàn vẹn SHA-256 của 4 tệp mẫu được ghi tại [SHA2
 
 - **Bản quyền tài liệu gốc**: Các tệp PDF/văn bản hướng dẫn y khoa bản quyền trong `research/guideline_docs/*_docs/` và toàn văn bài báo crawl trong `data/raw/` không được đẩy trực tiếp lên cây Git. Danh mục URL gốc nằm tại [data/seed_sources.yaml](../data/seed_sources.yaml) và [research/guideline_docs/manifest.json](../research/guideline_docs/manifest.json) cùng bộ script tải lại.
 - **Khôi phục đầy đủ KB & Model**: Bản snapshot runtime KB (`kb-v2-2026-08-23`), trọng số GGUF/LoRA (`models-v2-2026-08-23`) và kho tri thức kiểm toán (`knowledge-2026-08-23`) được phát hành kèm SHA-256 tại GitHub Releases; xem hướng dẫn chi tiết tại [docs/RELEASE_ARTIFACTS.md](../docs/RELEASE_ARTIFACTS.md).
-- **Tái tạo lại tệp mẫu cục bộ** (khi đã có bộ dữ liệu gốc trong máy):
+- **Dữ liệu huấn luyện thô**: `roledata`, `roledatav2` và `research/LLMData/acne_dataset.jsonl` được đóng gói trong `AcneLLM-training-data-20260823.zip` thuộc release `knowledge-2026-08-23` (không nằm trong bản clone để giữ repository gọn). Giải nén ở thư mục gốc repo để khôi phục đúng đường dẫn.
+- **Tái tạo lại tệp mẫu cục bộ** (sau khi đã giải nén gói dữ liệu huấn luyện ở trên):
 
 ```powershell
 py -3.10 scripts/export_data_samples.py

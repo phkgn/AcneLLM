@@ -59,7 +59,7 @@ runtime hiện hành.
 
 ## Yêu cầu
 
-- Git và Git LFS
+- Git
 - Python 3.10+
 - Ollama
 - Node.js 18+ nếu chạy frontend ngoài Docker
@@ -70,8 +70,6 @@ runtime hiện hành.
 ```powershell
 git clone https://github.com/phkgn/AcneLLM.git
 cd AcneLLM
-git lfs install
-git lfs pull
 
 py -3.10 -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -88,8 +86,8 @@ thêm `requirements-dev.txt`.
 
 ## Tải artifact bắt buộc (model và Knowledge Base)
 
-Clone Git chỉ có mã nguồn, Modelfile và index BM25 dạng LFS; hai bộ trọng số GGUF
-và snapshot KB được phát hành trong tab
+Clone Git chỉ có mã nguồn, Modelfile và các tệp cấu hình nhỏ. Hai bộ trọng số
+GGUF và snapshot KB được phát hành trong tab
 [Releases](https://github.com/phkgn/AcneLLM/releases). Cần tải đúng hai gói sau
 và đặt vào đúng đường dẫn:
 
@@ -110,8 +108,13 @@ try { foreach ($p in $parts) { $b = [IO.File]::ReadAllBytes($p.FullName); $out.W
 
 Đối chiếu SHA-256 của GGUF sau khi ghép và của gói KB với
 `MODELS-v2-MANIFEST.json` / `kb-v2-MANIFEST.json` trong cùng release trước khi
-chạy. Gói `knowledge-2026-08-23` chỉ chứa kho kiểm toán và Obsidian vault, không
-cần cho runtime.
+chạy.
+
+Dữ liệu huấn luyện thô (`roledata`, `roledatav2`, `acne_dataset.jsonl`) và gói
+bằng chứng `acnellm_v2_proof.zip` được lưu trong release
+`knowledge-2026-08-23`, kèm `SHA256SUMS-training-2026-08-23.txt`. Chỉ cần tải
+khi muốn tái huấn luyện, chạy lại `scripts/export_data_samples.py` hoặc kiểm
+toán độc lập; runtime và bộ mẫu `data_samples/` không phụ thuộc vào các tệp này.
 
 Lần chạy đầu tiên, backend cần Internet để tải hai mô hình phụ trợ
 `AITeamVN/Vietnamese_Embedding` và `BAAI/bge-reranker-v2-m3` vào cache; các lần
@@ -334,4 +337,4 @@ Trên bash/WSL dùng `./tasks.sh help`; trên Windows ưu tiên các script `.ps
   test helper.
 
 Không commit `.env`, `data/sessions.db*`, `data/audit.db*`, cache, GGUF hoặc dữ
-liệu lớn chưa được quản lý bằng Git LFS.
+liệu lớn; các artifact nặng được phát hành qua GitHub Releases.

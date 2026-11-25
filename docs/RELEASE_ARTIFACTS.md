@@ -4,7 +4,7 @@ This page maps the Git source tree to the large, reproducibility-critical artifa
 
 ## Source and evaluation evidence
 
-- Runtime source: branch [`main`](https://github.com/phkgn/AcneLLM/tree/main), commit `a63e168` at publication.
+- Runtime source: branch [`main`](https://github.com/phkgn/AcneLLM/tree/main), release snapshot `2026-08-23`.
 - Model and KB release provenance: research branch `codex/simplify-chat-pipeline` at `96e9f09`, as recorded in `MODELS-v2-MANIFEST.json` and `kb-v2-MANIFEST.json`.
 - Verified `v2_full` evaluation evidence: tracked under `research/evaluation/reports/v2_full/`.
 - Verification at publication: `495 passed, 1 xfailed`.
@@ -17,7 +17,9 @@ Release: [`knowledge-2026-08-23`](https://github.com/phkgn/AcneLLM/releases/tag/
 
 - `audit-run-20260822T152307Z.zip`: complete evidence-bearing audit run.
 - `AcneLLMKnowledge-20260823.zip`: generated Obsidian vault handoff.
-- `SHA256SUMS-knowledge-2026-08-23.txt`: archive integrity hashes.
+- `acnellm_v2_proof.zip`: archived `v2_full` evidence package.
+- `AcneLLM-training-data-20260823.zip`: `roledata` (v1), `roledatav2` and `research/LLMData/acne_dataset.jsonl`; extract at the repository root to retrain or to rerun `scripts/export_data_samples.py`.
+- `SHA256SUMS-knowledge-2026-08-23.txt`, `SHA256SUMS-training-2026-08-23.txt`: archive integrity hashes.
 
 ## Runtime knowledge base snapshot
 
@@ -29,7 +31,7 @@ Release: [`kb-v2-2026-08-23`](https://github.com/phkgn/AcneLLM/releases/tag/kb-v
 - 24,393 Chroma records.
 - `kb-v2-MANIFEST.json` records byte size and SHA-256 for every payload.
 
-The Chroma database is published as an exact runtime snapshot. It is not committed as immutable source because SQLite metadata may change when the live store is opened.
+The Chroma database is published as an exact runtime snapshot. It is not committed as immutable source because SQLite metadata may change when the live store is opened. The BM25 index is released here as well; the Git checkout intentionally does not carry a duplicate copy.
 
 ## Canonical model artifacts
 
@@ -46,9 +48,10 @@ Intermediate checkpoints, optimizer/RNG state, duplicate base-model GGUF files a
 
 1. Clone `main`.
 2. Download and verify the model release; reassemble the Generator GGUF.
-3. Download and verify the KB release; restore its `data/` paths.
+3. Download and verify the KB release; restore its `data/` paths (including `data/bm25_index.pkl`).
 4. Optionally import the Obsidian vault for navigable project knowledge.
-5. Run the repository tests and the evaluation commands documented in the tracked reports before treating a restored environment as equivalent.
+5. Optionally extract the training-data archive when retraining or regenerating `data_samples/`.
+6. Run the repository tests and the evaluation commands documented in the tracked reports before treating a restored environment as equivalent.
 
 ## File placement
 
@@ -57,5 +60,7 @@ Intermediate checkpoints, optimizer/RNG state, duplicate base-model GGUF files a
 | `Qwen2.5-3B-Instruct.Q4_K_M.gguf` | `model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf` |
 | `acnellm-role-v2.Q4_K_M.gguf.part001` … `.part003` | reassembled as `model/generator/acnellm-role-v2.Q4_K_M.gguf` |
 | `AcneLLM-KB-v2-20260823.zip` | extract at the repository root (archive contains `data/`) |
+| `AcneLLM-training-data-20260823.zip` | extract at the repository root (restores `research/datagen/...` and `research/LLMData/acne_dataset.jsonl`) |
+| `acnellm_v2_proof.zip` | keep outside the repository; it is an audit reference, not a runtime input |
 
 The KB archive contains `data/raw/documents.jsonl`, `data/raw/chunks.jsonl`, `data/bm25_index.pkl`, `data/seed_sources.yaml` and the full `data/chroma_db/` segment. `data/intent_router_index.npz` is a cache rebuilt automatically by the semantic router when missing, so it is not part of the release.

@@ -86,6 +86,9 @@ Có ba chế độ chạy: `--smoke` (1 record/case = 16 call, để xem chất 
 
 ## 2. Data finetune cho GENERATOR (`datagen/roledatav2/`)
 
+Dữ liệu thô của bước này nằm trong `AcneLLM-training-data-20260823.zip` thuộc release
+`knowledge-2026-08-23`; giải nén ở thư mục gốc repo để khôi phục đúng đường dẫn.
+
 ### 2.1 Vì sao có v2
 
 v1 sinh 3.465 mẫu nhưng eval `run_full_v3_2` chỉ ra hai vấn đề đo được: generator **không** phải nút thắt an toàn (đổi generator sửa 0/8 ca từ chối) nhưng **là** nút thắt độ phủ (`missing_content` 2.24/3 trong khi `incorrect_content` chỉ 0.30/3). Nói cách khác: nó không nói sai, nó nói **thiếu**. Nên v2 dịch ~340 mẫu từ nhóm dạy giọng điệu (R1, R3–R7) sang nhóm mang nội dung (B1, K1, R2, R10), và thêm ràng buộc độ dài + số ý.

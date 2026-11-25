@@ -549,7 +549,10 @@ readiness.
 chứng cho một lần chạy ablation, và các file intake/retrieval nằm cùng folder là
 artifact tồn dư từ run trước. Nó là `historical`: khi mâu thuẫn với `v2_full`
 thì `v2_full` thắng. Các folder `full_eval_*`, `v1_round1`, `v2_round2`,
-`rescore_*` cũng thuộc nhóm này và mỗi cái gắn với judge/dataset riêng.
+`rescore_*` cũng thuộc nhóm này và mỗi cái gắn với judge/dataset riêng. Từ bản
+dọn repository ngày 2026-11-25, các artifact lịch sử này chỉ còn trong lịch sử
+Git (commit trước thời điểm dọn), không nằm trong checkout hiện hành; bản chuẩn
+`v2_full` và `calibration_rrr` vẫn được giữ nguyên.
 
 ### 11.4 Provenance của model và dataset được eval
 
