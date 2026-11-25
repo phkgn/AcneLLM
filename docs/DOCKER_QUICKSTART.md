@@ -8,7 +8,7 @@ browser :3000
        -> Next.js frontend :3000 (nội bộ)
        -> FastAPI backend  :8000 (nội bộ)
           -> Ollama        :11434 (nội bộ)
-             - acne-generator (Qwen2.5 7B Q4)
+             - acne-generator-v2 (Qwen2.5 7B Q4)
              - acne-intaker   (Qwen2.5 3B Q4)
 ```
 
@@ -36,21 +36,26 @@ Các file model bị `.gitignore`; clone Git đơn thuần không có chúng. Tr
 project hoặc chạy trên máy mới, phải có:
 
 ```text
-model/generator/Modelfile.full
-model/generator/Qwen2.5-7B-Instruct.Q4_K_M.gguf
+model/generator/Modelfile
+model/generator/acnellm-role-v2.Q4_K_M.gguf
 model/intaker/Modelfile
 model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf
 ```
 
-RAG cần nguyên thư mục, không chỉ riêng file SQLite:
+GGUF lấy từ release `models-v2-2026-08-23` (Generator tải ba part rồi ghép lại, xem
+`README-model-release.txt` trong cùng release). RAG cần nguyên thư mục, không chỉ
+riêng file SQLite:
 
 ```text
 data/chroma_db/chroma.sqlite3
 data/chroma_db/<uuid-segment>/...       # bắt buộc
 data/bm25_index.pkl
-data/intent_classify.train.jsonl
-data/intent_router_index.npz
 ```
+
+Các đường dẫn `data/` này nằm trong gói `kb-v2-2026-08-23` và có thể giải nén trực
+tiếp vào thư mục gốc repo. `data/intent_classify.train.jsonl` đã có trong clone;
+`data/intent_router_index.npz` được SemanticRouter tự dựng lại khi khởi động nếu
+thiếu.
 
 `docker/ollama-init.sh` dừng ngay với thông báo rõ ràng nếu thiếu GGUF hoặc
 Modelfile; `prepare_docker_bundle.ps1` chặn sớm nếu thiếu Chroma segment.
@@ -150,7 +155,7 @@ Kết quả đạt phải có:
 {
   "status": "ok",
   "ollama": true,
-  "model": "acne-generator",
+  "model": "acne-generator-v2",
   "bm25_loaded": true
 }
 ```

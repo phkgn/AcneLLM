@@ -4,11 +4,10 @@ This page maps the Git source tree to the large, reproducibility-critical artifa
 
 ## Source and evaluation evidence
 
-- Branch: [`codex/simplify-chat-pipeline`](https://github.com/phkgn/AcneLLM/tree/codex/simplify-chat-pipeline)
-- Runtime remediation commit: `0d9d9dd`
-- Architecture/audit knowledge commit: `d9ece72`
-- Verified `v2_full` evaluation evidence commit: `96e9f09`
-- Verification at publication: `495 passed, 1 xfailed`
+- Runtime source: branch [`main`](https://github.com/phkgn/AcneLLM/tree/main), commit `a63e168` at publication.
+- Model and KB release provenance: research branch `codex/simplify-chat-pipeline` at `96e9f09`, as recorded in `MODELS-v2-MANIFEST.json` and `kb-v2-MANIFEST.json`.
+- Verified `v2_full` evaluation evidence: tracked under `research/evaluation/reports/v2_full/`.
+- Verification at publication: `495 passed, 1 xfailed`.
 
 The tracked `research/evaluation/reports/v2_full/` directory is the canonical final evaluation report set. Its conclusions remain bounded by the provenance and calibration limitations recorded in those reports; publication is not a medical-readiness claim.
 
@@ -45,8 +44,18 @@ Intermediate checkpoints, optimizer/RNG state, duplicate base-model GGUF files a
 
 ## Restore order
 
-1. Clone the source branch.
+1. Clone `main`.
 2. Download and verify the model release; reassemble the Generator GGUF.
 3. Download and verify the KB release; restore its `data/` paths.
 4. Optionally import the Obsidian vault for navigable project knowledge.
 5. Run the repository tests and the evaluation commands documented in the tracked reports before treating a restored environment as equivalent.
+
+## File placement
+
+| Release asset | Destination inside the repository |
+|---|---|
+| `Qwen2.5-3B-Instruct.Q4_K_M.gguf` | `model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf` |
+| `acnellm-role-v2.Q4_K_M.gguf.part001` … `.part003` | reassembled as `model/generator/acnellm-role-v2.Q4_K_M.gguf` |
+| `AcneLLM-KB-v2-20260823.zip` | extract at the repository root (archive contains `data/`) |
+
+The KB archive contains `data/raw/documents.jsonl`, `data/raw/chunks.jsonl`, `data/bm25_index.pkl`, `data/seed_sources.yaml` and the full `data/chroma_db/` segment. `data/intent_router_index.npz` is a cache rebuilt automatically by the semantic router when missing, so it is not part of the release.

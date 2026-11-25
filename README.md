@@ -86,6 +86,37 @@ pip install -e .
 `requirements.txt` phục vụ runtime. Crawler, datagen, evaluation và test cần
 thêm `requirements-dev.txt`.
 
+## Tải artifact bắt buộc (model và Knowledge Base)
+
+Clone Git chỉ có mã nguồn, Modelfile và index BM25 dạng LFS; hai bộ trọng số GGUF
+và snapshot KB được phát hành trong tab
+[Releases](https://github.com/phkgn/AcneLLM/releases). Cần tải đúng hai gói sau
+và đặt vào đúng đường dẫn:
+
+| Gói Release | Tệp tải về | Đặt vào |
+|---|---|---|
+| `models-v2-2026-08-23` | `Qwen2.5-3B-Instruct.Q4_K_M.gguf` (~1,9 GB) | `model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf` |
+| `models-v2-2026-08-23` | `acnellm-role-v2.Q4_K_M.gguf.part001`, `.part002`, `.part003` | Ghép thành `model/generator/acnellm-role-v2.Q4_K_M.gguf` |
+| `kb-v2-2026-08-23` | `AcneLLM-KB-v2-20260823.zip` (~240 MB) | Giải nén vào thư mục gốc repo để có `data/chroma_db/`, `data/bm25_index.pkl`, `data/raw/chunks.jsonl` |
+
+Ghép ba part của Generator (PowerShell):
+
+```powershell
+Set-Location model\generator
+$parts = Get-ChildItem 'acnellm-role-v2.Q4_K_M.gguf.part*' | Sort-Object Name
+$out = [IO.File]::Create("$PWD\acnellm-role-v2.Q4_K_M.gguf")
+try { foreach ($p in $parts) { $b = [IO.File]::ReadAllBytes($p.FullName); $out.Write($b, 0, $b.Length) } } finally { $out.Dispose() }
+```
+
+Đối chiếu SHA-256 của GGUF sau khi ghép và của gói KB với
+`MODELS-v2-MANIFEST.json` / `kb-v2-MANIFEST.json` trong cùng release trước khi
+chạy. Gói `knowledge-2026-08-23` chỉ chứa kho kiểm toán và Obsidian vault, không
+cần cho runtime.
+
+Lần chạy đầu tiên, backend cần Internet để tải hai mô hình phụ trợ
+`AITeamVN/Vietnamese_Embedding` và `BAAI/bge-reranker-v2-m3` vào cache; các lần
+sau chạy offline được.
+
 ## Cấu hình
 
 ```powershell
@@ -133,8 +164,9 @@ Set-Location ..\intaker
 ollama create acne-intaker -f Modelfile
 ```
 
-`ollama list` phải có cả `acne-generator-v2` và `acne-intaker`. GGUF lớn và một
-số artifact KB không có đầy đủ trong clone Git thông thường; xem
+`ollama list` phải có cả `acne-generator-v2` và `acne-intaker`. Nếu bước này báo
+thiếu file GGUF, kiểm tra lại mục “Tải artifact bắt buộc” phía trên. Hướng dẫn
+Docker và danh mục artifact đầy đủ nằm tại
 [docs/DOCKER_QUICKSTART.md](docs/DOCKER_QUICKSTART.md) và
 [docs/RELEASE_ARTIFACTS.md](docs/RELEASE_ARTIFACTS.md).
 
@@ -171,7 +203,8 @@ Compose dựng Nginx gateway, Next.js, FastAPI, Ollama và bước khởi tạo 
 
 ```powershell
 Copy-Item .env.docker.example .env.docker
-.\scripts\check_docker_assets.ps1
+# Kiểm tra cấu hình Compose trước khi build
+docker compose --env-file .env.docker config --quiet
 
 # NVIDIA GPU
 docker compose --env-file .env.docker `

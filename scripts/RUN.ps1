@@ -15,7 +15,7 @@ $VenvUvicorn = Join-Path $Root ".venv\Scripts\uvicorn.exe"
 $BackendLog = Join-Path $env:TEMP "acne-llm-backend.log"
 
 if (-not (Test-Path $VenvPython)) {
-    throw "Windows venv not found. Run '.\tasks.ps1 install' from the repo root to create .venv."
+    throw "Windows venv not found. Create .venv with the steps in README.md (section: Clone va cai backend)."
 }
 
 try {
@@ -24,7 +24,7 @@ try {
         throw "bad venv"
     }
 } catch {
-    throw "Windows venv is broken. Run '.\tasks.ps1 install' from the repo root to rebuild .venv."
+    throw "Windows venv is broken. Recreate .venv with the steps in README.md (section: Clone va cai backend)."
 }
 
 function Stop-PortProcess {

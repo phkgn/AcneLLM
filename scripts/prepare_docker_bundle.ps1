@@ -24,8 +24,7 @@ $RequiredAssets = @(
     "model/intaker/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
     "data/chroma_db/chroma.sqlite3",
     "data/bm25_index.pkl",
-    "data/intent_classify.train.jsonl",
-    "data/intent_router_index.npz"
+    "data/intent_classify.train.jsonl"
 )
 $Missing = @($RequiredAssets | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
 if ($Missing.Count -gt 0) {
