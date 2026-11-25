@@ -110,11 +110,13 @@ try { foreach ($p in $parts) { $b = [IO.File]::ReadAllBytes($p.FullName); $out.W
 `MODELS-v2-MANIFEST.json` / `kb-v2-MANIFEST.json` trong cùng release trước khi
 chạy.
 
-Dữ liệu huấn luyện thô (`roledata`, `roledatav2`, `acne_dataset.jsonl`) và gói
-bằng chứng `acnellm_v2_proof.zip` được lưu trong release
-`knowledge-2026-08-23`, kèm `SHA256SUMS-training-2026-08-23.txt`. Chỉ cần tải
-khi muốn tái huấn luyện, chạy lại `scripts/export_data_samples.py` hoặc kiểm
-toán độc lập; runtime và bộ mẫu `data_samples/` không phụ thuộc vào các tệp này.
+Dữ liệu huấn luyện thô (`output/*.jsonl` của `roledata`/`roledatav2` và
+`acne_dataset.jsonl`) cùng gói bằng chứng `acnellm_v2_proof.zip` được lưu trong
+release `knowledge-2026-08-23`, kèm `SHA256SUMS-training-2026-08-23.txt`. Mã
+nguồn và metadata của pipeline `roledatav2` (prompt, taxonomy, checksum) vẫn
+nằm trong repo để đọc và kiểm tra. Chỉ cần tải gói dữ liệu khi muốn tái huấn
+luyện hoặc chạy lại `scripts/export_data_samples.py`; runtime và bộ mẫu
+`data_samples/` không phụ thuộc vào các tệp này.
 
 Lần chạy đầu tiên, backend cần Internet để tải hai mô hình phụ trợ
 `AITeamVN/Vietnamese_Embedding` và `BAAI/bge-reranker-v2-m3` vào cache; các lần

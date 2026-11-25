@@ -18,7 +18,7 @@ Release: [`knowledge-2026-08-23`](https://github.com/phkgn/AcneLLM/releases/tag/
 - `audit-run-20260822T152307Z.zip`: complete evidence-bearing audit run.
 - `AcneLLMKnowledge-20260823.zip`: generated Obsidian vault handoff.
 - `acnellm_v2_proof.zip`: archived `v2_full` evidence package.
-- `AcneLLM-training-data-20260823.zip`: `roledata` (v1), `roledatav2` and `research/LLMData/acne_dataset.jsonl`; extract at the repository root to retrain or to rerun `scripts/export_data_samples.py`.
+- `AcneLLM-training-data-20260823.zip`: raw `output/*.jsonl` for `roledata`/`roledatav2` plus `research/LLMData/acne_dataset.jsonl`; extract at the repository root to retrain or to rerun `scripts/export_data_samples.py`. The `roledatav2` pipeline code, prompts, taxonomy and checksum remain tracked in the repository.
 - `SHA256SUMS-knowledge-2026-08-23.txt`, `SHA256SUMS-training-2026-08-23.txt`: archive integrity hashes.
 
 ## Runtime knowledge base snapshot
